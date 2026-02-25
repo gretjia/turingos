@@ -1,0 +1,234 @@
+{
+  "metadata": {
+    "runStamp": "20260225-121050",
+    "executedAt": "2026-02-25T12:13:45.275Z",
+    "model": "kimi-for-coding",
+    "promptFile": "/home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt",
+    "repeats": 1
+  },
+  "aggregates": [
+    {
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 2
+    },
+    {
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.3333,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 1
+    },
+    {
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.8571,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    }
+  ],
+  "results": [
+    {
+      "repeat": 1,
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 52133,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 13,
+      "completionScore": 0,
+      "planAdherence": 0.8571,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 18,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "EXEC_RESULT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "artifacts/input.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/high.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/sum.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/manifest.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 53091,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 9,
+      "completionScore": 0,
+      "planAdherence": 0,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 16,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 2
+      },
+      "mustContainTrapSatisfied": false,
+      "suspiciousFiles": [],
+      "finalQ": "RECOVERY_L1_FLUSH:INIT_DONE->APPEND_DONE_INIT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "inputs/source.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/colors_upper.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/count.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "maxTicks": 36,
+      "exitCode": 2,
+      "elapsedMs": 69807,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 14,
+      "completionScore": 0,
+      "planAdherence": 0.3333,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 26,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 1
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {\"error\":{\"type\":\"api_error\",\"message\":\"The server had an error while processing your request\"},\"type\":\"error\"}\nYou MUST output strictly valid JSON. Keep Todo stack intact and try again.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {\"error\":{\"type\":\"api_error\",\"message\":\"The server had an error while processing your request\"},\"type\":\"error\"}\nYou MUST output strictly valid JSON. Keep Todo stack intact and try again.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {\"error\":{\"type\":\"api_error\",\"message\":\"The server had an error while processing your request\"},\"type\":\"error\"}\nYou MUST output strictly valid JSON. Keep Todo stack intact and try again.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {\"error\":{\"type\":\"api_error\",\"message\":\"The server had an error while processing your request\"},\"type\":\"error\"}\nYou MUST output strictly valid JSON. Keep Todo stack intact and try again.\n\n[RECOVERED STATE q]:\n[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.\nAction signature: 5e61a676c2d4\nAction: change strategy now (different pointer/command) or PUSH a diagnostic subtask.\n\n[RECOVERED STATE q]:\nM05|M06|M07|M08|SEQUENCE|RESULT|HALT",
+      "finalD": "sys://trap/cpu_fault",
+      "fileChecks": [
+        {
+          "path": "milestones/m01.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m02.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m03.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m04.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m05.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m06.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m07.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m08.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/sequence.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    }
+  ]
+}

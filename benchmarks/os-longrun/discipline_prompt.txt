@@ -5,9 +5,12 @@ You are stateless except for `q_next`. Read MAIN_TAPE carefully and execute it l
 
 Return exactly one JSON object:
 {
+  "thought": "string (optional but recommended)",
   "q_next": "string",
   "s_prime": "string",
-  "d_next": "string"
+  "d_next": "string",
+  "stack_op": "PUSH|POP|NOP",
+  "stack_payload": "string (required only when stack_op is PUSH)"
 }
 
 Hard protocol:
@@ -22,6 +25,7 @@ Hard protocol:
 4. For shell commands, always use `$ ` prefix.
 5. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
 6. Do not invent alternative schemas, file names, or column names.
+7. `stack_op` is mandatory every tick. Use `PUSH` before branching to a recovery subtask and `POP` when returning.
 
 Plan execution contract:
 1. Keep `q_next` as compact ordered checklist with explicit STEP_IDs.
@@ -38,6 +42,9 @@ Trap handling:
 3. If you receive `sys://trap/halt_guard`, inspect `[DETAILS]`, create missing outputs, then continue plan.
 4. Do not repeat identical action more than 2 times; choose a different operation.
 5. If append channel reports duplicate append blocked, advance to the next unfinished step instead of retrying same DONE line.
+6. If you detect short-loop signals (`[OS_TRAP: L1_CACHE_HIT]`), immediately change strategy and consider `stack_op=PUSH`.
+7. Always prioritize `[NEXT_REQUIRED_DONE]` from `[OS_CONTRACT]`; append exactly that one line and do not rewrite full progress log.
+8. Keep syscall contract strict: malformed JSON or missing required keys causes CPU fault.
 
 HALT law:
 1. HALT only after all required artifacts are physically present and validated.

@@ -1,0 +1,18 @@
+timestamp_utc=2026-02-25T13:03:21Z
+endpoint=https://api.kimi.com/coding/v1/messages
+model=kimi-for-coding
+samples=10
+--- probe details ---
+probe=1 code=200 dur_ms=1132 status=OK body={"id":"msg_9HP26ubf9WYXT3P2H9EjBPuI","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=2 code=200 dur_ms=1006 status=OK body={"id":"msg_sEZfgJ142RyOPsIPZvhyLLc1","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=3 code=200 dur_ms=917 status=OK body={"id":"msg_GHzSFOJrDRHUkYLeHMX6cJCh","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=4 code=200 dur_ms=960 status=OK body={"id":"msg_6GB3NLPWr0VmUuTHHfmPuIff","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=5 code=200 dur_ms=1003 status=OK body={"id":"msg_CJjq5Qc7WhjufO5cQ7Q9hKW8","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=6 code=200 dur_ms=982 status=OK body={"id":"msg_bARezPPyxchcqda6oKxwrV9i","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=7 code=200 dur_ms=1603 status=OK body={"id":"msg_jmSKscpWhrXU3kXg1VvIWrAW","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=8 code=200 dur_ms=985 status=OK body={"id":"msg_I2t08HO0hkP0y3jW3xTLWvPQ","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=9 code=200 dur_ms=985 status=OK body={"id":"msg_qaDfIAgOvqCGXTssz8ymTTXg","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+probe=10 code=200 dur_ms=903 status=OK body={"id":"msg_huvaBxI5KZOiM2JtnAcXadSu","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","
+--- summary ---
+ok=10 fail=0 success_rate_pct=100 avg_ms=1047 server5xx=0
+health=NORMAL

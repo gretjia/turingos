@@ -1,0 +1,33 @@
+{
+  "date": "2026-02-25",
+  "task": "Use Gemini 3.1 Pro Preview to read Google Doc and produce Codex+Gemini collaboration workflow",
+  "model_request": "gemini 3.1 pro preview",
+  "model_id_used": "gemini-3.1-pro-preview",
+  "model_alias_failure": {
+    "alias": "gemini 3.1 pro preview",
+    "error": "ModelNotFoundError",
+    "error_report": "/tmp/gemini-client-error-Turn.run-sendMessageStream-2026-02-25T09-50-27-358Z.json"
+  },
+  "source_document": {
+    "url": "https://docs.google.com/document/d/1GjIjtN_2wXJ91Ge6NFNawDM_gWwiykeYNN-6XNaSEdY/edit?usp=sharing",
+    "local_file": "docs/external/google_doc_1GjIjtN_2wXJ91Ge6NFNawDM_2026-02-25.txt",
+    "sha256": "038ab327a80c9ecf3c94c44fe540117d1a098b704e02b33c977cf4b4308173d7"
+  },
+  "gemini_outputs": {
+    "raw_workflow_file": "docs/workflows/codex_gemini_collab_workflow_gemini_raw_2026-02-25.md",
+    "raw_workflow_sha256": "e5144488529393f33a8146d2bf45d59a0479213caa897aa9ca96b3346660862c",
+    "final_workflow_file": "docs/workflows/CODEX_GEMINI_COLLAB_WORKFLOW_2026-02-25.md",
+    "final_workflow_sha256": "b84dfb8b6d295f6dd75ddc60df43b590ae77e60c97e93aac13e0e24f6a6ddc6d"
+  },
+  "supporting_templates": [
+    {
+      "file": "prompts/gemini_design_prompt.md",
+      "sha256": "fef5714504fb16deb81a5d375b92a9506975b3e7728e20c492029b7be67fcebf"
+    },
+    {
+      "file": "prompts/gemini_audit_prompt.md",
+      "sha256": "10db0f78aa5864a1a98c5656c66b798740f8ce025b988b6a89ea2a68d2120137"
+    }
+  ],
+  "generated_at_utc": "2026-02-25T09:55:43Z"
+}

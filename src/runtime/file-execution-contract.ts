@@ -2,11 +2,29 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { ContractCheckResult, IExecutionContract } from '../kernel/types.js';
 
+type PrimitiveValue = string | number | boolean;
+
+interface StepTextExpectation {
+  kind: 'text';
+  path: string;
+  exact: string;
+}
+
+interface StepJsonExpectation {
+  kind: 'json';
+  path: string;
+  expected: Record<string, PrimitiveValue>;
+}
+
+type StepExpectation = StepTextExpectation | StepJsonExpectation;
+
 interface ExecutionContractFile {
   enabled?: boolean;
   progress_file?: string;
   ordered_steps?: string[];
   required_files?: string[];
+  step_file_map?: Record<string, string>;
+  step_expectations?: Record<string, StepExpectation>;
 }
 
 interface ParsedDoneSteps {
@@ -61,6 +79,10 @@ export class FileExecutionContract implements IExecutionContract {
           reason: `Out-of-order progress at index ${i + 1}. Expected DONE:${ordered[i]} but got DONE:${done.steps[i]}.`,
         };
       }
+      const stepReady = await this.checkStepReady(done.steps[i]);
+      if (!stepReady.ok) {
+        return stepReady;
+      }
     }
 
     return { ok: true };
@@ -103,12 +125,121 @@ export class FileExecutionContract implements IExecutionContract {
     return { ok: true };
   }
 
+  public async checkNextRequiredStepReady(): Promise<ContractCheckResult> {
+    if (this.config.enabled === false) {
+      return { ok: true };
+    }
+
+    const nextStep = await this.getNextRequiredStep();
+    if (!nextStep) {
+      return { ok: false, reason: 'Plan already complete; no further DONE append allowed.' };
+    }
+
+    return this.checkStepReady(nextStep);
+  }
+
+  public async getNextRequiredStep(): Promise<string | null> {
+    if (this.config.enabled === false) {
+      return null;
+    }
+
+    const ordered = this.orderedSteps();
+    if (ordered.length === 0) {
+      return null;
+    }
+
+    const done = await this.readDoneSteps();
+    if (done.steps.length >= ordered.length) {
+      return null;
+    }
+
+    return ordered[done.steps.length] ?? null;
+  }
+
+  public getProgressPath(): string {
+    return this.progressPath();
+  }
+
+  public async getNextRequiredFileHint(): Promise<string | null> {
+    if (this.config.enabled === false) {
+      return null;
+    }
+
+    const nextStep = await this.getNextRequiredStep();
+    if (!nextStep) {
+      return null;
+    }
+
+    const map = this.stepFileMap();
+    return map[nextStep] ?? null;
+  }
+
   private orderedSteps(): string[] {
     return (this.config.ordered_steps ?? []).filter((step): step is string => typeof step === 'string');
   }
 
   private requiredFiles(): string[] {
     return (this.config.required_files ?? []).filter((item): item is string => typeof item === 'string');
+  }
+
+  private stepFileMap(): Record<string, string> {
+    const value = this.config.step_file_map;
+    if (!value || typeof value !== 'object') {
+      return {};
+    }
+
+    const out: Record<string, string> = {};
+    for (const [key, mapped] of Object.entries(value)) {
+      if (typeof key === 'string' && typeof mapped === 'string' && key.trim() && mapped.trim()) {
+        out[key.trim()] = mapped.trim();
+      }
+    }
+    return out;
+  }
+
+  private stepExpectations(): Record<string, StepExpectation> {
+    const value = this.config.step_expectations;
+    if (!value || typeof value !== 'object') {
+      return {};
+    }
+
+    const out: Record<string, StepExpectation> = {};
+    for (const [stepId, raw] of Object.entries(value)) {
+      if (!stepId || typeof stepId !== 'string' || !raw || typeof raw !== 'object') {
+        continue;
+      }
+
+      const kind = (raw as { kind?: unknown }).kind;
+      const filePath = (raw as { path?: unknown }).path;
+      if (typeof filePath !== 'string' || !filePath.trim()) {
+        continue;
+      }
+
+      if (kind === 'text') {
+        const exact = (raw as { exact?: unknown }).exact;
+        if (typeof exact !== 'string') {
+          continue;
+        }
+        out[stepId.trim()] = { kind: 'text', path: filePath.trim(), exact };
+        continue;
+      }
+
+      if (kind === 'json') {
+        const expectedRaw = (raw as { expected?: unknown }).expected;
+        if (!expectedRaw || typeof expectedRaw !== 'object') {
+          continue;
+        }
+
+        const expected: Record<string, PrimitiveValue> = {};
+        for (const [k, v] of Object.entries(expectedRaw as Record<string, unknown>)) {
+          if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+            expected[k] = v;
+          }
+        }
+        out[stepId.trim()] = { kind: 'json', path: filePath.trim(), expected };
+      }
+    }
+    return out;
   }
 
   private progressPath(): string {
@@ -165,5 +296,22 @@ export class FileExecutionContract implements IExecutionContract {
     } catch {
       return false;
     }
+  }
+
+  private async checkStepReady(stepId: string): Promise<ContractCheckResult> {
+    const mappedFile = this.stepFileMap()[stepId];
+    if (!mappedFile) {
+      return { ok: true };
+    }
+
+    const exists = await this.fileExists(mappedFile);
+    if (!exists) {
+      return {
+        ok: false,
+        reason: `required file is missing for DONE:${stepId} -> ${mappedFile}.`,
+      };
+    }
+
+    return { ok: true };
   }
 }

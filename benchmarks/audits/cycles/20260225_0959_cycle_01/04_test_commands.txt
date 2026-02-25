@@ -1,0 +1,168 @@
+# Baseline Commands
+date_utc=2026-02-25T09:59:36Z
+git_head=26b5fd5508e532ac8510643c91c6eb8a6d768591
+git_status_short:
+ D src/oracle/kimi-code-oracle.ts
+ M src/oracle/universal-oracle.ts
+ M src/runtime/boot.ts
+?? .last_cycle_dir
+?? benchmarks/audits/cycles/
+?? benchmarks/audits/gemini_workflow_design_evidence_20260225.json
+?? docs/external/
+?? docs/workflows/
+?? prompts/
+
+## npm run typecheck
+
+> turingos@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+## npm run smoke:mock
+
+> turingos@0.1.0 smoke:mock
+> tsx src/runtime/boot.ts --oracle mock --max-ticks 8
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/workspace
+[turingos] oracle=mock model=kimi-for-coding maxTicks=8
+[turingos] registers q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+[turingos] stopped after 0 ticks. q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+
+## npm run bench:os-longrun
+
+> turingos@0.1.0 bench:os-longrun
+> tsx src/bench/os-longrun.ts
+
+
+[os-longrun] repeat=1 scenario=pipeline_ordered_execution maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-095940-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-095940-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT" d="$ mkdir -p plan artifacts result"
+[turingos] tick=2 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="STEP_0:init|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="STEP_0:init|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="plan/progress.log"
+[turingos] tick=6 q="STEP_0:init|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="STEP_0:init|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://trap/io_fault"
+[turingos] tick=8 q="STEP_0:init|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="$ mkdir -p plan artifacts"
+[turingos] tick=9 q="STEP_0:init|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1" d="sys://trap/io_fault"
+[turingos] tick=11 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="$ mkdir -p plan artifacts"
+[turingos] tick=12 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="$ cat plan/progress.log 2>/dev/null || echo 'FILE_NOT_FOUND'"
+[turingos] tick=13 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="$ echo 'DONE:INIT' > plan/progress.log && echo 'DONE:STEP_0' >> plan/progress.log"
+[turingos] tick=14 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="$ rm plan/progress.log && echo 'DONE:STEP_1' > plan/progress.log"
+[turingos] tick=15 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://trap/io_fault"
+[turingos] tick=18 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="$ rm -f plan/progress.log && echo 'DONE:INIT' > plan/progress.log"
+[turingos] tick=19 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="$ rm -f plan/progress.log && echo 'DONE:INIT' > plan/progress.log"
+[turingos] tick=20 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=21 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=22 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=23 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="plan/progress.log"
+[turingos] tick=24 q="INIT:repair_log|STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=25 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2|STEP_4:append_DONE_STEP_3" d="sys://append/plan/progress.log"
+[turingos] tick=26 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2|STEP_4:append_DONE_STEP_3" d="sys://append/plan/progress.log"
+[turingos] tick=27 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2|STEP_4:append_DONE_STEP_3" d="sys://trap/io_fault"
+[turingos] tick=28 q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2|STEP_4:append_DONE_STEP_3" d="$ mkdir -p plan artifacts"
+[turingos] stopped after 28 ticks. q="STEP_1:mkdir_dirs|STEP_2:append_DONE_STEP_1|STEP_3:append_DONE_STEP_2|STEP_4:append_DONE_STEP_3" d="$ mkdir -p plan artifacts"
+
+[os-longrun] repeat=1 scenario=fault_recovery_resume maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-095940-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-095940-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ mkdir -p plan inputs outputs result"
+[turingos] tick=2 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ mkdir -p plan inputs outputs result"
+[turingos] tick=3 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT ✓" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT ✓" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20inputs%2Fsource.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=12 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT ✓" d="sys://append/plan/progress.log"
+[turingos] tick=13 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT ✓" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20inputs%2Fsource.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=14 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ echo 'source content' > inputs/source.txt"
+[turingos] tick=15 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ echo 'source content' > inputs/source.txt"
+[turingos] tick=16 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20outputs%2Fcolors_upper.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=18 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ ls -la outputs/ 2>/dev/null || mkdir -p outputs && echo 'outputs dir ready'"
+[turingos] tick=19 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ ls -la outputs/ 2>/dev/null || mkdir -p outputs && echo 'outputs dir ready'"
+[turingos] tick=20 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=21 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20outputs%2Fcolors_upper.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=22 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=23 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20outputs%2Fcolors_upper.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=24 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ cat plan/progress.log 2>/dev/null || echo 'NO_LOG'"
+[turingos] tick=25 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20outputs%2Fcolors_upper.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=26 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ ls -la outputs/ 2>/dev/null || mkdir -p outputs && echo 'outputs directory ready'"
+[turingos] tick=27 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ ls -la outputs/ 2>/dev/null || mkdir -p outputs && echo 'outputs directory ready'"
+[turingos] tick=28 q="INIT|✓TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] stopped after 28 ticks. q="INIT|✓TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+
+[os-longrun] repeat=1 scenario=long_checklist_stability maxTicks=36
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-095940-r1 --max-ticks 36 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-095940-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=36
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT" d="$ mkdir -p plan milestones result"
+[turingos] tick=2 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="$ mkdir -p plan milestones result"
+[turingos] tick=3 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="sys://trap/io_fault"
+[turingos] tick=6 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="[OS_TRAP: WATCHDOG_NMI] INFINITE LOOP DETECTED!" d="sys://trap/watchdog"
+[turingos] tick=8 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG" d="sys://append/plan/progress.log"
+[turingos] tick=12 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓" d="sys://trap/io_fault"
+[turingos] tick=13 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT" d="$ echo -e 'DONE:INIT_CREATE_DIRS\nDONE:INIT_PROGRESS_LOG\nDONE:INIT_MILESTONE_MARKER\nDONE:REPAIR_PROGRESS_LOG' > plan/progress.log"
+[turingos] tick=14 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT" d="sys://append/plan/progress.log"
+[turingos] tick=15 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER ✓ 7.VALIDATE_HALT" d="sys://trap/io_fault"
+[turingos] tick=18 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER ✓ 7.VALIDATE_HALT" d="$ cat plan/progress.log 2>/dev/null || echo 'FILE_NOT_FOUND'; ls -la plan/ 2>/dev/null || echo 'DIR_NOT_FOUND'"
+[turingos] tick=19 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER ✓ 7.VALIDATE_HALT" d="plan/progress.log"
+[turingos] tick=20 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER ✓ 7.VALIDATE_HALT" d="plan/progress.log"
+[turingos] tick=21 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER ✓ 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=22 q="1.INIT_CREATE_DIRS ✓ 2.INIT_PROGRESS_LOG ✓ 3.INIT_MILESTONE_MARKER ✓ 4.REPAIR_PROGRESS_LOG ✓ 5.REPAIR_PROGRESS_LOG_FORMAT ✓ 6.REPAIR_PROGRESS_LOG_ORDER ✓ 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=23 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="$ echo -e 'DONE:INIT_CREATE_DIRS\nDONE:INIT_PROGRESS_LOG\nDONE:INIT_MILESTONE_MARKER\nDONE:REPAIR_PROGRESS_LOG\nDONE:REPAIR_PROGRESS_LOG_FORMAT\nDONE:REPAIR_PROGRESS_LOG_ORDER\nDONE:VALIDATE_HALT' > plan/progress.log"
+[turingos] tick=25 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="plan/progress.log"
+[turingos] tick=26 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="plan/progress.log"
+[turingos] tick=27 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=28 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://trap/io_fault"
+[turingos] tick=29 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=30 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=31 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=32 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=33 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="$ echo -e "DONE:INIT_CREATE_DIRS\nDONE:INIT_PROGRESS_LOG\nDONE:INIT_MILESTONE_MARKER" > plan/progress.log"
+[turingos] tick=34 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=35 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=36 q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+[turingos] stopped after 36 ticks. q="1.INIT_CREATE_DIRS 2.INIT_PROGRESS_LOG 3.INIT_MILESTONE_MARKER 4.REPAIR_PROGRESS_LOG 5.REPAIR_PROGRESS_LOG_FORMAT 6.REPAIR_PROGRESS_LOG_ORDER 7.VALIDATE_HALT" d="sys://append/plan/progress.log"
+
+[os-longrun] finished. passed=0/3
+[os-longrun] report(json): /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-095940.json
+[os-longrun] report(md):   /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-095940.md

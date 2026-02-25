@@ -1,0 +1,1107 @@
+{
+  "generatedAt": "2026-02-25T14:08:54.024Z",
+  "cycles": [
+    {
+      "cycleDir": "20260225_0959_cycle_01",
+      "runStamp": "20260225-101154",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0.0333,
+      "planAvg": 0.2937,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "PAGE_FAULT": 3.6667
+      },
+      "reasonBuckets": {},
+      "scenarioDetails": []
+    },
+    {
+      "cycleDir": "20260225_1039_cycle_02",
+      "runStamp": "20260225-104226",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0.0333,
+      "planAvg": 0.619,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 1.6667,
+        "PAGE_FAULT": 7.6667
+      },
+      "reasonBuckets": {
+        "missing_file": 15,
+        "text_mismatch": 3
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.8571,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT.",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 0,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0.1,
+          "plan": 1,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/halt_guard",
+          "failedFiles": 9,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1053_cycle_03",
+      "runStamp": "20260225-105431",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 0.6984,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 3,
+        "PAGE_FAULT": 6.3333
+      },
+      "reasonBuckets": {
+        "text_mismatch": 13,
+        "missing_file": 5,
+        "json_mismatch": 1
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.5714,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/io_fault",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.8571,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "json mismatch on key scenario"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.6667,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1210_cycle_04_recursive_fix",
+      "runStamp": "20260225-121050",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 0.3968,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 1,
+        "CPU_FAULT": 20,
+        "IO_FAULT": 0,
+        "PAGE_FAULT": 0
+      },
+      "reasonBuckets": {},
+      "scenarioDetails": []
+    },
+    {
+      "cycleDir": "20260225_1303_cycle_05_api_recovered",
+      "runStamp": "20260225-130356",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 0.877,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "PAGE_FAULT": 1.3333
+      },
+      "reasonBuckets": {
+        "missing_file": 19
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.8571,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "artifacts/final_artifact.txt",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.8571,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "b52ecd6b199f",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.9167,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT.",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1313_cycle_06_step_file_hint",
+      "runStamp": "20260225-131400",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 1,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 2.6667,
+        "IO_FAULT": 0.3333,
+        "PAGE_FAULT": 5
+      },
+      "reasonBuckets": {
+        "text_mismatch": 4,
+        "missing_file": 13,
+        "json_mismatch": 2
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 1,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20artifacts%2Fhigh.csv%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT.",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "json mismatch on key scenario"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 1,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20inputs%2Fsource.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT.",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "json mismatch on key scenario"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 1,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "$ mkdir -p artifacts",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1321_cycle_07_done_artifact_gate",
+      "runStamp": "20260225-132128",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 0.7381,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 5.3333,
+        "PAGE_FAULT": 5.3333
+      },
+      "reasonBuckets": {
+        "text_mismatch": 13,
+        "missing_file": 5,
+        "json_mismatch": 1
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.7143,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 1,
+          "halted": true,
+          "maxTickHit": false,
+          "finalD": "HALT",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "json mismatch on key scenario"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.5,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "milestones/m06.txt",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1329_cycle_08_content_contract",
+      "runStamp": "20260225-132923",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 0.1706,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 5.6667,
+        "PAGE_FAULT": 5.3333
+      },
+      "reasonBuckets": {
+        "text_mismatch": 3,
+        "missing_file": 16
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.1429,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "artifacts/input.csv",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.2857,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.0833,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1336_cycle_09_exist_gate_recover",
+      "runStamp": "20260225-133614",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0,
+      "planAvg": 0.5278,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 6.3333,
+        "PAGE_FAULT": 5
+      },
+      "reasonBuckets": {
+        "text_mismatch": 10,
+        "missing_file": 9
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.5714,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://trap/io_fault",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.4286,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "$ echo 'Popping call stack to handle TRANSFORM step'",
+          "failedFiles": 4,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/colors_upper.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.5833,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "milestones/m07.txt",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cycleDir": "20260225_1352_cycle_10_rerun",
+      "runStamp": "20260225-135210",
+      "model": "kimi-for-coding",
+      "runs": 3,
+      "passed": 0,
+      "completionAvg": 0.0833,
+      "planAvg": 0.377,
+      "driftAvg": 0,
+      "trapsAvg": {
+        "WATCHDOG_NMI": 0,
+        "CPU_FAULT": 0.3333,
+        "IO_FAULT": 3.6667,
+        "PAGE_FAULT": 3.6667
+      },
+      "reasonBuckets": {
+        "text_mismatch": 6,
+        "missing_file": 12
+      },
+      "scenarioDetails": [
+        {
+          "id": "pipeline_ordered_execution",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.2857,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 5,
+          "failedReasons": [
+            {
+              "path": "artifacts/input.csv",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "artifacts/high.csv",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/sum.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "artifacts/manifest.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "fault_recovery_resume",
+          "pass": false,
+          "completion": 0.25,
+          "plan": 0.4286,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 3,
+          "failedReasons": [
+            {
+              "path": "inputs/source.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "outputs/count.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        },
+        {
+          "id": "long_checklist_stability",
+          "pass": false,
+          "completion": 0,
+          "plan": 0.4167,
+          "halted": false,
+          "maxTickHit": true,
+          "finalD": "sys://append/plan/progress.log",
+          "failedFiles": 10,
+          "failedReasons": [
+            {
+              "path": "milestones/m01.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m02.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m03.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m04.txt",
+              "reason": "text mismatch"
+            },
+            {
+              "path": "milestones/m05.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m06.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m07.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/m08.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "milestones/sequence.txt",
+              "reason": "missing file"
+            },
+            {
+              "path": "result/RESULT.json",
+              "reason": "missing file"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

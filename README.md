@@ -14,8 +14,7 @@ This project is built from lessons learned in `gretjia/turingclaw`, with stricte
 
 - `src/kernel/engine.ts`: tick loop, trap handling, watchdog
 - `src/manifold/local-manifold.ts`: physical interface for files and terminal commands
-- `src/oracle/kimi-code-oracle.ts`: strict JSON transition oracle over Kimi Code API
-- `src/oracle/universal-oracle.ts`: strict JSON transition oracle over OpenAI-compatible APIs
+- `src/oracle/universal-oracle.ts`: strict JSON transition oracle over Kimi Code and OpenAI-compatible APIs
 - `src/chronos/file-chronos.ts`: append-only journal
 - `src/runtime/boot.ts`: runtime bootstrap and register persistence
 

@@ -1,0 +1,18 @@
+timestamp_utc=2026-02-25T12:27:17Z
+endpoint=https://api.kimi.com/coding/v1/messages
+model=kimi-for-coding
+samples=10
+--- probe details ---
+probe=1 code=200 dur_ms=1066 status=OK body={"id":"msg_xgRx3K64v2gPVAaZGMOD0sE8","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=2 code=500 dur_ms=699 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+probe=3 code=200 dur_ms=1543 status=OK body={"id":"msg_LCnITnbzgGQJL44i99xMX2FE","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=4 code=500 dur_ms=599 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+probe=5 code=500 dur_ms=672 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+probe=6 code=500 dur_ms=1449 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+probe=7 code=500 dur_ms=1282 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+probe=8 code=200 dur_ms=3275 status=OK body={"id":"msg_uMBGFzSkpPm1mYhP5mcoPZtd","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=9 code=500 dur_ms=611 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+probe=10 code=500 dur_ms=735 status=FAIL body={"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+--- summary ---
+ok=3 fail=7 success_rate_pct=30 avg_ms=1193 server5xx=7 auth_err=0 other4xx=0
+health=UNSTABLE

@@ -1,0 +1,176 @@
+# Cycle 02 Commands
+date_utc=2026-02-25T10:42:22Z
+git_head=26b5fd5508e532ac8510643c91c6eb8a6d768591
+git_status_short:
+ M README.md
+ M benchmarks/os-longrun/discipline_prompt.txt
+ M src/kernel/engine.ts
+ M src/kernel/types.ts
+ M src/manifold/local-manifold.ts
+ D src/oracle/kimi-code-oracle.ts
+ M src/oracle/universal-oracle.ts
+ M src/runtime/boot.ts
+ M src/runtime/file-execution-contract.ts
+ M turing_prompt.sh
+?? .last_cycle2_dir
+?? .last_cycle_dir
+?? benchmarks/audits/cycles/
+?? benchmarks/audits/gemini_workflow_design_evidence_20260225.json
+?? docs/external/
+?? docs/workflows/
+?? prompts/
+
+## npm run typecheck
+
+> turingos@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+## npm run smoke:mock
+
+> turingos@0.1.0 smoke:mock
+> tsx src/runtime/boot.ts --oracle mock --max-ticks 8
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/workspace
+[turingos] oracle=mock model=kimi-for-coding maxTicks=8
+[turingos] registers q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+[turingos] stopped after 0 ticks. q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+
+## npm run bench:os-longrun
+
+> turingos@0.1.0 bench:os-longrun
+> tsx src/bench/os-longrun.ts
+
+
+[os-longrun] repeat=1 scenario=pipeline_ordered_execution maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-104226-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-104226-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT: create directories plan, artifacts, result | WRITE_INPUT: create artifacts/input.csv | FILTER_HIGH: create artifacts/high.csv | SUM: create artifacts/sum.txt | MANIFEST: create artifacts/manifest.txt | RESULT: create result/RESULT.json | HALT: verify and HALT" d="$ mkdir -p plan artifacts result"
+[turingos] tick=2 q="INIT: create directories plan, artifacts, result | WRITE_INPUT: create artifacts/input.csv | FILTER_HIGH: create artifacts/high.csv | SUM: create artifacts/sum.txt | MANIFEST: create artifacts/manifest.txt | RESULT: create result/RESULT.json | HALT: verify and HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="INIT: create directories plan, artifacts, result | WRITE_INPUT: create artifacts/input.csv | FILTER_HIGH: create artifacts/high.csv | SUM: create artifacts/sum.txt | MANIFEST: create artifacts/manifest.txt | RESULT: create result/RESULT.json | HALT: verify and HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="INIT ✓ | WRITE_INPUT (in progress) | FILTER_HIGH | SUM | MANIFEST | RESULT | HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH (in progress) | SUM | MANIFEST | RESULT | HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST (in progress) | RESULT | HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST ✓ | RESULT | HALT" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST ✓ | RESULT ✓ | HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST ✓ | RESULT ✓ | HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=10 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST ✓ | RESULT ✓ | HALT" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST ✓ | RESULT ✓ | HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=12 q="INIT ✓ | WRITE_INPUT ✓ | FILTER_HIGH ✓ | SUM ✓ | MANIFEST ✓ | RESULT ✓ | HALT ✓" d="sys://append/plan/progress.log"
+[turingos] tick=13 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=14 q="1:HANDLE_L1_CACHE_HIT 2:APPEND_DONE_HALT 3:VALIDATE_HALT 4:HALT" d="$ echo '[DIAG] L1_CACHE_HIT recovery: pushing diagnostic frame' && echo 'Recovered state shows HALT ✓, NEXT_REQUIRED_DONE=DONE:HALT'"
+[turingos] tick=15 q="2:APPEND_DONE_HALT 3:VALIDATE_HALT 4:HALT" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="2:APPEND_DONE_HALT 3:VALIDATE_HALT 4:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=17 q="2:APPEND_DONE_HALT 3:VALIDATE_HALT 4:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=18 q="4:HALT" d="sys://append/plan/progress.log"
+[turingos] tick=19 q="4:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=20 q="4:HALT" d="$ cat plan/progress.log"
+[turingos] tick=21 q="4:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=22 q="7:READ_PROGRESS|8:IDENTIFY_MISSING|9:EXECUTE_MISSING|10:APPEND_DONE|11:HALT" d="$ cat plan/progress.log"
+[turingos] tick=23 q="7:READ_PROGRESS|8:IDENTIFY_MISSING|9:EXECUTE_MISSING|10:APPEND_DONE|11:HALT" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="8:IDENTIFY_MISSING|9:EXECUTE_MISSING|10:APPEND_DONE|11:HALT" d="$ ls -la artifacts/ 2>/dev/null || echo 'NO_ARTIFACTS_DIR'"
+[turingos] tick=25 q="9:EXECUTE_MISSING|10:APPEND_DONE|11:HALT" d="artifacts/validation.txt"
+[turingos] tick=26 q="9:EXECUTE_MISSING|10:APPEND_DONE|11:HALT" d="artifacts/validation.txt"
+[turingos] tick=27 q="11:HALT" d="sys://append/plan/progress.log"
+[turingos] tick=28 q="11:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] stopped after 28 ticks. q="11:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+
+[os-longrun] repeat=1 scenario=fault_recovery_resume maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-104226-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-104226-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="$ mkdir -p plan inputs outputs result"
+[turingos] tick=2 q="INIT|TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="TRIGGER_PAGE_FAULT|RECOVER_SOURCE|TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="TRANSFORM|COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="COUNT|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=12 q="RESULT|HALT" d="$ ls -la plan/ artifacts/ 2>/dev/null || echo 'checking structure'"
+[turingos] tick=13 q="1. Read progress.log content 2. Validate artifacts 3. Append DONE:HALT 4. HALT" d="sys://append/plan/progress.log"
+[turingos] tick=14 q="1. Read progress.log content 2. Validate artifacts 3. Append DONE:HALT 4. HALT" d="$ ls -la artifacts/ 2>/dev/null || echo 'No artifacts dir'; ls -la *.txt 2>/dev/null; ls -la result* 2>/dev/null || echo 'Checking for result artifacts'"
+[turingos] tick=15 q="1. Read progress.log content 2. Validate artifacts 3. Append DONE:HALT 4. HALT" d="plan/progress.log"
+[turingos] tick=16 q="1. Read progress.log content 2. Validate artifacts 3. Append DONE:HALT 4. HALT" d="plan/progress.log"
+[turingos] tick=17 q="1. Read progress.log content 2. Validate artifacts 3. Append DONE:HALT 4. HALT" d="sys://append/plan/progress.log"
+[turingos] tick=18 q="1. Read progress.log content 2. Validate artifacts 3. Append DONE:HALT 4. HALT" d="sys://append/plan/progress.log"
+[turingos] tick=19 q="1. Repair progress.log format 2. Append DONE:TRIGGER_PAGE_FAULT 3. Validate artifacts 4. Append DONE:HALT 5. HALT" d="sys://append/plan/progress.log"
+[turingos] tick=20 q="1. Repair progress.log format 2. Append DONE:TRIGGER_PAGE_FAULT 3. Validate artifacts 4. Append DONE:HALT 5. HALT" d="sys://trap/io_fault"
+[turingos] tick=21 q="1. PUSH stack for recovery 2. Rebuild progress.log with correct order 3. POP stack 4. Append DONE:RECOVER_SOURCE 5. Continue plan" d="sys://append/plan/progress.log"
+[turingos] tick=22 q="1. PUSH stack for recovery 2. Rebuild progress.log with correct order 3. POP stack 4. Append DONE:RECOVER_SOURCE 5. Continue plan" d="sys://append/plan/progress.log"
+[turingos] tick=23 q="1. PUSH stack for recovery 2. Rebuild progress.log with correct order 3. POP stack 4. Append DONE:RECOVER_SOURCE 5. Continue plan" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="1. PUSH stack for recovery 2. Rebuild progress.log with correct order 3. POP stack 4. Append DONE:RECOVER_SOURCE 5. Continue plan" d="sys://trap/io_fault"
+[turingos] tick=25 q="1. PUSH stack for recovery 2. Rebuild progress.log with correct order 3. POP stack 4. Append DONE:COUNT 5. Continue plan" d="sys://trap/halt_guard"
+[turingos] tick=26 q="1. POP stack (exit recovery) 2. Append DONE:COUNT 3. Continue plan step 5" d="sys://append/plan/progress.log"
+[turingos] tick=27 q="1. POP stack 2. Append DONE:COUNT 3. Continue plan step 5" d="sys://append/plan/progress.log"
+[turingos] tick=28 q="1. POP recovery frame 2. Append DONE:RESULT 3. Execute step RESULT 4. Append DONE:HALT 5. HALT" d="sys://append/plan/progress.log"
+[turingos] stopped after 28 ticks. q="1. POP recovery frame 2. Append DONE:RESULT 3. Execute step RESULT 4. Append DONE:HALT 5. HALT" d="sys://append/plan/progress.log"
+
+[os-longrun] repeat=1 scenario=long_checklist_stability maxTicks=36
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-104226-r1 --max-ticks 36 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-104226-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=36
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="1) INIT: create directories plan, milestones, result. | 2) M01: create `milestones/m01.txt` exactly: T01 | 3) M02: create `milestones/m02.txt` exactly: T02 | 4) M03: create `milestones/m03.txt` exactly: T03 | 5) M04: create `milestones/m04.txt` exactly: T04 | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="$ mkdir -p plan milestones result"
+[turingos] tick=2 q="1) INIT: create directories plan, milestones, result. | 2) M01: create `milestones/m01.txt` exactly: T01 | 3) M02: create `milestones/m02.txt` exactly: T02 | 4) M03: create `milestones/m03.txt` exactly: T03 | 5) M04: create `milestones/m04.txt` exactly: T04 | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=3 q="1) INIT: create directories plan, milestones, result. | 2) M01: create `milestones/m01.txt` exactly: T01 | 3) M02: create `milestones/m02.txt` exactly: T02 | 4) M03: create `milestones/m03.txt` exactly: T03 | 5) M04: create `milestones/m04.txt` exactly: T04 | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=4 q="1) INIT: create directories plan, milestones, result. [DONE] | 2) M01: create `milestones/m01.txt` exactly: T01 [IN_PROGRESS] | 3) M02: create `milestones/m02.txt` exactly: T02 | 4) M03: create `milestones/m03.txt` exactly: T03 | 5) M04: create `milestones/m04.txt` exactly: T04 | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=5 q="1) INIT: create directories plan, milestones, result. [DONE] | 2) M01: create `milestones/m01.txt` exactly: T01 [DONE] | 3) M02: create `milestones/m02.txt` exactly: T02 [DONE] | 4) M03: create `milestones/m03.txt` exactly: T03 [IN_PROGRESS] | 5) M04: create `milestones/m04.txt` exactly: T04 | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=6 q="1) INIT: create directories plan, milestones, result. [DONE] | 2) M01: create `milestones/m01.txt` exactly: T01 [DONE] | 3) M02: create `milestones/m02.txt` exactly: T02 [DONE] | 4) M03: create `milestones/m03.txt` exactly: T03 [IN_PROGRESS] | 5) M04: create `milestones/m04.txt` exactly: T04 | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=7 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04: create `milestones/m04.txt` exactly: T04 [IN_PROGRESS] | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://trap/io_fault"
+[turingos] tick=8 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04: create `milestones/m04.txt` exactly: T04 [IN_PROGRESS] | 6) M05: create `milestones/m05.txt` exactly: T05 | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=9 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04: create `milestones/m04.txt` exactly: T04 [DONE] | 6) M05: create `milestones/m05.txt` exactly: T05 [IN_PROGRESS] | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://trap/io_fault"
+[turingos] tick=10 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04: create `milestones/m04.txt` exactly: T04 [DONE] | 6) M05: create `milestones/m05.txt` exactly: T05 [IN_PROGRESS] | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=11 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04: create `milestones/m04.txt` exactly: T04 [DONE] | 6) M05: create `milestones/m05.txt` exactly: T05 [IN_PROGRESS] | 7) M06: create `milestones/m06.txt` exactly: T06 | 8) M07: create `milestones/m07.txt` exactly: T07 | 9) M08: create `milestones/m08.txt` exactly: T08 | 10) SEQUENCE: create `milestones/sequence.txt` exactly lines T01..T08 in order. | 11) RESULT: create `result/RESULT.json` with JSON fields | 12) HALT: verify outputs and HALT." d="sys://append/plan/progress.log"
+[turingos] tick=12 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05: create `milestones/m05.txt` exactly: T05 [IN_PROGRESS] | 7) M06 | 8) M07 | 9) M08 | 10) SEQUENCE | 11) RESULT | 12) HALT" d="sys://trap/io_fault"
+[turingos] tick=13 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05: create `milestones/m05.txt` exactly: T05 [IN_PROGRESS] | 7) M06 | 8) M07 | 9) M08 | 10) SEQUENCE | 11) RESULT | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=14 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05: create `milestones/m05.txt` exactly: T05 [IN_PROGRESS] | 7) M06 | 8) M07 | 9) M08 | 10) SEQUENCE | 11) RESULT | 12) HALT" d="$ echo 'T05' > milestones/m05.txt"
+[turingos] tick=15 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [IN_PROGRESS] | 8) M07 | 9) M08 | 10) SEQUENCE | 11) RESULT | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [IN_PROGRESS] | 7) M06 | 8) M07 | 9) M08 | 10) SEQUENCE | 11) RESULT | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [IN_PROGRESS] | 9) M08 | 10) SEQUENCE | 11) RESULT | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=18 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [IN_PROGRESS] | 10) SEQUENCE | 11) RESULT | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=19 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [IN_PROGRESS] | 11) RESULT | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=20 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [IN_PROGRESS] | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=21 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [DONE] | 12) HALT" d="sys://append/plan/progress.log"
+[turingos] tick=22 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [DONE] | 12) HALT [DONE]" d="sys://append/plan/progress.log"
+[turingos] tick=23 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [DONE] | 12) HALT [DONE]" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20milestones%2Fm01.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=24 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [DONE] | 12) HALT [DONE]" d="milestones/m01.txt"
+[turingos] tick=25 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [DONE] | 12) HALT [DONE]" d="milestones/m01.txt"
+[turingos] tick=26 q="1) INIT [DONE] | 2) M01 [DONE] | 3) M02 [DONE] | 4) M03 [DONE] | 5) M04 [DONE] | 6) M05 [DONE] | 7) M06 [DONE] | 8) M07 [DONE] | 9) M08 [DONE] | 10) SEQUENCE [DONE] | 11) RESULT [DONE] | 12) HALT [DONE]" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20milestones%2Fm02.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=27 q="12) HALT" d="milestones/m02.txt"
+[turingos] tick=28 q="12) HALT" d="milestones/m02.txt"
+[turingos] tick=29 q="12) HALT" d="$ cat plan/progress.log 2>/dev/null || echo 'FILE_NOT_FOUND'"
+[turingos] tick=30 q="12) HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Required%20file%20missing%20for%20HALT%3A%20milestones%2Fm03.txt%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=31 q="12) Create milestones/m03.txt, append DONE:03, HALT" d="milestones/m03.txt"
+[turingos] tick=32 q="12) Create milestones/m03.txt, append DONE:03, HALT" d="milestones/m03.txt"
+[turingos] tick=33 q="12a) Create milestones/m03.txt | 12b) Append DONE:03 | 12c) HALT" d="milestones/m03.txt"
+[turingos] tick=34 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=35 q="12a-alt) PUSH diagnostic:m03_alt_path | 12b) Create milestones/m03.txt via alt method | 12c) POP recovery:m03_creation | 12d) Append DONE:03 | 12e) HALT" d="sys://trap/l1_cache_hit"
+[turingos] tick=36 q="12c) POP recovery:m03_creation | 12d) Append DONE:03 | 12e) HALT" d="sys://trap/halt_guard"
+[turingos] stopped after 36 ticks. q="12c) POP recovery:m03_creation | 12d) Append DONE:03 | 12e) HALT" d="sys://trap/halt_guard"
+
+[os-longrun] finished. passed=0/3
+[os-longrun] report(json): /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-104226.json
+[os-longrun] report(md):   /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-104226.md

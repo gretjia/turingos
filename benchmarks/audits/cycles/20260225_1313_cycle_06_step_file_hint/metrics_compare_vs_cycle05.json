@@ -1,0 +1,22 @@
+{
+  "post_runStamp": "20260225-131400",
+  "prev_runStamp": "20260225-130356",
+  "post_passed": 0,
+  "prev_passed": 0,
+  "delta_passed": 0,
+  "post_completion_avg": 0,
+  "prev_completion_avg": 0,
+  "delta_completion_avg": 0,
+  "post_plan_avg": 1,
+  "prev_plan_avg": 0.877,
+  "delta_plan_avg": 0.123,
+  "post_page_fault_avg": 5,
+  "prev_page_fault_avg": 1.3333,
+  "delta_page_fault_avg": 3.6667,
+  "post_io_fault_avg": 0.3333,
+  "prev_io_fault_avg": 0,
+  "delta_io_fault_avg": 0.3333,
+  "post_cpu_fault_avg": 2.6667,
+  "prev_cpu_fault_avg": 0,
+  "delta_cpu_fault_avg": 2.6667
+}

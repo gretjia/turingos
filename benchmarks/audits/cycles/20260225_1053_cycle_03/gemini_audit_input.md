@@ -1,0 +1,781 @@
+# Cycle 03 Independent Audit Input
+
+## Scope
+# Cycle 03 Scope
+
+## Objective
+Recover page-fault stability while preserving Cycle 02 plan-adherence gains.
+
+## Baseline (from Cycle 02)
+- passed=0/3
+- completion_avg=0.0333
+- plan_avg=0.619
+- watchdog_avg=0
+- page_fault_avg=7.6667
+- Source: `benchmarks/audits/cycles/20260225_1039_cycle_02/05_test_results.md`
+
+## In-Scope
+1. Simplify prompt JSON contract (remove hard requirement of stack fields).
+2. Add execution-contract gate: disallow DONE progression when required artifact for that step is missing.
+3. Keep existing NEXT_REQUIRED_DONE guidance and append ordering guard.
+4. Re-run identical os-longrun benchmark and compare against Cycle 02.
+
+## Acceptance Gate
+- page_fault_avg <= 3.6667 (at least back to Cycle 01 post level) OR significant drop vs Cycle 02.
+- plan_avg >= 0.60.
+- watchdog_avg remains 0.
+
+## Results
+# Cycle 03 Test Results
+
+- Source JSON: benchmarks/results/os-longrun-20260225-105431.json
+- Source Markdown: benchmarks/results/os-longrun-20260225-105431.md
+- Command log: benchmarks/audits/cycles/20260225_1053_cycle_03/04_test_commands.txt
+
+## Summary
+```json
+{
+  "runStamp": "20260225-105431",
+  "model": "kimi-for-coding",
+  "repeats": 1,
+  "runs": 3,
+  "passed": 0,
+  "completion_avg": 0,
+  "plan_avg": 0.6984,
+  "drift_avg": 0,
+  "traps_avg": {
+    "WATCHDOG_NMI": 0,
+    "CPU_FAULT": 0,
+    "IO_FAULT": 3,
+    "PAGE_FAULT": 6.3333
+  },
+  "per_scenario": [
+    {
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.8571,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    },
+    {
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.6667,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    },
+    {
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.5714,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    }
+  ],
+  "results": [
+    {
+      "repeat": 1,
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 104690,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 27,
+      "completionScore": 0,
+      "planAdherence": 0.5714,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 4,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 2,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "5) MANIFEST 6) RESULT 7) HALT\n\n[OS_TRAP: IO_FAULT] Failed to write to sys://append/plan/progress.log: required file is missing for next DONE step.\nDetails: Create required file first -> artifacts/manifest.txt\nAction: write file artifacts/manifest.txt, then append DONE:MANIFEST.",
+      "finalD": "sys://trap/io_fault",
+      "fileChecks": [
+        {
+          "path": "artifacts/input.csv",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "artifacts/high.csv",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "artifacts/sum.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "artifacts/manifest.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 111293,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 24,
+      "completionScore": 0,
+      "planAdherence": 0.8571,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 15,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 3,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "1. Create result/RESULT.json 2. HALT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "inputs/source.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "outputs/colors_upper.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "outputs/count.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "json mismatch on key scenario"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "maxTicks": 36,
+      "exitCode": 2,
+      "elapsedMs": 141586,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 32,
+      "completionScore": 0,
+      "planAdherence": 0.6667,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 4,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "M07→ | M08 | SEQUENCE | RESULT | HALT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "milestones/m01.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m02.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m03.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m04.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m05.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m06.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m07.txt",
+          "passed": false,
+          "reason": "text mismatch"
+```
+
+## Compare vs Cycle 02
+```json
+{
+  "passed_before": 0,
+  "passed_after": 0,
+  "completion_before": 0.0333,
+  "completion_after": 0,
+  "completion_delta": -0.0333,
+  "plan_before": 0.619,
+  "plan_after": 0.6984,
+  "plan_delta": 0.0794,
+  "drift_before": 0,
+  "drift_after": 0,
+  "drift_delta": 0,
+  "watchdog_before": 0,
+  "watchdog_after": 0,
+  "watchdog_delta": 0,
+  "page_fault_before": 7.6667,
+  "page_fault_after": 6.3333,
+  "page_fault_delta": -1.3334,
+  "io_fault_before": 1.6667,
+  "io_fault_after": 3,
+  "io_fault_delta": 1.3333
+}
+```
+
+## Diff
+```diff
+diff --git a/benchmarks/os-longrun/discipline_prompt.txt b/benchmarks/os-longrun/discipline_prompt.txt
+index ad996c1..70798b4 100644
+--- a/benchmarks/os-longrun/discipline_prompt.txt
++++ b/benchmarks/os-longrun/discipline_prompt.txt
+@@ -5,6 +5,7 @@ You are stateless except for `q_next`. Read MAIN_TAPE carefully and execute it l
+ 
+ Return exactly one JSON object:
+ {
++  "thought": "string (optional but recommended)",
+   "q_next": "string",
+   "s_prime": "string",
+   "d_next": "string"
+@@ -22,6 +23,7 @@ Hard protocol:
+ 4. For shell commands, always use `$ ` prefix.
+ 5. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
+ 6. Do not invent alternative schemas, file names, or column names.
++7. Keep JSON minimal and valid. Do not add extra keys unless needed.
+ 
+ Plan execution contract:
+ 1. Keep `q_next` as compact ordered checklist with explicit STEP_IDs.
+@@ -38,6 +40,9 @@ Trap handling:
+ 3. If you receive `sys://trap/halt_guard`, inspect `[DETAILS]`, create missing outputs, then continue plan.
+ 4. Do not repeat identical action more than 2 times; choose a different operation.
+ 5. If append channel reports duplicate append blocked, advance to the next unfinished step instead of retrying same DONE line.
++6. If you detect short-loop signals (`[OS_TRAP: L1_CACHE_HIT]`), immediately change strategy and consider `stack_op=PUSH`.
++7. Always prioritize `[NEXT_REQUIRED_DONE]` from `[OS_CONTRACT]`; append exactly that one line and do not rewrite full progress log.
++8. If `[NEXT_REQUIRED_FILE]` is not `(none)`, create that file before appending the next DONE line.
+ 
+ HALT law:
+ 1. HALT only after all required artifacts are physically present and validated.
+diff --git a/src/kernel/engine.ts b/src/kernel/engine.ts
+index cc62561..d26448e 100644
+--- a/src/kernel/engine.ts
++++ b/src/kernel/engine.ts
+@@ -23,6 +23,9 @@ export interface IgniteResult {
+ 
+ export class TuringEngine {
+   private watchdogHistory: string[] = [];
++  private l1TraceCache: string[] = [];
++  private readonly l1TraceDepth = 3;
++  private readonly watchdogDepth = 5;
+   private lastObservedPointer?: Pointer;
+   private lastObservedSlice?: Slice;
+   private lastTrapDetails = new Map<string, string>();
+@@ -38,6 +41,9 @@ export class TuringEngine {
+   public async tick(q_t: State, d_t: Pointer): Promise<[State, Pointer]> {
+     let s_t: Slice;
+     const pointer = d_t.trim();
++    let nextRequiredDone: string | null = null;
++    let progressAppendPointer: Pointer | null = null;
++    let blockingRequiredFile: string | null = null;
+ 
+     // 1) Observe from the physical manifold.
+     try {
+@@ -60,6 +66,15 @@ export class TuringEngine {
+ 
+     // 1.5) Validate progress contract and feed violations back as trap context.
+     if (this.executionContract) {
++      try {
++        nextRequiredDone = await this.executionContract.getNextRequiredStep();
++        const progressPath = this.executionContract.getProgressPath().replace(/^\.\//, '');
++        progressAppendPointer = `sys://append/${progressPath}`;
++        blockingRequiredFile = await this.executionContract.getBlockingRequiredFileForNextStep();
++      } catch {
++        nextRequiredDone = null;
++      }
++
+       try {
+         const progressCheck = await this.executionContract.checkProgress();
+         if (!progressCheck.ok) {
+@@ -115,6 +130,24 @@ export class TuringEngine {
+     this.lastObservedPointer = pointer;
+     this.lastObservedSlice = s_t;
+ 
++    // 1.8) Inject managed context channels for short-horizon anti-looping.
++    const callStackSlice = await this.observeCallStackSnapshot();
++    const l1TraceSlice = this.renderL1Trace();
++    const contractSlice = this.renderContractGuidance(nextRequiredDone, progressAppendPointer, blockingRequiredFile);
++    s_t = [
++      '[OS_CONTRACT]',
++      contractSlice,
++      '',
++      '[L1_TRACE_CACHE]',
++      l1TraceSlice,
++      '',
++      '[OS_CALL_STACK]',
++      callStackSlice,
++      '',
++      '[OBSERVED_SLICE]',
++      s_t,
++    ].join('\n');
++
+     // 2) Run the oracle transition.
+     let transition: Transition;
+     try {
+@@ -135,6 +168,22 @@ export class TuringEngine {
+ 
+     const { q_next, s_prime, d_next } = transition;
+ 
++    // 2.2) Apply syscall-driven call stack operations (OS-managed memory).
++    try {
++      await this.applyStackSyscall(transition);
++    } catch (error: unknown) {
++      const message = error instanceof Error ? error.message : String(error);
++      return [
++        [
++          q_t,
++          '',
++          `[OS_TRAP: STACK_FAULT] Failed to apply stack syscall: ${message}`,
++          'Action: emit valid stack_op and stack_payload (for PUSH) in next JSON transition.',
++        ].join('\n'),
++        'sys://trap/stack_fault',
++      ];
++    }
++
+     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
+     const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT';
+     if (haltRequested && this.executionContract) {
+@@ -167,18 +216,40 @@ export class TuringEngine {
+       }
+     }
+ 
+-    // 3) Watchdog non-maskable interrupt against repeated actions.
+-    const actionHash = createHash('sha256')
+-      .update(`${d_next}|${s_prime.slice(0, 80)}`)
+-      .digest('hex');
++    // 3) L1 trace pre-watchdog interrupt for short action loops.
++    const actionHash = this.actionSignature(d_next, s_prime);
++    this.l1TraceCache.push(actionHash);
++    if (this.l1TraceCache.length > this.l1TraceDepth) {
++      this.l1TraceCache.shift();
++    }
++
++    const l1LoopDetected =
++      this.l1TraceCache.length === this.l1TraceDepth &&
++      this.l1TraceCache.every((item) => item === actionHash);
++    if (l1LoopDetected) {
++      this.l1TraceCache = [];
++      return [
++        [
++          '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
++          `Action signature: ${actionHash.slice(0, 12)}`,
++          'Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.',
++          '',
++          '[RECOVERED STATE q]:',
++          q_next,
++        ].join('\n'),
++        'sys://trap/l1_cache_hit',
++      ];
++    }
++
++    // 3.5) Watchdog non-maskable interrupt against repeated actions.
+ 
+     this.watchdogHistory.push(actionHash);
+-    if (this.watchdogHistory.length > 5) {
++    if (this.watchdogHistory.length > this.watchdogDepth) {
+       this.watchdogHistory.shift();
+     }
+ 
+     const isStuck =
+-      this.watchdogHistory.length === 5 &&
++      this.watchdogHistory.length === this.watchdogDepth &&
+       this.watchdogHistory.every((h) => h === actionHash);
+ 
+     if (isStuck) {
+@@ -199,8 +270,39 @@ export class TuringEngine {
+     // 4) Interfere with physical world unless this is a pure read/exec step.
+     const isAppendChannel = pointer.startsWith('sys://append/');
+     if (s_prime.trim() !== '👆🏻' && (!pointer.startsWith('sys://') || isAppendChannel)) {
++      let writePayload = s_prime;
++      if (isAppendChannel && progressAppendPointer && pointer === progressAppendPointer) {
++        if (blockingRequiredFile) {
++          return [
++            [
++              q_next,
++              '',
++              `[OS_TRAP: IO_FAULT] Failed to write to ${d_t}: required file is missing for next DONE step.`,
++              `Details: Create required file first -> ${blockingRequiredFile}`,
++              `Action: write file ${blockingRequiredFile}, then append DONE:${nextRequiredDone ?? '<unknown>'}.`,
++            ].join('\n'),
++            'sys://trap/io_fault',
++          ];
++        }
++
++        const normalized = this.normalizeProgressPayload(s_prime, nextRequiredDone);
++        if (!normalized.ok) {
++          return [
++            [
++              q_next,
++              '',
++              `[OS_TRAP: IO_FAULT] Failed to write to ${d_t}: ${normalized.reason}`,
++              `Action: append exact line DONE:${nextRequiredDone ?? '<none>'} once.`,
++            ].join('\n'),
++            'sys://trap/io_fault',
++          ];
++        }
++
++        writePayload = normalized.payload;
++      }
++
+       try {
+-        await this.manifold.interfere(d_t, s_prime);
++        await this.manifold.interfere(d_t, writePayload);
+       } catch (error: unknown) {
+         const message = error instanceof Error ? error.message : String(error);
+         return [
+@@ -216,7 +318,18 @@ export class TuringEngine {
+     }
+ 
+     const shortQ = q_next.split('\n').find((line) => line.trim().length > 0)?.slice(0, 60) ?? 'State updated';
+-    await this.chronos.engrave(`[Tick] d:${d_t} -> d':${d_next} | ${shortQ}`);
++    const shortThought =
++      typeof transition.thought === 'string'
++        ? transition.thought.split('\n').find((line) => line.trim().length > 0)?.slice(0, 80) ?? ''
++        : '';
++    const stackOp = transition.stack_op ?? 'NOP';
++    const stackNote =
++      stackOp === 'PUSH'
++        ? `${stackOp}(${(transition.stack_payload ?? '').slice(0, 40)})`
++        : stackOp;
++    await this.chronos.engrave(
++      `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | stack:${stackNote} | thought:${shortThought || '-'}`
++    );
+ 
+     return [q_next, d_next];
+   }
+@@ -247,4 +360,102 @@ export class TuringEngine {
+   private systemTrapPointer(base: string, details: string): Pointer {
+     return `${base}?details=${encodeURIComponent(details)}`;
+   }
++
++  private actionSignature(dNext: Pointer, sPrime: string): string {
++    return createHash('sha256')
++      .update(`${dNext}|${sPrime.slice(0, 120)}`)
++      .digest('hex');
++  }
++
++  private renderL1Trace(): string {
++    if (this.l1TraceCache.length === 0) {
++      return '(empty)';
++    }
++
++    return this.l1TraceCache
++      .map((hash, idx) => `${idx + 1}. ${hash.slice(0, 12)}`)
++      .join('\n');
++  }
++
++  private async observeCallStackSnapshot(): Promise<string> {
++    try {
++      return await this.manifold.observe('sys://callstack');
++    } catch (error: unknown) {
++      const message = error instanceof Error ? error.message : String(error);
++      return `[SYSTEM_CHANNEL] sys://callstack\n[DETAILS]\nUnavailable: ${message}`;
++    }
++  }
++
++  private async applyStackSyscall(transition: Transition): Promise<void> {
++    const op = transition.stack_op ?? 'NOP';
++    if (op === 'NOP') {
++      return;
++    }
++
++    if (op === 'POP') {
++      await this.manifold.interfere('sys://callstack', 'POP');
++      return;
++    }
++
++    const payload = (transition.stack_payload ?? '').trim();
++    if (payload.length === 0) {
++      throw new Error('PUSH requires stack_payload.');
++    }
++
++    await this.manifold.interfere('sys://callstack', `PUSH: ${payload}`);
++  }
++
++  private renderContractGuidance(
++    nextRequiredDone: string | null,
++    progressAppendPointer: Pointer | null,
++    blockingRequiredFile: string | null
++  ): string {
++    const next = nextRequiredDone ? `DONE:${nextRequiredDone}` : '(complete)';
++    return [
++      `[NEXT_REQUIRED_DONE] ${next}`,
++      `[PROGRESS_APPEND_POINTER] ${progressAppendPointer ?? '(n/a)'}`,
++      `[NEXT_REQUIRED_FILE] ${blockingRequiredFile ?? '(none)'}`,
++      'Rule: append exactly one DONE line for NEXT_REQUIRED_DONE; do not rewrite whole progress log.',
++    ].join('\n');
++  }
++
++  private normalizeProgressPayload(
++    payload: string,
++    nextRequiredDone: string | null
++  ): { ok: true; payload: string } | { ok: false; reason: string } {
++    if (!nextRequiredDone) {
++      return { ok: false, reason: 'Plan already complete; no further DONE append allowed.' };
++    }
++
++    const expectedLine = `DONE:${nextRequiredDone}`;
++    const candidate = payload
++      .split('\n')
++      .map((line) => line.trim())
++      .find((line) => line.length > 0);
++
++    if (!candidate) {
++      return { ok: false, reason: 'Empty append payload.' };
++    }
++
++    const compact = candidate.replace(/\s+/g, '').toUpperCase();
++    if (compact === expectedLine.replace(/\s+/g, '').toUpperCase()) {
++      return { ok: true, payload: expectedLine };
++    }
++
++    if (compact === nextRequiredDone.replace(/\s+/g, '').toUpperCase()) {
++      return { ok: true, payload: expectedLine };
++    }
++
++    const doneMatch = candidate.match(/^DONE[:：]\s*(.+)$/i);
++    if (doneMatch?.[1]) {
++      const doneStep = doneMatch[1].trim();
++      if (doneStep === nextRequiredDone || doneStep.includes(nextRequiredDone)) {
++        return { ok: true, payload: expectedLine };
++      }
++    } else if (candidate.includes(nextRequiredDone)) {
++      return { ok: true, payload: expectedLine };
++    }
++
++    return { ok: false, reason: `Progress strictly requires ${expectedLine}, got "${candidate.slice(0, 120)}".` };
++  }
+ }
+diff --git a/src/kernel/types.ts b/src/kernel/types.ts
+index acff58a..5bd0b01 100644
+--- a/src/kernel/types.ts
++++ b/src/kernel/types.ts
+@@ -2,10 +2,15 @@ export type State = string;
+ export type Pointer = string;
+ export type Slice = string;
+ 
++export type StackOp = 'PUSH' | 'POP' | 'NOP';
++
+ export interface Transition {
++  thought?: string;
+   q_next: State;
+   s_prime: string;
+   d_next: Pointer;
++  stack_op?: StackOp;
++  stack_payload?: string;
+ }
+ 
+ export interface IOracle {
+@@ -29,4 +34,7 @@ export interface ContractCheckResult {
+ export interface IExecutionContract {
+   checkProgress(): Promise<ContractCheckResult>;
+   checkHalt(): Promise<ContractCheckResult>;
++  getNextRequiredStep(): Promise<string | null>;
++  getProgressPath(): string;
++  getBlockingRequiredFileForNextStep(): Promise<string | null>;
+ }
+diff --git a/src/runtime/file-execution-contract.ts b/src/runtime/file-execution-contract.ts
+index ad25633..15c4b2a 100644
+--- a/src/runtime/file-execution-contract.ts
++++ b/src/runtime/file-execution-contract.ts
+@@ -61,6 +61,17 @@ export class FileExecutionContract implements IExecutionContract {
+           reason: `Out-of-order progress at index ${i + 1}. Expected DONE:${ordered[i]} but got DONE:${done.steps[i]}.`,
+         };
+       }
++
++      const requiredFile = this.requiredFileForStepIndex(i);
++      if (requiredFile) {
++        const exists = await this.fileExists(requiredFile);
++        if (!exists) {
++          return {
++            ok: false,
++            reason: `required file is missing for DONE:${done.steps[i]} -> ${requiredFile}.`,
++          };
++        }
++      }
+     }
+ 
+     return { ok: true };
+@@ -103,6 +114,53 @@ export class FileExecutionContract implements IExecutionContract {
+     return { ok: true };
+   }
+ 
++  public async getNextRequiredStep(): Promise<string | null> {
++    if (this.config.enabled === false) {
++      return null;
++    }
++
++    const ordered = this.orderedSteps();
++    if (ordered.length === 0) {
++      return null;
++    }
++
++    const done = await this.readDoneSteps();
++    if (done.steps.length >= ordered.length) {
++      return null;
++    }
++
++    return ordered[done.steps.length] ?? null;
++  }
++
++  public getProgressPath(): string {
++    return this.progressPath();
++  }
++
++  public async getBlockingRequiredFileForNextStep(): Promise<string | null> {
++    if (this.config.enabled === false) {
++      return null;
++    }
++
++    const ordered = this.orderedSteps();
++    if (ordered.length === 0) {
++      return null;
++    }
++
++    const done = await this.readDoneSteps();
++    if (done.steps.length >= ordered.length) {
++      return null;
++    }
++
++    const nextIndex = done.steps.length;
++    const file = this.requiredFileForStepIndex(nextIndex);
++    if (!file) {
++      return null;
++    }
++
++    const exists = await this.fileExists(file);
++    return exists ? null : file;
++  }
++
+   private orderedSteps(): string[] {
+     return (this.config.ordered_steps ?? []).filter((step): step is string => typeof step === 'string');
+   }
+@@ -111,6 +169,29 @@ export class FileExecutionContract implements IExecutionContract {
+     return (this.config.required_files ?? []).filter((item): item is string => typeof item === 'string');
+   }
+ 
++  private requiredFileForStepIndex(stepIndex: number): string | null {
++    const ordered = this.orderedSteps();
++    const required = this.requiredFiles();
++    if (ordered.length === 0 || required.length === 0) {
++      return null;
++    }
++
++    const step = ordered[stepIndex];
++    if (!step || step === 'HALT') {
++      return null;
++    }
++
++    // Assume one terminal HALT and map remaining steps to required files
++    // after skipping non-file setup prefix.
++    const nonFilePrefix = Math.max(0, ordered.length - required.length - 1);
++    const requiredIndex = stepIndex - nonFilePrefix;
++    if (requiredIndex < 0 || requiredIndex >= required.length) {
++      return null;
++    }
++
++    return required[requiredIndex] ?? null;
++  }
++
+   private progressPath(): string {
+     return this.config.progress_file ?? 'plan/progress.log';
+   }
+diff --git a/turing_prompt.sh b/turing_prompt.sh
+index ea66eb8..cf105b6 100644
+--- a/turing_prompt.sh
++++ b/turing_prompt.sh
+@@ -6,20 +6,26 @@ You are stateless. Your continuity exists only in State Register `q`.
+ ## INPUTS
+ 1. `[STATE REG] q`: persistent intention and todo stack.
+ 2. `[DATA BUS] s`: observed slice at current pointer.
++3. `[OS_CALL_STACK]`: OS-managed call stack summary injected by kernel.
++4. `[L1_TRACE_CACHE]`: recent action signatures for loop detection.
+ 
+ ## OUTPUT PROTOCOL
+ Output exactly one strict JSON object, with no markdown wrapper:
+ 
+ {
++  "thought": "string (optional but recommended, concise plan for this tick)",
+   "q_next": "string",
+   "s_prime": "string",
+   "d_next": "string"
+ }
+ 
+ Use `s_prime = "👆🏻"` when no write is needed.
++Keep JSON minimal to avoid parse faults. Extra keys are optional, not required.
+ 
+ ## LAWS
+ 1. Errors are physics, not failure.
+ 2. If `s` contains traps or stderr, push a corrective task in `q_next`.
+ 3. Avoid repeated failed strategies.
+ 4. Do not emit `d_next: "HALT"` until objective completion is physically verified.
++5. Follow `[NEXT_REQUIRED_DONE]` from OS contract. For progress append, emit exactly one line `DONE:<STEP_ID>` and never rewrite the entire log.
++6. If `[NEXT_REQUIRED_FILE]` is shown, create that file first, then append DONE.
+```

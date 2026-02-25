@@ -1,0 +1,79 @@
+# Test Results (Baseline)
+
+- Source JSON:     benchmarks/results/os-longrun-20260225-095940.json
+- Source Markdown: benchmarks/results/os-longrun-20260225-095940.md
+- Raw command log: benchmarks/audits/cycles/20260225_0959_cycle_01/04_test_commands.txt
+
+## Key Metrics
+
+- Runs: 3
+- Passed: 0/3
+- completion_avg: 0
+- plan_avg: 0.3333
+- pointer_drift_avg: 0
+- watchdog_avg: 0.3333
+
+## Snapshot
+
+```json
+{
+  "runStamp": "20260225-095940",
+  "model": "kimi-for-coding",
+  "repeats": 1,
+  "runs": 3,
+  "passed": 0,
+  "completion_avg": 0,
+  "plan_avg": 0.3333,
+  "drift_avg": 0,
+  "traps_avg": {
+    "WATCHDOG_NMI": 0.3333,
+    "CPU_FAULT": 0,
+    "IO_FAULT": 0,
+    "PAGE_FAULT": 17.3333
+  },
+  "per_scenario": [
+    {
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 1,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    },
+    {
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 1
+    },
+    {
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    }
+  ]
+}
+```

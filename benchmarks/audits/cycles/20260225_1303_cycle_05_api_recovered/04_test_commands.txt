@@ -1,0 +1,182 @@
+# Cycle 05 Commands
+date_utc=2026-02-25T13:03:51Z
+git_head=26b5fd5508e532ac8510643c91c6eb8a6d768591
+git_status_short:
+ M README.md
+ M benchmarks/os-longrun/discipline_prompt.txt
+ M src/kernel/engine.ts
+ M src/kernel/types.ts
+ M src/manifold/local-manifold.ts
+ D src/oracle/kimi-code-oracle.ts
+ M src/oracle/mock-oracle.ts
+ M src/oracle/universal-oracle.ts
+ M src/runtime/boot.ts
+ M src/runtime/file-execution-contract.ts
+ M turing_prompt.sh
+?? .last_cycle2_dir
+?? .last_cycle3_dir
+?? .last_cycle4_dir
+?? .last_cycle5_dir
+?? .last_cycle_dir
+?? benchmarks/audits/cycles/
+?? benchmarks/audits/gemini_workflow_design_evidence_20260225.json
+?? benchmarks/audits/health/
+?? benchmarks/audits/recursive/
+?? docs/external/
+?? docs/workflows/
+?? prompts/
+
+## npm run typecheck
+
+> turingos@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+## npm run smoke:mock
+
+> turingos@0.1.0 smoke:mock
+> tsx src/runtime/boot.ts --oracle mock --max-ticks 8
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/workspace
+[turingos] oracle=mock model=kimi-for-coding maxTicks=8
+[turingos] registers q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+[turingos] stopped after 0 ticks. q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+
+## npm run bench:os-longrun
+
+> turingos@0.1.0 bench:os-longrun
+> tsx src/bench/os-longrun.ts
+
+
+[os-longrun] repeat=1 scenario=pipeline_ordered_execution maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-130356-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-130356-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT: create directories plan, artifacts, result → WRITE_INPUT → FILTER_HIGH → SUM → MANIFEST → RESULT → HALT" d="$ mkdir -p plan artifacts result"
+[turingos] tick=2 q="WRITE_INPUT → FILTER_HIGH → SUM → MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="FILTER_HIGH → SUM → MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="FILTER_HIGH → SUM → MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="FILTER_HIGH → SUM → MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="FILTER_HIGH → SUM → MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="SUM → MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="MANIFEST → RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="RESULT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="RESULT → HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=11 q="CHECK_PROGRESS:1|IDENTIFY_MISSING:2|EXECUTE_MISSING:3|APPEND_DONE:4|VALIDATE:5|HALT:6" d="$ cat plan/progress.log"
+[turingos] tick=12 q="HALT:6" d="sys://append/plan/progress.log"
+[turingos] tick=13 q="HALT:6" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=14 q="HALT:6" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=15 q="READ_PROGRESS_LOG:7" d="$ cat plan/progress.log"
+[turingos] tick=16 q="READ_PROGRESS_LOG:7" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=17 q="READ_PROGRESS_LOG:7" d="$ cat plan/progress.log"
+[turingos] tick=18 q="READ_PROGRESS_LOG:7" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=19 q="READ_PROGRESS_LOG:7 → ANALYZE_MISSING_STEPS → COMPLETE_STEP_7 → HALT" d="plan/progress.log"
+[turingos] tick=20 q="RECOVERY_SUBTASK:IDENTIFY_STEP_7 → APPEND_DONE_STEP_7 → APPEND_DONE_HALT → HALT" d="sys://callstack"
+[turingos] tick=21 q="RECOVERY_SUBTASK:IDENTIFY_STEP_7 → APPEND_DONE_STEP_7 → APPEND_DONE_HALT → HALT" d="$ echo 'STEP_7: Create final validation report and confirm all artifacts present'"
+[turingos] tick=22 q="APPEND_DONE_HALT → HALT" d="sys://append/plan/progress.log"
+[turingos] tick=23 q="APPEND_DONE_HALT → HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=24 q="APPEND_DONE_HALT" d="sys://append/plan/progress.log"
+[turingos] tick=25 q="APPEND_DONE_HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=26 q="7.create_final_artifact 8.append_done_7 9.halt" d="$ ls -la artifacts/ 2>/dev/null || echo 'NO_ARTIFACTS_DIR'"
+[turingos] tick=27 q="7.create_final_artifact 8.append_done_7 9.halt" d="artifacts/final_artifact.txt"
+[turingos] tick=28 q="7.create_final_artifact 8.append_done_7 9.halt" d="artifacts/final_artifact.txt"
+[turingos] stopped after 28 ticks. q="7.create_final_artifact 8.append_done_7 9.halt" d="artifacts/final_artifact.txt"
+
+[os-longrun] repeat=1 scenario=fault_recovery_resume maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-130356-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-130356-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT: create directories plan, inputs, outputs, result -> TRIGGER_PAGE_FAULT -> RECOVER_SOURCE -> TRANSFORM -> COUNT -> RESULT -> HALT" d="$ mkdir -p plan inputs outputs result"
+[turingos] tick=2 q="TRIGGER_PAGE_FAULT -> RECOVER_SOURCE -> TRANSFORM -> COUNT -> RESULT -> HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="RECOVER_SOURCE -> TRANSFORM -> COUNT -> RESULT -> HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="RECOVER_SOURCE -> TRANSFORM -> COUNT -> RESULT -> HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="TRANSFORM -> COUNT -> RESULT -> HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="COUNT -> RESULT -> HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="RESULT" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="RESULT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D5%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=9 q="RESULT" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="RESULT" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="RESULT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=12 q="STEP_7_INFER: list artifacts, identify missing step 7 requirement, complete it, then DONE:HALT" d="$ ls -la plan/ artifacts/ 2>/dev/null || find . -type f -name '*.txt' -o -name '*.log' -o -name 'progress.log' 2>/dev/null | head -20"
+[turingos] tick=13 q="STEP_7_INFER: list artifacts, identify missing step 7 requirement, complete it, then DONE:HALT" d="$ cat plan/progress.log && ls -la artifacts/ 2>/dev/null || echo 'artifacts/: NOT_FOUND'"
+[turingos] tick=14 q="STEP_7_INFER: create artifacts directory, create artifact files from L1_TRACE_CACHE, append DONE:HALT" d="$ mkdir -p artifacts && echo 'c7579e0227cd' > artifacts/c7579e0227cd && echo 'e07f5496031f' > artifacts/e07f5496031f && echo 'c34abaaa3a6d' > artifacts/c34abaaa3a6d"
+[turingos] tick=15 q="STEP_7_INFER: create missing artifact b52ecd6b199f, append DONE:HALT" d="$ echo 'b52ecd6b199f' > artifacts/b52ecd6b199f"
+[turingos] tick=16 q="STEP_7_INFER: create missing artifact b52ecd6b199f, append DONE:HALT" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="artifacts/b52ecd6b199f"
+[turingos] tick=18 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="$ touch b52ecd6b199f"
+[turingos] tick=19 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="sys://append/plan/progress.log"
+[turingos] tick=20 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="artifacts/b52ecd6b199f"
+[turingos] tick=21 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="b52ecd6b199f"
+[turingos] tick=22 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="b52ecd6b199f"
+[turingos] tick=23 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="b52ecd6b199f"
+[turingos] tick=24 q="STEP_7_INFER: create b52ecd6b199f, append DONE:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=25 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=26 q="STEP_7_INFER_DIAG: verify b52ecd6b199f requirements → STEP_7_INFER_CREATE: write b52ecd6b199f → STEP_7_INFER_DONE: append DONE:HALT" d="sys://callstack"
+[turingos] tick=27 q="STEP_7_INFER_DIAG: verify b52ecd6b199f requirements → STEP_7_INFER_CREATE: write b52ecd6b199f → STEP_7_INFER_DONE: append DONE:HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D6%20required%3D7.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=28 q="STEP_7_INFER_CREATE: write b52ecd6b199f → STEP_7_INFER_DONE: append DONE:HALT" d="b52ecd6b199f"
+[turingos] stopped after 28 ticks. q="STEP_7_INFER_CREATE: write b52ecd6b199f → STEP_7_INFER_DONE: append DONE:HALT" d="b52ecd6b199f"
+
+[os-longrun] repeat=1 scenario=long_checklist_stability maxTicks=36
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-130356-r1 --max-ticks 36 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-130356-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=36
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="$ mkdir -p plan milestones result"
+[turingos] tick=2 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=12 q="M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=13 q="SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=14 q="RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=15 q="RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=18 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=19 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=20 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="$ ls -la plan/ 2>/dev/null || echo 'plan dir check'"
+[turingos] tick=21 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="$ cat plan/progress.log"
+[turingos] tick=22 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=23 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=25 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="$ cat plan/progress.log 2>/dev/null || echo 'FILE_NOT_FOUND'"
+[turingos] tick=26 q="M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=27 q="INSPECT_PROGRESS|IDENTIFY_MISSING|COMPLETE_STEP|APPEND_DONE|HALT" d="plan/progress.log"
+[turingos] tick=28 q="INSPECT_PROGRESS|IDENTIFY_MISSING|COMPLETE_STEP|APPEND_DONE|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=29 q="IDENTIFY_MISSING|COMPLETE_STEP|APPEND_DONE|HALT" d="$ cat plan/progress.log"
+[turingos] tick=30 q="IDENTIFY_MISSING|COMPLETE_STEP|APPEND_DONE|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=31 q="READ_PROGRESS|IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="$ cat plan/progress.log"
+[turingos] tick=32 q="READ_PROGRESS|IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=33 q="READ_PROGRESS|IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="plan/progress.log"
+[turingos] tick=34 q="READ_PROGRESS|IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] tick=35 q="IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="$ cat plan/progress.log 2>/dev/null || echo 'FILE_NOT_FOUND'"
+[turingos] tick=36 q="IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+[turingos] stopped after 36 ticks. q="IDENTIFY_GAP|COMPLETE_MISSING|APPEND_DONE|HALT" d="sys://trap/halt_guard?details=HALT%20rejected%3A%20acceptance%20contract%20not%20satisfied.%0ADetails%3A%20Plan%20incomplete%20for%20HALT.%20done%3D11%20required%3D12.%0AAction%3A%20Complete%20remaining%20plan%20steps%20and%20required%20files%2C%20then%20HALT."
+
+[os-longrun] finished. passed=0/3
+[os-longrun] report(json): /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-130356.json
+[os-longrun] report(md):   /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-130356.md

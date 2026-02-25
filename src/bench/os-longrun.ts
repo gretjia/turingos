@@ -24,6 +24,7 @@ interface Scenario {
   name: string;
   maxTicks: number;
   stepIds: string[];
+  stepFileMap?: Record<string, string>;
   mainTape: string;
   expectedFiles: FileExpectation[];
   mustContainTrap?: TrapKind;
@@ -145,6 +146,13 @@ function buildScenarios(): Scenario[] {
       name: 'Pipeline Ordered Execution',
       maxTicks: 28,
       stepIds: pipelineSteps,
+      stepFileMap: {
+        WRITE_INPUT: 'artifacts/input.csv',
+        FILTER_HIGH: 'artifacts/high.csv',
+        SUM: 'artifacts/sum.txt',
+        MANIFEST: 'artifacts/manifest.txt',
+        RESULT: 'result/RESULT.json',
+      },
       mainTape: [
         '# Mission: Pipeline Ordered Execution',
         '',
@@ -208,6 +216,12 @@ function buildScenarios(): Scenario[] {
       name: 'Fault Recovery Resume',
       maxTicks: 28,
       stepIds: recoverySteps,
+      stepFileMap: {
+        RECOVER_SOURCE: 'inputs/source.txt',
+        TRANSFORM: 'outputs/colors_upper.txt',
+        COUNT: 'outputs/count.txt',
+        RESULT: 'result/RESULT.json',
+      },
       mainTape: [
         '# Mission: Fault Recovery Resume',
         '',
@@ -253,6 +267,18 @@ function buildScenarios(): Scenario[] {
       name: 'Long Checklist Stability',
       maxTicks: 36,
       stepIds: checklistSteps,
+      stepFileMap: {
+        M01: 'milestones/m01.txt',
+        M02: 'milestones/m02.txt',
+        M03: 'milestones/m03.txt',
+        M04: 'milestones/m04.txt',
+        M05: 'milestones/m05.txt',
+        M06: 'milestones/m06.txt',
+        M07: 'milestones/m07.txt',
+        M08: 'milestones/m08.txt',
+        SEQUENCE: 'milestones/sequence.txt',
+        RESULT: 'result/RESULT.json',
+      },
       mainTape: [
         '# Mission: Long Checklist Stability',
         '',
@@ -309,6 +335,19 @@ async function ensureDirs(): Promise<void> {
   await fs.mkdir(RESULTS_DIR, { recursive: true });
 }
 
+function buildStepExpectations(scenario: Scenario): Record<string, FileExpectation> {
+  const map = scenario.stepFileMap ?? {};
+  const out: Record<string, FileExpectation> = {};
+  for (const [stepId, filePath] of Object.entries(map)) {
+    const expected = scenario.expectedFiles.find((item) => item.path === filePath);
+    if (!expected) {
+      continue;
+    }
+    out[stepId] = expected;
+  }
+  return out;
+}
+
 async function writeExecutionContract(workspace: string, scenario: Scenario): Promise<void> {
   const contractPath = path.join(workspace, '.turingos.contract.json');
   const payload = {
@@ -316,6 +355,8 @@ async function writeExecutionContract(workspace: string, scenario: Scenario): Pr
     progress_file: 'plan/progress.log',
     ordered_steps: scenario.stepIds,
     required_files: scenario.expectedFiles.map((item) => item.path),
+    step_file_map: scenario.stepFileMap ?? {},
+    step_expectations: buildStepExpectations(scenario),
   };
   await fs.writeFile(contractPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
 }

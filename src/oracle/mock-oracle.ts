@@ -11,6 +11,7 @@ export class MockOracle implements IOracle {
         q_next: 'q_1: MOCK_WRITE_FILE',
         s_prime: `${s}\n\n[MOCK] Bootstrapped by mock oracle.`,
         d_next: '$ node -e "console.error(\'mock failure\'); process.exit(1)"',
+        stack_op: 'NOP',
       };
     }
 
@@ -23,6 +24,7 @@ export class MockOracle implements IOracle {
         ].join('\n'),
         s_prime: '👆🏻',
         d_next: 'HALT',
+        stack_op: 'NOP',
       };
     }
 
@@ -30,6 +32,7 @@ export class MockOracle implements IOracle {
       q_next: q,
       s_prime: '👆🏻',
       d_next: 'HALT',
+      stack_op: 'NOP',
     };
   }
 }

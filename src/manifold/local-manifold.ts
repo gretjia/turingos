@@ -5,14 +5,22 @@ import { IPhysicalManifold, Pointer, Slice } from '../kernel/types.js';
 
 export interface LocalManifoldOptions {
   timeoutMs?: number;
+  maxSliceChars?: number;
 }
 
 export class LocalManifold implements IPhysicalManifold {
   private timeoutMs: number;
+  private maxSliceChars: number;
+  private callStackFile: string;
 
   constructor(private workspaceDir: string, options: LocalManifoldOptions = {}) {
     this.timeoutMs = options.timeoutMs ?? 120_000;
+    this.maxSliceChars = options.maxSliceChars ?? 3000;
     fs.mkdirSync(this.workspaceDir, { recursive: true });
+    this.callStackFile = path.join(this.workspaceDir, '.callstack.json');
+    if (!fs.existsSync(this.callStackFile)) {
+      fs.writeFileSync(this.callStackFile, '[]\n', 'utf-8');
+    }
   }
 
   public async observe(pointer: Pointer): Promise<Slice> {
@@ -23,7 +31,7 @@ export class LocalManifold implements IPhysicalManifold {
     }
 
     if (trimmed.startsWith('sys://')) {
-      return this.observeSystemChannel(trimmed);
+      return this.guardSlice(this.observeSystemChannel(trimmed), `system:${trimmed}`);
     }
 
     if (trimmed.startsWith('$')) {
@@ -33,10 +41,10 @@ export class LocalManifold implements IPhysicalManifold {
 
     const filePath = this.resolveWorkspacePath(trimmed);
     if (!fs.existsSync(filePath)) {
-      throw new Error(`File not found: ${trimmed}`);
+      throw new Error(this.buildPageFaultDetails(trimmed, filePath));
     }
 
-    return fs.readFileSync(filePath, 'utf-8');
+    return this.guardSlice(fs.readFileSync(filePath, 'utf-8'), `file:${trimmed}`);
   }
 
   public async interfere(pointer: Pointer, payload: string): Promise<void> {
@@ -73,6 +81,11 @@ export class LocalManifold implements IPhysicalManifold {
       return;
     }
 
+    if (trimmed === 'sys://callstack') {
+      this.applyCallStackSyscall(payload);
+      return;
+    }
+
     if (trimmed.startsWith('sys://')) {
       return;
     }
@@ -103,6 +116,10 @@ export class LocalManifold implements IPhysicalManifold {
     const [base, query = ''] = pointer.split('?', 2);
     const params = new URLSearchParams(query);
     const details = params.get('details');
+
+    if (base === 'sys://callstack') {
+      return this.renderCallStackSnapshot(base);
+    }
 
     if (base.startsWith('sys://append/')) {
       const target = base.slice('sys://append/'.length);
@@ -170,7 +187,7 @@ export class LocalManifold implements IPhysicalManifold {
   }
 
   private formatCommandSlice(command: string, exitCode: number, stdout: string, stderr: string): string {
-    return [
+    const rawSlice = [
       `[COMMAND] ${command}`,
       `[EXIT_CODE] ${exitCode}`,
       '[STDOUT]',
@@ -178,5 +195,109 @@ export class LocalManifold implements IPhysicalManifold {
       '[STDERR]',
       stderr,
     ].join('\n');
+
+    return this.guardSlice(rawSlice, `command:${command}`);
+  }
+
+  private buildPageFaultDetails(pointer: string, filePath: string): string {
+    const parentDir = path.dirname(filePath);
+    const relativeParent = path.relative(this.workspaceDir, parentDir).replace(/\\/g, '/') || '.';
+
+    if (fs.existsSync(parentDir)) {
+      try {
+        const entries = fs.readdirSync(parentDir).slice(0, 20);
+        const listing = entries.length > 0 ? entries.join(', ') : '(empty)';
+        return `File not found: ${pointer}. Parent=${relativeParent}. Entries=${listing}`;
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return `File not found: ${pointer}. Parent=${relativeParent}. Directory listing failed: ${message}`;
+      }
+    }
+
+    return `File not found: ${pointer}. Parent directory does not exist: ${relativeParent}`;
+  }
+
+  private guardSlice(slice: string, source: string): string {
+    if (slice.length <= this.maxSliceChars) {
+      return slice;
+    }
+
+    const truncated = slice.slice(0, this.maxSliceChars);
+    return [
+      truncated,
+      '',
+      '[OS_TRAP: MMU_TRUNCATED]',
+      `Source=${source}`,
+      `OriginalChars=${slice.length}`,
+      `TruncatedTo=${this.maxSliceChars}`,
+      'Action: Narrow I/O scope with grep/head/tail/sed and retry.',
+    ].join('\n');
+  }
+
+  private renderCallStackSnapshot(channel: string): string {
+    const stack = this.readCallStack();
+    const top = stack.length > 0 ? stack[stack.length - 1] : '(empty)';
+    const frames = stack.length > 0 ? stack.map((item, idx) => `${idx + 1}. ${item}`).join('\n') : '(empty)';
+
+    return [
+      `[SYSTEM_CHANNEL] ${channel}`,
+      `[CALL_STACK_DEPTH] ${stack.length}`,
+      `[CALL_STACK_TOP] ${top}`,
+      '[CALL_STACK]',
+      frames,
+      'Action: use stack_op PUSH/POP/NOP and stack_payload in JSON syscall.',
+    ].join('\n');
+  }
+
+  private applyCallStackSyscall(payload: string): void {
+    const instruction = payload.trim();
+    const stack = this.readCallStack();
+
+    if (instruction.length === 0 || instruction.toUpperCase() === 'NOP') {
+      return;
+    }
+
+    if (instruction.toUpperCase() === 'POP') {
+      if (stack.length > 0) {
+        stack.pop();
+        this.writeCallStack(stack);
+      }
+      return;
+    }
+
+    const pushMatch = instruction.match(/^PUSH\s*:?\s*(.+)$/is);
+    if (pushMatch?.[1]) {
+      const task = pushMatch[1].trim().replace(/\s+/g, ' ');
+      if (task.length === 0) {
+        throw new Error('PUSH payload is empty.');
+      }
+
+      stack.push(task.slice(0, 200));
+      this.writeCallStack(stack);
+      return;
+    }
+
+    throw new Error(`Invalid callstack syscall payload: "${instruction}"`);
+  }
+
+  private readCallStack(): string[] {
+    try {
+      const raw = fs.readFileSync(this.callStackFile, 'utf-8');
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .filter((value): value is string => typeof value === 'string')
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0);
+    } catch {
+      return [];
+    }
+  }
+
+  private writeCallStack(stack: string[]): void {
+    fs.writeFileSync(this.callStackFile, `${JSON.stringify(stack, null, 2)}\n`, 'utf-8');
   }
 }

@@ -1,0 +1,18 @@
+timestamp_utc=2026-02-25T13:20:44Z
+endpoint=https://api.kimi.com/coding/v1/messages
+model=kimi-for-coding
+samples=10
+--- probe details ---
+probe=1 code=200 dur_ms=1064 status=OK body={"id":"msg_Iqe3KBEQhOpmhbHbZVCJYOTY","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=2 code=200 dur_ms=1145 status=OK body={"id":"msg_EMXbULeRgsPBmo27ccBih1Xe","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=3 code=200 dur_ms=1681 status=OK body={"id":"msg_xL8s6T0jpbYiH5SN1kiK9IE2","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=4 code=200 dur_ms=1233 status=OK body={"id":"msg_QyElL9zww2dE6aWYRxD3YTES","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=5 code=200 dur_ms=951 status=OK body={"id":"msg_Qm5klEay7ZBQOvjXStj20p08","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=6 code=200 dur_ms=818 status=OK body={"id":"msg_JATviu4vKB5k1KEtVYdLSidq","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=7 code=200 dur_ms=1553 status=OK body={"id":"msg_xlX1ID8ebsErgRlPp6PwC7Mx","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=8 code=200 dur_ms=1075 status=OK body={"id":"msg_QVGAKfIsdCYIAuksXu1XgjL2","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=9 code=200 dur_ms=1042 status=OK body={"id":"msg_H1R0yVmKsCrU6mcygz7uCTgJ","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+probe=10 code=200 dur_ms=1027 status=OK body={"id":"msg_qCSKQa2GN3yFlNq4M7fmVcw2","type":"message","role":"assistant","content":[{"type":"text","text":"ok"}],"model":"kimi-for-coding","stop_reason":"end_turn","stop_sequence":
+--- summary ---
+ok=10 fail=0 success_rate_pct=100 avg_ms=1158 server5xx=0
+health=NORMAL

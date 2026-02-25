@@ -1,0 +1,158 @@
+[timestamp_utc] 2026-02-25T13:29:19Z
+$ npm run typecheck
+
+> turingos@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+$ npm run smoke:mock
+
+> turingos@0.1.0 smoke:mock
+> tsx src/runtime/boot.ts --oracle mock --max-ticks 8
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/workspace
+[turingos] oracle=mock model=kimi-for-coding maxTicks=8
+[turingos] registers q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+[turingos] stopped after 0 ticks. q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+
+$ npm run bench:os-longrun
+
+> turingos@0.1.0 bench:os-longrun
+> tsx src/bench/os-longrun.ts
+
+
+[os-longrun] repeat=1 scenario=pipeline_ordered_execution maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-132923-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-132923-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT" d="$ mkdir -p plan artifacts result"
+[turingos] tick=2 q="INIT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="INIT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="WRITE_INPUT,CREATE_CSV" d="sys://trap/io_fault"
+[turingos] tick=5 q="WRITE_INPUT,CREATE_CSV" d="artifacts/input.csv"
+[turingos] tick=6 q="WRITE_INPUT,CREATE_CSV" d="$ echo 'id,name,value
+1,alpha,100
+2,beta,200
+3,gamma,300' > artifacts/input.csv"
+[turingos] tick=7 q="WRITE_INPUT✓,CREATE_CSV" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="WRITE_INPUT✓,CREATE_CSV" d="sys://trap/io_fault"
+[turingos] tick=9 q="WRITE_INPUT✓,CREATE_CSV|SUBTASK:CREATE_INPUT_CSV" d="artifacts/input.csv"
+[turingos] tick=10 q="WRITE_INPUT✓,CREATE_CSV|SUBTASK:CREATE_INPUT_CSV" d="artifacts/input.csv"
+[turingos] tick=11 q="CREATE_CSV|SUBTASK:CREATE_INPUT_CSV" d="sys://append/plan/progress.log"
+[turingos] tick=12 q="CREATE_INPUT_CSV|SUBTASK:WRITE_FILE" d="sys://trap/io_fault"
+[turingos] tick=13 q="CREATE_INPUT_CSV|SUBTASK:CREATE_FILE|artifacts/input.csv" d="artifacts/input.csv"
+[turingos] tick=14 q="CREATE_INPUT_CSV|SUBTASK:CREATE_FILE|artifacts/input.csv" d="sys://append/plan/progress.log"
+[turingos] tick=15 q="CREATE_INPUT_CSV|SUBTASK:WRITE_FILE|artifacts/input.csv" d="sys://trap/io_fault"
+[turingos] tick=16 q="CREATE_INPUT_CSV|RECOVERY:SHORT_LOOP_ESCAPE|ARTIFACT_CREATION" d="artifacts/input.csv"
+[turingos] tick=17 q="CREATE_INPUT_CSV|ARTIFACT_CREATION" d="sys://append/plan/progress.log"
+[turingos] tick=18 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|BREAK_LOOP" d="sys://trap/io_fault"
+[turingos] tick=19 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|WRITE_FILE" d="artifacts/input.csv"
+[turingos] tick=20 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|WRITE_FILE|STEP:APPEND_PROGRESS" d="sys://append/plan/progress.log"
+[turingos] tick=21 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|WRITE_FILE|STEP:CREATE_FILE" d="sys://trap/io_fault"
+[turingos] tick=22 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=23 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|DIAGNOSTIC_CLEAR|STEP:WRITE_FILE" d="$ echo 'L1_CACHE_ESCAPE: breaking short loop, proceeding to file creation'"
+[turingos] tick=24 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|DIAGNOSTIC_CLEAR|STEP:APPEND_DONE" d="artifacts/input.csv"
+[turingos] tick=25 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|WRITE_FILE|CREATE_CSV_CONTENT" d="artifacts/input.csv"
+[turingos] tick=26 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|WRITE_FILE|STEP:APPEND_DONE" d="artifacts/input.csv"
+[turingos] tick=27 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=28 q="CREATE_INPUT_CSV|ARTIFACT_CREATION|DIAGNOSTIC|PUSH_STACK|WRITE_FILE" d="artifacts/input.csv"
+[turingos] stopped after 28 ticks. q="CREATE_INPUT_CSV|ARTIFACT_CREATION|DIAGNOSTIC|PUSH_STACK|WRITE_FILE" d="artifacts/input.csv"
+
+[os-longrun] repeat=1 scenario=fault_recovery_resume maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-132923-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-132923-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=2 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=5 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=7 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT [SUBTASK:CREATE_SOURCE]" d="$ mkdir -p inputs && echo 'TURINGOS LONG-RUN DISCIPLINE TEST DATA' > inputs/source.txt"
+[turingos] tick=8 q="INIT,TRIGGER_PAGE_FAULT,RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="RECOVER_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=10 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=11 q="RECOVER_SOURCE,PUSH_DIAG,READ_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=12 q="RECOVER_SOURCE,PUSH_DIAG,READ_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=13 q="RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="$ test -f inputs/source.txt || echo 'default source content' > inputs/source.txt"
+[turingos] tick=14 q="CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=15 q="CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=16 q="CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=18 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="inputs/source.txt"
+[turingos] tick=19 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="inputs/source.txt"
+[turingos] tick=20 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=21 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=22 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="inputs/source.txt"
+[turingos] tick=23 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=25 q="CREATE_SOURCE_FILE,APPEND_DONE_RECOVER_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="inputs/source.txt"
+[turingos] tick=26 q="CREATE_SOURCE_FILE,APPEND_DONE_CREATE_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] tick=27 q="CREATE_SOURCE_FILE,APPEND_DONE_CREATE_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://trap/io_fault"
+[turingos] tick=28 q="CREATE_SOURCE_FILE,APPEND_DONE_CREATE_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+[turingos] stopped after 28 ticks. q="CREATE_SOURCE_FILE,APPEND_DONE_CREATE_SOURCE,CREATE_SOURCE,VALIDATE_SOURCE,TRANSFORM,COUNT,RESULT,HALT" d="sys://append/plan/progress.log"
+
+[os-longrun] repeat=1 scenario=long_checklist_stability maxTicks=36
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-132923-r1 --max-ticks 36 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-132923-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=36
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="$ mkdir -p plan milestones result"
+[turingos] tick=2 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=5 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=7 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=8 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=9 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=10 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=11 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=12 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=13 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=14 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=15 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=16 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=17 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=18 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=19 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=20 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=21 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=22 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=23 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=25 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=26 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=27 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=28 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=29 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=30 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=31 q="M01_FILE_CREATE_BREAK_LOOP|M01_CREATE_FILE|M01_APPEND_DONE|SEQUENCE|RESULT|HALT" d="$ mkdir -p milestones && echo 'M01: Initial milestone established' > milestones/m01.txt"
+[turingos] tick=32 q="M01_CREATE_FILE|M01_APPEND_DONE|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=33 q="M01_APPEND_DONE|SEQUENCE|RESULT|HALT" d="sys://trap/io_fault"
+[turingos] tick=34 q="M01_FILE_CREATE|POP|M01_APPEND_DONE|SEQUENCE|RESULT|HALT" d="milestones/m01.txt"
+[turingos] tick=35 q="M01_FILE_CREATE|DONE_APPEND|HALT" d="milestones/m01.txt"
+[turingos] tick=36 q="M01_FILE_CREATE|HALT" d="sys://append/plan/progress.log"
+[turingos] stopped after 36 ticks. q="M01_FILE_CREATE|HALT" d="sys://append/plan/progress.log"
+
+[os-longrun] finished. passed=0/3
+[os-longrun] report(json): /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-132923.json
+[os-longrun] report(md):   /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-132923.md

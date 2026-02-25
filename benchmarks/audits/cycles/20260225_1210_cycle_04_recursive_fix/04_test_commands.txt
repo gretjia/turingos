@@ -1,0 +1,201 @@
+# Cycle 04 Commands
+date_utc=2026-02-25T12:10:46Z
+git_head=26b5fd5508e532ac8510643c91c6eb8a6d768591
+git_status_short:
+ M README.md
+ M benchmarks/os-longrun/discipline_prompt.txt
+ M src/kernel/engine.ts
+ M src/kernel/types.ts
+ M src/manifold/local-manifold.ts
+ D src/oracle/kimi-code-oracle.ts
+ M src/oracle/mock-oracle.ts
+ M src/oracle/universal-oracle.ts
+ M src/runtime/boot.ts
+ M src/runtime/file-execution-contract.ts
+ M turing_prompt.sh
+?? .last_cycle2_dir
+?? .last_cycle3_dir
+?? .last_cycle4_dir
+?? .last_cycle_dir
+?? benchmarks/audits/cycles/
+?? benchmarks/audits/gemini_workflow_design_evidence_20260225.json
+?? benchmarks/audits/recursive/
+?? docs/external/
+?? docs/workflows/
+?? prompts/
+
+## npm run typecheck
+
+> turingos@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+## npm run smoke:mock
+
+> turingos@0.1.0 smoke:mock
+> tsx src/runtime/boot.ts --oracle mock --max-ticks 8
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/workspace
+[turingos] oracle=mock model=kimi-for-coding maxTicks=8
+[turingos] registers q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+[turingos] stopped after 0 ticks. q="q_2: MOCK_RECOVERY
+[x] observed command failure as data slice
+[x] stderr visible: true" d="HALT"
+
+## npm run bench:os-longrun
+
+> turingos@0.1.0 bench:os-longrun
+> tsx src/bench/os-longrun.ts
+
+
+[os-longrun] repeat=1 scenario=pipeline_ordered_execution maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-121050-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/pipeline_ordered_execution-20260225-121050-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=2 q="q_1: INIT_COMPLETE, AWAIT_NEXT_STEP" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="INIT_COMPLETE, DONE:INIT logged, AWAIT_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="INIT_COMPLETE, DONE:INIT logged, APPEND_DONE:WRITE_INPUT, EXEC_STEP_2" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=6 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=7 q="EXEC_STEP_3" d="sys://append/plan/progress.log"
+[turingos] tick=8 q="EXEC_STEP_3" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="EXEC_STEP_4" d="sys://append/plan/progress.log"
+[turingos] tick=10 q="EXEC_STEP_5" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=12 q="EXEC_STEP_5" d="sys://append/plan/progress.log"
+[turingos] tick=13 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=14 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=15 q="EXEC_STEP_5" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=17 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=18 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=19 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=20 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=21 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=22 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=23 q="EXEC_STEP_5" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=25 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=26 q="EXEC_STEP_5" d="sys://append/plan/progress.log"
+[turingos] tick=27 q="EXEC_MANIFEST_CREATE" d="sys://append/plan/progress.log"
+[turingos] tick=28 q="EXEC_RESULT" d="sys://append/plan/progress.log"
+[turingos] stopped after 28 ticks. q="EXEC_RESULT" d="sys://append/plan/progress.log"
+
+[os-longrun] repeat=1 scenario=fault_recovery_resume maxTicks=28
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-121050-r1 --max-ticks 28 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/fault_recovery_resume-20260225-121050-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=28
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=2 q="STEP_1:INIT_DONE→STEP_2:AWAIT_TASK" d="sys://append/plan/progress.log"
+[turingos] tick=3 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=4 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=5 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=6 q="STEP_2:AWAIT_TASK" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=8 q="STEP_2:AWAIT_TASK" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=10 q="STEP_2:AWAIT_TASK" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=12 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=13 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=14 q="[OS_TRAP: WATCHDOG_NMI] INFINITE LOOP DETECTED!" d="sys://trap/watchdog"
+[turingos] tick=15 q="RECOVER_FROM_WATCHDOG:LOG_FAILURE,INIT:EXECUTE" d="sys://append/plan/progress.log"
+[turingos] tick=16 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=17 q="RECOVER_FROM_WATCHDOG:LOG_FAILURE,INIT:EXECUTE" d="sys://append/plan/progress.log"
+[turingos] tick=18 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=19 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=20 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=21 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=22 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=23 q="INIT:EXECUTE->STEP_1:VERIFY->STEP_2:AWAIT_TASK" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=25 q="STEP_1:VERIFY->STEP_2:AWAIT_TASK" d="sys://append/plan/progress.log"
+[turingos] tick=26 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=27 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=28 q="RECOVERY_L1_FLUSH:INIT_DONE->APPEND_DONE_INIT" d="sys://append/plan/progress.log"
+[turingos] stopped after 28 ticks. q="RECOVERY_L1_FLUSH:INIT_DONE->APPEND_DONE_INIT" d="sys://append/plan/progress.log"
+
+[os-longrun] repeat=1 scenario=long_checklist_stability maxTicks=36
+
+> turingos@0.1.0 dev
+> tsx src/runtime/boot.ts --workspace /home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-121050-r1 --max-ticks 36 --prompt-file /home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt
+
+[turingos] boot workspace=/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces/long_checklist_stability-20260225-121050-r1
+[turingos] oracle=kimi model=kimi-for-coding maxTicks=36
+[turingos] execution-contract=.turingos.contract.json
+[turingos] registers q="q_0: SYSTEM_BOOT" d="MAIN_TAPE.md"
+[turingos] tick=1 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="$ mkdir -p plan milestones result"
+[turingos] tick=2 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=3 q="INIT|M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=4 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=5 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=6 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=7 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=8 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=9 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=10 q="M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=11 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=12 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=13 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=14 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=15 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=16 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=17 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=18 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=19 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=20 q="[OS_TRAP: WATCHDOG_NMI] INFINITE LOOP DETECTED!" d="sys://trap/watchdog"
+[turingos] tick=21 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=22 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=23 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=24 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=25 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=26 q="M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=27 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=28 q="M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=29 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=30 q="M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://append/plan/progress.log"
+[turingos] tick=31 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=32 q="[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon." d="sys://trap/l1_cache_hit"
+[turingos] tick=33 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=34 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=35 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] tick=36 q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}" d="sys://trap/cpu_fault"
+[turingos] stopped after 36 ticks. q="[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+You MUST output strictly valid JSON. Keep Todo stack intact and try again.
+
+[RECOVERED STATE q]:
+[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+You MUST output strictly valid JSON. Keep Todo stack intact and try again.
+
+[RECOVERED STATE q]:
+[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+You MUST output strictly valid JSON. Keep Todo stack intact and try again.
+
+[RECOVERED STATE q]:
+[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: Kimi API 500: {"error":{"type":"api_error","message":"The server had an error while processing your request"},"type":"error"}
+You MUST output strictly valid JSON. Keep Todo stack intact and try again.
+
+[RECOVERED STATE q]:
+[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.
+Action signature: 5e61a676c2d4
+Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.
+
+[RECOVERED STATE q]:
+M05|M06|M07|M08|SEQUENCE|RESULT|HALT" d="sys://trap/cpu_fault"
+
+[os-longrun] finished. passed=0/3
+[os-longrun] report(json): /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-121050.json
+[os-longrun] report(md):   /home/zephryj/projects/turingos/benchmarks/results/os-longrun-20260225-121050.md

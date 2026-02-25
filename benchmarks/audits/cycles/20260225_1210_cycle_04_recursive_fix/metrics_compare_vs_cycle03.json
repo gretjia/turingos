@@ -1,0 +1,22 @@
+{
+  "passed_before": 0,
+  "passed_after": 0,
+  "completion_before": 0,
+  "completion_after": 0,
+  "completion_delta": 0,
+  "plan_before": 0.6984,
+  "plan_after": 0.3968,
+  "plan_delta": -0.3016,
+  "watchdog_before": 0,
+  "watchdog_after": 1,
+  "watchdog_delta": 1,
+  "cpu_fault_before": 0,
+  "cpu_fault_after": 20,
+  "cpu_fault_delta": 20,
+  "page_fault_before": 6.3333,
+  "page_fault_after": 0,
+  "page_fault_delta": -6.3333,
+  "io_fault_before": 3,
+  "io_fault_after": 0,
+  "io_fault_delta": -3
+}

@@ -1,0 +1,514 @@
+diff --git a/src/bench/os-longrun.ts b/src/bench/os-longrun.ts
+index 310a2dc..c5b9cb1 100644
+--- a/src/bench/os-longrun.ts
++++ b/src/bench/os-longrun.ts
+@@ -24,6 +24,7 @@ interface Scenario {
+   name: string;
+   maxTicks: number;
+   stepIds: string[];
++  stepFileMap?: Record<string, string>;
+   mainTape: string;
+   expectedFiles: FileExpectation[];
+   mustContainTrap?: TrapKind;
+@@ -145,6 +146,15 @@ function buildScenarios(): Scenario[] {
+       name: 'Pipeline Ordered Execution',
+       maxTicks: 28,
+       stepIds: pipelineSteps,
++      stepFileMap: {
++        INIT: 'artifacts/input.csv',
++        WRITE_INPUT: 'artifacts/input.csv',
++        FILTER_HIGH: 'artifacts/high.csv',
++        SUM: 'artifacts/sum.txt',
++        MANIFEST: 'artifacts/manifest.txt',
++        RESULT: 'result/RESULT.json',
++        HALT: 'result/RESULT.json',
++      },
+       mainTape: [
+         '# Mission: Pipeline Ordered Execution',
+         '',
+@@ -208,6 +218,15 @@ function buildScenarios(): Scenario[] {
+       name: 'Fault Recovery Resume',
+       maxTicks: 28,
+       stepIds: recoverySteps,
++      stepFileMap: {
++        INIT: 'inputs/source.txt',
++        TRIGGER_PAGE_FAULT: 'inputs/source.txt',
++        RECOVER_SOURCE: 'inputs/source.txt',
++        TRANSFORM: 'outputs/colors_upper.txt',
++        COUNT: 'outputs/count.txt',
++        RESULT: 'result/RESULT.json',
++        HALT: 'result/RESULT.json',
++      },
+       mainTape: [
+         '# Mission: Fault Recovery Resume',
+         '',
+@@ -253,6 +272,20 @@ function buildScenarios(): Scenario[] {
+       name: 'Long Checklist Stability',
+       maxTicks: 36,
+       stepIds: checklistSteps,
++      stepFileMap: {
++        INIT: 'milestones/m01.txt',
++        M01: 'milestones/m01.txt',
++        M02: 'milestones/m02.txt',
++        M03: 'milestones/m03.txt',
++        M04: 'milestones/m04.txt',
++        M05: 'milestones/m05.txt',
++        M06: 'milestones/m06.txt',
++        M07: 'milestones/m07.txt',
++        M08: 'milestones/m08.txt',
++        SEQUENCE: 'milestones/sequence.txt',
++        RESULT: 'result/RESULT.json',
++        HALT: 'result/RESULT.json',
++      },
+       mainTape: [
+         '# Mission: Long Checklist Stability',
+         '',
+@@ -316,6 +349,7 @@ async function writeExecutionContract(workspace: string, scenario: Scenario): Pr
+     progress_file: 'plan/progress.log',
+     ordered_steps: scenario.stepIds,
+     required_files: scenario.expectedFiles.map((item) => item.path),
++    step_file_map: scenario.stepFileMap ?? {},
+   };
+   await fs.writeFile(contractPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
+ }
+diff --git a/src/kernel/engine.ts b/src/kernel/engine.ts
+index cc62561..bb21cd1 100644
+--- a/src/kernel/engine.ts
++++ b/src/kernel/engine.ts
+@@ -23,6 +23,9 @@ export interface IgniteResult {
+ 
+ export class TuringEngine {
+   private watchdogHistory: string[] = [];
++  private l1TraceCache: string[] = [];
++  private readonly l1TraceDepth = 3;
++  private readonly watchdogDepth = 5;
+   private lastObservedPointer?: Pointer;
+   private lastObservedSlice?: Slice;
+   private lastTrapDetails = new Map<string, string>();
+@@ -38,6 +41,9 @@ export class TuringEngine {
+   public async tick(q_t: State, d_t: Pointer): Promise<[State, Pointer]> {
+     let s_t: Slice;
+     const pointer = d_t.trim();
++    let nextRequiredDone: string | null = null;
++    let progressAppendPointer: Pointer | null = null;
++    let nextRequiredFileHint: string | null = null;
+ 
+     // 1) Observe from the physical manifold.
+     try {
+@@ -60,6 +66,15 @@ export class TuringEngine {
+ 
+     // 1.5) Validate progress contract and feed violations back as trap context.
+     if (this.executionContract) {
++      try {
++        nextRequiredDone = await this.executionContract.getNextRequiredStep();
++        nextRequiredFileHint = await this.executionContract.getNextRequiredFileHint();
++        const progressPath = this.executionContract.getProgressPath().replace(/^\.\//, '');
++        progressAppendPointer = `sys://append/${progressPath}`;
++      } catch {
++        nextRequiredDone = null;
++      }
++
+       try {
+         const progressCheck = await this.executionContract.checkProgress();
+         if (!progressCheck.ok) {
+@@ -115,6 +130,24 @@ export class TuringEngine {
+     this.lastObservedPointer = pointer;
+     this.lastObservedSlice = s_t;
+ 
++    // 1.8) Inject managed context channels for short-horizon anti-looping.
++    const callStackSlice = await this.observeCallStackSnapshot();
++    const l1TraceSlice = this.renderL1Trace();
++    const contractSlice = this.renderContractGuidance(nextRequiredDone, progressAppendPointer, nextRequiredFileHint);
++    s_t = [
++      '[OS_CONTRACT]',
++      contractSlice,
++      '',
++      '[L1_TRACE_CACHE]',
++      l1TraceSlice,
++      '',
++      '[OS_CALL_STACK]',
++      callStackSlice,
++      '',
++      '[OBSERVED_SLICE]',
++      s_t,
++    ].join('\n');
++
+     // 2) Run the oracle transition.
+     let transition: Transition;
+     try {
+@@ -135,6 +168,22 @@ export class TuringEngine {
+ 
+     const { q_next, s_prime, d_next } = transition;
+ 
++    // 2.2) Apply syscall-driven call stack operations (OS-managed memory).
++    try {
++      await this.applyStackSyscall(transition);
++    } catch (error: unknown) {
++      const message = error instanceof Error ? error.message : String(error);
++      return [
++        [
++          q_t,
++          '',
++          `[OS_TRAP: STACK_FAULT] Failed to apply stack syscall: ${message}`,
++          'Action: emit valid stack_op and stack_payload (for PUSH) in next JSON transition.',
++        ].join('\n'),
++        'sys://trap/stack_fault',
++      ];
++    }
++
+     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
+     const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT';
+     if (haltRequested && this.executionContract) {
+@@ -167,18 +216,40 @@ export class TuringEngine {
+       }
+     }
+ 
+-    // 3) Watchdog non-maskable interrupt against repeated actions.
+-    const actionHash = createHash('sha256')
+-      .update(`${d_next}|${s_prime.slice(0, 80)}`)
+-      .digest('hex');
++    // 3) L1 trace pre-watchdog interrupt for short action loops.
++    const actionHash = this.actionSignature(d_next, s_prime);
++    this.l1TraceCache.push(actionHash);
++    if (this.l1TraceCache.length > this.l1TraceDepth) {
++      this.l1TraceCache.shift();
++    }
++
++    const l1LoopDetected =
++      this.l1TraceCache.length === this.l1TraceDepth &&
++      this.l1TraceCache.every((item) => item === actionHash);
++    if (l1LoopDetected) {
++      this.l1TraceCache = [];
++      return [
++        [
++          '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
++          `Action signature: ${actionHash.slice(0, 12)}`,
++          'Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.',
++          '',
++          '[RECOVERED STATE q]:',
++          q_next,
++        ].join('\n'),
++        'sys://trap/l1_cache_hit',
++      ];
++    }
++
++    // 3.5) Watchdog non-maskable interrupt against repeated actions.
+ 
+     this.watchdogHistory.push(actionHash);
+-    if (this.watchdogHistory.length > 5) {
++    if (this.watchdogHistory.length > this.watchdogDepth) {
+       this.watchdogHistory.shift();
+     }
+ 
+     const isStuck =
+-      this.watchdogHistory.length === 5 &&
++      this.watchdogHistory.length === this.watchdogDepth &&
+       this.watchdogHistory.every((h) => h === actionHash);
+ 
+     if (isStuck) {
+@@ -199,8 +270,26 @@ export class TuringEngine {
+     // 4) Interfere with physical world unless this is a pure read/exec step.
+     const isAppendChannel = pointer.startsWith('sys://append/');
+     if (s_prime.trim() !== '👆🏻' && (!pointer.startsWith('sys://') || isAppendChannel)) {
++      let writePayload = s_prime;
++      if (isAppendChannel && progressAppendPointer && pointer === progressAppendPointer) {
++        const normalized = await this.normalizeProgressPayload(s_prime, nextRequiredDone, nextRequiredFileHint);
++        if (!normalized.ok) {
++          return [
++            [
++              q_next,
++              '',
++              `[OS_TRAP: IO_FAULT] Failed to write to ${d_t}: ${normalized.reason}`,
++              `Action: append exact line DONE:${nextRequiredDone ?? '<none>'} once.`,
++            ].join('\n'),
++            'sys://trap/io_fault',
++          ];
++        }
++
++        writePayload = normalized.payload;
++      }
++
+       try {
+-        await this.manifold.interfere(d_t, s_prime);
++        await this.manifold.interfere(d_t, writePayload);
+       } catch (error: unknown) {
+         const message = error instanceof Error ? error.message : String(error);
+         return [
+@@ -216,7 +305,18 @@ export class TuringEngine {
+     }
+ 
+     const shortQ = q_next.split('\n').find((line) => line.trim().length > 0)?.slice(0, 60) ?? 'State updated';
+-    await this.chronos.engrave(`[Tick] d:${d_t} -> d':${d_next} | ${shortQ}`);
++    const shortThought =
++      typeof transition.thought === 'string'
++        ? transition.thought.split('\n').find((line) => line.trim().length > 0)?.slice(0, 80) ?? ''
++        : '';
++    const stackOp = transition.stack_op ?? 'NOP';
++    const stackNote =
++      stackOp === 'PUSH'
++        ? `${stackOp}(${(transition.stack_payload ?? '').slice(0, 40)})`
++        : stackOp;
++    await this.chronos.engrave(
++      `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | stack:${stackNote} | thought:${shortThought || '-'}`
++    );
+ 
+     return [q_next, d_next];
+   }
+@@ -247,4 +347,126 @@ export class TuringEngine {
+   private systemTrapPointer(base: string, details: string): Pointer {
+     return `${base}?details=${encodeURIComponent(details)}`;
+   }
++
++  private actionSignature(dNext: Pointer, sPrime: string): string {
++    return createHash('sha256')
++      .update(`${dNext}|${sPrime.slice(0, 120)}`)
++      .digest('hex');
++  }
++
++  private renderL1Trace(): string {
++    if (this.l1TraceCache.length === 0) {
++      return '(empty)';
++    }
++
++    return this.l1TraceCache
++      .map((hash, idx) => `${idx + 1}. ${hash.slice(0, 12)}`)
++      .join('\n');
++  }
++
++  private async observeCallStackSnapshot(): Promise<string> {
++    try {
++      return await this.manifold.observe('sys://callstack');
++    } catch (error: unknown) {
++      const message = error instanceof Error ? error.message : String(error);
++      return `[SYSTEM_CHANNEL] sys://callstack\n[DETAILS]\nUnavailable: ${message}`;
++    }
++  }
++
++  private async applyStackSyscall(transition: Transition): Promise<void> {
++    const op = transition.stack_op;
++    if (op === 'NOP') {
++      return;
++    }
++
++    if (op === 'POP') {
++      await this.manifold.interfere('sys://callstack', 'POP');
++      return;
++    }
++
++    const payload = (transition.stack_payload ?? '').trim();
++    if (payload.length === 0) {
++      throw new Error('PUSH requires stack_payload.');
++    }
++
++    await this.manifold.interfere('sys://callstack', `PUSH: ${payload}`);
++  }
++
++  private renderContractGuidance(
++    nextRequiredDone: string | null,
++    progressAppendPointer: Pointer | null,
++    nextRequiredFileHint: string | null
++  ): string {
++    const next = nextRequiredDone ? `DONE:${nextRequiredDone}` : '(complete)';
++    return [
++      `[NEXT_REQUIRED_DONE] ${next}`,
++      `[PROGRESS_APPEND_POINTER] ${progressAppendPointer ?? '(n/a)'}`,
++      `[NEXT_REQUIRED_FILE_HINT] ${nextRequiredFileHint ?? '(none)'}`,
++      'Rule: append exactly one DONE line for NEXT_REQUIRED_DONE; do not rewrite whole progress log.',
++    ].join('\n');
++  }
++
++  private normalizeProgressPayload(
++    payload: string,
++    nextRequiredDone: string | null,
++    nextRequiredFileHint: string | null
++  ): Promise<{ ok: true; payload: string } | { ok: false; reason: string }> {
++    if (!nextRequiredDone) {
++      return Promise.resolve({ ok: false, reason: 'Plan already complete; no further DONE append allowed.' });
++    }
++
++    const expectedLine = `DONE:${nextRequiredDone}`;
++    const candidate = payload
++      .split('\n')
++      .map((line) => line.trim())
++      .find((line) => line.length > 0);
++
++    if (!candidate) {
++      return Promise.resolve({ ok: false, reason: 'Empty append payload.' });
++    }
++
++    const compact = candidate.replace(/\s+/g, '').toUpperCase();
++    if (compact === expectedLine.replace(/\s+/g, '').toUpperCase()) {
++      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
++    }
++
++    if (compact === nextRequiredDone.replace(/\s+/g, '').toUpperCase()) {
++      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
++    }
++
++    const doneMatch = candidate.match(/^DONE[:：]\s*(.+)$/i);
++    if (doneMatch?.[1]) {
++      const doneStep = doneMatch[1].trim();
++      if (doneStep === nextRequiredDone || doneStep.includes(nextRequiredDone)) {
++        return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
++      }
++    } else if (candidate.includes(nextRequiredDone)) {
++      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
++    }
++
++    return Promise.resolve({
++      ok: false,
++      reason: `Progress strictly requires ${expectedLine}, got "${candidate.slice(0, 120)}".`,
++    });
++  }
++
++  private async enforceStepArtifactBeforeDone(
++    expectedLine: string,
++    nextRequiredFileHint: string | null
++  ): Promise<{ ok: true; payload: string } | { ok: false; reason: string }> {
++    if (!nextRequiredFileHint) {
++      return { ok: true, payload: expectedLine };
++    }
++
++    try {
++      await this.manifold.observe(nextRequiredFileHint);
++      return { ok: true, payload: expectedLine };
++    } catch (error: unknown) {
++      const message = error instanceof Error ? error.message : String(error);
++      return {
++        ok: false,
++        reason: `Step artifact missing before DONE append: ${nextRequiredFileHint}. ${message}`,
++      };
++    }
++  }
+ }
+diff --git a/src/kernel/types.ts b/src/kernel/types.ts
+index acff58a..31af862 100644
+--- a/src/kernel/types.ts
++++ b/src/kernel/types.ts
+@@ -2,10 +2,15 @@ export type State = string;
+ export type Pointer = string;
+ export type Slice = string;
+ 
++export type StackOp = 'PUSH' | 'POP' | 'NOP';
++
+ export interface Transition {
++  thought?: string;
+   q_next: State;
+   s_prime: string;
+   d_next: Pointer;
++  stack_op: StackOp;
++  stack_payload?: string;
+ }
+ 
+ export interface IOracle {
+@@ -29,4 +34,7 @@ export interface ContractCheckResult {
+ export interface IExecutionContract {
+   checkProgress(): Promise<ContractCheckResult>;
+   checkHalt(): Promise<ContractCheckResult>;
++  getNextRequiredStep(): Promise<string | null>;
++  getProgressPath(): string;
++  getNextRequiredFileHint(): Promise<string | null>;
+ }
+diff --git a/src/runtime/file-execution-contract.ts b/src/runtime/file-execution-contract.ts
+index ad25633..8b5ef96 100644
+--- a/src/runtime/file-execution-contract.ts
++++ b/src/runtime/file-execution-contract.ts
+@@ -7,6 +7,7 @@ interface ExecutionContractFile {
+   progress_file?: string;
+   ordered_steps?: string[];
+   required_files?: string[];
++  step_file_map?: Record<string, string>;
+ }
+ 
+ interface ParsedDoneSteps {
+@@ -47,6 +48,7 @@ export class FileExecutionContract implements IExecutionContract {
+ 
+     const done = await this.readDoneSteps();
+ 
++    const stepMap = this.stepFileMap();
+     for (let i = 0; i < done.steps.length; i += 1) {
+       if (i >= ordered.length) {
+         return {
+@@ -61,6 +63,17 @@ export class FileExecutionContract implements IExecutionContract {
+           reason: `Out-of-order progress at index ${i + 1}. Expected DONE:${ordered[i]} but got DONE:${done.steps[i]}.`,
+         };
+       }
++
++      const mappedFile = stepMap[done.steps[i]];
++      if (mappedFile) {
++        const exists = await this.fileExists(mappedFile);
++        if (!exists) {
++          return {
++            ok: false,
++            reason: `required file is missing for DONE:${done.steps[i]} -> ${mappedFile}.`,
++          };
++        }
++      }
+     }
+ 
+     return { ok: true };
+@@ -103,6 +116,42 @@ export class FileExecutionContract implements IExecutionContract {
+     return { ok: true };
+   }
+ 
++  public async getNextRequiredStep(): Promise<string | null> {
++    if (this.config.enabled === false) {
++      return null;
++    }
++
++    const ordered = this.orderedSteps();
++    if (ordered.length === 0) {
++      return null;
++    }
++
++    const done = await this.readDoneSteps();
++    if (done.steps.length >= ordered.length) {
++      return null;
++    }
++
++    return ordered[done.steps.length] ?? null;
++  }
++
++  public getProgressPath(): string {
++    return this.progressPath();
++  }
++
++  public async getNextRequiredFileHint(): Promise<string | null> {
++    if (this.config.enabled === false) {
++      return null;
++    }
++
++    const nextStep = await this.getNextRequiredStep();
++    if (!nextStep) {
++      return null;
++    }
++
++    const map = this.stepFileMap();
++    return map[nextStep] ?? null;
++  }
++
+   private orderedSteps(): string[] {
+     return (this.config.ordered_steps ?? []).filter((step): step is string => typeof step === 'string');
+   }
+@@ -111,6 +160,21 @@ export class FileExecutionContract implements IExecutionContract {
+     return (this.config.required_files ?? []).filter((item): item is string => typeof item === 'string');
+   }
+ 
++  private stepFileMap(): Record<string, string> {
++    const value = this.config.step_file_map;
++    if (!value || typeof value !== 'object') {
++      return {};
++    }
++
++    const out: Record<string, string> = {};
++    for (const [key, mapped] of Object.entries(value)) {
++      if (typeof key === 'string' && typeof mapped === 'string' && key.trim() && mapped.trim()) {
++        out[key.trim()] = mapped.trim();
++      }
++    }
++    return out;
++  }
++
+   private progressPath(): string {
+     return this.config.progress_file ?? 'plan/progress.log';
+   }

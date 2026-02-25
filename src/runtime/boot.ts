@@ -1,11 +1,9 @@
 import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
-import OpenAI from 'openai';
 import { FileChronos } from '../chronos/file-chronos.js';
 import { TuringEngine } from '../kernel/engine.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
-import { KimiCodeOracle } from '../oracle/kimi-code-oracle.js';
 import { MockOracle } from '../oracle/mock-oracle.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
 import { FileExecutionContract } from './file-execution-contract.js';
@@ -99,11 +97,10 @@ async function main(): Promise<void> {
       return new MockOracle();
     }
 
-    const usingKimi = oracleMode === 'kimi';
-    const apiKey = usingKimi ? process.env.KIMI_API_KEY ?? process.env.OPENAI_API_KEY : process.env.OPENAI_API_KEY;
+    const apiKey = oracleMode === 'kimi' ? process.env.KIMI_API_KEY ?? process.env.OPENAI_API_KEY : process.env.OPENAI_API_KEY;
     if (!apiKey) {
       console.warn(
-        usingKimi
+        oracleMode === 'kimi'
           ? '[turingos] KIMI_API_KEY missing. Falling back to mock oracle.'
           : '[turingos] OPENAI_API_KEY missing. Falling back to mock oracle.'
       );
@@ -111,16 +108,12 @@ async function main(): Promise<void> {
     }
 
     const baseURL = process.env.TURINGOS_API_BASE_URL;
-    if (usingKimi) {
-      return new KimiCodeOracle(apiKey, model, baseURL ?? 'https://api.kimi.com/coding', maxOutputTokens);
-    }
-
-    const clientConfig: { apiKey: string; baseURL?: string } = { apiKey };
-    if (baseURL) {
-      clientConfig.baseURL = baseURL;
-    }
-
-    return new UniversalOracle(new OpenAI(clientConfig), model);
+    return new UniversalOracle(oracleMode, {
+      apiKey,
+      model,
+      baseURL,
+      maxOutputTokens,
+    });
   })();
 
   const engine = new TuringEngine(manifold, oracle, chronos, disciplinePrompt, executionContract ?? undefined);

@@ -2,10 +2,15 @@ export type State = string;
 export type Pointer = string;
 export type Slice = string;
 
+export type StackOp = 'PUSH' | 'POP' | 'NOP';
+
 export interface Transition {
+  thought?: string;
   q_next: State;
   s_prime: string;
   d_next: Pointer;
+  stack_op: StackOp;
+  stack_payload?: string;
 }
 
 export interface IOracle {
@@ -29,4 +34,8 @@ export interface ContractCheckResult {
 export interface IExecutionContract {
   checkProgress(): Promise<ContractCheckResult>;
   checkHalt(): Promise<ContractCheckResult>;
+  checkNextRequiredStepReady(): Promise<ContractCheckResult>;
+  getNextRequiredStep(): Promise<string | null>;
+  getProgressPath(): string;
+  getNextRequiredFileHint(): Promise<string | null>;
 }

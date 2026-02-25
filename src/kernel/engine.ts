@@ -23,6 +23,9 @@ export interface IgniteResult {
 
 export class TuringEngine {
   private watchdogHistory: string[] = [];
+  private l1TraceCache: string[] = [];
+  private readonly l1TraceDepth = 3;
+  private readonly watchdogDepth = 5;
   private lastObservedPointer?: Pointer;
   private lastObservedSlice?: Slice;
   private lastTrapDetails = new Map<string, string>();
@@ -38,6 +41,9 @@ export class TuringEngine {
   public async tick(q_t: State, d_t: Pointer): Promise<[State, Pointer]> {
     let s_t: Slice;
     const pointer = d_t.trim();
+    let nextRequiredDone: string | null = null;
+    let progressAppendPointer: Pointer | null = null;
+    let nextRequiredFileHint: string | null = null;
 
     // 1) Observe from the physical manifold.
     try {
@@ -61,11 +67,22 @@ export class TuringEngine {
     // 1.5) Validate progress contract and feed violations back as trap context.
     if (this.executionContract) {
       try {
+        nextRequiredDone = await this.executionContract.getNextRequiredStep();
+        nextRequiredFileHint = await this.executionContract.getNextRequiredFileHint();
+        const progressPath = this.executionContract.getProgressPath().replace(/^\.\//, '');
+        progressAppendPointer = `sys://append/${progressPath}`;
+      } catch {
+        nextRequiredDone = null;
+      }
+
+      try {
         const progressCheck = await this.executionContract.checkProgress();
         if (!progressCheck.ok) {
           const reason = progressCheck.reason ?? 'Unknown contract error.';
           const action = reason.includes('required file is missing')
             ? 'Action: Create the missing file for that DONE step first, then continue to next step.'
+            : reason.includes('required file content mismatch')
+              ? 'Action: Rewrite the mapped file to exact required content, then append DONE for that step.'
             : reason.includes('Out-of-order progress') || reason.includes('Progress exceeds')
               ? 'Action: Repair progress log to strict ordered DONE:<STEP_ID> prefix.'
               : 'Action: Continue in strict plan order and append one DONE line per completed step.';
@@ -115,6 +132,24 @@ export class TuringEngine {
     this.lastObservedPointer = pointer;
     this.lastObservedSlice = s_t;
 
+    // 1.8) Inject managed context channels for short-horizon anti-looping.
+    const callStackSlice = await this.observeCallStackSnapshot();
+    const l1TraceSlice = this.renderL1Trace();
+    const contractSlice = this.renderContractGuidance(nextRequiredDone, progressAppendPointer, nextRequiredFileHint);
+    s_t = [
+      '[OS_CONTRACT]',
+      contractSlice,
+      '',
+      '[L1_TRACE_CACHE]',
+      l1TraceSlice,
+      '',
+      '[OS_CALL_STACK]',
+      callStackSlice,
+      '',
+      '[OBSERVED_SLICE]',
+      s_t,
+    ].join('\n');
+
     // 2) Run the oracle transition.
     let transition: Transition;
     try {
@@ -134,6 +169,22 @@ export class TuringEngine {
     }
 
     const { q_next, s_prime, d_next } = transition;
+
+    // 2.2) Apply syscall-driven call stack operations (OS-managed memory).
+    try {
+      await this.applyStackSyscall(transition);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return [
+        [
+          q_t,
+          '',
+          `[OS_TRAP: STACK_FAULT] Failed to apply stack syscall: ${message}`,
+          'Action: emit valid stack_op and stack_payload (for PUSH) in next JSON transition.',
+        ].join('\n'),
+        'sys://trap/stack_fault',
+      ];
+    }
 
     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
     const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT';
@@ -167,18 +218,40 @@ export class TuringEngine {
       }
     }
 
-    // 3) Watchdog non-maskable interrupt against repeated actions.
-    const actionHash = createHash('sha256')
-      .update(`${d_next}|${s_prime.slice(0, 80)}`)
-      .digest('hex');
+    // 3) L1 trace pre-watchdog interrupt for short action loops.
+    const actionHash = this.actionSignature(d_next, s_prime);
+    this.l1TraceCache.push(actionHash);
+    if (this.l1TraceCache.length > this.l1TraceDepth) {
+      this.l1TraceCache.shift();
+    }
+
+    const l1LoopDetected =
+      this.l1TraceCache.length === this.l1TraceDepth &&
+      this.l1TraceCache.every((item) => item === actionHash);
+    if (l1LoopDetected) {
+      this.l1TraceCache = [];
+      return [
+        [
+          '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
+          `Action signature: ${actionHash.slice(0, 12)}`,
+          'Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.',
+          '',
+          '[RECOVERED STATE q]:',
+          q_next,
+        ].join('\n'),
+        'sys://trap/l1_cache_hit',
+      ];
+    }
+
+    // 3.5) Watchdog non-maskable interrupt against repeated actions.
 
     this.watchdogHistory.push(actionHash);
-    if (this.watchdogHistory.length > 5) {
+    if (this.watchdogHistory.length > this.watchdogDepth) {
       this.watchdogHistory.shift();
     }
 
     const isStuck =
-      this.watchdogHistory.length === 5 &&
+      this.watchdogHistory.length === this.watchdogDepth &&
       this.watchdogHistory.every((h) => h === actionHash);
 
     if (isStuck) {
@@ -199,8 +272,26 @@ export class TuringEngine {
     // 4) Interfere with physical world unless this is a pure read/exec step.
     const isAppendChannel = pointer.startsWith('sys://append/');
     if (s_prime.trim() !== '👆🏻' && (!pointer.startsWith('sys://') || isAppendChannel)) {
+      let writePayload = s_prime;
+      if (isAppendChannel && progressAppendPointer && pointer === progressAppendPointer) {
+        const normalized = await this.normalizeProgressPayload(s_prime, nextRequiredDone, nextRequiredFileHint);
+        if (!normalized.ok) {
+          return [
+            [
+              q_next,
+              '',
+              `[OS_TRAP: IO_FAULT] Failed to write to ${d_t}: ${normalized.reason}`,
+              `Action: append exact line DONE:${nextRequiredDone ?? '<none>'} once.`,
+            ].join('\n'),
+            'sys://trap/io_fault',
+          ];
+        }
+
+        writePayload = normalized.payload;
+      }
+
       try {
-        await this.manifold.interfere(d_t, s_prime);
+        await this.manifold.interfere(d_t, writePayload);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         return [
@@ -216,7 +307,18 @@ export class TuringEngine {
     }
 
     const shortQ = q_next.split('\n').find((line) => line.trim().length > 0)?.slice(0, 60) ?? 'State updated';
-    await this.chronos.engrave(`[Tick] d:${d_t} -> d':${d_next} | ${shortQ}`);
+    const shortThought =
+      typeof transition.thought === 'string'
+        ? transition.thought.split('\n').find((line) => line.trim().length > 0)?.slice(0, 80) ?? ''
+        : '';
+    const stackOp = transition.stack_op ?? 'NOP';
+    const stackNote =
+      stackOp === 'PUSH'
+        ? `${stackOp}(${(transition.stack_payload ?? '').slice(0, 40)})`
+        : stackOp;
+    await this.chronos.engrave(
+      `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | stack:${stackNote} | thought:${shortThought || '-'}`
+    );
 
     return [q_next, d_next];
   }
@@ -246,5 +348,138 @@ export class TuringEngine {
 
   private systemTrapPointer(base: string, details: string): Pointer {
     return `${base}?details=${encodeURIComponent(details)}`;
+  }
+
+  private actionSignature(dNext: Pointer, sPrime: string): string {
+    return createHash('sha256')
+      .update(`${dNext}|${sPrime.slice(0, 120)}`)
+      .digest('hex');
+  }
+
+  private renderL1Trace(): string {
+    if (this.l1TraceCache.length === 0) {
+      return '(empty)';
+    }
+
+    return this.l1TraceCache
+      .map((hash, idx) => `${idx + 1}. ${hash.slice(0, 12)}`)
+      .join('\n');
+  }
+
+  private async observeCallStackSnapshot(): Promise<string> {
+    try {
+      return await this.manifold.observe('sys://callstack');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return `[SYSTEM_CHANNEL] sys://callstack\n[DETAILS]\nUnavailable: ${message}`;
+    }
+  }
+
+  private async applyStackSyscall(transition: Transition): Promise<void> {
+    const op = transition.stack_op;
+    if (op === 'NOP') {
+      return;
+    }
+
+    if (op === 'POP') {
+      await this.manifold.interfere('sys://callstack', 'POP');
+      return;
+    }
+
+    const payload = (transition.stack_payload ?? '').trim();
+    if (payload.length === 0) {
+      throw new Error('PUSH requires stack_payload.');
+    }
+
+    await this.manifold.interfere('sys://callstack', `PUSH: ${payload}`);
+  }
+
+  private renderContractGuidance(
+    nextRequiredDone: string | null,
+    progressAppendPointer: Pointer | null,
+    nextRequiredFileHint: string | null
+  ): string {
+    const next = nextRequiredDone ? `DONE:${nextRequiredDone}` : '(complete)';
+    return [
+      `[NEXT_REQUIRED_DONE] ${next}`,
+      `[PROGRESS_APPEND_POINTER] ${progressAppendPointer ?? '(n/a)'}`,
+      `[NEXT_REQUIRED_FILE_HINT] ${nextRequiredFileHint ?? '(none)'}`,
+      'Rule: append exactly one DONE line for NEXT_REQUIRED_DONE; do not rewrite whole progress log.',
+    ].join('\n');
+  }
+
+  private normalizeProgressPayload(
+    payload: string,
+    nextRequiredDone: string | null,
+    nextRequiredFileHint: string | null
+  ): Promise<{ ok: true; payload: string } | { ok: false; reason: string }> {
+    if (!nextRequiredDone) {
+      return Promise.resolve({ ok: false, reason: 'Plan already complete; no further DONE append allowed.' });
+    }
+
+    const expectedLine = `DONE:${nextRequiredDone}`;
+    const candidate = payload
+      .split('\n')
+      .map((line) => line.trim())
+      .find((line) => line.length > 0);
+
+    if (!candidate) {
+      return Promise.resolve({ ok: false, reason: 'Empty append payload.' });
+    }
+
+    const compact = candidate.replace(/\s+/g, '').toUpperCase();
+    if (compact === expectedLine.replace(/\s+/g, '').toUpperCase()) {
+      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
+    }
+
+    if (compact === nextRequiredDone.replace(/\s+/g, '').toUpperCase()) {
+      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
+    }
+
+    const doneMatch = candidate.match(/^DONE[:：]\s*(.+)$/i);
+    if (doneMatch?.[1]) {
+      const doneStep = doneMatch[1].trim();
+      if (doneStep === nextRequiredDone || doneStep.includes(nextRequiredDone)) {
+        return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
+      }
+    } else if (candidate.includes(nextRequiredDone)) {
+      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
+    }
+
+    return Promise.resolve({
+      ok: false,
+      reason: `Progress strictly requires ${expectedLine}, got "${candidate.slice(0, 120)}".`,
+    });
+  }
+
+  private async enforceStepArtifactBeforeDone(
+    expectedLine: string,
+    nextRequiredFileHint: string | null
+  ): Promise<{ ok: true; payload: string } | { ok: false; reason: string }> {
+    if (this.executionContract) {
+      const readiness = await this.executionContract.checkNextRequiredStepReady();
+      if (!readiness.ok) {
+        return {
+          ok: false,
+          reason: readiness.reason ?? 'Next required step is not ready for DONE append.',
+        };
+      }
+      return { ok: true, payload: expectedLine };
+    }
+
+    if (!nextRequiredFileHint) {
+      return { ok: true, payload: expectedLine };
+    }
+
+    try {
+      await this.manifold.observe(nextRequiredFileHint);
+      return { ok: true, payload: expectedLine };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        ok: false,
+        reason: `Step artifact missing before DONE append: ${nextRequiredFileHint}. ${message}`,
+      };
+    }
   }
 }
