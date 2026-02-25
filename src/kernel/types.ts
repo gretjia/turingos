@@ -20,3 +20,13 @@ export interface IPhysicalManifold {
 export interface IChronos {
   engrave(entry: string): Promise<void>;
 }
+
+export interface ContractCheckResult {
+  ok: boolean;
+  reason?: string;
+}
+
+export interface IExecutionContract {
+  checkProgress(): Promise<ContractCheckResult>;
+  checkHalt(): Promise<ContractCheckResult>;
+}

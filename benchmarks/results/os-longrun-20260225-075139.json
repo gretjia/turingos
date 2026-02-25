@@ -1,0 +1,234 @@
+{
+  "metadata": {
+    "runStamp": "20260225-075139",
+    "executedAt": "2026-02-25T07:54:54.574Z",
+    "model": "kimi-for-coding",
+    "promptFile": "/home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt",
+    "repeats": 1
+  },
+  "aggregates": [
+    {
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.1429,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 7
+    },
+    {
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.75,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    },
+    {
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.1429,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 4
+    }
+  ],
+  "results": [
+    {
+      "repeat": 1,
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 45756,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 24,
+      "completionScore": 0,
+      "planAdherence": 0.1429,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 4
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "INIT|WRITE_INPUT|FILTER_HIGH|SUM|MANIFEST|RESULT|HALT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "artifacts/input.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/high.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/sum.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/manifest.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 65931,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 23,
+      "completionScore": 0,
+      "planAdherence": 0.1429,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 25,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 7
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "[OS_TRAP: WATCHDOG_NMI] INFINITE LOOP DETECTED!\nYou repeated the same action 5 times with no progress.\nPop current task, log why it failed, and attempt a different strategy.\n\n[RECOVERED STATE q]:\nINIT:1) create directories plan, inputs, outputs, result [DONE:1] | TRIGGER_PAGE_FAULT:2) read inputs/source.txt | RECOVER_SOURCE:3) create inputs/source.txt | TRANSFORM:4) create outputs/colors_upper.txt | COUNT:5) create outputs/count.txt | RESULT:6) create result/RESULT.json | HALT:7) verify and HALT",
+      "finalD": "sys://trap/watchdog",
+      "fileChecks": [
+        {
+          "path": "inputs/source.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/colors_upper.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/count.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "maxTicks": 36,
+      "exitCode": 2,
+      "elapsedMs": 83471,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 34,
+      "completionScore": 0,
+      "planAdherence": 0.75,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "STEP_001:mkdir_artifacts|STEP_002:mkdir_plan|STEP_003:create_artifacts_a.txt|STEP_004:append_progress_DONE:STEP_001|STEP_005:append_progress_DONE:STEP_002|STEP_006:append_progress_DONE:STEP_003|STEP_007:HALT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "milestones/m01.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m02.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m03.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m04.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m05.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m06.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m07.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m08.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/sequence.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    }
+  ]
+}

@@ -23,7 +23,7 @@ export class LocalManifold implements IPhysicalManifold {
     }
 
     if (trimmed.startsWith('sys://')) {
-      return `[SYSTEM_CHANNEL] ${trimmed}`;
+      return this.observeSystemChannel(trimmed);
     }
 
     if (trimmed.startsWith('$')) {
@@ -41,6 +41,37 @@ export class LocalManifold implements IPhysicalManifold {
 
   public async interfere(pointer: Pointer, payload: string): Promise<void> {
     const trimmed = pointer.trim();
+
+    if (trimmed.startsWith('sys://append/')) {
+      const targetPointer = trimmed.slice('sys://append/'.length).trim();
+      if (targetPointer.length === 0) {
+        throw new Error('Append target is empty.');
+      }
+
+      const filePath = this.resolveWorkspacePath(targetPointer);
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      const normalizedLine = payload.trimEnd();
+      if (normalizedLine.length === 0) {
+        return;
+      }
+
+      let lastNonEmptyLine = '';
+      if (fs.existsSync(filePath)) {
+        const existing = fs
+          .readFileSync(filePath, 'utf-8')
+          .split('\n')
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
+        lastNonEmptyLine = existing[existing.length - 1] ?? '';
+      }
+
+      if (lastNonEmptyLine === normalizedLine) {
+        throw new Error(`Duplicate append blocked for ${targetPointer}: "${normalizedLine}"`);
+      }
+
+      fs.appendFileSync(filePath, `${normalizedLine}\n`, 'utf-8');
+      return;
+    }
 
     if (trimmed.startsWith('sys://')) {
       return;
@@ -66,6 +97,40 @@ export class LocalManifold implements IPhysicalManifold {
     }
 
     return resolved;
+  }
+
+  private observeSystemChannel(pointer: string): string {
+    const [base, query = ''] = pointer.split('?', 2);
+    const params = new URLSearchParams(query);
+    const details = params.get('details');
+
+    if (base.startsWith('sys://append/')) {
+      const target = base.slice('sys://append/'.length);
+      let current = '(empty)';
+      try {
+        const targetPath = this.resolveWorkspacePath(target);
+        if (fs.existsSync(targetPath)) {
+          const raw = fs.readFileSync(targetPath, 'utf-8').trimEnd();
+          current = raw.length > 0 ? raw : '(empty)';
+        }
+      } catch {
+        current = '(unreadable target)';
+      }
+
+      return [
+        `[SYSTEM_CHANNEL] ${base}`,
+        `Append target: ${target}`,
+        '[CURRENT_CONTENT]',
+        current,
+        'Action: append exactly one NEW DONE line for the next unfinished step, then move to the next work pointer.',
+      ].join('\n');
+    }
+
+    if (details) {
+      return [`[SYSTEM_CHANNEL] ${base}`, '[DETAILS]', details].join('\n');
+    }
+
+    return `[SYSTEM_CHANNEL] ${base}`;
   }
 
   private async executeCommandSlice(command: string): Promise<string> {

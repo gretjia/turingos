@@ -1,0 +1,234 @@
+{
+  "metadata": {
+    "runStamp": "20260225-074759",
+    "executedAt": "2026-02-25T07:51:13.139Z",
+    "model": "kimi-for-coding",
+    "promptFile": "/home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt",
+    "repeats": 1
+  },
+  "aggregates": [
+    {
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 3
+    },
+    {
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 5
+    },
+    {
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 4
+    }
+  ],
+  "results": [
+    {
+      "repeat": 1,
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 52453,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 24,
+      "completionScore": 0,
+      "planAdherence": 0,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 4
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "1) INIT 2) WRITE_INPUT 3) FILTER_HIGH 4) SUM 5) MANIFEST 6) RESULT 7) HALT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "artifacts/input.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/high.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/sum.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/manifest.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 77533,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 25,
+      "completionScore": 0,
+      "planAdherence": 0,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 52,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 3
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "1) INIT 2) TRIGGER_PAGE_FAULT 3) RECOVER_SOURCE 4) TRANSFORM 5) COUNT 6) RESULT 7) HALT",
+      "finalD": "sys://append/plan/progress.log",
+      "fileChecks": [
+        {
+          "path": "inputs/source.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/colors_upper.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/count.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "maxTicks": 36,
+      "exitCode": 2,
+      "elapsedMs": 63142,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 30,
+      "completionScore": 0,
+      "planAdherence": 0,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 0,
+        "WATCHDOG_NMI": 5
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "[OS_TRAP: WATCHDOG_NMI] INFINITE LOOP DETECTED!\nYou repeated the same action 5 times with no progress.\nPop current task, log why it failed, and attempt a different strategy.\n\n[RECOVERED STATE q]:\nINIT | M01 | M02 | M03 | M04 | M05 | M06 | M07 | M08 | SEQUENCE | RESULT | HALT",
+      "finalD": "sys://trap/watchdog",
+      "fileChecks": [
+        {
+          "path": "milestones/m01.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m02.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m03.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m04.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m05.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m06.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m07.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m08.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/sequence.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    }
+  ]
+}

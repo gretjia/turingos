@@ -5,13 +5,17 @@ import OpenAI from 'openai';
 import { FileChronos } from '../chronos/file-chronos.js';
 import { TuringEngine } from '../kernel/engine.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
+import { KimiCodeOracle } from '../oracle/kimi-code-oracle.js';
 import { MockOracle } from '../oracle/mock-oracle.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
+import { FileExecutionContract } from './file-execution-contract.js';
 import { FileRegisters } from './registers.js';
+
+type OracleMode = 'kimi' | 'openai' | 'mock';
 
 interface CliConfig {
   workspace: string;
-  oracle: 'openai' | 'mock';
+  oracle: OracleMode;
   model: string;
   maxTicks: number;
   tickDelayMs: number;
@@ -30,7 +34,9 @@ function parseArgs(argv: string[]): Partial<CliConfig> {
     }
 
     if (key === '--workspace') parsed.workspace = value;
-    if (key === '--oracle' && (value === 'openai' || value === 'mock')) parsed.oracle = value;
+    if (key === '--oracle' && (value === 'kimi' || value === 'openai' || value === 'mock')) {
+      parsed.oracle = value;
+    }
     if (key === '--model') parsed.model = value;
     if (key === '--max-ticks') parsed.maxTicks = Number.parseInt(value, 10);
     if (key === '--tick-delay-ms') parsed.tickDelayMs = Number.parseInt(value, 10);
@@ -46,8 +52,12 @@ async function main(): Promise<void> {
   const workspace = path.resolve(
     cli.workspace ?? process.env.TURINGOS_WORKSPACE ?? path.join(process.cwd(), 'workspace')
   );
-  const oracleMode = cli.oracle ?? ((process.env.TURINGOS_ORACLE as 'openai' | 'mock') || 'openai');
-  const model = cli.model ?? process.env.TURINGOS_MODEL ?? 'gpt-4.1';
+  const envOracle = process.env.TURINGOS_ORACLE;
+  const oracleMode =
+    cli.oracle ??
+    (envOracle === 'kimi' || envOracle === 'openai' || envOracle === 'mock' ? envOracle : 'kimi');
+  const model =
+    cli.model ?? process.env.TURINGOS_MODEL ?? (oracleMode === 'kimi' ? 'kimi-for-coding' : 'gpt-4.1');
   const maxTicks = cli.maxTicks ?? Number.parseInt(process.env.TURINGOS_MAX_TICKS ?? '200', 10);
   const tickDelayMs = cli.tickDelayMs ?? Number.parseInt(process.env.TURINGOS_TICK_DELAY_MS ?? '0', 10);
   const promptFile = path.resolve(cli.promptFile ?? process.env.TURINGOS_PROMPT ?? 'turing_prompt.sh');
@@ -79,30 +89,50 @@ async function main(): Promise<void> {
     : 'Output strict JSON with q_next, s_prime, d_next.';
 
   const timeoutMs = Number.parseInt(process.env.TURINGOS_TIMEOUT_MS ?? '120000', 10);
+  const maxOutputTokens = Number.parseInt(process.env.TURINGOS_MAX_OUTPUT_TOKENS ?? '1024', 10);
   const manifold = new LocalManifold(workspace, { timeoutMs });
   const chronos = new FileChronos(path.join(workspace, '.journal.log'));
+  const executionContract = await FileExecutionContract.fromWorkspace(workspace);
 
   const oracle = (() => {
     if (oracleMode === 'mock') {
       return new MockOracle();
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const usingKimi = oracleMode === 'kimi';
+    const apiKey = usingKimi ? process.env.KIMI_API_KEY ?? process.env.OPENAI_API_KEY : process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      console.warn('[turingos] OPENAI_API_KEY missing. Falling back to mock oracle.');
+      console.warn(
+        usingKimi
+          ? '[turingos] KIMI_API_KEY missing. Falling back to mock oracle.'
+          : '[turingos] OPENAI_API_KEY missing. Falling back to mock oracle.'
+      );
       return new MockOracle();
     }
 
-    return new UniversalOracle(new OpenAI({ apiKey }), model);
+    const baseURL = process.env.TURINGOS_API_BASE_URL;
+    if (usingKimi) {
+      return new KimiCodeOracle(apiKey, model, baseURL ?? 'https://api.kimi.com/coding', maxOutputTokens);
+    }
+
+    const clientConfig: { apiKey: string; baseURL?: string } = { apiKey };
+    if (baseURL) {
+      clientConfig.baseURL = baseURL;
+    }
+
+    return new UniversalOracle(new OpenAI(clientConfig), model);
   })();
 
-  const engine = new TuringEngine(manifold, oracle, chronos, disciplinePrompt);
+  const engine = new TuringEngine(manifold, oracle, chronos, disciplinePrompt, executionContract ?? undefined);
 
   const startQ = registers.readQ();
   const startD = registers.readD();
 
   console.log(`[turingos] boot workspace=${workspace}`);
   console.log(`[turingos] oracle=${oracleMode} model=${model} maxTicks=${maxTicks}`);
+  if (executionContract) {
+    console.log(`[turingos] execution-contract=${FileExecutionContract.FILE_NAME}`);
+  }
   console.log(`[turingos] registers q="${startQ}" d="${startD}"`);
 
   const result = await engine.ignite(startQ, startD, {

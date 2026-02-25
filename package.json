@@ -8,7 +8,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "dev": "tsx src/runtime/boot.ts",
     "start": "node dist/runtime/boot.js",
-    "smoke:mock": "tsx src/runtime/boot.ts --oracle mock --max-ticks 8"
+    "smoke:mock": "tsx src/runtime/boot.ts --oracle mock --max-ticks 8",
+    "bench:pilot": "tsx src/bench/pilot.ts",
+    "bench:os-longrun": "tsx src/bench/os-longrun.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

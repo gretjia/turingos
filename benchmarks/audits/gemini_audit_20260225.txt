@@ -1,0 +1,51 @@
+I will begin by listing the contents of the `benchmarks/results/` directory to locate the relevant benchmark data, then I will read the core architecture and implementation files to identify the root causes of the failure rate.
+I will read the `BIBLE.md` file to establish the architectural principles that will guide my audit of the system.
+I will list the files in the `benchmarks/results/` directory again to see if I can find the specific benchmark result file mentioned by the user.
+I will read the benchmark result file `os-longrun-20260225-064748.md` to understand why the pass rate is 0/30, and then I will examine the core engine files to identify the underlying issues.
+I will use `cat` via `run_shell_command` to read the ignored benchmark result file `os-longrun-20260225-064748.md`.
+The benchmark report indicates a 0% pass rate, with the engine consistently hitting maximum ticks without halting, particularly in scenarios with high `PAGE_FAULT` and `WATCHDOG_NMI` frequencies. I will now examine `src/kernel/engine.ts` to investigate why the system is failing to make progress and reach the `HALT` state.
+The engine implementation aligns with `BIBLE.md`, but includes an `IExecutionContract` for `PLAN_CONTRACT` and `HALT_GUARD`. If `haltCheck` fails, it returns a `sys://trap/halt_guard` pointer, leading me to investigate how `src/manifold/local-manifold.ts` handles such `sys://` pointers.
+`LocalManifold` returns very little for `sys://` pointers, but since `engine.ts` includes error details in the returned state `q_t`, the LLM still receives them. I'll now examine `src/runtime/file-execution-contract.ts` to understand why `HALT` or `PLAN` might be failing despite this.
+The `FileExecutionContract`'s strict requirement for `DONE:` prefixes and exact step ordering means any error in the progress log triggers an `OS_TRAP: PLAN_CONTRACT`. I'll now examine `src/bench/os-longrun.ts` to understand how these benchmarks are configured and identify the cause of their consistent failure.
+In `os-longrun.ts`, the benchmarks consistently fail because `max_tick` is always reached and `completionScore` is 0, despite some progress in `plan/progress.log`. I'll now examine `src/oracle/kimi-code-oracle.ts` to determine why the expected files are either not being created correctly or at all.
+`KimiCodeOracle` targets an Anthropic-compatible `/v1/messages` endpoint and includes `anthropic-version` headers. I'll now examine `src/runtime/boot.ts` to understand how the system components are integrated.
+`engine.ts` correctly implements `CPU_FAULT` as described in `BIBLE.md`. However, the benchmark report shows high `WATCHDOG_NMI` and `PAGE_FAULT` counts, suggesting the LLM is repeating actions or hitting invalid pointers despite only 28 max ticks. I'll examine `turing_prompt.sh` to see if the LLM's instructions are contributing to this lack of progress.
+The `turing_prompt.sh` is far more minimal than the one in `BIBLE.md`, which lacks explicit instructions for the `Todo` list and `q_next` monologue. I'll now check `benchmarks/os-longrun/discipline_prompt.txt` to see if it provides the necessary guidance used by `os-longrun.ts`.
+`discipline_prompt.txt` is functional but sparse, yet `completionScore` remains 0 because expected files are missing or misnamed. The 94 `PAGE_FAULT` in a 28-tick run of `fault_recovery_resume` suggests `s_t` is accumulating errors. I'll examine `os-longrun-20260225-064748.json` to get the exact `trapCounts` and clarify this.
+The engine's "Observe-Collapse-Interfere" order causes `PAGE_FAULT` when creating files because `observe` happens before the file is written. This confuses the LLM, which receives a failure message even as the engine successfully creates the file. Additionally, `pipeline_ordered_execution` shows text mismatches across all files, suggesting possible formatting or content issues. I'll now examine `FileChronos` to investigate these discrepancies.
+`manifold.interfere` uses `writeFileSync`, forcing a slow and error-prone read-modify-write cycle for appends, often leading to `PLAN_CONTRACT` traps due to `FileExecutionContract`'s extreme rigidity. Furthermore, the engine's "Read-Before-Write" sequence triggers `PAGE_FAULT` errors that confuse the LLM during file creation, while path hallucinations and `HALT_GUARD` rejections further compound the issues, leading to the 0/30 failure rate. I'll now check `src/kernel/types.ts` to examine the `Transition` type.
+Types are correct. Checking `src/oracle/universal-oracle.ts` now.
+Based on my audit of the TuringOS kernel and benchmark failures, I have identified that the 0/30 pass rate is primarily driven by a "Pre-emptive Page Fault" loop where file creation is treated as a fatal error, and a brittle progress contract that causes frequent deadlocks. I will now formalize these findings into the requested strict output format, proposing a surgical patch plan focused on tick-reordering logic, contract relaxation, and a BIOS upgrade to restore the "Relentless Recovery" principle.
+Audit Report: TuringOS Long-Horizon Kernel (2026-02-25)
+
+1) Root causes (ordered by severity)
+- **The "Pre-emptive Page Fault" Loop:** `engine.ts` executes `observe(d_t)` before `interfere(d_t, s_prime)`. During file creation, the model receives a `PAGE_FAULT` in the same tick it provides content, causing it to abandon the write and pivot to "recovery" indefinitely.
+- **Overwrite-only I/O Primitive:** `LocalManifold` lacks an append operation. Updating `plan/progress.log` requires a fragile 2-tick read-modify-write cycle which models frequently break, triggering `PLAN_CONTRACT` traps.
+- **Brittle Contract Parser:** `FileExecutionContract` fails the entire mission if any non-`DONE:` line (e.g., markdown headers, model commentary) exists in the progress log.
+- **Microcode BIOS Depletion:** `discipline_prompt.txt` is significantly less robust than the `BIBLE.md` specification, failing to instruct the model to ignore transient `PAGE_FAULT` errors during active write cycles.
+- **Halt Guard Deadlock:** When `HALT` is rejected, `engine.ts` injects the full contract error into the state register `q`. This state pollution causes models to hallucinate "fixing" the error message itself rather than the missing physical file.
+
+2) Mismatch vs BIBLE principles
+- **Stateless Model Core:** Failed. The kernel forces the model to rely on the external `progress.log` for its immediate "done list" rather than maintaining it purely in the `q` register.
+- **Relentless Recovery:** Violated. The "Pre-emptive Page Fault" is a meta-physical error created by engine sequencing, not a physical error the model can recover from via standard means.
+- **Trap-First:** Traps are being used as fatal stops rather than informative interrupts. The `HALT_GUARD` effectively "panics" the model instead of silently steering it.
+
+3) Minimal patch plan (top 5 changes)
+- **`src/kernel/engine.ts`**: Reorder `tick` logic or suppress `PAGE_FAULT` reporting if `transition.s_prime` is non-empty and `d_t` matches the previously requested `d_next`.
+- **`src/manifold/local-manifold.ts`**: Implement a `writeMode: 'append' | 'overwrite'` option or a `sys://append/` handler to allow single-tick progress log updates.
+- **`src/runtime/file-execution-contract.ts`**: Update `readDoneSteps` to filter out non-`DONE:` lines using a regex instead of failing on invalid lines.
+- **`src/kernel/engine.ts`**: Modify `HALT_GUARD` trap to keep the error message in the `s_t` bus only, leaving the `q` register (Todo-Stack) untouched to prevent state pollution.
+- **`benchmarks/os-longrun/discipline_prompt.txt`**: Inject the "Laws of Relentlessness" from `BIBLE.md` and explicitly define `PAGE_FAULT` during creation as a "New File" signal.
+
+4) Risk of each change
+- **Engine Reordering:** Medium. May cause subtle race conditions if an `observe` was actually required for a conditional write.
+- **Append Primitive:** Low. Standard filesystem operation; improves stability.
+- **Contract Relaxation:** Low. Just makes the evaluator more tolerant of natural LLM formatting.
+- **State Preservation (q):** Medium. Requires the model to be smart enough to look at `s` for halt rejection reasons; might increase drift if `q` isn't updated at all.
+- **BIOS Update:** Low. Zero code change; purely instructional.
+
+5) Predicted benchmark impact (directional)
+- **completion_score:** Significant Increase (Fixes the creation loop).
+- **halted_rate:** Significant Increase (Removes the Halt Guard deadlock).
+- **watchdog_loops:** Significant Decrease (Model will no longer repeat "recovery" for fake errors).
+- **pass_rate:** Target 25/30+ (Major stability bottleneck is the tick-sequencing error).

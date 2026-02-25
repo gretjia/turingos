@@ -1,0 +1,825 @@
+{
+  "generated_at": "2026-02-25T09:10:17.050Z",
+  "project_root": "/home/zephryj/projects/turingos",
+  "baseline": {
+    "file": "os-longrun-20260225-064748.json",
+    "repeats": 10,
+    "runs": 30,
+    "passed": 0,
+    "avg_completion_score": 0,
+    "avg_plan_adherence": 0.6222,
+    "avg_pointer_drift_rate": 0,
+    "avg_watchdog_nmi_per_run": 1.1333,
+    "avg_page_fault_per_run": 7.5,
+    "avg_io_fault_per_run": 0,
+    "scenario_aggregates": [
+      {
+        "id": "fault_recovery_resume",
+        "name": "Fault Recovery Resume",
+        "runs": 10,
+        "passRate": 0,
+        "completionAvg": 0,
+        "completionP50": 0,
+        "completionP90": 0,
+        "planAvg": 0.5857,
+        "driftAvg": 0,
+        "haltedRate": 0,
+        "maxTickRate": 1,
+        "watchdogAvg": 1.3
+      },
+      {
+        "id": "long_checklist_stability",
+        "name": "Long Checklist Stability",
+        "runs": 10,
+        "passRate": 0,
+        "completionAvg": 0,
+        "completionP50": 0,
+        "completionP90": 0,
+        "planAvg": 0.6667,
+        "driftAvg": 0,
+        "haltedRate": 0,
+        "maxTickRate": 1,
+        "watchdogAvg": 0.2
+      },
+      {
+        "id": "pipeline_ordered_execution",
+        "name": "Pipeline Ordered Execution",
+        "runs": 10,
+        "passRate": 0,
+        "completionAvg": 0,
+        "completionP50": 0,
+        "completionP90": 0,
+        "planAvg": 0.6143,
+        "driftAvg": 0,
+        "haltedRate": 0,
+        "maxTickRate": 1,
+        "watchdogAvg": 1.9
+      }
+    ]
+  },
+  "latest": {
+    "file": "os-longrun-20260225-081051.json",
+    "repeats": 10,
+    "runs": 30,
+    "passed": 0,
+    "avg_completion_score": 0.0083,
+    "avg_plan_adherence": 0.8413,
+    "avg_pointer_drift_rate": 0.0044,
+    "avg_watchdog_nmi_per_run": 0.2,
+    "avg_page_fault_per_run": 16.8,
+    "avg_io_fault_per_run": 0.1333,
+    "scenario_aggregates": [
+      {
+        "id": "fault_recovery_resume",
+        "name": "Fault Recovery Resume",
+        "runs": 10,
+        "passRate": 0,
+        "completionAvg": 0.025,
+        "completionP50": 0,
+        "completionP90": 0,
+        "planAvg": 0.9143,
+        "driftAvg": 0.0096,
+        "haltedRate": 0,
+        "maxTickRate": 1,
+        "watchdogAvg": 0.1
+      },
+      {
+        "id": "long_checklist_stability",
+        "name": "Long Checklist Stability",
+        "runs": 10,
+        "passRate": 0,
+        "completionAvg": 0,
+        "completionP50": 0,
+        "completionP90": 0,
+        "planAvg": 0.7667,
+        "driftAvg": 0.0035,
+        "haltedRate": 0,
+        "maxTickRate": 1,
+        "watchdogAvg": 0.2
+      },
+      {
+        "id": "pipeline_ordered_execution",
+        "name": "Pipeline Ordered Execution",
+        "runs": 10,
+        "passRate": 0,
+        "completionAvg": 0,
+        "completionP50": 0,
+        "completionP90": 0,
+        "planAvg": 0.8429,
+        "driftAvg": 0,
+        "haltedRate": 0,
+        "maxTickRate": 1,
+        "watchdogAvg": 0.3
+      }
+    ]
+  },
+  "delta": {
+    "passed": 0,
+    "avg_completion_score": 0.0083,
+    "avg_plan_adherence": 0.2191,
+    "avg_pointer_drift_rate": 0.0044,
+    "avg_watchdog_nmi_per_run": -0.9333,
+    "avg_page_fault_per_run": 9.3
+  },
+  "timeline": [
+    {
+      "file": "os-longrun-20260225-063530.json",
+      "repeats": null,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 6,
+      "avg_page_fault_per_run": 0,
+      "avg_io_fault_per_run": 0
+    },
+    {
+      "file": "os-longrun-20260225-064341.json",
+      "repeats": 1,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0.7341,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 2.3333,
+      "avg_page_fault_per_run": 9,
+      "avg_io_fault_per_run": 0,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.2857,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 6
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.9167,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 1,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 1
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-064748.json",
+      "repeats": 10,
+      "runs": 30,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0.6222,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 1.1333,
+      "avg_page_fault_per_run": 7.5,
+      "avg_io_fault_per_run": 0,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 10,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.5857,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 1.3
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 10,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.6667,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0.2
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 10,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.6143,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 1.9
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-074759.json",
+      "repeats": 1,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 4,
+      "avg_page_fault_per_run": 17.3333,
+      "avg_io_fault_per_run": 0,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 3
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 5
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 4
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-075139.json",
+      "repeats": 1,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0.3453,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 3.6667,
+      "avg_page_fault_per_run": 8.3333,
+      "avg_io_fault_per_run": 0,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.1429,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 7
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.75,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.1429,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 4
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-075248.json",
+      "repeats": 1,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 1,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 1.6667,
+      "avg_page_fault_per_run": 16.6667,
+      "avg_io_fault_per_run": 0,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 1,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 2
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 1,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 1
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 1,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 2
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-075825.json",
+      "repeats": 1,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0.3809,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 1.6667,
+      "avg_page_fault_per_run": 6.3333,
+      "avg_io_fault_per_run": 0.6667,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.8571,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 3
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 2
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.2857,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-080629.json",
+      "repeats": 1,
+      "runs": 3,
+      "passed": 0,
+      "avg_completion_score": 0,
+      "avg_plan_adherence": 0.8889,
+      "avg_pointer_drift_rate": 0,
+      "avg_watchdog_nmi_per_run": 1.6667,
+      "avg_page_fault_per_run": 16.3333,
+      "avg_io_fault_per_run": 0,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 1,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 2
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.6667,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 3
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 1,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 1,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0
+        }
+      ]
+    },
+    {
+      "file": "os-longrun-20260225-081051.json",
+      "repeats": 10,
+      "runs": 30,
+      "passed": 0,
+      "avg_completion_score": 0.0083,
+      "avg_plan_adherence": 0.8413,
+      "avg_pointer_drift_rate": 0.0044,
+      "avg_watchdog_nmi_per_run": 0.2,
+      "avg_page_fault_per_run": 16.8,
+      "avg_io_fault_per_run": 0.1333,
+      "scenario_aggregates": [
+        {
+          "id": "fault_recovery_resume",
+          "name": "Fault Recovery Resume",
+          "runs": 10,
+          "passRate": 0,
+          "completionAvg": 0.025,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.9143,
+          "driftAvg": 0.0096,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0.1
+        },
+        {
+          "id": "long_checklist_stability",
+          "name": "Long Checklist Stability",
+          "runs": 10,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.7667,
+          "driftAvg": 0.0035,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0.2
+        },
+        {
+          "id": "pipeline_ordered_execution",
+          "name": "Pipeline Ordered Execution",
+          "runs": 10,
+          "passRate": 0,
+          "completionAvg": 0,
+          "completionP50": 0,
+          "completionP90": 0,
+          "planAvg": 0.8429,
+          "driftAvg": 0,
+          "haltedRate": 0,
+          "maxTickRate": 1,
+          "watchdogAvg": 0.3
+        }
+      ]
+    }
+  ],
+  "failure_distribution": {
+    "baseline": {
+      "reasons": [
+        {
+          "reason": "missing file",
+          "count": 155
+        },
+        {
+          "reason": "text mismatch",
+          "count": 35
+        }
+      ],
+      "top_paths": [
+        {
+          "key": "pipeline_ordered_execution::result/RESULT.json::missing file",
+          "count": 10
+        },
+        {
+          "key": "fault_recovery_resume::outputs/count.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "fault_recovery_resume::result/RESULT.json::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::result/RESULT.json::missing file",
+          "count": 10
+        },
+        {
+          "key": "fault_recovery_resume::outputs/colors_upper.txt::missing file",
+          "count": 9
+        },
+        {
+          "key": "long_checklist_stability::milestones/sequence.txt::missing file",
+          "count": 9
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/sum.txt::missing file",
+          "count": 9
+        },
+        {
+          "key": "long_checklist_stability::milestones/m07.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "long_checklist_stability::milestones/m08.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/high.csv::missing file",
+          "count": 8
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/manifest.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "long_checklist_stability::milestones/m01.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "long_checklist_stability::milestones/m02.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "long_checklist_stability::milestones/m03.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "long_checklist_stability::milestones/m04.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "long_checklist_stability::milestones/m05.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "long_checklist_stability::milestones/m06.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/input.csv::missing file",
+          "count": 7
+        },
+        {
+          "key": "fault_recovery_resume::inputs/source.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/input.csv::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "fault_recovery_resume::inputs/source.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "long_checklist_stability::milestones/m01.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "long_checklist_stability::milestones/m02.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "long_checklist_stability::milestones/m03.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "long_checklist_stability::milestones/m04.txt::text mismatch",
+          "count": 3
+        }
+      ]
+    },
+    "latest": {
+      "reasons": [
+        {
+          "reason": "missing file",
+          "count": 150
+        },
+        {
+          "reason": "text mismatch",
+          "count": 38
+        },
+        {
+          "reason": "json mismatch on key scenario",
+          "count": 1
+        }
+      ],
+      "top_paths": [
+        {
+          "key": "fault_recovery_resume::outputs/count.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "fault_recovery_resume::result/RESULT.json::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::milestones/m05.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::milestones/m06.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::milestones/m07.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::milestones/m08.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::milestones/sequence.txt::missing file",
+          "count": 10
+        },
+        {
+          "key": "long_checklist_stability::result/RESULT.json::missing file",
+          "count": 10
+        },
+        {
+          "key": "pipeline_ordered_execution::result/RESULT.json::missing file",
+          "count": 9
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/input.csv::text mismatch",
+          "count": 8
+        },
+        {
+          "key": "fault_recovery_resume::inputs/source.txt::text mismatch",
+          "count": 8
+        },
+        {
+          "key": "fault_recovery_resume::outputs/colors_upper.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "long_checklist_stability::milestones/m01.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "long_checklist_stability::milestones/m02.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "long_checklist_stability::milestones/m03.txt::missing file",
+          "count": 8
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/sum.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/manifest.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "long_checklist_stability::milestones/m04.txt::missing file",
+          "count": 7
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/high.csv::text mismatch",
+          "count": 6
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/high.csv::missing file",
+          "count": 4
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/sum.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "pipeline_ordered_execution::artifacts/manifest.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "long_checklist_stability::milestones/m04.txt::text mismatch",
+          "count": 3
+        },
+        {
+          "key": "fault_recovery_resume::inputs/source.txt::missing file",
+          "count": 2
+        },
+        {
+          "key": "long_checklist_stability::milestones/m01.txt::text mismatch",
+          "count": 2
+        }
+      ]
+    }
+  },
+  "audit_files": [
+    "/home/zephryj/projects/turingos/benchmarks/audits/gemini_audit_20260225.txt",
+    "/home/zephryj/projects/turingos/benchmarks/audits/gemini_go_no_go_20260225.txt",
+    "/home/zephryj/projects/turingos/benchmarks/audits/gemini_go_no_go_inline_20260225.txt"
+  ]
+}

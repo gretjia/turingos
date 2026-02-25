@@ -14,7 +14,8 @@ This project is built from lessons learned in `gretjia/turingclaw`, with stricte
 
 - `src/kernel/engine.ts`: tick loop, trap handling, watchdog
 - `src/manifold/local-manifold.ts`: physical interface for files and terminal commands
-- `src/oracle/universal-oracle.ts`: strict JSON transition oracle over OpenAI
+- `src/oracle/kimi-code-oracle.ts`: strict JSON transition oracle over Kimi Code API
+- `src/oracle/universal-oracle.ts`: strict JSON transition oracle over OpenAI-compatible APIs
 - `src/chronos/file-chronos.ts`: append-only journal
 - `src/runtime/boot.ts`: runtime bootstrap and register persistence
 
@@ -31,14 +32,34 @@ This project is built from lessons learned in `gretjia/turingclaw`, with stricte
 ```bash
 npm install
 cp .env.example .env
+# fill KIMI_API_KEY in .env
 npm run typecheck
 npm run smoke:mock
+```
+
+Run with Kimi Code (default oracle):
+
+```bash
+KIMI_API_KEY=... npm run dev
 ```
 
 Run with OpenAI oracle:
 
 ```bash
-OPENAI_API_KEY=... npm run dev
+TURINGOS_ORACLE=openai OPENAI_API_KEY=... npm run dev
+```
+
+Run pilot long-horizon benchmark suite:
+
+```bash
+npm run bench:pilot
+```
+
+Run OS long-run stability benchmark (plan adherence + pointer drift):
+
+```bash
+npm run bench:os-longrun
+npm run bench:os-longrun -- --repeats 10
 ```
 
 Runtime files are stored under `workspace/` by default:
@@ -56,7 +77,7 @@ npm run dev -- --oracle mock --max-ticks 20 --workspace ./workspace
 
 Supported args:
 
-- `--oracle openai|mock`
+- `--oracle kimi|openai|mock`
 - `--model <model-id>`
 - `--max-ticks <n>`
 - `--workspace <path>`
