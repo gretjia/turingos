@@ -312,6 +312,78 @@ export class FileExecutionContract implements IExecutionContract {
       };
     }
 
+    const expectation = this.stepExpectations()[stepId];
+    if (!expectation) {
+      return { ok: true };
+    }
+
+    const targetFile = expectation.path;
+    const expectationExists = await this.fileExists(targetFile);
+    if (!expectationExists) {
+      return {
+        ok: false,
+        reason: `required file is missing for DONE:${stepId} -> ${targetFile}.`,
+      };
+    }
+
+    let raw = '';
+    try {
+      raw = await fs.readFile(this.resolveWorkspacePath(targetFile), 'utf-8');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        ok: false,
+        reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. read failed: ${message}`,
+      };
+    }
+
+    if (expectation.kind === 'text') {
+      const actual = this.normalizeText(raw);
+      const expected = this.normalizeText(expectation.exact);
+      if (actual !== expected) {
+        const expectedPreview = this.preview(expected);
+        const actualPreview = this.preview(actual);
+        return {
+          ok: false,
+          reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. expected="${expectedPreview}" actual="${actualPreview}".`,
+        };
+      }
+      return { ok: true };
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      for (const [key, value] of Object.entries(expectation.expected)) {
+        if (parsed[key] !== value) {
+          const actualValue = parsed[key];
+          return {
+            ok: false,
+            reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. json key ${key} mismatch. expected=${JSON.stringify(
+              value
+            )} actual=${JSON.stringify(actualValue)}.`,
+          };
+        }
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        ok: false,
+        reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. invalid json: ${message}`,
+      };
+    }
+
     return { ok: true };
+  }
+
+  private normalizeText(text: string): string {
+    return text.replace(/\r\n/g, '\n').trim();
+  }
+
+  private preview(text: string): string {
+    const compact = text.replace(/\s+/g, ' ').trim();
+    if (compact.length <= 180) {
+      return compact;
+    }
+    return `${compact.slice(0, 177)}...`;
   }
 }

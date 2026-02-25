@@ -17,11 +17,22 @@ interface UniversalOracleConfig {
   model: string;
   baseURL?: string;
   maxOutputTokens?: number;
+  maxRetries?: number;
+  retryBaseDelayMs?: number;
+  retryMaxDelayMs?: number;
+}
+
+interface ErrorWithMetadata extends Error {
+  status?: number;
+  code?: string | number;
 }
 
 export class UniversalOracle implements IOracle {
   private openai?: OpenAI;
   private model: string;
+  private readonly maxRetries: number;
+  private readonly retryBaseDelayMs: number;
+  private readonly retryMaxDelayMs: number;
   private kimimart?: {
     endpoint: string;
     apiKey: string;
@@ -31,6 +42,9 @@ export class UniversalOracle implements IOracle {
 
   constructor(private mode: OracleMode, config: UniversalOracleConfig) {
     this.model = config.model;
+    this.maxRetries = config.maxRetries ?? 6;
+    this.retryBaseDelayMs = config.retryBaseDelayMs ?? 2000;
+    this.retryMaxDelayMs = config.retryMaxDelayMs ?? 60000;
     if (mode === 'openai') {
       const clientConfig: { apiKey: string; baseURL?: string } = { apiKey: config.apiKey };
       if (config.baseURL) {
@@ -70,58 +84,131 @@ export class UniversalOracle implements IOracle {
 
   private async request(prompt: string): Promise<string> {
     if (this.mode === 'openai' && this.openai) {
-      const response = await this.openai.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0,
-        response_format: { type: 'json_object' },
+      return this.withRetry('openai', async () => {
+        const response = await this.openai!.chat.completions.create({
+          model: this.model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0,
+          response_format: { type: 'json_object' },
+        });
+        return response.choices[0]?.message?.content ?? '{}';
       });
-      return response.choices[0]?.message?.content ?? '{}';
     }
 
     if (this.mode === 'kimi' && this.kimimart) {
-      const response = await fetch(this.kimimart.endpoint, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'anthropic-version': '2023-06-01',
-          'x-api-key': this.kimimart.apiKey,
-        },
-        body: JSON.stringify({
-          model: this.kimimart.model,
-          max_tokens: this.kimimart.maxOutputTokens,
-          temperature: 0,
-          messages: [{ role: 'user', content: prompt }],
-        }),
+      return this.withRetry('kimi', async () => {
+        const response = await fetch(this.kimimart!.endpoint, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'anthropic-version': '2023-06-01',
+            'x-api-key': this.kimimart!.apiKey,
+          },
+          body: JSON.stringify({
+            model: this.kimimart!.model,
+            max_tokens: this.kimimart!.maxOutputTokens,
+            temperature: 0,
+            messages: [{ role: 'user', content: prompt }],
+          }),
+        });
+
+        const raw = await response.text();
+        if (!response.ok) {
+          const error = new Error(`Kimi API ${response.status}: ${raw.slice(0, 500)}`) as ErrorWithMetadata;
+          error.status = response.status;
+          throw error;
+        }
+
+        let parsed: KimiMessageResponse;
+        try {
+          parsed = JSON.parse(raw) as KimiMessageResponse;
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`Invalid Kimi response JSON: ${message}. Raw: ${raw.slice(0, 500)}`);
+        }
+
+        const text = (parsed.content ?? [])
+          .filter((block) => block.type === 'text' && typeof block.text === 'string')
+          .map((block) => block.text?.trim() ?? '')
+          .filter((line) => line.length > 0)
+          .join('\n');
+
+        if (text.length === 0) {
+          throw new Error(`Empty model output. Raw: ${raw.slice(0, 500)}`);
+        }
+
+        return text;
       });
-
-      const raw = await response.text();
-      if (!response.ok) {
-        throw new Error(`Kimi API ${response.status}: ${raw.slice(0, 500)}`);
-      }
-
-      let parsed: KimiMessageResponse;
-      try {
-        parsed = JSON.parse(raw) as KimiMessageResponse;
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        throw new Error(`Invalid Kimi response JSON: ${message}. Raw: ${raw.slice(0, 500)}`);
-      }
-
-      const text = (parsed.content ?? [])
-        .filter((block) => block.type === 'text' && typeof block.text === 'string')
-        .map((block) => block.text?.trim() ?? '')
-        .filter((line) => line.length > 0)
-        .join('\n');
-
-      if (text.length === 0) {
-        throw new Error(`Empty model output. Raw: ${raw.slice(0, 500)}`);
-      }
-
-      return text;
     }
 
     throw new Error('Oracle not configured');
+  }
+
+  private async withRetry(provider: 'openai' | 'kimi', operation: () => Promise<string>): Promise<string> {
+    for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
+      try {
+        return await operation();
+      } catch (error: unknown) {
+        const normalized = this.normalizeError(error);
+        const retryable = this.isRetryable(normalized);
+        const canRetry = attempt < this.maxRetries;
+        if (!retryable || !canRetry) {
+          throw normalized;
+        }
+
+        const delayMs = this.backoffDelay(attempt);
+        const status = normalized.status ?? 'n/a';
+        console.warn(
+          `[oracle:${provider}] transient error; status=${status}; attempt=${attempt + 1}/${
+            this.maxRetries + 1
+          }; retry_in_ms=${delayMs}`
+        );
+        await this.sleep(delayMs);
+      }
+    }
+
+    throw new Error(`[oracle:${provider}] retry loop exhausted unexpectedly`);
+  }
+
+  private normalizeError(error: unknown): ErrorWithMetadata {
+    if (error instanceof Error) {
+      return error as ErrorWithMetadata;
+    }
+
+    return new Error(String(error));
+  }
+
+  private isRetryable(error: ErrorWithMetadata): boolean {
+    const status = typeof error.status === 'number' ? error.status : undefined;
+    if (status && (status === 408 || status === 409 || status === 425 || status === 429 || status >= 500)) {
+      return true;
+    }
+
+    const code = String(error.code ?? '').toUpperCase();
+    if (['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'UND_ERR_CONNECT_TIMEOUT'].includes(code)) {
+      return true;
+    }
+
+    const message = error.message.toLowerCase();
+    return (
+      message.includes('timeout') ||
+      message.includes('timed out') ||
+      message.includes('fetch failed') ||
+      message.includes('network') ||
+      message.includes('connection reset') ||
+      message.includes('rate limit') ||
+      message.includes('gateway')
+    );
+  }
+
+  private backoffDelay(attempt: number): number {
+    const exponential = this.retryBaseDelayMs * 2 ** attempt;
+    const jitter = Math.floor(Math.random() * 300);
+    return Math.min(exponential + jitter, this.retryMaxDelayMs);
+  }
+
+  private async sleep(ms: number): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private parseTransition(rawOutput: string): Transition {

@@ -1,0 +1,20 @@
+[timestamp_utc] 2026-02-25
+
+$ npm run typecheck
+$ npm run smoke:mock
+$ npm run bench:os-longrun
+  -> /benchmarks/results/os-longrun-20260225-144127.json
+  -> /benchmarks/results/os-longrun-20260225-144127.md
+
+$ npm run typecheck
+$ npm run smoke:mock
+$ npm run bench:os-longrun
+  -> /benchmarks/results/os-longrun-20260225-145052.json
+  -> /benchmarks/results/os-longrun-20260225-145052.md
+
+$ npm run typecheck
+$ npm run bench:os-longrun
+  -> /benchmarks/results/os-longrun-20260225-145907.json
+  -> /benchmarks/results/os-longrun-20260225-145907.md
+
+All three rounds: passed=0/3.

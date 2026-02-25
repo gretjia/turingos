@@ -26,9 +26,13 @@ export class TuringEngine {
   private l1TraceCache: string[] = [];
   private readonly l1TraceDepth = 3;
   private readonly watchdogDepth = 5;
+  private readonly verificationSignalDepth = 6;
+  private readonly trapLoopDepth = 4;
   private lastObservedPointer?: Pointer;
   private lastObservedSlice?: Slice;
   private lastTrapDetails = new Map<string, string>();
+  private recentVerificationSignals: string[] = [];
+  private trapPointerHistory: string[] = [];
 
   constructor(
     private manifold: IPhysicalManifold,
@@ -131,6 +135,7 @@ export class TuringEngine {
 
     this.lastObservedPointer = pointer;
     this.lastObservedSlice = s_t;
+    this.recordVerificationSignal(pointer, s_t);
 
     // 1.8) Inject managed context channels for short-horizon anti-looping.
     const callStackSlice = await this.observeCallStackSnapshot();
@@ -188,6 +193,25 @@ export class TuringEngine {
 
     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
     const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT';
+    if (haltRequested) {
+      const verification = this.checkRecentVerificationEvidence();
+      if (!verification.ok) {
+        const trapDetails = [
+          'HALT rejected: physical verification gate is not satisfied.',
+          `Details: ${verification.reason}`,
+          `Recent signals: ${
+            this.recentVerificationSignals.length > 0 ? this.recentVerificationSignals.join(' | ') : '(none)'
+          }`,
+          'Action: run a validation command ($ ls/$ cat/$ npm test/...) and inspect output before HALT.',
+        ].join('\n');
+        this.lastTrapDetails.set('sys://trap/illegal_halt', trapDetails);
+        return [
+          q_t,
+          this.systemTrapPointer('sys://trap/illegal_halt', trapDetails),
+        ];
+      }
+    }
+
     if (haltRequested && this.executionContract) {
       try {
         const haltCheck = await this.executionContract.checkHalt();
@@ -216,6 +240,29 @@ export class TuringEngine {
           this.systemTrapPointer('sys://trap/halt_guard', trapDetails),
         ];
       }
+    }
+
+    const trapLoop = this.trackTrapPointerLoop(d_next);
+    if (trapLoop.loop) {
+      this.watchdogHistory = [];
+      this.l1TraceCache = [];
+      const trapDetails = [
+        'Kernel panic reset: repeated trap pointer loop detected.',
+        `Repeated trap: ${trapLoop.trapBase}`,
+        'Action: abandon current approach and switch to a different diagnosis path immediately.',
+      ].join('\n');
+      this.lastTrapDetails.set('sys://trap/panic_reset', trapDetails);
+      return [
+        [
+          '[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.',
+          `Repeated trap: ${trapLoop.trapBase}`,
+          'Action: use a different pointer/command strategy and avoid the last failing function path.',
+          '',
+          '[RECOVERED STATE q]:',
+          q_next,
+        ].join('\n'),
+        this.systemTrapPointer('sys://trap/panic_reset', trapDetails),
+      ];
     }
 
     // 3) L1 trace pre-watchdog interrupt for short action loops.
@@ -288,6 +335,27 @@ export class TuringEngine {
         }
 
         writePayload = normalized.payload;
+      }
+
+      if (!isAppendChannel) {
+        const lazyMarker = this.containsLazyWriteMarker(writePayload);
+        if (lazyMarker) {
+          const trapDetails = [
+            'Content contract violation: write payload contains omission marker.',
+            `Detected marker: ${lazyMarker}`,
+            'Action: output the complete file content with no "... existing ..." placeholders.',
+          ].join('\n');
+          this.lastTrapDetails.set('sys://trap/content_contract', trapDetails);
+          return [
+            [
+              q_next,
+              '',
+              '[OS_TRAP: CONTENT_CONTRACT_VIOLATION] Incomplete payload blocked.',
+              `Details: ${trapDetails}`,
+            ].join('\n'),
+            this.systemTrapPointer('sys://trap/content_contract', trapDetails),
+          ];
+        }
       }
 
       try {
@@ -481,5 +549,105 @@ export class TuringEngine {
         reason: `Step artifact missing before DONE append: ${nextRequiredFileHint}. ${message}`,
       };
     }
+  }
+
+  private recordVerificationSignal(pointer: Pointer, observedSlice: Slice): void {
+    if (pointer.startsWith('$')) {
+      const command = pointer.replace(/^\$\s*/, '').trim();
+      if (command.length === 0 || !observedSlice.includes('[EXIT_CODE] 0')) {
+        return;
+      }
+
+      if (this.isVerificationCommand(command)) {
+        this.pushVerificationSignal(`CMD:${command}`);
+      }
+      return;
+    }
+
+    if (pointer.startsWith('sys://') || pointer.trim().length === 0) {
+      return;
+    }
+
+    if (observedSlice.includes('[OS_TRAP: PAGE_FAULT]')) {
+      return;
+    }
+
+    this.pushVerificationSignal(`READ:${pointer}`);
+  }
+
+  private pushVerificationSignal(signal: string): void {
+    const normalized = signal.trim();
+    if (normalized.length === 0) {
+      return;
+    }
+
+    this.recentVerificationSignals.push(normalized.slice(0, 120));
+    if (this.recentVerificationSignals.length > this.verificationSignalDepth) {
+      this.recentVerificationSignals.shift();
+    }
+  }
+
+  private isVerificationCommand(command: string): boolean {
+    const normalized = command.toLowerCase();
+    const patterns = [
+      /\b(ls|cat|head|tail|sed|grep|wc|find|stat|test)\b/,
+      /\b(npm|pnpm|yarn)\s+(test|run\s+\S+)/,
+      /\b(pytest|python|node|tsx|ts-node|go\s+test|cargo\s+test)\b/,
+    ];
+    return patterns.some((pattern) => pattern.test(normalized));
+  }
+
+  private checkRecentVerificationEvidence(): { ok: true } | { ok: false; reason: string } {
+    if (this.recentVerificationSignals.length > 0) {
+      return { ok: true };
+    }
+
+    return {
+      ok: false,
+      reason: 'No recent physical verification evidence was observed.',
+    };
+  }
+
+  private trackTrapPointerLoop(pointer: Pointer): { loop: false } | { loop: true; trapBase: string } {
+    const trimmed = pointer.trim();
+    if (!trimmed.startsWith('sys://trap/')) {
+      this.trapPointerHistory = [];
+      return { loop: false };
+    }
+
+    const trapBase = trimmed.split('?', 1)[0];
+    this.trapPointerHistory.push(trapBase);
+    if (this.trapPointerHistory.length > this.trapLoopDepth) {
+      this.trapPointerHistory.shift();
+    }
+
+    const loopDetected =
+      this.trapPointerHistory.length === this.trapLoopDepth &&
+      this.trapPointerHistory.every((item) => item === trapBase);
+
+    if (loopDetected) {
+      this.trapPointerHistory = [];
+      return { loop: true, trapBase };
+    }
+
+    return { loop: false };
+  }
+
+  private containsLazyWriteMarker(payload: string): string | null {
+    const markers = [
+      /\/\/\s*\.\.\.\s*(existing|rest)/i,
+      /\/\*\s*\.\.\./i,
+      /\b(rest of the code|existing code here)\b/i,
+      /(此处省略|后续省略|略去)/i,
+    ];
+
+    for (const marker of markers) {
+      const matched = payload.match(marker);
+      if (matched?.[0]) {
+        return matched[0];
+      }
+    }
+
+    return null;
   }
 }

@@ -1,0 +1,233 @@
+{
+  "metadata": {
+    "runStamp": "20260225-145052",
+    "executedAt": "2026-02-25T14:58:28.260Z",
+    "model": "kimi-for-coding",
+    "promptFile": "/home/zephryj/projects/turingos/benchmarks/os-longrun/discipline_prompt.txt",
+    "repeats": 1
+  },
+  "aggregates": [
+    {
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0.25,
+      "completionP50": 0.25,
+      "completionP90": 0.25,
+      "planAvg": 0.4286,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    },
+    {
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.0833,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    },
+    {
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "runs": 1,
+      "passRate": 0,
+      "completionAvg": 0,
+      "completionP50": 0,
+      "completionP90": 0,
+      "planAvg": 0.1429,
+      "driftAvg": 0,
+      "haltedRate": 0,
+      "maxTickRate": 1,
+      "watchdogAvg": 0
+    }
+  ],
+  "results": [
+    {
+      "repeat": 1,
+      "id": "pipeline_ordered_execution",
+      "name": "Pipeline Ordered Execution",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 124631,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 18,
+      "completionScore": 0,
+      "planAdherence": 0.1429,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 0,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 4,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "WRITE_INPUT:RECOVERY_V3\n\n[OS_TRAP: IO_FAULT] Failed to write to sys://append/plan/progress.log: required file content mismatch for DONE:WRITE_INPUT -> artifacts/input.csv.\nAction: append exact line DONE:WRITE_INPUT once.",
+      "finalD": "sys://trap/io_fault",
+      "fileChecks": [
+        {
+          "path": "artifacts/input.csv",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "artifacts/high.csv",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/sum.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "artifacts/manifest.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "fault_recovery_resume",
+      "name": "Fault Recovery Resume",
+      "maxTicks": 28,
+      "exitCode": 2,
+      "elapsedMs": 137267,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 21,
+      "completionScore": 0.25,
+      "planAdherence": 0.4286,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 16,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 4,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.\nAction signature: e7ade886edb4\nAction: change strategy now (different pointer/command) or PUSH a diagnostic subtask.\n\n[RECOVERED STATE q]:\nTRANSFORM: create outputs/colors_upper.txt|COUNT: create outputs/count.txt|RESULT: create result/RESULT.json|HALT: verify and HALT",
+      "finalD": "sys://trap/l1_cache_hit",
+      "fileChecks": [
+        {
+          "path": "inputs/source.txt",
+          "passed": true
+        },
+        {
+          "path": "outputs/colors_upper.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "outputs/count.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "repeat": 1,
+      "id": "long_checklist_stability",
+      "name": "Long Checklist Stability",
+      "maxTicks": 36,
+      "exitCode": 2,
+      "elapsedMs": 193956,
+      "halted": false,
+      "maxTickHit": true,
+      "ticksObserved": 27,
+      "completionScore": 0,
+      "planAdherence": 0.0833,
+      "pointerDriftRate": 0,
+      "invalidPointerCount": 0,
+      "trapCounts": {
+        "PAGE_FAULT": 1,
+        "CPU_FAULT": 0,
+        "IO_FAULT": 6,
+        "WATCHDOG_NMI": 0
+      },
+      "mustContainTrapSatisfied": true,
+      "suspiciousFiles": [],
+      "finalQ": "M01|M02|M03|M04|M05|M06|M07|M08|SEQUENCE|RESULT|HALT",
+      "finalD": "milestones/m01.txt",
+      "fileChecks": [
+        {
+          "path": "milestones/m01.txt",
+          "passed": false,
+          "reason": "text mismatch"
+        },
+        {
+          "path": "milestones/m02.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m03.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m04.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m05.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m06.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m07.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/m08.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "milestones/sequence.txt",
+          "passed": false,
+          "reason": "missing file"
+        },
+        {
+          "path": "result/RESULT.json",
+          "passed": false,
+          "reason": "missing file"
+        }
+      ],
+      "pass": false
+    }
+  ]
+}
