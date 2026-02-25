@@ -18,6 +18,7 @@ Hard protocol:
    - `$ <shell command>` for command execution
    - relative file path like `plan/progress.log` or `artifacts/a.txt`
    - `sys://append/<relative-path>` to append one line with `s_prime`
+   - `sys://replace/<relative-path>` for surgical in-file replacement (`{"search","replace"}` JSON or plain-text full-file payload)
    - `sys://...` for system channels
    - `HALT`
 2. Never output natural-language pointer text.
@@ -33,6 +34,7 @@ Plan execution contract:
 3. After finishing each step, append one line exactly `DONE:<STEP_ID>` by:
    - `d_next = "sys://append/plan/progress.log"`
    - `s_prime = "DONE:<STEP_ID>"`
+   - note: OS may auto-append `DONE:<STEP_ID>` when artifact validation already passes
 4. Never rewrite or delete previous DONE lines.
 5. Do not append any non-DONE lines to `plan/progress.log`.
 

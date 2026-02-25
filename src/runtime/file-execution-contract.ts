@@ -10,13 +10,26 @@ interface StepTextExpectation {
   exact: string;
 }
 
+interface StepIncludesExpectation {
+  kind: 'includes';
+  path: string;
+  includes: string[];
+}
+
+interface StepRegexExpectation {
+  kind: 'regex';
+  path: string;
+  pattern: string;
+  flags?: string;
+}
+
 interface StepJsonExpectation {
   kind: 'json';
   path: string;
   expected: Record<string, PrimitiveValue>;
 }
 
-type StepExpectation = StepTextExpectation | StepJsonExpectation;
+type StepExpectation = StepTextExpectation | StepIncludesExpectation | StepRegexExpectation | StepJsonExpectation;
 
 interface ExecutionContractFile {
   enabled?: boolean;
@@ -224,6 +237,40 @@ export class FileExecutionContract implements IExecutionContract {
         continue;
       }
 
+      if (kind === 'includes') {
+        const includesRaw = (raw as { includes?: unknown }).includes;
+        if (!Array.isArray(includesRaw)) {
+          continue;
+        }
+
+        const includes = includesRaw
+          .filter((item): item is string => typeof item === 'string')
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+        if (includes.length === 0) {
+          continue;
+        }
+
+        out[stepId.trim()] = { kind: 'includes', path: filePath.trim(), includes };
+        continue;
+      }
+
+      if (kind === 'regex') {
+        const pattern = (raw as { pattern?: unknown }).pattern;
+        const flags = (raw as { flags?: unknown }).flags;
+        if (typeof pattern !== 'string' || pattern.trim().length === 0) {
+          continue;
+        }
+
+        out[stepId.trim()] = {
+          kind: 'regex',
+          path: filePath.trim(),
+          pattern: pattern.trim(),
+          flags: typeof flags === 'string' ? flags : undefined,
+        };
+        continue;
+      }
+
       if (kind === 'json') {
         const expectedRaw = (raw as { expected?: unknown }).expected;
         if (!expectedRaw || typeof expectedRaw !== 'object') {
@@ -341,11 +388,47 @@ export class FileExecutionContract implements IExecutionContract {
       const actual = this.normalizeText(raw);
       const expected = this.normalizeText(expectation.exact);
       if (actual !== expected) {
-        const expectedPreview = this.preview(expected);
-        const actualPreview = this.preview(actual);
+        const mismatch = this.firstTextMismatch(expected, actual);
         return {
           ok: false,
-          reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. expected="${expectedPreview}" actual="${actualPreview}".`,
+          reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. ${mismatch}`,
+        };
+      }
+      return { ok: true };
+    }
+
+    if (expectation.kind === 'includes') {
+      const actual = this.normalizeText(raw);
+      const missing = expectation.includes.find((item) => !actual.includes(this.normalizeText(item)));
+      if (missing) {
+        return {
+          ok: false,
+          reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. missing segment="${this.preview(
+            missing
+          )}".`,
+        };
+      }
+      return { ok: true };
+    }
+
+    if (expectation.kind === 'regex') {
+      let regex: RegExp;
+      try {
+        regex = new RegExp(expectation.pattern, expectation.flags ?? '');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+          ok: false,
+          reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. invalid regex expectation: ${message}`,
+        };
+      }
+
+      if (!regex.test(raw)) {
+        return {
+          ok: false,
+          reason: `required file content mismatch for DONE:${stepId} -> ${targetFile}. regex not matched: /${expectation.pattern}/${
+            expectation.flags ?? ''
+          }.`,
         };
       }
       return { ok: true };
@@ -385,5 +468,21 @@ export class FileExecutionContract implements IExecutionContract {
       return compact;
     }
     return `${compact.slice(0, 177)}...`;
+  }
+
+  private firstTextMismatch(expected: string, actual: string): string {
+    const expectedLines = expected.split('\n');
+    const actualLines = actual.split('\n');
+    const max = Math.max(expectedLines.length, actualLines.length);
+
+    for (let i = 0; i < max; i += 1) {
+      const expectedLine = expectedLines[i] ?? '';
+      const actualLine = actualLines[i] ?? '';
+      if (expectedLine !== actualLine) {
+        return `first_diff_line=${i + 1} expected="${this.preview(expectedLine)}" actual="${this.preview(actualLine)}"`;
+      }
+    }
+
+    return `expected="${this.preview(expected)}" actual="${this.preview(actual)}"`;
   }
 }

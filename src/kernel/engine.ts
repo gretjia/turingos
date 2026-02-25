@@ -108,6 +108,30 @@ export class TuringEngine {
           'Action: Recover by continuing with strict plan order and DONE markers.',
         ].join('\n');
       }
+
+      if (nextRequiredDone && progressAppendPointer && pointer !== progressAppendPointer) {
+        try {
+          const autoProgress = await this.tryAutoAppendProgress(nextRequiredDone, progressAppendPointer);
+          if (autoProgress.appended) {
+            nextRequiredDone = await this.executionContract.getNextRequiredStep();
+            nextRequiredFileHint = await this.executionContract.getNextRequiredFileHint();
+            s_t = [
+              s_t,
+              '',
+              '[OS_AUTO_PROGRESS]',
+              `Auto-appended ${autoProgress.line} after artifact readiness check.`,
+            ].join('\n');
+          }
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          s_t = [
+            s_t,
+            '',
+            '[OS_TRAP: PLAN_CONTRACT]',
+            `Auto-progress evaluator failed: ${message}`,
+          ].join('\n');
+        }
+      }
     }
 
     // 1.6) Inject memorized trap details for bare trap channels.
@@ -318,7 +342,8 @@ export class TuringEngine {
 
     // 4) Interfere with physical world unless this is a pure read/exec step.
     const isAppendChannel = pointer.startsWith('sys://append/');
-    if (s_prime.trim() !== '👆🏻' && (!pointer.startsWith('sys://') || isAppendChannel)) {
+    const isReplaceChannel = pointer.startsWith('sys://replace/');
+    if (s_prime.trim() !== '👆🏻' && (!pointer.startsWith('sys://') || isAppendChannel || isReplaceChannel)) {
       let writePayload = s_prime;
       if (isAppendChannel && progressAppendPointer && pointer === progressAppendPointer) {
         const normalized = await this.normalizeProgressPayload(s_prime, nextRequiredDone, nextRequiredFileHint);
@@ -476,48 +501,41 @@ export class TuringEngine {
     ].join('\n');
   }
 
-  private normalizeProgressPayload(
+  private async normalizeProgressPayload(
     payload: string,
     nextRequiredDone: string | null,
     nextRequiredFileHint: string | null
   ): Promise<{ ok: true; payload: string } | { ok: false; reason: string }> {
     if (!nextRequiredDone) {
-      return Promise.resolve({ ok: false, reason: 'Plan already complete; no further DONE append allowed.' });
+      return { ok: false, reason: 'Plan already complete; no further DONE append allowed.' };
     }
 
     const expectedLine = `DONE:${nextRequiredDone}`;
-    const candidate = payload
-      .split('\n')
-      .map((line) => line.trim())
-      .find((line) => line.length > 0);
-
-    if (!candidate) {
-      return Promise.resolve({ ok: false, reason: 'Empty append payload.' });
-    }
-
-    const compact = candidate.replace(/\s+/g, '').toUpperCase();
-    if (compact === expectedLine.replace(/\s+/g, '').toUpperCase()) {
-      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
-    }
-
-    if (compact === nextRequiredDone.replace(/\s+/g, '').toUpperCase()) {
-      return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
-    }
-
-    const doneMatch = candidate.match(/^DONE[:：]\s*(.+)$/i);
-    if (doneMatch?.[1]) {
-      const doneStep = doneMatch[1].trim();
-      if (doneStep === nextRequiredDone || doneStep.includes(nextRequiredDone)) {
-        return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
+    const doneCandidate = this.extractDoneCandidate(payload, nextRequiredDone);
+    if (!doneCandidate) {
+      const readinessFallback = await this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
+      if (readinessFallback.ok) {
+        return readinessFallback;
       }
-    } else if (candidate.includes(nextRequiredDone)) {
+
+      const preview = payload
+        .split('\n')
+        .map((line) => line.trim())
+        .find((line) => line.length > 0);
+      return {
+        ok: false,
+        reason: `Unable to parse DONE marker from append payload "${(preview ?? '').slice(0, 120)}".`,
+      };
+    }
+
+    if (this.sameStep(doneCandidate.stepId, nextRequiredDone)) {
       return this.enforceStepArtifactBeforeDone(expectedLine, nextRequiredFileHint);
     }
 
-    return Promise.resolve({
+    return {
       ok: false,
-      reason: `Progress strictly requires ${expectedLine}, got "${candidate.slice(0, 120)}".`,
-    });
+      reason: `Progress strictly requires ${expectedLine}, got "${doneCandidate.rawLine.slice(0, 120)}".`,
+    };
   }
 
   private async enforceStepArtifactBeforeDone(
@@ -649,5 +667,82 @@ export class TuringEngine {
     }
 
     return null;
+  }
+
+  private async tryAutoAppendProgress(
+    nextRequiredDone: string,
+    progressAppendPointer: Pointer
+  ): Promise<{ appended: boolean; line: string }> {
+    const expectedLine = `DONE:${nextRequiredDone}`;
+    if (!this.executionContract) {
+      return { appended: false, line: expectedLine };
+    }
+
+    const readiness = await this.executionContract.checkNextRequiredStepReady();
+    if (!readiness.ok) {
+      return { appended: false, line: expectedLine };
+    }
+
+    try {
+      await this.manifold.interfere(progressAppendPointer, expectedLine);
+      return { appended: true, line: expectedLine };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('Duplicate append blocked')) {
+        return { appended: false, line: expectedLine };
+      }
+      throw error;
+    }
+  }
+
+  private extractDoneCandidate(
+    payload: string,
+    nextRequiredDone: string
+  ): { stepId: string; rawLine: string } | null {
+    const lines = payload
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    for (const line of lines) {
+      const strictDone = line.match(/^DONE[:：\-\s]*([A-Za-z0-9_/-]+)/i);
+      if (strictDone?.[1]) {
+        return { stepId: strictDone[1].trim(), rawLine: line };
+      }
+
+      const doneAnywhere = line.match(/\bDONE[:：\-\s]*([A-Za-z0-9_/-]+)/i);
+      if (doneAnywhere?.[1]) {
+        return { stepId: doneAnywhere[1].trim(), rawLine: line };
+      }
+
+      if (this.sameStep(line, nextRequiredDone)) {
+        return { stepId: nextRequiredDone, rawLine: line };
+      }
+
+      if (line.toUpperCase().includes(nextRequiredDone.toUpperCase())) {
+        return { stepId: nextRequiredDone, rawLine: line };
+      }
+
+      const milestoneMatch = line.match(/milestone\s*0?(\d{1,3})/i);
+      const targetMilestone = nextRequiredDone.match(/^M(\d{1,3})$/i);
+      if (milestoneMatch?.[1] && targetMilestone?.[1]) {
+        const got = Number.parseInt(milestoneMatch[1], 10);
+        const expected = Number.parseInt(targetMilestone[1], 10);
+        if (Number.isFinite(got) && got === expected) {
+          return { stepId: nextRequiredDone, rawLine: line };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private sameStep(left: string, right: string): boolean {
+    const normalize = (value: string): string =>
+      value
+        .replace(/^DONE[:：\-\s]*/i, '')
+        .replace(/\s+/g, '')
+        .toUpperCase();
+    return normalize(left) === normalize(right);
   }
 }

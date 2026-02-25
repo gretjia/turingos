@@ -81,6 +81,16 @@ export class LocalManifold implements IPhysicalManifold {
       return;
     }
 
+    if (trimmed.startsWith('sys://replace/')) {
+      const targetPointer = trimmed.slice('sys://replace/'.length).trim();
+      if (targetPointer.length === 0) {
+        throw new Error('Replace target is empty.');
+      }
+
+      this.applyReplaceSyscall(targetPointer, payload);
+      return;
+    }
+
     if (trimmed === 'sys://callstack') {
       this.applyCallStackSyscall(payload);
       return;
@@ -140,6 +150,18 @@ export class LocalManifold implements IPhysicalManifold {
         '[CURRENT_CONTENT]',
         current,
         'Action: append exactly one NEW DONE line for the next unfinished step, then move to the next work pointer.',
+      ].join('\n');
+    }
+
+    if (base.startsWith('sys://replace/')) {
+      const target = base.slice('sys://replace/'.length);
+      return [
+        `[SYSTEM_CHANNEL] ${base}`,
+        `Replace target: ${target}`,
+        '[REPLACE_PAYLOAD_FORMAT]',
+        '{"search":"<exact-substring>","replace":"<new-substring>","all":false}',
+        'or plain text payload (treated as full-file overwrite fallback).',
+        'Action: use sys://replace for surgical patch instead of full-file overwrite.',
       ].join('\n');
     }
 
@@ -278,6 +300,67 @@ export class LocalManifold implements IPhysicalManifold {
     }
 
     throw new Error(`Invalid callstack syscall payload: "${instruction}"`);
+  }
+
+  private applyReplaceSyscall(targetPointer: string, payload: string): void {
+    const targetPath = this.resolveWorkspacePath(targetPointer);
+    if (!fs.existsSync(targetPath)) {
+      throw new Error(`Replace target does not exist: ${targetPointer}`);
+    }
+
+    const raw = fs.readFileSync(targetPath, 'utf-8');
+    let parsed: unknown = null;
+    try {
+      parsed = JSON.parse(payload);
+    } catch {
+      const fallback = payload;
+      if (fallback.length === 0) {
+        throw new Error('Replace payload is empty.');
+      }
+      if (fallback === raw) {
+        throw new Error(`Replace fallback produced no changes for ${targetPointer}.`);
+      }
+      fs.writeFileSync(targetPath, fallback, 'utf-8');
+      return;
+    }
+
+    if (typeof parsed === 'string') {
+      if (parsed === raw) {
+        throw new Error(`Replace string payload produced no changes for ${targetPointer}.`);
+      }
+      fs.writeFileSync(targetPath, parsed, 'utf-8');
+      return;
+    }
+
+    const content = (parsed as { content?: unknown }).content;
+    if (typeof content === 'string') {
+      if (content === raw) {
+        throw new Error(`Replace content payload produced no changes for ${targetPointer}.`);
+      }
+      fs.writeFileSync(targetPath, content, 'utf-8');
+      return;
+    }
+
+    const search = (parsed as { search?: unknown }).search;
+    const replace = (parsed as { replace?: unknown }).replace;
+    const all = (parsed as { all?: unknown }).all;
+
+    if (typeof search !== 'string' || search.length === 0) {
+      throw new Error('Replace payload requires non-empty string field "search".');
+    }
+    if (typeof replace !== 'string') {
+      throw new Error('Replace payload requires string field "replace".');
+    }
+    if (!raw.includes(search)) {
+      throw new Error(`Replace search token not found in ${targetPointer}.`);
+    }
+
+    const next = all === true ? raw.split(search).join(replace) : raw.replace(search, replace);
+    if (next === raw) {
+      throw new Error(`Replace produced no changes for ${targetPointer}.`);
+    }
+
+    fs.writeFileSync(targetPath, next, 'utf-8');
   }
 
   private readCallStack(): string[] {
