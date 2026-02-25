@@ -1,0 +1,22 @@
+{
+  "name": "turingos",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/runtime/boot.ts",
+    "start": "node dist/runtime/boot.js",
+    "smoke:mock": "tsx src/runtime/boot.ts --oracle mock --max-ticks 8"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "openai": "^6.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.2"
+  }
+}
