@@ -4,11 +4,14 @@ export type Slice = string;
 
 export type StackOp = 'PUSH' | 'POP' | 'NOP';
 
+export type ActionOperator =
+  | { action_type: 'WRITE'; s_prime: string }
+  | { action_type: 'GOTO'; d_next: Pointer };
+
 export interface Transition {
   thought?: string;
   q_next: State;
-  s_prime: string;
-  d_next: Pointer;
+  a_t: ActionOperator;
   stack_op: StackOp;
   stack_payload?: string;
 }

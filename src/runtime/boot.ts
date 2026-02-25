@@ -84,7 +84,7 @@ async function main(): Promise<void> {
 
   const disciplinePrompt = fs.existsSync(promptFile)
     ? fs.readFileSync(promptFile, 'utf-8')
-    : 'Output strict JSON with q_next, s_prime, d_next.';
+    : 'Output strict JSON with q_next, a_t (action_type: "WRITE"|"GOTO").';
 
   const timeoutMs = Number.parseInt(process.env.TURINGOS_TIMEOUT_MS ?? '120000', 10);
   const maxOutputTokens = Number.parseInt(process.env.TURINGOS_MAX_OUTPUT_TOKENS ?? '1024', 10);

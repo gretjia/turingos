@@ -9,8 +9,10 @@ export class MockOracle implements IOracle {
     if (this.step === 1) {
       return {
         q_next: 'q_1: MOCK_WRITE_FILE',
-        s_prime: `${s}\n\n[MOCK] Bootstrapped by mock oracle.`,
-        d_next: '$ node -e "console.error(\'mock failure\'); process.exit(1)"',
+        a_t: {
+          action_type: 'WRITE',
+          s_prime: `${s}\n\n[MOCK] Bootstrapped by mock oracle.`
+        },
         stack_op: 'NOP',
       };
     }
@@ -22,16 +24,20 @@ export class MockOracle implements IOracle {
           '[x] observed command failure as data slice',
           `[x] stderr visible: ${s.includes('mock failure')}`,
         ].join('\n'),
-        s_prime: '👆🏻',
-        d_next: 'HALT',
+        a_t: {
+          action_type: 'GOTO',
+          d_next: 'HALT'
+        },
         stack_op: 'NOP',
       };
     }
 
     return {
       q_next: q,
-      s_prime: '👆🏻',
-      d_next: 'HALT',
+      a_t: {
+        action_type: 'GOTO',
+        d_next: 'HALT'
+      },
       stack_op: 'NOP',
     };
   }

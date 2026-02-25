@@ -254,11 +254,17 @@ export class UniversalOracle implements IOracle {
     }
 
     const asRecord = value as Record<string, unknown>;
-    return (
-      typeof asRecord.q_next === 'string' &&
-      typeof asRecord.s_prime === 'string' &&
-      typeof asRecord.d_next === 'string'
-    );
+    if (typeof asRecord.q_next !== 'string') return false;
+    if (!asRecord.a_t || typeof asRecord.a_t !== 'object') return false;
+    
+    const a_t = asRecord.a_t as Record<string, unknown>;
+    if (a_t.action_type === 'WRITE') {
+      return typeof a_t.s_prime === 'string';
+    } else if (a_t.action_type === 'GOTO') {
+      return typeof a_t.d_next === 'string';
+    }
+    
+    return false;
   }
 
   private extractThought(rawOutput: string): string | undefined {
@@ -271,7 +277,7 @@ export class UniversalOracle implements IOracle {
     return thought.length > 0 ? thought : undefined;
   }
 
-  private normalizeTransition(value: Transition): Transition {
+  private normalizeTransition(value: any): Transition {
     const stackOp = this.normalizeStackOp(value.stack_op);
     if (!stackOp) {
       throw new Error('Missing or invalid stack_op');
@@ -279,8 +285,7 @@ export class UniversalOracle implements IOracle {
 
     const normalized: Transition = {
       q_next: value.q_next,
-      s_prime: value.s_prime,
-      d_next: value.d_next,
+      a_t: value.a_t,
       stack_op: stackOp,
     };
 

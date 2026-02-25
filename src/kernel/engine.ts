@@ -197,7 +197,17 @@ export class TuringEngine {
       ];
     }
 
-    const { q_next, s_prime, d_next } = transition;
+    const q_next = transition.q_next;
+    let d_next: Pointer;
+    let s_prime: string;
+
+    if (transition.a_t.action_type === 'WRITE') {
+      d_next = d_t;
+      s_prime = transition.a_t.s_prime;
+    } else {
+      d_next = transition.a_t.d_next;
+      s_prime = '👆🏻';
+    }
 
     // 2.2) Apply syscall-driven call stack operations (OS-managed memory).
     try {
