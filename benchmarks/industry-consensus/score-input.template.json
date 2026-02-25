@@ -1,0 +1,48 @@
+{
+  "runStamp": "20260225-174600",
+  "model": "fill-model-id",
+  "results": [
+    {
+      "id": "osworld_verified",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill success_rate"
+    },
+    {
+      "id": "browsergym_webarena",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill success_rate"
+    },
+    {
+      "id": "swebench_verified_bash_only",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill resolved_rate"
+    },
+    {
+      "id": "tau2_bench",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill pass_k"
+    },
+    {
+      "id": "agent_safety_bench",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill safety_pass_rate"
+    },
+    {
+      "id": "the_agent_company",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill success_rate"
+    },
+    {
+      "id": "android_world",
+      "value": 0,
+      "evidence": "path/to/raw/result.json",
+      "note": "fill success_rate"
+    }
+  ]
+}

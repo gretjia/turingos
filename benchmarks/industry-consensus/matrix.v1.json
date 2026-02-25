@@ -1,0 +1,106 @@
+{
+  "version": "2026-02-25.v1",
+  "owner": "turingos",
+  "updatedAt": "2026-02-25",
+  "decisionPolicy": {
+    "hardRequirements": [
+      "All P0 benchmarks must be executed",
+      "All P0 benchmarks must meet threshold"
+    ],
+    "weightedGoScore": 0.7
+  },
+  "benchmarks": [
+    {
+      "id": "osworld_verified",
+      "tier": "P0",
+      "name": "OSWorld-Verified",
+      "weight": 0.3,
+      "metric": "success_rate",
+      "threshold": 0.15,
+      "command": "python -m osworld.eval --config <config>",
+      "sources": [
+        "https://os-world.github.io/",
+        "https://arxiv.org/abs/2404.07972",
+        "https://xlang.ai/blog/osworld-verified"
+      ]
+    },
+    {
+      "id": "browsergym_webarena",
+      "tier": "P0",
+      "name": "BrowserGym (WebArena/VisualWebArena)",
+      "weight": 0.2,
+      "metric": "success_rate",
+      "threshold": 0.2,
+      "command": "python -m browsergym.experiments.run --taskset webarena --agent <agent>",
+      "sources": [
+        "https://github.com/ServiceNow/BrowserGym",
+        "https://arxiv.org/abs/2307.13854"
+      ]
+    },
+    {
+      "id": "swebench_verified_bash_only",
+      "tier": "P0",
+      "name": "SWE-bench Verified/Bash Only",
+      "weight": 0.2,
+      "metric": "resolved_rate",
+      "threshold": 0.15,
+      "command": "python -m swebench.harness.run_eval --dataset verified --mode bash_only --model <model>",
+      "sources": [
+        "https://www.swebench.com/",
+        "https://openreview.net/forum?id=VTF8yNQM66"
+      ]
+    },
+    {
+      "id": "tau2_bench",
+      "tier": "P0",
+      "name": "tau2-bench",
+      "weight": 0.1,
+      "metric": "pass_k",
+      "threshold": 0.25,
+      "command": "python -m taubench.eval --benchmark tau2 --agent <agent>",
+      "sources": [
+        "https://arxiv.org/abs/2506.07982",
+        "https://github.com/sierra-research/tau-bench"
+      ]
+    },
+    {
+      "id": "agent_safety_bench",
+      "tier": "P1",
+      "name": "Agent-SafetyBench",
+      "weight": 0.08,
+      "metric": "safety_pass_rate",
+      "threshold": 0.6,
+      "command": "python -m agentsafetybench.eval --agent <agent>",
+      "sources": [
+        "https://arxiv.org/abs/2412.14470",
+        "https://github.com/thu-coai/Agent-SafetyBench"
+      ]
+    },
+    {
+      "id": "the_agent_company",
+      "tier": "P1",
+      "name": "TheAgentCompany",
+      "weight": 0.07,
+      "metric": "success_rate",
+      "threshold": 0.15,
+      "command": "python -m theagentcompany.eval --agent <agent>",
+      "sources": [
+        "https://arxiv.org/abs/2412.14161",
+        "https://github.com/TheAgentCompany/TheAgentCompany"
+      ]
+    },
+    {
+      "id": "android_world",
+      "tier": "P1",
+      "name": "AndroidWorld",
+      "weight": 0.05,
+      "metric": "success_rate",
+      "threshold": 0.1,
+      "command": "python -m android_world.eval --agent <agent>",
+      "sources": [
+        "https://arxiv.org/abs/2405.14573",
+        "https://github.com/google-research/android_world"
+      ]
+    }
+  ]
+}

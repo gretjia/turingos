@@ -61,6 +61,14 @@ npm run bench:os-longrun
 npm run bench:os-longrun -- --repeats 10
 ```
 
+Run industry-consensus AI OS matrix plan/template/score:
+
+```bash
+npm run bench:industry-matrix -- --mode plan
+npm run bench:industry-matrix -- --mode template
+npm run bench:industry-matrix -- --mode score --score-file benchmarks/industry-consensus/score-input.template.json
+```
+
 Runtime files are stored under `workspace/` by default:
 
 - `workspace/.reg_q`

@@ -10,7 +10,8 @@
     "start": "node dist/runtime/boot.js",
     "smoke:mock": "tsx src/runtime/boot.ts --oracle mock --max-ticks 8",
     "bench:pilot": "tsx src/bench/pilot.ts",
-    "bench:os-longrun": "tsx src/bench/os-longrun.ts"
+    "bench:os-longrun": "tsx src/bench/os-longrun.ts",
+    "bench:industry-matrix": "tsx src/bench/industry-matrix.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

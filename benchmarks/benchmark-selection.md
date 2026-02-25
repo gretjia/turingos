@@ -30,3 +30,9 @@ This pilot suite focuses on failure modes that frequently crash long-running age
 - `GAIA` (real-world tool-heavy tasks): https://huggingface.co/papers/2311.12983
 - `AgentBench` (multi-environment agent eval): https://openreview.net/forum?id=zAdUB0aCTQ
 - `tau-bench` (tool-agent reliability benchmark): https://arxiv.org/abs/2406.12045
+
+## Industry-consensus AI OS matrix (standardized gate)
+
+- Matrix spec: `benchmarks/industry-consensus/matrix.v1.json`
+- Human-readable standard: `benchmarks/industry-consensus/consensus_standard_20260225.md`
+- Execution/score script: `npm run bench:industry-matrix`

@@ -19,12 +19,18 @@ interface JsonExpectation {
 
 type FileExpectation = TextExpectation | JsonExpectation;
 
+interface SetupFile {
+  path: string;
+  content: string;
+}
+
 interface Scenario {
   id: string;
   name: string;
   maxTicks: number;
   stepIds: string[];
   stepFileMap?: Record<string, string>;
+  setupFiles?: SetupFile[];
   mainTape: string;
   expectedFiles: FileExpectation[];
   mustContainTrap?: TrapKind;
@@ -91,7 +97,7 @@ const LONGRUN_DIR = path.join(ROOT, 'benchmarks', 'os-longrun');
 const WORKSPACES_DIR = path.join(LONGRUN_DIR, 'workspaces');
 const RESULTS_DIR = path.join(ROOT, 'benchmarks', 'results');
 const PROMPT_FILE = path.join(LONGRUN_DIR, 'discipline_prompt.txt');
-const FILE_POINTER_RE = /^(?:\.?\/)?[A-Za-z0-9._/-]+$/;
+const FILE_POINTER_RE = /^(?:\.?\/)?[A-Za-z0-9._/$-]+$/;
 
 function parseRepeats(argv: string[]): number {
   const index = argv.findIndex((arg) => arg === '--repeats');
@@ -105,6 +111,15 @@ function parseRepeats(argv: string[]): number {
     return 1;
   }
   return parsed;
+}
+
+function parseScenarioFilter(argv: string[]): string | null {
+  const index = argv.findIndex((arg) => arg === '--scenario');
+  if (index < 0) {
+    return null;
+  }
+  const raw = (argv[index + 1] ?? '').trim();
+  return raw.length > 0 ? raw : null;
 }
 
 function timestamp(): string {
@@ -263,6 +278,70 @@ function buildScenarios(): Scenario[] {
       mustContainTrap: 'PAGE_FAULT',
     },
     {
+      id: 'home1_parity_sim',
+      name: 'Home1 Parity Simulation',
+      maxTicks: 120,
+      stepIds: ['INIT', 'SCAN_TREE', 'WRITE_RESULT', 'HALT'],
+      stepFileMap: {
+        WRITE_RESULT: '$home1/result.md',
+      },
+      setupFiles: [
+        {
+          path: '$home1/.ls',
+          content: ['.', '..', '.ls', '1', '2', '3', '4', '32342323.md'].join('\n'),
+        },
+        { path: '$home1/32342323.md', content: '32342323' },
+        {
+          path: '$home1/1/.ls',
+          content: ['.', '..', '.ls', '12312432.md', 'a', 'b'].join('\n'),
+        },
+        { path: '$home1/1/12312432.md', content: '12312432' },
+        {
+          path: '$home1/1/a/.ls',
+          content: ['.', '..', '.ls', '23563425.md'].join('\n'),
+        },
+        { path: '$home1/1/a/23563425.md', content: '23563425' },
+        { path: '$home1/1/b/.ls', content: ['.', '..', '.ls'].join('\n') },
+        { path: '$home1/2/.ls', content: ['.', '..', '.ls'].join('\n') },
+        {
+          path: '$home1/3/.ls',
+          content: ['.', '..', '.ls', '135246547.md'].join('\n'),
+        },
+        { path: '$home1/3/135246547.md', content: '135246547' },
+        { path: '$home1/4/.ls', content: ['.', '..', '.ls'].join('\n') },
+      ],
+      mainTape: [
+        '# 模拟运行：$home1 奇偶判定',
+        '',
+        '任务目标：',
+        '- 已创建路径 `./$home1`（目录名包含字符 `$`）。',
+        '- 你需要判断该目录树中所有数字 md 文件的数字总和是奇数还是偶数。',
+        '- 不需要输出总和，只需 odd/even。',
+        '',
+        '环境信息：',
+        '- 每个目录包含 `.ls` 文件，其内容等价于该目录 `ls` 结果。',
+        '',
+        '系统规则：',
+        '- 维护 todo-stack，避免重复处理已完成任务。',
+        '- `q` 用于任务指示，不要在 `q` 存大数据。',
+        '- 中间数据写文件；若不改当前文件，设置 `s_prime=👆🏻`。',
+        '- 写入发生在当前指针 `d_t`，不是 `d_next`。',
+        '- 路径请使用 `./$home1/...` 形式。',
+        '',
+        '执行协议：',
+        '- 使用 `$ <command>` 在 `d_next` 执行 shell。',
+        '- 使用相对路径在 `d_next` 读写文件。',
+        '- 每完成一个阶段，向 `plan/progress.log` 追加一行 `DONE:<STEP_ID>`。',
+        '',
+        'Plan:',
+        '1) INIT: 创建 `plan/` 和 `./$home1/parity.md`，初始化 parity 为 `0`。',
+        '2) SCAN_TREE: 通过 `./$home1/.ls` 及各子目录 `.ls` 找到全部数字 md 并更新 parity。',
+        '3) WRITE_RESULT: 在 `./$home1/result.md` 写入最终结果，内容必须是 `odd` 或 `even`。',
+        '4) HALT: 验证结果后 HALT。',
+      ].join('\n'),
+      expectedFiles: [{ kind: 'text', path: '$home1/result.md', exact: 'odd' }],
+    },
+    {
       id: 'long_checklist_stability',
       name: 'Long Checklist Stability',
       maxTicks: 36,
@@ -359,6 +438,18 @@ async function writeExecutionContract(workspace: string, scenario: Scenario): Pr
     step_expectations: buildStepExpectations(scenario),
   };
   await fs.writeFile(contractPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
+}
+
+async function writeSetupFiles(workspace: string, setupFiles: SetupFile[] | undefined): Promise<void> {
+  if (!setupFiles || setupFiles.length === 0) {
+    return;
+  }
+
+  for (const setup of setupFiles) {
+    const target = path.join(workspace, setup.path);
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, `${setup.content}\n`, 'utf-8');
+  }
 }
 
 async function runBoot(workspace: string, maxTicks: number): Promise<RunOutput> {
@@ -539,7 +630,7 @@ async function listSuspiciousFiles(workspace: string): Promise<string[]> {
         continue;
       }
 
-      if (/[\s:><|$]/.test(relative)) {
+      if (/[\s:><|]/.test(relative)) {
         suspicious.push(relative);
       }
     }
@@ -575,6 +666,7 @@ function computePass(result: Omit<ScenarioResult, 'pass'>): boolean {
 async function runScenario(scenario: Scenario, runStamp: string, repeat: number): Promise<ScenarioResult> {
   const workspace = path.join(WORKSPACES_DIR, `${scenario.id}-${runStamp}-r${repeat}`);
   await fs.mkdir(workspace, { recursive: true });
+  await writeSetupFiles(workspace, scenario.setupFiles);
   await fs.writeFile(path.join(workspace, 'MAIN_TAPE.md'), `${scenario.mainTape}\n`, 'utf-8');
   await writeExecutionContract(workspace, scenario);
 
@@ -741,10 +833,22 @@ async function main(): Promise<void> {
     throw new Error('KIMI_API_KEY missing. Set it in .env before running os-longrun benchmark.');
   }
 
-  const repeats = parseRepeats(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  const repeats = parseRepeats(argv);
+  const scenarioFilter = parseScenarioFilter(argv);
   await ensureDirs();
   const runStamp = timestamp();
-  const scenarios = buildScenarios();
+  const allScenarios = buildScenarios();
+  const scenarios = scenarioFilter
+    ? allScenarios.filter((scenario) => scenario.id === scenarioFilter)
+    : allScenarios;
+  if (scenarios.length === 0) {
+    throw new Error(
+      scenarioFilter
+        ? `Scenario not found: ${scenarioFilter}`
+        : 'No scenarios available for os-longrun benchmark.'
+    );
+  }
   const results: ScenarioResult[] = [];
 
   for (let repeat = 1; repeat <= repeats; repeat += 1) {
