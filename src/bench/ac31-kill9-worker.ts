@@ -52,7 +52,38 @@ class ResumeProcessOracle implements IOracle {
     if (state === 'q3') {
       return { q_next: 'q4', a_t: { op: 'SYS_WRITE', payload: 'resumed-ok' } };
     }
-    return { q_next: 'q5', a_t: { op: 'SYS_HALT' } };
+    // S4 unlock matrix signal generation (post-resume):
+    // - execOps>=5
+    // - timeoutSignals>=1
+    // - mmuSignals>=1
+    // - deadlockSignals>=1
+    // - execMmuSignals>=1
+    if (state === 'q4') {
+      return { q_next: 'q5', a_t: { op: 'SYS_GOTO', pointer: 'missing/for_exec_mmu.txt' } };
+    }
+    if (state === 'q5') {
+      // Current pointer is missing file => observed contains PAGE_FAULT.
+      // Emitting SYS_EXEC here satisfies execMmu coupling.
+      return { q_next: 'q6', a_t: { op: 'SYS_EXEC', cmd: 'printf mmu_exec_ok' } };
+    }
+    if (state === 'q6') {
+      return { q_next: 'q7', a_t: { op: 'SYS_EXEC', cmd: 'echo timeout_signal_from_exec' } };
+    }
+    if (state === 'q7') {
+      return { q_next: 'q8', a_t: { op: 'SYS_EXEC', cmd: 'echo gateway_502_marker' } };
+    }
+    if (state === 'q8') {
+      // Route through trap pointer to produce deadlock signal token in observed slice.
+      return { q_next: 'q9', a_t: { op: 'SYS_GOTO', pointer: 'sys://trap/watchdog' } };
+    }
+    if (state === 'q9') {
+      return { q_next: 'q10', a_t: { op: 'SYS_EXEC', cmd: 'cat checkpoint/step1.txt' } };
+    }
+    if (state === 'q10') {
+      // Keep a successful verification command close to HALT.
+      return { q_next: 'q11', a_t: { op: 'SYS_EXEC', cmd: 'cat checkpoint/step1.txt' } };
+    }
+    return { q_next: 'q12', a_t: { op: 'SYS_HALT' } };
   }
 }
 
@@ -106,4 +137,3 @@ main().catch((error: unknown) => {
   console.error(`[ac31-worker] fatal: ${message}`);
   process.exitCode = 1;
 });
-

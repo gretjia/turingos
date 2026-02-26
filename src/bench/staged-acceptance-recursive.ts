@@ -44,12 +44,26 @@ interface SpawnResult extends CommandResult {
 }
 
 interface AcceptanceRuntimeContext {
+  auditStamp?: string;
   ac31Workspace?: string;
   ac31TracePath?: string;
 }
 
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'recursive');
+const GOLDEN_TRACE_DIR = path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'golden_traces');
+
+interface GoldenTraceSource {
+  source: string;
+  targetName: string;
+  required?: boolean;
+}
+
+interface GoldenTraceBundle {
+  bundleDir: string;
+  manifestPath: string;
+  copiedPaths: string[];
+}
 
 function timestamp(): string {
   const now = new Date();
@@ -64,6 +78,79 @@ function timestamp(): string {
 
 function mkWorkspace(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+}
+
+function sanitizeBundleId(value: string): string {
+  const normalized = value.replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '');
+  return normalized.length > 0 ? normalized.slice(0, 120) : 'bundle';
+}
+
+async function sha256File(filePath: string): Promise<string> {
+  const raw = await fsp.readFile(filePath);
+  return createHash('sha256').update(raw).digest('hex');
+}
+
+async function archiveGoldenTraceBundle(
+  bundleId: string,
+  sources: GoldenTraceSource[],
+  metadata: Record<string, unknown>
+): Promise<GoldenTraceBundle> {
+  const safeId = sanitizeBundleId(bundleId);
+  const bundleDir = path.join(GOLDEN_TRACE_DIR, safeId);
+  await fsp.mkdir(bundleDir, { recursive: true });
+
+  const copiedPaths: string[] = [];
+  const copiedManifest: Array<Record<string, unknown>> = [];
+  for (const source of sources) {
+    const required = source.required ?? true;
+    if (!fs.existsSync(source.source)) {
+      if (required) {
+        throw new Error(`[GOLDEN_TRACE_MISSING] required source not found: ${source.source}`);
+      }
+      copiedManifest.push({
+        source: source.source,
+        target: source.targetName,
+        status: 'missing_optional',
+      });
+      continue;
+    }
+
+    const targetPath = path.join(bundleDir, source.targetName);
+    await fsp.mkdir(path.dirname(targetPath), { recursive: true });
+    await fsp.copyFile(source.source, targetPath);
+    const stat = await fsp.stat(targetPath);
+    const digest = await sha256File(targetPath);
+    copiedPaths.push(targetPath);
+    copiedManifest.push({
+      source: source.source,
+      target: targetPath,
+      bytes: stat.size,
+      sha256: digest,
+      status: 'copied',
+    });
+  }
+
+  const manifestPath = path.join(bundleDir, 'manifest.json');
+  await fsp.writeFile(
+    manifestPath,
+    `${JSON.stringify(
+      {
+        createdAt: new Date().toISOString(),
+        bundleId: safeId,
+        metadata,
+        files: copiedManifest,
+      },
+      null,
+      2
+    )}\n`,
+    'utf-8'
+  );
+
+  return {
+    bundleDir,
+    manifestPath,
+    copiedPaths,
+  };
 }
 
 function runCommand(command: string, cwd = ROOT, timeoutMs = 120000): Promise<CommandResult> {
@@ -189,7 +276,16 @@ async function seedAc31Baseline(workspace: string): Promise<void> {
   await fsp.writeFile(path.join(workspace, 'checkpoint', 'step1.txt'), 'verified\n', 'utf-8');
 }
 
-async function collectTraceStats(tracePath: string): Promise<{ execOps: number; timeoutSignals: number; frames: number }> {
+async function collectTraceStats(tracePath: string): Promise<{
+  execOps: number;
+  timeoutSignals: number;
+  mmuSignals: number;
+  deadlockSignals: number;
+  execMmuSignals: number;
+  frames: number;
+  traceCorrupted: boolean;
+  corruptionReason: string;
+}> {
   try {
     const raw = await fsp.readFile(tracePath, 'utf-8');
     const lines = raw
@@ -198,6 +294,9 @@ async function collectTraceStats(tracePath: string): Promise<{ execOps: number; 
       .filter((line) => line.length > 0);
     let execOps = 0;
     let timeoutSignals = 0;
+    let mmuSignals = 0;
+    let deadlockSignals = 0;
+    let execMmuSignals = 0;
     let frames = 0;
     for (const line of lines) {
       const match = line.match(/\[REPLAY_TUPLE\]\s*(\{.*\})$/);
@@ -218,13 +317,43 @@ async function collectTraceStats(tracePath: string): Promise<{ execOps: number; 
         if (/(429|502|timeout|rate limit|gateway)/i.test(observed)) {
           timeoutSignals += 1;
         }
-      } catch {
-        // ignore malformed tuple
+        const hasMmuSignal = /(\[OS_FRAME_HARD_LIMIT\]|\[OS_SECTION_CLIPPED\]|\[OS_TRAP: PAGE_FAULT\])/i.test(observed);
+        if (hasMmuSignal) {
+          mmuSignals += 1;
+          if (tuple.a_t?.op === 'SYS_EXEC') {
+            execMmuSignals += 1;
+          }
+        }
+        if (/\[OS_PANIC: INFINITE_LOOP_KILLED\]|sys:\/\/trap\/panic_reset|sys:\/\/trap\/watchdog|sys:\/\/trap\/l1_cache_hit/i.test(observed)) {
+          deadlockSignals += 1;
+        }
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`[TRACE_CORRUPTION] malformed replay tuple line: ${message}`);
       }
     }
-    return { execOps, timeoutSignals, frames };
-  } catch {
-    return { execOps: 0, timeoutSignals: 0, frames: 0 };
+    return {
+      execOps,
+      timeoutSignals,
+      mmuSignals,
+      deadlockSignals,
+      execMmuSignals,
+      frames,
+      traceCorrupted: false,
+      corruptionReason: '',
+    };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      execOps: 0,
+      timeoutSignals: 0,
+      mmuSignals: 0,
+      deadlockSignals: 0,
+      execMmuSignals: 0,
+      frames: 0,
+      traceCorrupted: true,
+      corruptionReason: message,
+    };
   }
 }
 
@@ -862,6 +991,40 @@ async function ac31(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   const resumedFromQ1 = qAfterKill === 'q1' && resumedResult.stdout.includes('tick=1 q=q2');
   const halted = qFinal === 'HALT' || dFinal === 'HALT';
   const pass = reachedCheckpoint && wasKilled && resumedFromQ1 && resumedResult.code === 0 && halted && resumeFile === 'resumed-ok';
+  const evidence = [
+    workerScriptPath,
+    ws,
+    path.join(ws, '.reg_q'),
+    path.join(ws, '.reg_d'),
+    path.join(ws, '.journal.log'),
+    path.join(ws, '.ac31_worker_ticks.log'),
+    path.join(ws, 'artifacts', 'resume.txt'),
+  ];
+  if (pass) {
+    const bundle = await archiveGoldenTraceBundle(
+      `${runtime?.auditStamp ?? timestamp()}_ac31_lazarus`,
+      [
+        { source: path.join(ws, '.journal.log'), targetName: 'ac31.journal.log' },
+        { source: path.join(ws, '.journal.merkle.jsonl'), targetName: 'ac31.journal.merkle.jsonl', required: false },
+        { source: path.join(ws, '.ac31_worker_ticks.log'), targetName: 'ac31.worker_ticks.log' },
+        { source: path.join(ws, 'artifacts', 'resume.txt'), targetName: 'ac31.resume.txt' },
+        { source: path.join(ws, '.reg_q'), targetName: 'ac31.reg_q' },
+        { source: path.join(ws, '.reg_d'), targetName: 'ac31.reg_d' },
+      ],
+      {
+        acId: 'AC3.1',
+        pass,
+        reachedCheckpoint,
+        killSignal: killedResult.signal,
+        resumedExitCode: resumedResult.code,
+        qAfterKill,
+        qFinal,
+        dFinal,
+      }
+    );
+    evidence.push(bundle.bundleDir, bundle.manifestPath, ...bundle.copiedPaths);
+  }
+
   return {
     stage: 'S3',
     acId: 'AC3.1',
@@ -872,15 +1035,7 @@ async function ac31(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     details: pass
       ? 'Process-level kill -9 + restart continuation succeeded from persisted registers.'
       : `Kill/restart mismatch. reachedCheckpoint=${reachedCheckpoint} killSignal=${killedResult.signal} qAfterKill=${qAfterKill} dAfterKill=${dAfterKill} resumedExit=${resumedResult.code} qFinal=${qFinal} dFinal=${dFinal} resumeFile=${resumeFile} ticksLogTail=${ticksLog.slice(-200)}`,
-    evidence: [
-      workerScriptPath,
-      ws,
-      path.join(ws, '.reg_q'),
-      path.join(ws, '.reg_d'),
-      path.join(ws, '.journal.log'),
-      path.join(ws, '.ac31_worker_ticks.log'),
-      path.join(ws, 'artifacts', 'resume.txt'),
-    ],
+    evidence,
     nextActions: pass
       ? ['将该 kill -9 验收接入 CI，防止续跑能力回归。']
       : [
@@ -1027,28 +1182,57 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   const execSnapshotWorkspace = path.join(tempRoot, 'exec_snapshot_run');
   const execCmd = 'echo 123 > mutation.txt';
   const execPointer = `$ ${execCmd}`;
+  const execPreSlice = '[SYSTEM] replay exec bootstrap';
   const commandSlice = ['[COMMAND] echo 123 > mutation.txt', '[EXIT_CODE] 0', '[STDOUT]', '', '[STDERR]', ''].join('\n');
+  const execTuple0Payload = {
+    tick_seq: 0,
+    q_t: 'q_exec_0',
+    h_q: createHash('sha256').update('q_exec_0').digest('hex'),
+    d_t: 'MAIN_TAPE.md',
+    observed_slice: execPreSlice,
+    s_t: execPreSlice,
+    h_s: createHash('sha256').update(execPreSlice).digest('hex'),
+    a_t: { op: 'SYS_EXEC', cmd: execCmd },
+    q_next: 'q_exec_1',
+    d_next: execPointer,
+    write_target: execPointer,
+  };
+  const execTuple0Leaf = createHash('sha256').update(JSON.stringify(execTuple0Payload)).digest('hex');
+  const execTuple0Prev = 'GENESIS';
+  const execTuple0Merkle = createHash('sha256').update(`${execTuple0Prev}\n${execTuple0Leaf}`).digest('hex');
+  const execTuple0 = {
+    ...execTuple0Payload,
+    leaf_hash: execTuple0Leaf,
+    prev_merkle_root: execTuple0Prev,
+    merkle_root: execTuple0Merkle,
+  };
+
+  const execTuple1Payload = {
+    tick_seq: 1,
+    q_t: 'q_exec_1',
+    h_q: createHash('sha256').update('q_exec_1').digest('hex'),
+    d_t: execPointer,
+    observed_slice: commandSlice,
+    s_t: commandSlice,
+    h_s: createHash('sha256').update(commandSlice).digest('hex'),
+    a_t: { op: 'SYS_HALT' },
+    q_next: 'HALT',
+    d_next: 'HALT',
+    write_target: 'HALT',
+  };
+  const execTuple1Leaf = createHash('sha256').update(JSON.stringify(execTuple1Payload)).digest('hex');
+  const execTuple1Prev = execTuple0Merkle;
+  const execTuple1Merkle = createHash('sha256').update(`${execTuple1Prev}\n${execTuple1Leaf}`).digest('hex');
+  const execTuple1 = {
+    ...execTuple1Payload,
+    leaf_hash: execTuple1Leaf,
+    prev_merkle_root: execTuple1Prev,
+    merkle_root: execTuple1Merkle,
+  };
+
   await fsp.writeFile(
     execSnapshotTracePath,
-    [
-      JSON.stringify({
-        d_t: 'MAIN_TAPE.md',
-        a_t: { op: 'SYS_EXEC', cmd: execCmd },
-        d_next: execPointer,
-        q_next: 'q_exec_1',
-      }),
-      JSON.stringify({
-        d_t: execPointer,
-        observed_slice: commandSlice,
-        s_t: commandSlice,
-        h_s: createHash('sha256').update(commandSlice).digest('hex'),
-        a_t: { op: 'SYS_HALT' },
-        d_next: 'HALT',
-        q_t: 'q_exec_1',
-        h_q: createHash('sha256').update('q_exec_1').digest('hex'),
-        q_next: 'HALT',
-      }),
-    ].join('\n') + '\n',
+    [JSON.stringify(execTuple0), JSON.stringify(execTuple1)].join('\n') + '\n',
     'utf-8'
   );
   await fsp.mkdir(execSnapshotWorkspace, { recursive: true });
@@ -1089,6 +1273,38 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   if (dirtyTraceReady) {
     evidence.push(dirtyTracePath, dirtySourceWorkspace, dirtyRun1Workspace, dirtyRun2Workspace);
   }
+  if (pass) {
+    const bundle = await archiveGoldenTraceBundle(
+      `${runtime?.auditStamp ?? timestamp()}_ac32_replay`,
+      [
+        { source: tracePath, targetName: 'ac32.synthetic.journal.log' },
+        {
+          source: path.join(sourceWorkspace, '.journal.merkle.jsonl'),
+          targetName: 'ac32.synthetic.journal.merkle.jsonl',
+          required: false,
+        },
+        { source: execSnapshotTracePath, targetName: 'ac32.exec_snapshot_trace.jsonl' },
+        { source: dirtyTracePath, targetName: 'ac32.dirty.journal.log', required: false },
+        {
+          source: path.join(dirtySourceWorkspace, '.journal.merkle.jsonl'),
+          targetName: 'ac32.dirty.journal.merkle.jsonl',
+          required: false,
+        },
+      ],
+      {
+        acId: 'AC3.2',
+        pass,
+        syntheticHash: hash1,
+        dirtyHash: dirtyHash1,
+        syntheticPass,
+        dirtyPass,
+        execSnapshotPass,
+        execSnapshotFrames,
+        dirtyTraceReady,
+      }
+    );
+    evidence.push(bundle.bundleDir, bundle.manifestPath, ...bundle.copiedPaths);
+  }
 
   return {
     stage: 'S3',
@@ -1115,22 +1331,46 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
 async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   const tracePath = runtime?.ac31TracePath ?? '';
   const traceReady = tracePath.length > 0 && fs.existsSync(tracePath);
-  const stats = traceReady ? await collectTraceStats(tracePath) : { execOps: 0, timeoutSignals: 0, frames: 0 };
-  const unlockReady = stats.execOps >= 5 && stats.timeoutSignals >= 1;
+  const stats = traceReady
+    ? await collectTraceStats(tracePath)
+    : {
+        execOps: 0,
+        timeoutSignals: 0,
+        mmuSignals: 0,
+        deadlockSignals: 0,
+        execMmuSignals: 0,
+        frames: 0,
+        traceCorrupted: false,
+        corruptionReason: '',
+      };
+  const traceMatrixReady =
+    !stats.traceCorrupted &&
+    stats.execOps >= 5 &&
+    stats.timeoutSignals >= 1 &&
+    stats.mmuSignals >= 1 &&
+    stats.deadlockSignals >= 1 &&
+    stats.execMmuSignals >= 1;
+  const localAluReady = false;
+  const unlockReady = traceMatrixReady && localAluReady;
+  const status: AcStatus = unlockReady ? 'PASS' : 'BLOCKED';
   return {
     stage: 'S4',
     acId: 'AC4.1',
     title: 'Zero-Prompt Instinct',
-    status: 'BLOCKED',
+    status,
     requirement:
-      '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率；且 S4 解锁前必须提供 >=5 次 SYS_EXEC + >=1 次 429/502/timeout 的真实脏轨迹回放证据。',
-    details: `S4 unlock gate remains blocked. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps} timeoutSignals=${stats.timeoutSignals} unlockReady=${unlockReady}`,
+      '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率；且 S4 解锁前必须提供混沌矩阵证据：>=5 次 SYS_EXEC、>=1 次 timeout(429/502/timeout)、>=1 次 MMU 截断信号、>=1 次 deadlock/panic 信号、>=1 次 SYS_EXEC 与 MMU 信号耦合命中。',
+    details: `S4 unlock gate status. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps} timeoutSignals=${stats.timeoutSignals} mmuSignals=${stats.mmuSignals} deadlockSignals=${stats.deadlockSignals} execMmuSignals=${stats.execMmuSignals} traceCorrupted=${stats.traceCorrupted} corruptionReason=${stats.corruptionReason || '(none)'} traceMatrixReady=${traceMatrixReady} localAluReady=${localAluReady} unlockReady=${unlockReady}`,
     evidence: [path.join(ROOT, 'src'), tracePath || path.join(ROOT, 'benchmarks')],
-    nextActions: [
-      '生成真实脏轨迹（>=5 SYS_EXEC 且包含 >=1 次 429/502/timeout）并提交回放证据。',
-      '建立 trace 数据清洗与 SFT 数据集生成管线。',
-      '新增 syscall JSON 良品率评估脚本（>=99.9%）。',
-    ],
+    nextActions: unlockReady
+      ? []
+      : [
+          traceMatrixReady
+            ? '混沌矩阵已满足，进入本地 7B ALU 微调与良品率验证（>=99.9% JSON syscall）。'
+            : '生成真实脏轨迹并满足混沌矩阵：>=5 SYS_EXEC、>=1 timeout、>=1 MMU 截断、>=1 deadlock/panic、>=1 execMmu 耦合。',
+          '建立 trace 数据清洗与 SFT 数据集生成管线。',
+          '新增 syscall JSON 良品率评估脚本（>=99.9%）。',
+        ],
   };
 }
 
@@ -1188,8 +1428,9 @@ async function runPreflight(): Promise<AcResult[]> {
 
 async function main(): Promise<void> {
   await fsp.mkdir(AUDIT_DIR, { recursive: true });
+  await fsp.mkdir(GOLDEN_TRACE_DIR, { recursive: true });
   const stamp = timestamp();
-  const runtime: AcceptanceRuntimeContext = {};
+  const runtime: AcceptanceRuntimeContext = { auditStamp: stamp };
 
   const results: AcResult[] = [];
   results.push(...(await runPreflight()));

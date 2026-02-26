@@ -1,0 +1,12 @@
+pid=604990 tick=1 q=q1 d=checkpoint/step1.txt
+pid=605038 tick=1 q=q2 d=$ cat checkpoint/step1.txt
+pid=605038 tick=2 q=q3 d=artifacts/resume.txt
+pid=605038 tick=3 q=q4 d=artifacts/resume.txt
+pid=605038 tick=4 q=q5 d=missing/for_exec_mmu.txt
+pid=605038 tick=5 q=q6 d=$ printf mmu_exec_ok
+pid=605038 tick=6 q=q7 d=$ echo timeout_signal_from_exec
+pid=605038 tick=7 q=q8 d=$ echo gateway_502_marker
+pid=605038 tick=8 q=q9 d=sys://trap/watchdog
+pid=605038 tick=9 q=q10 d=$ cat checkpoint/step1.txt
+pid=605038 tick=10 q=q11 d=$ cat checkpoint/step1.txt
+pid=605038 tick=11 q=q12 d=HALT

@@ -93,11 +93,11 @@ function asNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
-function parseReplayTuple(value: ReplayTupleLine, strict: boolean): ReplayFrame | null {
+function parseReplayTuple(value: ReplayTupleLine): ReplayFrame {
   const d_t = asString(value.d_t);
   const a_t = value.a_t as Syscall | undefined;
   if (!d_t || !a_t || typeof a_t !== 'object' || typeof (a_t as { op?: unknown }).op !== 'string') {
-    return null;
+    throw new Error('[TRACE_CORRUPTION] invalid replay tuple header (d_t/a_t/op).');
   }
 
   const frame: ReplayFrame = {
@@ -116,10 +116,6 @@ function parseReplayTuple(value: ReplayTupleLine, strict: boolean): ReplayFrame 
     prev_merkle_root: asString(value.prev_merkle_root),
     merkle_root: asString(value.merkle_root),
   };
-
-  if (!strict) {
-    return frame;
-  }
 
   const requiredStringFields: Array<keyof ReplayFrame> = [
     'q_t',
@@ -153,25 +149,28 @@ async function readTrace(tracePath: string): Promise<ReplayFrame[]> {
     .filter((line) => line.length > 0);
 
   const frames: ReplayFrame[] = [];
-  for (const line of lines) {
-    let parsed: ReplayFrame | null = null;
-    try {
-      const replayMatch = line.match(/\[REPLAY_TUPLE\]\s*(\{.*\})$/);
-      if (replayMatch?.[1]) {
-        const tuple = JSON.parse(replayMatch[1]) as ReplayTupleLine;
-        parsed = parseReplayTuple(tuple, true);
-      } else if (line.startsWith('{')) {
-        const tuple = JSON.parse(line) as ReplayTupleLine;
-        parsed = parseReplayTuple(tuple, false);
-      }
-    } catch {
-      parsed = null;
-    }
-
-    if (!parsed) {
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const replayMatch = line.match(/\[REPLAY_TUPLE\]\s*(\{.*\})$/);
+    const candidate = replayMatch?.[1] ?? (line.startsWith('{') ? line : null);
+    if (!candidate) {
       continue;
     }
-    frames.push(parsed);
+
+    let tuple: ReplayTupleLine;
+    try {
+      tuple = JSON.parse(candidate) as ReplayTupleLine;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`[TRACE_CORRUPTION] invalid JSON at line=${i + 1}: ${message}`);
+    }
+
+    try {
+      frames.push(parseReplayTuple(tuple));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`[TRACE_CORRUPTION] invalid tuple at line=${i + 1}: ${message}`);
+    }
   }
 
   if (frames.length === 0) {
@@ -228,38 +227,40 @@ function buildReplayPayloadForMerkle(frame: ReplayFrame): Record<string, unknown
 }
 
 function verifyFrameHashes(frame: ReplayFrame, index: number): void {
-  if (frame.h_q !== undefined) {
-    if (typeof frame.q_t !== 'string') {
-      throw new Error(`[DIVERGENCE] tick=${index} missing q_t for h_q verification.`);
-    }
-    const computed = sha256(frame.q_t);
-    if (computed !== frame.h_q) {
-      throw new Error(`[DIVERGENCE] tick=${index} h_q mismatch expected=${frame.h_q} got=${computed}`);
-    }
+  if (typeof frame.q_t !== 'string' || typeof frame.h_q !== 'string') {
+    throw new Error(`[TRACE_CORRUPTION] tick=${index} missing q_t/h_q required for verification.`);
+  }
+  const computedQ = sha256(frame.q_t);
+  if (computedQ !== frame.h_q) {
+    throw new Error(`[DIVERGENCE] tick=${index} h_q mismatch expected=${frame.h_q} got=${computedQ}`);
   }
 
-  if (frame.h_s !== undefined) {
-    if (typeof frame.s_t !== 'string') {
-      throw new Error(`[DIVERGENCE] tick=${index} missing s_t for h_s verification.`);
-    }
-    const computed = sha256(frame.s_t);
-    if (computed !== frame.h_s) {
-      throw new Error(`[DIVERGENCE] tick=${index} h_s mismatch expected=${frame.h_s} got=${computed}`);
-    }
+  if (typeof frame.s_t !== 'string' || typeof frame.h_s !== 'string') {
+    throw new Error(`[TRACE_CORRUPTION] tick=${index} missing s_t/h_s required for verification.`);
+  }
+  const computedS = sha256(frame.s_t);
+  if (computedS !== frame.h_s) {
+    throw new Error(`[DIVERGENCE] tick=${index} h_s mismatch expected=${frame.h_s} got=${computedS}`);
   }
 }
 
 function verifyMerkleChain(frame: ReplayFrame, index: number, prevMerkleRoot: string): string {
-  if (!frame.leaf_hash && !frame.merkle_root && !frame.prev_merkle_root) {
-    return prevMerkleRoot;
+  if (
+    typeof frame.leaf_hash !== 'string' ||
+    typeof frame.prev_merkle_root !== 'string' ||
+    typeof frame.merkle_root !== 'string'
+  ) {
+    throw new Error(
+      `[TRACE_CORRUPTION] tick=${index} missing leaf_hash/prev_merkle_root/merkle_root required for verification.`
+    );
   }
 
   const payloadHash = sha256(JSON.stringify(buildReplayPayloadForMerkle(frame)));
-  if (frame.leaf_hash && frame.leaf_hash !== payloadHash) {
+  if (frame.leaf_hash !== payloadHash) {
     throw new Error(`[DIVERGENCE] tick=${index} leaf_hash mismatch expected=${frame.leaf_hash} got=${payloadHash}`);
   }
 
-  const expectedPrev = frame.prev_merkle_root ?? prevMerkleRoot;
+  const expectedPrev = frame.prev_merkle_root;
   if (expectedPrev !== prevMerkleRoot) {
     throw new Error(
       `[DIVERGENCE] tick=${index} prev_merkle_root mismatch expected=${prevMerkleRoot} got=${expectedPrev}`
@@ -267,13 +268,13 @@ function verifyMerkleChain(frame: ReplayFrame, index: number, prevMerkleRoot: st
   }
 
   const computedMerkle = sha256(`${expectedPrev}\n${payloadHash}`);
-  if (frame.merkle_root && frame.merkle_root !== computedMerkle) {
+  if (frame.merkle_root !== computedMerkle) {
     throw new Error(
       `[DIVERGENCE] tick=${index} merkle_root mismatch expected=${frame.merkle_root} got=${computedMerkle}`
     );
   }
 
-  return frame.merkle_root ?? computedMerkle;
+  return frame.merkle_root;
 }
 
 async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<string> {

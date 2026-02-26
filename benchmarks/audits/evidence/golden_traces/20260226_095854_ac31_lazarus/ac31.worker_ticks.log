@@ -1,0 +1,5 @@
+pid=600014 tick=1 q=q1 d=checkpoint/step1.txt
+pid=600053 tick=1 q=q2 d=$ cat checkpoint/step1.txt
+pid=600053 tick=2 q=q3 d=artifacts/resume.txt
+pid=600053 tick=3 q=q4 d=artifacts/resume.txt
+pid=600053 tick=4 q=q5 d=HALT
