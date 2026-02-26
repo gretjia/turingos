@@ -128,7 +128,7 @@ class DeadlockReflexOracle implements IOracle {
         this.phase = 'halt_gate';
         return {
           q_next: 'halt_gate',
-          a_t: { op: 'SYS_EXEC', cmd: 'cat recovery/alt.txt' },
+          a_t: { op: 'SYS_EXEC', cmd: 'test -f recovery/alt.txt' },
         };
       }
       this.phase = 'loop';

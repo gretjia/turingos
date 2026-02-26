@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process';
+import { exec, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -175,6 +175,10 @@ export class LocalManifold implements IPhysicalManifold {
 
     if (base === 'sys://callstack') {
       return this.renderCallStackSnapshot(base);
+    }
+
+    if (base === 'sys://git/log') {
+      return this.observeGitLogChannel(base, params);
     }
 
     if (base.startsWith('sys://append/')) {
@@ -380,7 +384,7 @@ export class LocalManifold implements IPhysicalManifold {
       `[CALL_STACK_TOP] ${top}`,
       '[CALL_STACK]',
       frames,
-      'Action: use SYS_PUSH(task) / SYS_POP syscall opcodes for stack control.',
+      'Action: use SYS_PUSH(task) / SYS_EDIT(task) / SYS_POP syscall opcodes for stack control.',
     ].join('\n');
   }
 
@@ -400,6 +404,11 @@ export class LocalManifold implements IPhysicalManifold {
       return;
     }
 
+    if (instruction.toUpperCase() === 'RESET' || instruction.toUpperCase() === 'CLEAR') {
+      this.writeCallStack([]);
+      return;
+    }
+
     const pushMatch = instruction.match(/^PUSH\s*:?\s*(.+)$/is);
     if (pushMatch?.[1]) {
       const task = pushMatch[1].trim().replace(/\s+/g, ' ');
@@ -415,7 +424,107 @@ export class LocalManifold implements IPhysicalManifold {
       return;
     }
 
+    const editMatch = instruction.match(/^EDIT\s*:?\s*(.+)$/is);
+    if (editMatch?.[1]) {
+      const task = editMatch[1].trim().replace(/\s+/g, ' ');
+      if (task.length === 0) {
+        throw new Error('EDIT payload is empty.');
+      }
+      if (stack.length === 0) {
+        throw new Error('EDIT requires non-empty call stack.');
+      }
+
+      stack[stack.length - 1] = task.slice(0, 200);
+      this.writeCallStack(stack);
+      return;
+    }
+
     throw new Error(`Invalid callstack syscall payload: "${instruction}"`);
+  }
+
+  private observeGitLogChannel(base: string, params: URLSearchParams): string {
+    const limitRaw = params.get('limit');
+    const parsedLimit = limitRaw ? Number.parseInt(limitRaw, 10) : Number.NaN;
+    const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 200) : 20;
+    const ref = (params.get('ref') ?? 'HEAD').trim() || 'HEAD';
+    const pathFilter = (params.get('path') ?? '').trim();
+    const grep = (params.get('grep') ?? '').trim();
+    const since = (params.get('since') ?? '').trim();
+    const freeQuery = (params.get('query_params') ?? '').trim();
+
+    const args: string[] = [
+      'log',
+      `-n${limit}`,
+      '--date=iso',
+      '--pretty=format:%H%x09%ad%x09%an%x09%s',
+    ];
+    if (since.length > 0) {
+      args.push(`--since=${since}`);
+    }
+    if (grep.length > 0) {
+      args.push(`--grep=${grep}`);
+    }
+    args.push(ref);
+    if (pathFilter.length > 0) {
+      args.push('--', pathFilter);
+    }
+
+    const executedCmd = ['git', ...args].join(' ');
+    const result = spawnSync('git', args, {
+      cwd: this.workspaceDir,
+      encoding: 'utf-8',
+      maxBuffer: 1024 * 1024,
+    });
+
+    if (result.error) {
+      return [
+        `[SYSTEM_CHANNEL] ${base}`,
+        '[OS_TRAP: IO_FAULT]',
+        `Failed to execute git log: ${result.error.message}`,
+        `[EXEC] ${executedCmd}`,
+      ].join('\n');
+    }
+
+    if (result.status !== 0) {
+      const stderr = (result.stderr ?? '').toString().trim() || '(empty)';
+      return [
+        `[SYSTEM_CHANNEL] ${base}`,
+        '[OS_TRAP: IO_FAULT]',
+        `git log exited with code ${result.status}`,
+        '[STDERR]',
+        stderr,
+        '[HINT]',
+        'Ensure workspace is a git repository and requested ref/path exists.',
+        `[EXEC] ${executedCmd}`,
+      ].join('\n');
+    }
+
+    const stdout = (result.stdout ?? '').toString();
+    const commits = stdout
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line, index) => {
+        const [hash = '', date = '', author = '', ...subjectParts] = line.split('\t');
+        const subject = subjectParts.join('\t').trim();
+        const shortHash = hash.slice(0, 12);
+        return `${index + 1}. ${shortHash} | ${date} | ${author} | ${subject}`;
+      });
+
+    return [
+      `[SYSTEM_CHANNEL] ${base}`,
+      '[GIT_LOG]',
+      `Ref=${ref}`,
+      `Limit=${limit}`,
+      `Path=${pathFilter || '(all)'}`,
+      `Grep=${grep || '(none)'}`,
+      `Since=${since || '(none)'}`,
+      `QueryParams=${freeQuery || '(none)'}`,
+      `Rows=${commits.length}`,
+      '[COMMITS]',
+      commits.length > 0 ? commits.join('\n') : '(empty)',
+      'Action: use SYS_GOTO(sys://page/<token>?p=2) if page summary appears.',
+    ].join('\n');
   }
 
   private applyReplaceSyscall(targetPointer: string, payload: string): void {

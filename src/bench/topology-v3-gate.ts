@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import os from 'node:os';
@@ -99,6 +100,24 @@ async function checkSemanticCapability(): Promise<CheckResult> {
   };
 }
 
+async function checkCallStackEdit(): Promise<CheckResult> {
+  const ws = mkWorkspace('turingos-gate-stack-edit-');
+  const manifold = new LocalManifold(ws, { maxSliceChars: 2000 });
+  await manifold.interfere('sys://callstack', 'PUSH: investigate trap details');
+  await manifold.interfere('sys://callstack', 'EDIT: investigate trap details with new evidence');
+  const snapshot = await manifold.observe('sys://callstack');
+  assert.ok(
+    snapshot.includes('[CALL_STACK_TOP] investigate trap details with new evidence'),
+    'Expected edited top stack frame'
+  );
+
+  return {
+    name: 'Callstack SYS_EDIT',
+    passed: true,
+    details: `workspace=${ws}`,
+  };
+}
+
 async function checkEngineSemanticWrite(): Promise<CheckResult> {
   const ws = mkWorkspace('turingos-gate-engine-cap-');
   const manifold = new LocalManifold(ws, { maxSliceChars: 2000 });
@@ -118,6 +137,34 @@ async function checkEngineSemanticWrite(): Promise<CheckResult> {
     name: 'Engine SYS_WRITE.semantic_cap',
     passed: true,
     details: `workspace=${ws}, handle=${handle}`,
+  };
+}
+
+async function checkNativeGitLogChannel(): Promise<CheckResult> {
+  const ws = mkWorkspace('turingos-gate-git-log-');
+  const manifold = new LocalManifold(ws, { maxSliceChars: 2000 });
+
+  execFileSync('git', ['init', '-q'], { cwd: ws });
+  execFileSync('git', ['config', 'user.email', 'gate@turingos.local'], { cwd: ws });
+  execFileSync('git', ['config', 'user.name', 'Topology Gate'], { cwd: ws });
+
+  const notePath = path.join(ws, 'notes.md');
+  await fsp.writeFile(notePath, 'v1\n', 'utf-8');
+  execFileSync('git', ['add', 'notes.md'], { cwd: ws });
+  execFileSync('git', ['commit', '-qm', 'init notes'], { cwd: ws });
+
+  await fsp.writeFile(notePath, 'v2\n', 'utf-8');
+  execFileSync('git', ['add', 'notes.md'], { cwd: ws });
+  execFileSync('git', ['commit', '-qm', 'update notes'], { cwd: ws });
+
+  const gitLogSlice = await manifold.observe('sys://git/log?limit=2&path=notes.md');
+  assert.ok(gitLogSlice.includes('[GIT_LOG]'), 'Expected native git log channel marker');
+  assert.ok(gitLogSlice.includes('Rows=2'), 'Expected git log row count to respect limit');
+
+  return {
+    name: 'Native SYS_GIT_LOG channel',
+    passed: true,
+    details: `workspace=${ws}`,
   };
 }
 
@@ -152,7 +199,9 @@ async function run(): Promise<void> {
   const checks: Array<() => Promise<CheckResult>> = [
     checkTypedPaging,
     checkSemanticCapability,
+    checkCallStackEdit,
     checkEngineSemanticWrite,
+    checkNativeGitLogChannel,
     checkMerkleChain,
   ];
 

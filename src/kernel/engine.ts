@@ -271,12 +271,26 @@ export class TuringEngine {
           s_prime = '👆🏻';
           break;
         }
+        case 'SYS_GIT_LOG':
+          d_next = this.composeGitLogPointer(syscall);
+          s_prime = '👆🏻';
+          break;
         case 'SYS_PUSH': {
           const task = syscall.task.trim();
           if (task.length === 0) {
             throw new Error('SYS_PUSH requires non-empty task.');
           }
           await this.manifold.interfere('sys://callstack', `PUSH: ${task}`);
+          d_next = d_t;
+          s_prime = '👆🏻';
+          break;
+        }
+        case 'SYS_EDIT': {
+          const task = syscall.task.trim();
+          if (task.length === 0) {
+            throw new Error('SYS_EDIT requires non-empty task.');
+          }
+          await this.manifold.interfere('sys://callstack', `EDIT: ${task}`);
           d_next = d_t;
           s_prime = '👆🏻';
           break;
@@ -304,7 +318,7 @@ export class TuringEngine {
           q_t,
           '',
           `[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: ${message}`,
-          'Action: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_PUSH/SYS_POP/SYS_HALT).',
+          'Action: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_POP/SYS_HALT).',
         ].join('\n'),
         q_t
       );
@@ -352,7 +366,7 @@ export class TuringEngine {
           `Recent signals: ${
             this.recentVerificationSignals.length > 0 ? this.recentVerificationSignals.join(' | ') : '(none)'
           }`,
-          'Action: run a validation command ($ ls/$ cat/$ npm test/...) and inspect output before HALT.',
+          'Action: run a test command (e.g., $ npm test / $ pytest / $ go test) and inspect output before HALT.',
         ].join('\n');
         this.lastTrapDetails.set('sys://trap/illegal_halt', trapDetails);
         return [
@@ -396,6 +410,7 @@ export class TuringEngine {
     if (trapLoop.loop) {
       this.watchdogHistory = [];
       this.l1TraceCache = [];
+      await this.resetCallStackBestEffort();
       const trapDetails = [
         'Kernel panic reset: repeated trap pointer loop detected.',
         `Repeated trap: ${trapLoop.trapBase}`,
@@ -617,16 +632,17 @@ export class TuringEngine {
     return `${base}?details=${encodeURIComponent(details)}`;
   }
 
-  private raiseManagedTrap(
+  private async raiseManagedTrap(
     trapBase: string,
     details: string,
     trapState: State,
     recoveredState: State
-  ): [State, Pointer] {
+  ): Promise<[State, Pointer]> {
     this.lastTrapDetails.set(trapBase, details);
     const pointer = this.systemTrapPointer(trapBase, details);
     const trapLoop = this.trackTrapPointerLoop(pointer);
     if (trapLoop.loop) {
+      await this.resetCallStackBestEffort();
       const panicDetails = [
         'Kernel panic reset: repeated trap pointer loop detected.',
         `Repeated trap: ${trapLoop.trapBase}`,
@@ -685,7 +701,25 @@ export class TuringEngine {
         return `${syscall.op}(${syscall.pointer.slice(0, 40)})`;
       case 'SYS_EXEC':
         return `${syscall.op}(${syscall.cmd.slice(0, 40)})`;
+      case 'SYS_GIT_LOG': {
+        const summary: string[] = [];
+        if (typeof syscall.limit === 'number') {
+          summary.push(`limit=${syscall.limit}`);
+        }
+        if (typeof syscall.path === 'string' && syscall.path.trim().length > 0) {
+          summary.push(`path=${syscall.path.trim().slice(0, 24)}`);
+        }
+        if (typeof syscall.ref === 'string' && syscall.ref.trim().length > 0) {
+          summary.push(`ref=${syscall.ref.trim().slice(0, 24)}`);
+        }
+        if (typeof syscall.query_params === 'string' && syscall.query_params.trim().length > 0) {
+          summary.push(`query=${syscall.query_params.trim().slice(0, 24)}`);
+        }
+        return `${syscall.op}(${summary.join(',') || 'default'})`;
+      }
       case 'SYS_PUSH':
+        return `${syscall.op}(${syscall.task.slice(0, 40)})`;
+      case 'SYS_EDIT':
         return `${syscall.op}(${syscall.task.slice(0, 40)})`;
       case 'SYS_POP':
       case 'SYS_HALT':
@@ -721,7 +755,13 @@ export class TuringEngine {
     if (op === 'SYS_EXEC') {
       return allowSet(['op', 'cmd']);
     }
+    if (op === 'SYS_GIT_LOG') {
+      return allowSet(['op', 'query_params', 'path', 'limit', 'ref', 'grep', 'since']);
+    }
     if (op === 'SYS_PUSH') {
+      return allowSet(['op', 'task']);
+    }
+    if (op === 'SYS_EDIT') {
       return allowSet(['op', 'task']);
     }
     if (op === 'SYS_POP' || op === 'SYS_HALT') {
@@ -981,7 +1021,9 @@ export class TuringEngine {
         return;
       }
 
-      if (this.isVerificationCommand(command)) {
+      if (this.isTestCommand(command)) {
+        this.pushVerificationSignal(`TEST:${command}`);
+      } else if (this.isVerificationCommand(command)) {
         this.pushVerificationSignal(`CMD:${command}`);
       }
       return;
@@ -1020,15 +1062,29 @@ export class TuringEngine {
     return patterns.some((pattern) => pattern.test(normalized));
   }
 
+  private isTestCommand(command: string): boolean {
+    const normalized = command.toLowerCase();
+    const patterns = [
+      /\b(npm|pnpm|yarn)\s+(test|run\s+test)\b/,
+      /\b(pytest|go\s+test|cargo\s+test|jest|vitest|ctest|mvn\s+test|gradle\s+test)\b/,
+      /\btest\b/,
+    ];
+    return patterns.some((pattern) => pattern.test(normalized));
+  }
+
   private checkRecentVerificationEvidence(): { ok: true } | { ok: false; reason: string } {
-    const commandSignals = this.recentVerificationSignals.filter((signal) => signal.startsWith('CMD:'));
-    if (commandSignals.length > 0) {
+    const testSignals = this.recentVerificationSignals.filter((signal) => signal.startsWith('TEST:'));
+    if (testSignals.length > 0) {
       return { ok: true };
     }
 
+    const commandSignals = this.recentVerificationSignals.filter((signal) => signal.startsWith('CMD:'));
     return {
       ok: false,
-      reason: 'No successful verification command was observed. Require CMD:* signal with [EXIT_CODE] 0.',
+      reason:
+        commandSignals.length > 0
+          ? 'No successful test command was observed. Require TEST:* signal (e.g., npm test/pytest/go test) with [EXIT_CODE] 0.'
+          : 'No successful verification command was observed. Require TEST:* signal with [EXIT_CODE] 0.',
     };
   }
 
@@ -1045,6 +1101,17 @@ export class TuringEngine {
       this.trapPointerHistory.shift();
     }
 
+    if (this.trapPointerHistory.length >= 3) {
+      const n = this.trapPointerHistory.length;
+      const a = this.trapPointerHistory[n - 3];
+      const b = this.trapPointerHistory[n - 2];
+      const c = this.trapPointerHistory[n - 1];
+      if (a === c && a !== b) {
+        this.trapPointerHistory = [];
+        return { loop: true, trapBase: `${a}->${b}->${c}` };
+      }
+    }
+
     const loopDetected =
       this.trapPointerHistory.length === this.trapLoopDepth &&
       this.trapPointerHistory.every((item) => item === trapBase);
@@ -1055,6 +1122,14 @@ export class TuringEngine {
     }
 
     return { loop: false };
+  }
+
+  private async resetCallStackBestEffort(): Promise<void> {
+    try {
+      await this.manifold.interfere('sys://callstack', 'RESET');
+    } catch {
+      // Non-fatal panic path cleanup.
+    }
   }
 
   private containsLazyWriteMarker(payload: string): string | null {
@@ -1195,5 +1270,37 @@ export class TuringEngine {
         .replace(/\s+/g, '')
         .toUpperCase();
     return normalize(left) === normalize(right);
+  }
+
+  private composeGitLogPointer(
+    syscall: Extract<
+      Transition['a_t'],
+      {
+        op: 'SYS_GIT_LOG';
+      }
+    >
+  ): Pointer {
+    const params = new URLSearchParams();
+    const add = (key: string, value: unknown): void => {
+      if (typeof value !== 'string') {
+        return;
+      }
+      const trimmed = value.trim();
+      if (trimmed.length > 0) {
+        params.set(key, trimmed);
+      }
+    };
+
+    if (typeof syscall.limit === 'number' && Number.isFinite(syscall.limit) && syscall.limit > 0) {
+      params.set('limit', String(Math.floor(syscall.limit)));
+    }
+    add('path', syscall.path);
+    add('ref', syscall.ref);
+    add('grep', syscall.grep);
+    add('since', syscall.since);
+    add('query_params', syscall.query_params);
+
+    const query = params.toString();
+    return query.length > 0 ? `sys://git/log?${query}` : 'sys://git/log';
   }
 }

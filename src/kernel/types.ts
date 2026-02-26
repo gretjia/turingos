@@ -6,7 +6,17 @@ export type Syscall =
   | { op: 'SYS_WRITE'; payload: string; semantic_cap?: Pointer }
   | { op: 'SYS_GOTO'; pointer: Pointer }
   | { op: 'SYS_EXEC'; cmd: string }
+  | {
+      op: 'SYS_GIT_LOG';
+      query_params?: string;
+      path?: Pointer;
+      limit?: number;
+      ref?: string;
+      grep?: string;
+      since?: string;
+    }
   | { op: 'SYS_PUSH'; task: string }
+  | { op: 'SYS_EDIT'; task: string }
   | { op: 'SYS_POP' }
   | { op: 'SYS_HALT' };
 

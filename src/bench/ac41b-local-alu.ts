@@ -143,7 +143,49 @@ function validateSyscallEnvelope(syscall: Record<string, unknown>): SyscallEnvel
     return typeof syscall.cmd === 'string' ? envelope : { ok: false, mutexViolation: false };
   }
 
+  if (op === 'SYS_GIT_LOG') {
+    const envelope = allowOnly(['op', 'query_params', 'path', 'limit', 'ref', 'grep', 'since']);
+    if (!envelope.ok) {
+      return envelope;
+    }
+    if (syscall.query_params !== undefined && typeof syscall.query_params !== 'string') {
+      return { ok: false, mutexViolation: false };
+    }
+    if (syscall.path !== undefined && typeof syscall.path !== 'string') {
+      return { ok: false, mutexViolation: false };
+    }
+    if (syscall.ref !== undefined && typeof syscall.ref !== 'string') {
+      return { ok: false, mutexViolation: false };
+    }
+    if (syscall.grep !== undefined && typeof syscall.grep !== 'string') {
+      return { ok: false, mutexViolation: false };
+    }
+    if (syscall.since !== undefined && typeof syscall.since !== 'string') {
+      return { ok: false, mutexViolation: false };
+    }
+    if (syscall.limit !== undefined) {
+      const limit =
+        typeof syscall.limit === 'number'
+          ? syscall.limit
+          : typeof syscall.limit === 'string'
+            ? Number.parseInt(syscall.limit, 10)
+            : Number.NaN;
+      if (!Number.isFinite(limit) || limit <= 0) {
+        return { ok: false, mutexViolation: false };
+      }
+    }
+    return envelope;
+  }
+
   if (op === 'SYS_PUSH') {
+    const envelope = allowOnly(['op', 'task']);
+    if (!envelope.ok) {
+      return envelope;
+    }
+    return typeof syscall.task === 'string' ? envelope : { ok: false, mutexViolation: false };
+  }
+
+  if (op === 'SYS_EDIT') {
     const envelope = allowOnly(['op', 'task']);
     if (!envelope.ok) {
       return envelope;

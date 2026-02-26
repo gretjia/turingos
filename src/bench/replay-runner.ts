@@ -188,6 +188,38 @@ function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
+function composeGitLogPointer(
+  syscall: Extract<
+    Syscall,
+    {
+      op: 'SYS_GIT_LOG';
+    }
+  >
+): string {
+  const params = new URLSearchParams();
+  const add = (key: string, value: unknown): void => {
+    if (typeof value !== 'string') {
+      return;
+    }
+    const trimmed = value.trim();
+    if (trimmed.length > 0) {
+      params.set(key, trimmed);
+    }
+  };
+
+  if (typeof syscall.limit === 'number' && Number.isFinite(syscall.limit) && syscall.limit > 0) {
+    params.set('limit', String(Math.floor(syscall.limit)));
+  }
+  add('path', syscall.path);
+  add('ref', syscall.ref);
+  add('grep', syscall.grep);
+  add('since', syscall.since);
+  add('query_params', syscall.query_params);
+
+  const query = params.toString();
+  return query.length > 0 ? `sys://git/log?${query}` : 'sys://git/log';
+}
+
 function computeNextPointer(pointer: string, syscall: Syscall): string {
   switch (syscall.op) {
     case 'SYS_WRITE':
@@ -198,7 +230,10 @@ function computeNextPointer(pointer: string, syscall: Syscall): string {
       const command = syscall.cmd.trim();
       return command.startsWith('$') ? command : `$ ${command}`;
     }
+    case 'SYS_GIT_LOG':
+      return composeGitLogPointer(syscall);
     case 'SYS_PUSH':
+    case 'SYS_EDIT':
     case 'SYS_POP':
       return pointer;
     case 'SYS_HALT':
@@ -298,8 +333,13 @@ async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<
       const execPointer = command.startsWith('$') ? command : `$ ${command}`;
       return execPointer;
     }
+    case 'SYS_GIT_LOG':
+      return composeGitLogPointer(syscall);
     case 'SYS_PUSH':
       await manifold.interfere('sys://callstack', `PUSH: ${syscall.task}`);
+      return pointer;
+    case 'SYS_EDIT':
+      await manifold.interfere('sys://callstack', `EDIT: ${syscall.task}`);
       return pointer;
     case 'SYS_POP':
       await manifold.interfere('sys://callstack', 'POP');
