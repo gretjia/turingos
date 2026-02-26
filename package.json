@@ -16,6 +16,7 @@
     "bench:staged-acceptance-recursive": "tsx src/bench/staged-acceptance-recursive.ts",
     "bench:ac41b-local-alu": "tsx src/bench/ac41b-local-alu.ts",
     "bench:ac41b-build-trace-dataset": "tsx src/bench/ac41b-build-trace-dataset.ts",
+    "bench:ac41b-local-alu-eval": "tsx src/bench/ac41b-local-alu-eval.ts",
     "bench:ac42-deadlock-reflex": "tsx src/bench/ac42-deadlock-reflex.ts",
     "bench:staged-acceptance-joint": "bash scripts/run_joint_recursive_audit.sh",
     "bench:ci-gates": "tsx src/bench/ci-gates.ts",

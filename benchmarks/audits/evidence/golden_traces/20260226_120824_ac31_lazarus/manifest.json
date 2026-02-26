@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-02-26T12:08:30.249Z",
+  "bundleId": "20260226_120824_ac31_lazarus",
+  "metadata": {
+    "acId": "AC3.1",
+    "pass": true,
+    "reachedCheckpoint": true,
+    "killSignal": "SIGKILL",
+    "resumedExitCode": 0,
+    "qAfterKill": "q1",
+    "qFinal": "q12",
+    "dFinal": "HALT"
+  },
+  "files": [
+    {
+      "source": "/tmp/turingos-ac31-CbEyvU/.journal.log",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.journal.log",
+      "bytes": 18710,
+      "sha256": "b2972d97cdfbb7b774576a864f3a91b98e36a5c2eefe186f5c47ea78e06f8973",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-CbEyvU/.journal.merkle.jsonl",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.journal.merkle.jsonl",
+      "bytes": 23784,
+      "sha256": "aa8a75ada625284f3736f89ab3d9565cbaeb99af81c5ed73e45470f9ccc33b6d",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-CbEyvU/.ac31_worker_ticks.log",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.worker_ticks.log",
+      "bytes": 578,
+      "sha256": "84152ef4563b18e32a64bfed425682e51a5a1951bd021fb9db6a35adf675adb1",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-CbEyvU/artifacts/resume.txt",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.resume.txt",
+      "bytes": 10,
+      "sha256": "62dab328f8d89f9f1f02b3d9a5997b47b6a62af52108defaf0c5d4ed0cb15e4c",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-CbEyvU/.reg_q",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.reg_q",
+      "bytes": 4,
+      "sha256": "082e8746e094516a2511ecb4c1b5005fff3beadb9b9aefba91c23ac514072d10",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-CbEyvU/.reg_d",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.reg_d",
+      "bytes": 5,
+      "sha256": "9d696eab4e66705ff13e1c710459cdea81e243432c04f7fcf60540bed8367ee6",
+      "status": "copied"
+    }
+  ]
+}

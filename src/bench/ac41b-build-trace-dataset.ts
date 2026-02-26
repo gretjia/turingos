@@ -9,6 +9,9 @@ interface CliArgs {
 }
 
 interface DatasetRow {
+  q_t: string;
+  s_t: string;
+  d_t: string;
   q_next: string;
   a_t: Record<string, unknown>;
   source_trace: string;
@@ -127,16 +130,22 @@ function parseReplayTuples(raw: string, sourceTrace: string): DatasetRow[] {
 
     try {
       const parsed = JSON.parse(match[1]) as Record<string, unknown>;
+      const q_t = typeof parsed.q_t === 'string' ? parsed.q_t : '';
+      const s_t = typeof parsed.s_t === 'string' ? parsed.s_t : '';
+      const d_t = typeof parsed.d_t === 'string' ? parsed.d_t : '';
       const qNext = typeof parsed.q_next === 'string' ? parsed.q_next : '';
       const a_t = asRecord(parsed.a_t);
       const op = a_t && typeof a_t.op === 'string' ? a_t.op : '';
-      if (!qNext || !a_t || !op) {
+      if (!q_t || !s_t || !d_t || !qNext || !a_t || !op) {
         continue;
       }
       const tickSeqRaw = parsed.tick_seq;
       const tickSeq = typeof tickSeqRaw === 'number' && Number.isFinite(tickSeqRaw) ? tickSeqRaw : null;
 
       rows.push({
+        q_t,
+        s_t,
+        d_t,
         q_next: qNext,
         a_t,
         source_trace: sourceTrace,
