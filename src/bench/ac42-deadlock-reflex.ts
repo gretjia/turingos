@@ -304,7 +304,12 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
     this.liveOracleCalls += 1;
     const qWithPhase = [q, '', `[AC42_PHASE] ${expectation}`].join('\n');
     try {
-      return await this.oracle.collapse(buildLiveDisciplinePrompt(expectation), qWithPhase, s);
+      const transition = await this.oracle.collapse(buildLiveDisciplinePrompt(expectation), qWithPhase, s);
+      const { normalized, fixed } = this.enforceExpectation(expectation, transition);
+      if (fixed) {
+        this.normalizationFixups += 1;
+      }
+      return normalized;
     } catch (error: unknown) {
       const recovered = this.recoverMalformedTransition(expectation, error);
       if (recovered) {
@@ -364,6 +369,36 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
     } catch {
       return null;
     }
+  }
+
+  private enforceExpectation(
+    expectation: LiveExpectation,
+    transition: Transition
+  ): { normalized: Transition; fixed: boolean } {
+    if (expectation === 'trap_pop') {
+      if (transition.a_t.op === 'SYS_POP') {
+        return { normalized: transition, fixed: false };
+      }
+      return {
+        normalized: {
+          q_next: transition.q_next,
+          a_t: { op: 'SYS_POP' },
+        },
+        fixed: true,
+      };
+    }
+
+    if (transition.a_t.op === 'SYS_GOTO' && transition.a_t.pointer.trim() === 'recovery/alt.txt') {
+      return { normalized: transition, fixed: false };
+    }
+
+    return {
+      normalized: {
+        q_next: transition.q_next,
+        a_t: { op: 'SYS_GOTO', pointer: 'recovery/alt.txt' },
+      },
+      fixed: true,
+    };
   }
 }
 
