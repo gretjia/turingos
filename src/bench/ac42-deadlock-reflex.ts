@@ -154,6 +154,14 @@ class MockDeadlockReflexOracle implements IOracle {
   constructor(private readonly targetCycles: number) {}
 
   public async collapse(_discipline: string, q: State, _s: Slice): Promise<Transition> {
+    if (this.phase === 'after_pop') {
+      this.phase = 'after_goto';
+      return {
+        q_next: `cycle_${this.cycle}_goto`,
+        a_t: { op: 'SYS_GOTO', pointer: 'recovery/alt.txt' },
+      };
+    }
+
     const trapDetected = q.includes('[OS_TRAP: WATCHDOG_NMI]') || q.includes('[OS_PANIC: INFINITE_LOOP_KILLED]');
 
     if (trapDetected) {
@@ -169,14 +177,6 @@ class MockDeadlockReflexOracle implements IOracle {
       return {
         q_next: 'seed_stack',
         a_t: { op: 'SYS_PUSH', task: 'deadlock_reflex_probe' },
-      };
-    }
-
-    if (this.phase === 'after_pop') {
-      this.phase = 'after_goto';
-      return {
-        q_next: `cycle_${this.cycle}_goto`,
-        a_t: { op: 'SYS_GOTO', pointer: 'recovery/alt.txt' },
       };
     }
 
@@ -234,6 +234,11 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
   }
 
   public async collapse(_discipline: string, q: State, s: Slice): Promise<Transition> {
+    if (this.phase === 'after_pop') {
+      this.phase = 'after_goto';
+      return this.collapseLive('post_pop_goto', q, s);
+    }
+
     const trapDetected = q.includes('[OS_TRAP: WATCHDOG_NMI]') || q.includes('[OS_PANIC: INFINITE_LOOP_KILLED]');
 
     if (trapDetected) {
@@ -247,11 +252,6 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
         q_next: 'seed_stack',
         a_t: { op: 'SYS_PUSH', task: 'deadlock_reflex_probe' },
       };
-    }
-
-    if (this.phase === 'after_pop') {
-      this.phase = 'after_goto';
-      return this.collapseLive('post_pop_goto', q, s);
     }
 
     if (this.phase === 'after_goto') {
