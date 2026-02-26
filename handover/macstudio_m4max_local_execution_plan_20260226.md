@@ -54,6 +54,12 @@ TURINGOS_MODEL=qwen2.5:14b-instruct
 
 ## 执行顺序（严格按顺序）
 
+### 一键续跑（推荐）
+```bash
+# 可选覆盖: BASE_URL/MODEL/LIMIT/SOURCE/RUN_STAGED
+bash scripts/run_mac_local_alu.sh
+```
+
 ### Step A: 生成/刷新数据集
 ```bash
 npm run bench:ac41b-build-trace-dataset || true
