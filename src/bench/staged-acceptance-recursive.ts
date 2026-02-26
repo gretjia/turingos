@@ -54,6 +54,7 @@ const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'recursive');
 const GOLDEN_TRACE_DIR = path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'golden_traces');
 const LOCAL_ALU_AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'local_alu');
 const LOCAL_ALU_LATEST_FILE = path.join(LOCAL_ALU_AUDIT_DIR, 'ac41b_latest.json');
+const AC42_LATEST_FILE = path.join(AUDIT_DIR, 'ac42_deadlock_reflex_latest.json');
 
 interface GoldenTraceSource {
   source: string;
@@ -75,6 +76,19 @@ interface LocalAluGateMetrics {
   mutexViolations: number;
   validJsonRate: number;
   mutexViolationRate: number;
+  pass: boolean;
+  reportJsonPath: string;
+  reportMdPath: string;
+}
+
+interface Ac42GateMetrics {
+  stamp: string;
+  source: string;
+  deadlockEvents: number;
+  popOnTrap: number;
+  gotoAfterPop: number;
+  escapeRate: number;
+  gotoAfterPopRate: number;
   pass: boolean;
   reportJsonPath: string;
   reportMdPath: string;
@@ -278,6 +292,61 @@ async function readLocalAluGateMetrics(): Promise<LocalAluGateMetrics | null> {
       mutexViolations,
       validJsonRate,
       mutexViolationRate,
+      pass,
+      reportJsonPath,
+      reportMdPath,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function readAc42GateMetrics(): Promise<Ac42GateMetrics | null> {
+  try {
+    const raw = await fsp.readFile(AC42_LATEST_FILE, 'utf-8');
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+
+    const toNumber = (value: unknown): number | null =>
+      typeof value === 'number' && Number.isFinite(value) ? value : null;
+    const toString = (value: unknown): string | null =>
+      typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+
+    const stamp = toString(parsed.stamp);
+    const source = toString(parsed.source);
+    const deadlockEvents = toNumber(parsed.deadlockEvents);
+    const popOnTrap = toNumber(parsed.popOnTrap);
+    const gotoAfterPop = toNumber(parsed.gotoAfterPop);
+    const escapeRate = toNumber(parsed.escapeRate);
+    const gotoAfterPopRate = toNumber(parsed.gotoAfterPopRate);
+    const pass = parsed.pass === true;
+    const reportJsonPath = toString(parsed.reportJsonPath);
+    const reportMdPath = toString(parsed.reportMdPath);
+
+    if (
+      !stamp ||
+      !source ||
+      deadlockEvents === null ||
+      popOnTrap === null ||
+      gotoAfterPop === null ||
+      escapeRate === null ||
+      gotoAfterPopRate === null ||
+      !reportJsonPath ||
+      !reportMdPath
+    ) {
+      return null;
+    }
+
+    return {
+      stamp,
+      source,
+      deadlockEvents,
+      popOnTrap,
+      gotoAfterPop,
+      escapeRate,
+      gotoAfterPopRate,
       pass,
       reportJsonPath,
       reportMdPath,
@@ -1471,19 +1540,41 @@ async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
 }
 
 async function ac42(): Promise<AcResult> {
+  const thresholds = {
+    minDeadlockEvents: 500,
+    minEscapeRate: 0.95,
+    minGotoAfterPopRate: 0.95,
+  };
+  const metrics = await readAc42GateMetrics();
+  const hasMetrics = metrics !== null;
+  const sourceEligible = hasMetrics && metrics.source.startsWith('local_alu');
+  const thresholdSatisfied =
+    hasMetrics &&
+    metrics.deadlockEvents >= thresholds.minDeadlockEvents &&
+    metrics.escapeRate >= thresholds.minEscapeRate &&
+    metrics.gotoAfterPopRate >= thresholds.minGotoAfterPopRate;
+  const pass = hasMetrics && sourceEligible && thresholdSatisfied;
   return {
     stage: 'S4',
     acId: 'AC4.2',
     title: 'Deadlock Reflex',
-    status: 'BLOCKED',
+    status: pass ? 'PASS' : 'BLOCKED',
     requirement:
       '7B 模型在连续死锁陷阱后应本能输出 SYS_POP 并切换路径。',
-    details: 'No fine-tuned local ALU model + deadlock reflex benchmark harness yet.',
-    evidence: [path.join(ROOT, 'benchmarks')],
-    nextActions: [
-      '定义 deadlock 诱导场景基准并加入模型行为断言（3次trap后必须 SYS_POP）。',
-      '将该断言纳入微调后回归测试。',
-    ],
+    details: hasMetrics
+      ? `AC4.2 gate status. source=${metrics.source} deadlockEvents=${metrics.deadlockEvents}/${thresholds.minDeadlockEvents} popOnTrap=${metrics.popOnTrap} gotoAfterPop=${metrics.gotoAfterPop} escapeRate=${metrics.escapeRate}/${thresholds.minEscapeRate} gotoAfterPopRate=${metrics.gotoAfterPopRate}/${thresholds.minGotoAfterPopRate} sourceEligible=${sourceEligible} thresholdSatisfied=${thresholdSatisfied} unlockReady=${pass} reportJson=${metrics.reportJsonPath} reportMd=${metrics.reportMdPath}`
+      : `AC4.2 gate status. metricsReady=false source=(none) deadlockEvents=0/${thresholds.minDeadlockEvents} escapeRate=0/${thresholds.minEscapeRate} gotoAfterPopRate=0/${thresholds.minGotoAfterPopRate} unlockReady=false`,
+    evidence: [AC42_LATEST_FILE, path.join(ROOT, 'benchmarks', 'audits', 'recursive')],
+    nextActions: pass
+      ? []
+      : [
+          hasMetrics
+            ? sourceEligible
+              ? '提高 local ALU deadlock 反射覆盖样本（>=500）并维持 escapeRate/gotoAfterPopRate >= 95%。'
+              : '当前仅有 mock/harness 指标；需要切换到 local_alu 来源并输出同格式指标。'
+            : '先运行 deadlock reflex benchmark 生成 ac42_deadlock_reflex_latest.json。',
+          '将 AC4.2 指标接入微调后回归测试，作为 S4 进入条件之一。',
+        ],
   };
 }
 

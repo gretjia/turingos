@@ -1,0 +1,373 @@
+import fs from 'node:fs';
+import fsp from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { FileChronos } from '../chronos/file-chronos.js';
+import { TuringEngine } from '../kernel/engine.js';
+import { IOracle, Slice, State, Transition } from '../kernel/types.js';
+import { LocalManifold } from '../manifold/local-manifold.js';
+
+interface CliArgs {
+  source: string;
+  cycles: number;
+  maxTicks: number;
+  minDeadlockEvents: number;
+  minEscapeRate: number;
+  minGotoAfterPopRate: number;
+}
+
+interface ReplayFrame {
+  q_t: string;
+  d_t: string;
+  a_t: { op: string };
+}
+
+interface Evaluation {
+  deadlockEvents: number;
+  popOnTrap: number;
+  gotoAfterPop: number;
+  escapeRate: number;
+  gotoAfterPopRate: number;
+  pass: boolean;
+}
+
+const ROOT = path.resolve(process.cwd());
+const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'recursive');
+const EVIDENCE_ROOT = path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'ac42_deadlock_reflex');
+const LATEST_FILE = path.join(AUDIT_DIR, 'ac42_deadlock_reflex_latest.json');
+
+function timestamp(): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mi = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  return `${yyyy}${mm}${dd}_${hh}${mi}${ss}`;
+}
+
+function parseArgs(argv: string[]): CliArgs {
+  let source = 'mock_reflex_oracle';
+  let cycles = 12;
+  let maxTicks = 300;
+  let minDeadlockEvents = 10;
+  let minEscapeRate = 0.95;
+  let minGotoAfterPopRate = 0.95;
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const key = argv[i];
+    const value = argv[i + 1];
+    if (!key?.startsWith('--') || value === undefined) {
+      continue;
+    }
+    if (key === '--source') source = value;
+    if (key === '--cycles') cycles = Number.parseInt(value, 10);
+    if (key === '--max-ticks') maxTicks = Number.parseInt(value, 10);
+    if (key === '--min-deadlock-events') minDeadlockEvents = Number.parseInt(value, 10);
+    if (key === '--min-escape-rate') minEscapeRate = Number.parseFloat(value);
+    if (key === '--min-goto-after-pop-rate') minGotoAfterPopRate = Number.parseFloat(value);
+  }
+
+  if (!Number.isFinite(cycles) || cycles <= 0) {
+    throw new Error(`Invalid --cycles: ${cycles}`);
+  }
+  if (!Number.isFinite(maxTicks) || maxTicks <= 0) {
+    throw new Error(`Invalid --max-ticks: ${maxTicks}`);
+  }
+
+  return {
+    source,
+    cycles,
+    maxTicks,
+    minDeadlockEvents,
+    minEscapeRate,
+    minGotoAfterPopRate,
+  };
+}
+
+class DeadlockReflexOracle implements IOracle {
+  private cycle = 0;
+  private seededStack = false;
+  private phase: 'loop' | 'after_pop' | 'after_goto' | 'halt_gate' | 'halted' = 'loop';
+
+  constructor(private readonly targetCycles: number) {}
+
+  public async collapse(_discipline: string, q: State, _s: Slice): Promise<Transition> {
+    const trapDetected =
+      q.includes('[OS_TRAP: WATCHDOG_NMI]') ||
+      q.includes('[OS_PANIC: INFINITE_LOOP_KILLED]');
+
+    if (trapDetected) {
+      this.phase = 'after_pop';
+      return {
+        q_next: `cycle_${this.cycle}_pop`,
+        a_t: { op: 'SYS_POP' },
+      };
+    }
+
+    if (!this.seededStack) {
+      this.seededStack = true;
+      return {
+        q_next: 'seed_stack',
+        a_t: { op: 'SYS_PUSH', task: 'deadlock_reflex_probe' },
+      };
+    }
+
+    if (this.phase === 'after_pop') {
+      this.phase = 'after_goto';
+      return {
+        q_next: `cycle_${this.cycle}_goto`,
+        a_t: { op: 'SYS_GOTO', pointer: 'recovery/alt.txt' },
+      };
+    }
+
+    if (this.phase === 'after_goto') {
+      this.cycle += 1;
+      if (this.cycle >= this.targetCycles) {
+        this.phase = 'halt_gate';
+        return {
+          q_next: 'halt_gate',
+          a_t: { op: 'SYS_EXEC', cmd: 'cat recovery/alt.txt' },
+        };
+      }
+      this.phase = 'loop';
+      return {
+        q_next: `cycle_${this.cycle}_verify`,
+        a_t: { op: 'SYS_EXEC', cmd: 'cat recovery/alt.txt' },
+      };
+    }
+
+    if (this.phase === 'halt_gate') {
+      this.phase = 'halted';
+      return {
+        q_next: 'HALT',
+        a_t: { op: 'SYS_HALT' },
+      };
+    }
+
+    if (this.phase === 'halted') {
+      return {
+        q_next: 'HALT',
+        a_t: { op: 'SYS_HALT' },
+      };
+    }
+
+    return {
+      q_next: `cycle_${this.cycle}_loop`,
+      a_t: { op: 'SYS_EXEC', cmd: 'echo watchdog_probe' },
+    };
+  }
+}
+
+async function ensureWorkspace(workspace: string): Promise<void> {
+  await fsp.mkdir(workspace, { recursive: true });
+  await fsp.writeFile(path.join(workspace, 'MAIN_TAPE.md'), 'AC42 deadlock reflex benchmark\n', 'utf-8');
+  await fsp.mkdir(path.join(workspace, 'recovery'), { recursive: true });
+  await fsp.writeFile(path.join(workspace, 'recovery', 'alt.txt'), 'recovered-route\n', 'utf-8');
+}
+
+async function readReplayFrames(journalPath: string): Promise<ReplayFrame[]> {
+  const raw = await fsp.readFile(journalPath, 'utf-8');
+  const lines = raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const frames: ReplayFrame[] = [];
+  for (const line of lines) {
+    const match = line.match(/\[REPLAY_TUPLE\]\s*(\{.*\})$/);
+    if (!match?.[1]) {
+      continue;
+    }
+
+    try {
+      const parsed = JSON.parse(match[1]) as Record<string, unknown>;
+      const q_t = typeof parsed.q_t === 'string' ? parsed.q_t : '';
+      const d_t = typeof parsed.d_t === 'string' ? parsed.d_t : '';
+      const a_t = parsed.a_t as Record<string, unknown> | undefined;
+      const op = a_t && typeof a_t.op === 'string' ? a_t.op : '';
+      if (!q_t || !d_t || !op) {
+        continue;
+      }
+
+      frames.push({
+        q_t,
+        d_t,
+        a_t: { op },
+      });
+    } catch {
+      continue;
+    }
+  }
+
+  return frames;
+}
+
+function evaluate(frames: ReplayFrame[], thresholds: Pick<CliArgs, 'minDeadlockEvents' | 'minEscapeRate' | 'minGotoAfterPopRate'>): Evaluation {
+  let deadlockEvents = 0;
+  let popOnTrap = 0;
+  let gotoAfterPop = 0;
+
+  for (let i = 0; i < frames.length; i += 1) {
+    const frame = frames[i];
+    const isDeadlockTrap =
+      frame.q_t.includes('[OS_TRAP: WATCHDOG_NMI]') || frame.q_t.includes('INFINITE LOOP DETECTED');
+    if (!isDeadlockTrap) {
+      continue;
+    }
+
+    deadlockEvents += 1;
+    if (frame.a_t.op === 'SYS_POP') {
+      popOnTrap += 1;
+      let j = i + 1;
+      while (j < frames.length && frames[j].a_t.op === 'SYS_POP') {
+        j += 1;
+      }
+      const next = frames[j];
+      if (next && next.a_t.op === 'SYS_GOTO') {
+        gotoAfterPop += 1;
+      }
+    }
+  }
+
+  const escapeRate = deadlockEvents > 0 ? popOnTrap / deadlockEvents : 0;
+  const gotoAfterPopRate = popOnTrap > 0 ? gotoAfterPop / popOnTrap : 0;
+
+  const pass =
+    deadlockEvents >= thresholds.minDeadlockEvents &&
+    escapeRate >= thresholds.minEscapeRate &&
+    gotoAfterPopRate >= thresholds.minGotoAfterPopRate;
+
+  return {
+    deadlockEvents,
+    popOnTrap,
+    gotoAfterPop,
+    escapeRate,
+    gotoAfterPopRate,
+    pass,
+  };
+}
+
+async function copyEvidence(stamp: string, workspace: string): Promise<{ evidenceDir: string; copied: string[] }> {
+  const evidenceDir = path.join(EVIDENCE_ROOT, stamp);
+  await fsp.mkdir(evidenceDir, { recursive: true });
+  const copied: string[] = [];
+
+  const files = ['.journal.log', '.journal.merkle.jsonl', 'MAIN_TAPE.md', 'recovery/alt.txt'];
+  for (const rel of files) {
+    const source = path.join(workspace, rel);
+    if (!fs.existsSync(source)) {
+      continue;
+    }
+    const target = path.join(evidenceDir, rel.replace(/\//g, '_'));
+    await fsp.copyFile(source, target);
+    copied.push(target);
+  }
+
+  return { evidenceDir, copied };
+}
+
+function toMarkdown(
+  stamp: string,
+  args: CliArgs,
+  evaluation: Evaluation,
+  halted: boolean,
+  ticks: number,
+  evidenceDir: string
+): string {
+  return [
+    '# AC4.2 Deadlock Reflex Benchmark',
+    '',
+    `- stamp: ${stamp}`,
+    `- source: ${args.source}`,
+    `- halted: ${halted}`,
+    `- ticks: ${ticks}`,
+    '',
+    '## Metrics',
+    '',
+    `- deadlockEvents: ${evaluation.deadlockEvents}`,
+    `- popOnTrap: ${evaluation.popOnTrap}`,
+    `- gotoAfterPop: ${evaluation.gotoAfterPop}`,
+    `- escapeRate: ${evaluation.escapeRate}`,
+    `- gotoAfterPopRate: ${evaluation.gotoAfterPopRate}`,
+    '',
+    '## Thresholds',
+    '',
+    `- minDeadlockEvents: ${args.minDeadlockEvents}`,
+    `- minEscapeRate: ${args.minEscapeRate}`,
+    `- minGotoAfterPopRate: ${args.minGotoAfterPopRate}`,
+    '',
+    '## Verdict',
+    '',
+    evaluation.pass ? '- PASS' : '- FAIL',
+    '',
+    '## Evidence',
+    '',
+    `- ${evidenceDir}`,
+    '',
+  ].join('\n');
+}
+
+async function main(): Promise<void> {
+  const args = parseArgs(process.argv.slice(2));
+  const stamp = timestamp();
+  const workspace = await fsp.mkdtemp(path.join(os.tmpdir(), 'turingos-ac42-'));
+  await ensureWorkspace(workspace);
+
+  const manifold = new LocalManifold(workspace);
+  const chronos = new FileChronos(path.join(workspace, '.journal.log'));
+  const oracle = new DeadlockReflexOracle(args.cycles);
+  const engine = new TuringEngine(manifold, oracle, chronos, 'ac42-deadlock-reflex');
+
+  const result = await engine.ignite('q0', 'MAIN_TAPE.md', { maxTicks: args.maxTicks });
+  const halted = result.q.trim() === 'HALT' || result.d.trim() === 'HALT';
+
+  const frames = await readReplayFrames(path.join(workspace, '.journal.log'));
+  const evaluation = evaluate(frames, args);
+
+  await fsp.mkdir(AUDIT_DIR, { recursive: true });
+  const reportJsonPath = path.join(AUDIT_DIR, `ac42_deadlock_reflex_${stamp}.json`);
+  const reportMdPath = path.join(AUDIT_DIR, `ac42_deadlock_reflex_${stamp}.md`);
+  const evidence = await copyEvidence(stamp, workspace);
+
+  const payload = {
+    stamp,
+    source: args.source,
+    workspace,
+    halted,
+    ticks: result.ticks,
+    deadlockEvents: evaluation.deadlockEvents,
+    popOnTrap: evaluation.popOnTrap,
+    gotoAfterPop: evaluation.gotoAfterPop,
+    escapeRate: evaluation.escapeRate,
+    gotoAfterPopRate: evaluation.gotoAfterPopRate,
+    minDeadlockEvents: args.minDeadlockEvents,
+    minEscapeRate: args.minEscapeRate,
+    minGotoAfterPopRate: args.minGotoAfterPopRate,
+    pass: evaluation.pass,
+    reportJsonPath,
+    reportMdPath,
+    evidenceDir: evidence.evidenceDir,
+    evidenceFiles: evidence.copied,
+    generatedAt: new Date().toISOString(),
+  };
+
+  await fsp.writeFile(reportJsonPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
+  await fsp.writeFile(reportMdPath, `${toMarkdown(stamp, args, evaluation, halted, result.ticks, evidence.evidenceDir)}`, 'utf-8');
+  await fsp.writeFile(LATEST_FILE, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
+
+  console.log(
+    `[ac42-deadlock-reflex] pass=${evaluation.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
+  );
+  console.log(`[ac42-deadlock-reflex] reportJson=${reportJsonPath}`);
+  console.log(`[ac42-deadlock-reflex] reportMd=${reportMdPath}`);
+
+  process.exit(evaluation.pass ? 0 : 2);
+}
+
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`[ac42-deadlock-reflex] fatal: ${message}`);
+  process.exit(1);
+});

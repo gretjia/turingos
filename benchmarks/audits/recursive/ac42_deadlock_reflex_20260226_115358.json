@@ -1,0 +1,26 @@
+{
+  "stamp": "20260226_115358",
+  "source": "mock_reflex_oracle",
+  "workspace": "/tmp/turingos-ac42-qAtDEz",
+  "halted": true,
+  "ticks": 122,
+  "deadlockEvents": 12,
+  "popOnTrap": 12,
+  "gotoAfterPop": 0,
+  "escapeRate": 1,
+  "gotoAfterPopRate": 0,
+  "minDeadlockEvents": 10,
+  "minEscapeRate": 0.95,
+  "minGotoAfterPopRate": 0.95,
+  "pass": false,
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/recursive/ac42_deadlock_reflex_20260226_115358.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/recursive/ac42_deadlock_reflex_20260226_115358.md",
+  "evidenceDir": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/ac42_deadlock_reflex/20260226_115358",
+  "evidenceFiles": [
+    "/home/zephryj/projects/turingos/benchmarks/audits/evidence/ac42_deadlock_reflex/20260226_115358/.journal.log",
+    "/home/zephryj/projects/turingos/benchmarks/audits/evidence/ac42_deadlock_reflex/20260226_115358/.journal.merkle.jsonl",
+    "/home/zephryj/projects/turingos/benchmarks/audits/evidence/ac42_deadlock_reflex/20260226_115358/MAIN_TAPE.md",
+    "/home/zephryj/projects/turingos/benchmarks/audits/evidence/ac42_deadlock_reflex/20260226_115358/recovery_alt.txt"
+  ],
+  "generatedAt": "2026-02-26T11:53:58.347Z"
+}
