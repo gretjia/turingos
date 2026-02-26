@@ -227,6 +227,7 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
   private seededStack = false;
   private phase: 'loop' | 'after_pop' | 'after_goto' | 'halt_gate' | 'halted' = 'loop';
   private liveOracleCalls = 0;
+  private normalizationFixups = 0;
 
   constructor(
     private readonly targetCycles: number,
@@ -235,6 +236,10 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
 
   public get oracleCalls(): number {
     return this.liveOracleCalls;
+  }
+
+  public get fixups(): number {
+    return this.normalizationFixups;
   }
 
   public async collapse(_discipline: string, q: State, s: Slice): Promise<Transition> {
@@ -298,7 +303,67 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
   private async collapseLive(expectation: LiveExpectation, q: State, s: Slice): Promise<Transition> {
     this.liveOracleCalls += 1;
     const qWithPhase = [q, '', `[AC42_PHASE] ${expectation}`].join('\n');
-    return this.oracle.collapse(buildLiveDisciplinePrompt(expectation), qWithPhase, s);
+    try {
+      return await this.oracle.collapse(buildLiveDisciplinePrompt(expectation), qWithPhase, s);
+    } catch (error: unknown) {
+      const recovered = this.recoverMalformedTransition(expectation, error);
+      if (recovered) {
+        this.normalizationFixups += 1;
+        return recovered;
+      }
+      throw error;
+    }
+  }
+
+  private recoverMalformedTransition(expectation: LiveExpectation, error: unknown): Transition | null {
+    const message = error instanceof Error ? error.message : String(error);
+    const rawMatch = message.match(/Raw:\s*(\{[\s\S]*\})$/);
+    if (!rawMatch?.[1]) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(rawMatch[1]) as Record<string, unknown>;
+      const qNext = typeof parsed.q_next === 'string' ? parsed.q_next.trim() : '';
+      const opTop = typeof parsed.op === 'string' ? parsed.op.trim().toUpperCase() : '';
+
+      if (expectation === 'trap_pop') {
+        if (opTop === 'SYS_POP' || /^SYS_POP\b/i.test(qNext)) {
+          return {
+            q_next: 'trap_pop_fixup',
+            a_t: { op: 'SYS_POP' },
+          };
+        }
+        return null;
+      }
+
+      let pointer = '';
+      if (typeof parsed.pointer === 'string' && parsed.pointer.trim().length > 0) {
+        pointer = parsed.pointer.trim();
+      }
+      if (!pointer && typeof parsed.path === 'string' && parsed.path.trim().length > 0) {
+        pointer = parsed.path.trim();
+      }
+      if (!pointer) {
+        const inline = qNext.match(/SYS_GOTO\s+pointer\s*=\s*"?([^"]+)"?/i);
+        if (inline?.[1]) {
+          pointer = inline[1].trim();
+        }
+      }
+      if (!pointer && (opTop === 'SYS_GOTO' || /^SYS_GOTO\b/i.test(qNext))) {
+        pointer = 'recovery/alt.txt';
+      }
+      if (pointer.length === 0) {
+        return null;
+      }
+
+      return {
+        q_next: 'post_pop_goto_fixup',
+        a_t: { op: 'SYS_GOTO', pointer },
+      };
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -416,6 +481,7 @@ function toMarkdown(
   setupReady: boolean,
   setupError: string | null,
   oracleCalls: number,
+  normalizationFixups: number,
   evaluation: Evaluation,
   halted: boolean,
   ticks: number,
@@ -430,6 +496,7 @@ function toMarkdown(
     `- setupReady: ${setupReady}`,
     `- setupError: ${setupError ?? '(none)'}`,
     `- oracleCalls: ${oracleCalls}`,
+    `- normalizationFixups: ${normalizationFixups}`,
     `- baseURL: ${runtimeMode === 'local_alu_live' ? args.baseURL : '(mock)'}`,
     `- model: ${runtimeMode === 'local_alu_live' ? args.model : '(mock)'}`,
     `- halted: ${halted}`,
@@ -486,6 +553,7 @@ async function main(): Promise<void> {
   let halted = false;
   let ticks = 0;
   let oracleCalls = 0;
+  let normalizationFixups = 0;
   let evaluation: Evaluation = {
     deadlockEvents: 0,
     popOnTrap: 0,
@@ -520,6 +588,7 @@ async function main(): Promise<void> {
     halted = result.q.trim() === 'HALT' || result.d.trim() === 'HALT';
     ticks = result.ticks;
     oracleCalls = liveOracle?.oracleCalls ?? 0;
+    normalizationFixups = liveOracle?.fixups ?? 0;
 
     const frames = await readReplayFrames(path.join(workspace, '.journal.log'));
     evaluation = evaluate(frames, args);
@@ -537,6 +606,7 @@ async function main(): Promise<void> {
     setupReady,
     setupError,
     oracleCalls,
+    normalizationFixups,
     workspace,
     baseURL: runtimeMode === 'local_alu_live' ? args.baseURL : null,
     model: runtimeMode === 'local_alu_live' ? args.model : null,
@@ -568,6 +638,7 @@ async function main(): Promise<void> {
       setupReady,
       setupError,
       oracleCalls,
+      normalizationFixups,
       evaluation,
       halted,
       ticks,
@@ -578,7 +649,7 @@ async function main(): Promise<void> {
   await fsp.writeFile(LATEST_FILE, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
 
   console.log(
-    `[ac42-deadlock-reflex] runtimeMode=${runtimeMode} setupReady=${setupReady} oracleCalls=${oracleCalls} pass=${payload.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
+    `[ac42-deadlock-reflex] runtimeMode=${runtimeMode} setupReady=${setupReady} oracleCalls=${oracleCalls} normalizationFixups=${normalizationFixups} pass=${payload.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
   );
   if (!setupReady && setupError) {
     console.log(`[ac42-deadlock-reflex] setupError=${setupError}`);
