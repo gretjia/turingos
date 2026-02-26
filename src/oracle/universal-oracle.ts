@@ -464,13 +464,25 @@ export class UniversalOracle implements IOracle {
     }
 
     if (opcode === 'SYS_PUSH') {
-      allowOnly(['op', 'sys', 'syscall', 'task', 'stack_payload'], 'SYS_PUSH');
+      allowOnly(['op', 'sys', 'syscall', 'task', 'stack_payload', 'cmd', 'command'], 'SYS_PUSH');
+      const normalizeTask = (candidate: unknown): string => {
+        if (typeof candidate === 'string') {
+          return candidate.trim();
+        }
+        if (candidate && typeof candidate === 'object') {
+          try {
+            return JSON.stringify(candidate);
+          } catch {
+            return '';
+          }
+        }
+        return '';
+      };
       const task =
-        typeof syscall.task === 'string'
-          ? syscall.task.trim()
-          : typeof syscall.stack_payload === 'string'
-            ? syscall.stack_payload.trim()
-            : '';
+        normalizeTask(syscall.task) ||
+        normalizeTask(syscall.stack_payload) ||
+        normalizeTask(syscall.cmd) ||
+        normalizeTask(syscall.command);
       if (task.length === 0) {
         return null;
       }

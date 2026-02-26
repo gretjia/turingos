@@ -27,6 +27,13 @@ Output exactly one strict JSON object, with no markdown wrapper:
 
 Syscall JSON is strict. Missing required fields causes CPU fault.
 Exactly one syscall per tick.
+Field ABI is fail-closed:
+- SYS_WRITE allows only: op, payload, optional semantic_cap
+- SYS_GOTO allows only: op, pointer
+- SYS_EXEC allows only: op, cmd
+- SYS_PUSH allows only: op, task (task must be plain string; if structured, stringify into one line)
+- SYS_POP and SYS_HALT allow only: op
+Do not include `pointer` in SYS_WRITE. Do not include `payload` in SYS_PUSH.
 
 ## LAWS
 1. Errors are physics, not failure.

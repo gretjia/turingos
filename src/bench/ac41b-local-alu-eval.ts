@@ -140,8 +140,15 @@ function buildDisciplinePrompt(): string {
   return [
     'You are TuringOS ALU.',
     'Output STRICT JSON only: {"q_next":"...","a_t":{"op":"SYS_*", ...}}.',
-    'Allowed opcodes: SYS_WRITE(payload[,semantic_cap]), SYS_GOTO(pointer), SYS_EXEC(cmd), SYS_PUSH(task), SYS_POP, SYS_HALT.',
-    'No markdown, no prose.',
+    'Allowed opcodes and exact fields:',
+    '- SYS_WRITE: {"op":"SYS_WRITE","payload":"...","semantic_cap":"optional"}',
+    '- SYS_GOTO: {"op":"SYS_GOTO","pointer":"..."}',
+    '- SYS_EXEC: {"op":"SYS_EXEC","cmd":"..."}',
+    '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."} (task MUST be plain string)',
+    '- SYS_POP: {"op":"SYS_POP"}',
+    '- SYS_HALT: {"op":"SYS_HALT"}',
+    'Never include unsupported keys. Examples of forbidden keys: pointer in SYS_WRITE, payload in SYS_PUSH.',
+    'Do not output markdown fences or prose.',
   ].join(' ');
 }
 

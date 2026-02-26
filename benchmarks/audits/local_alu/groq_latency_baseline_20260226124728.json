@@ -1,0 +1,64 @@
+{
+  "stamp": "20260226124728",
+  "provider": "groq",
+  "baseURL": "https://api.groq.com/openai/v1",
+  "model": "llama-3.1-8b-instant",
+  "rounds": 3,
+  "perRound": 30,
+  "totals": {
+    "requests": 90,
+    "ok": 31,
+    "fail": 59
+  },
+  "rounds_detail": [
+    {
+      "round": 1,
+      "runs": 30,
+      "ok": 30,
+      "fail": 0,
+      "latency_ms": {
+        "avg": 86,
+        "p50": 77,
+        "p90": 90,
+        "p95": 97,
+        "min": 72,
+        "max": 279
+      },
+      "prompt_tokens": 2700,
+      "completion_tokens": 1140
+    },
+    {
+      "round": 2,
+      "runs": 30,
+      "ok": 0,
+      "fail": 30,
+      "latency_ms": {
+        "avg": 35.77,
+        "p50": 32,
+        "p90": 35,
+        "p95": 38,
+        "min": 31,
+        "max": 116
+      },
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "round": 3,
+      "runs": 30,
+      "ok": 1,
+      "fail": 29,
+      "latency_ms": {
+        "avg": 33.9,
+        "p50": 32,
+        "p90": 34,
+        "p95": 35,
+        "min": 31,
+        "max": 75
+      },
+      "prompt_tokens": 90,
+      "completion_tokens": 38
+    }
+  ],
+  "aggregate_avg_of_round_avg_ms": 51.89
+}
