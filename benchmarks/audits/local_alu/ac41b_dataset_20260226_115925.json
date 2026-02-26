@@ -1,0 +1,19 @@
+{
+  "stamp": "20260226_115925",
+  "roots": [
+    "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces"
+  ],
+  "output": "/home/zephryj/projects/turingos/benchmarks/data/local_alu/ac41b_seed_20260226_115925.jsonl",
+  "rows": 201,
+  "traces": 25,
+  "opCounts": {
+    "SYS_GOTO": 74,
+    "SYS_EXEC": 77,
+    "SYS_WRITE": 33,
+    "SYS_HALT": 17
+  },
+  "minRows": 1000,
+  "pass": false,
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_dataset_20260226_115925.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_dataset_20260226_115925.md"
+}

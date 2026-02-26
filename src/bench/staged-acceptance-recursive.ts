@@ -1502,17 +1502,23 @@ async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     stats.deadlockSignals >= matrixThresholds.deadlockSignalsMin &&
     stats.execMmuSignals >= matrixThresholds.execMmuSignalsMin;
   const localAluMetrics = await readLocalAluGateMetrics();
-  const ac41bLocalAluReady =
+  const ac41bSourceEligible = localAluMetrics !== null && localAluMetrics.source === 'local_alu';
+  const ac41bThresholdSatisfied =
     localAluMetrics !== null &&
     localAluMetrics.totalSamples >= localAluThresholds.minSamples &&
     localAluMetrics.validJsonRate >= localAluThresholds.validJsonRateMin &&
     localAluMetrics.mutexViolationRate <= localAluThresholds.mutexViolationRateMax;
+  const ac41bLocalAluReady =
+    localAluMetrics !== null &&
+    ac41bSourceEligible &&
+    ac41bThresholdSatisfied &&
+    localAluMetrics.pass;
   const unlockReady = ac41aTraceMatrixReady && ac41bLocalAluReady;
   const status: AcStatus = unlockReady ? 'PASS' : 'BLOCKED';
   const localAluMetricsSegment =
     localAluMetrics === null
-      ? 'ac41b_source=(none) ac41b_totalSamples=0 ac41b_validJsonRate=0 ac41b_mutexViolationRate=1 ac41b_report=(none)'
-      : `ac41b_source=${localAluMetrics.source} ac41b_totalSamples=${localAluMetrics.totalSamples} ac41b_validJsonRate=${localAluMetrics.validJsonRate} ac41b_mutexViolationRate=${localAluMetrics.mutexViolationRate} ac41b_reportJson=${localAluMetrics.reportJsonPath} ac41b_reportMd=${localAluMetrics.reportMdPath}`;
+      ? 'ac41b_source=(none) ac41b_sourceEligible=false ac41b_thresholdSatisfied=false ac41b_passFlag=false ac41b_totalSamples=0 ac41b_validJsonRate=0 ac41b_mutexViolationRate=1 ac41b_report=(none)'
+      : `ac41b_source=${localAluMetrics.source} ac41b_sourceEligible=${ac41bSourceEligible} ac41b_thresholdSatisfied=${ac41bThresholdSatisfied} ac41b_passFlag=${localAluMetrics.pass} ac41b_totalSamples=${localAluMetrics.totalSamples} ac41b_validJsonRate=${localAluMetrics.validJsonRate} ac41b_mutexViolationRate=${localAluMetrics.mutexViolationRate} ac41b_reportJson=${localAluMetrics.reportJsonPath} ac41b_reportMd=${localAluMetrics.reportMdPath}`;
   return {
     stage: 'S4',
     acId: 'AC4.1',
