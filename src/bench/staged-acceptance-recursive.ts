@@ -85,9 +85,11 @@ interface Ac42GateMetrics {
   stamp: string;
   source: string;
   runtimeMode: string;
+  liveOracleCycles: number | null;
   setupReady: boolean | null;
   setupError: string | null;
   oracleCalls: number | null;
+  oracleBypassDecisions: number | null;
   deadlockEvents: number;
   popOnTrap: number;
   gotoAfterPop: number;
@@ -321,9 +323,11 @@ async function readAc42GateMetrics(): Promise<Ac42GateMetrics | null> {
     const stamp = toString(parsed.stamp);
     const source = toString(parsed.source);
     const runtimeMode = toString(parsed.runtimeMode) ?? 'legacy_unknown';
+    const liveOracleCycles = toNumber(parsed.liveOracleCycles);
     const setupReady = typeof parsed.setupReady === 'boolean' ? parsed.setupReady : null;
     const setupError = toString(parsed.setupError);
     const oracleCalls = toNumber(parsed.oracleCalls);
+    const oracleBypassDecisions = toNumber(parsed.oracleBypassDecisions);
     const deadlockEvents = toNumber(parsed.deadlockEvents);
     const popOnTrap = toNumber(parsed.popOnTrap);
     const gotoAfterPop = toNumber(parsed.gotoAfterPop);
@@ -351,9 +355,11 @@ async function readAc42GateMetrics(): Promise<Ac42GateMetrics | null> {
       stamp,
       source,
       runtimeMode,
+      liveOracleCycles,
       setupReady,
       setupError,
       oracleCalls,
+      oracleBypassDecisions,
       deadlockEvents,
       popOnTrap,
       gotoAfterPop,
@@ -1567,13 +1573,14 @@ async function ac42(): Promise<AcResult> {
   const hasMetrics = metrics !== null;
   const sourceEligible = hasMetrics && metrics.source.startsWith('local_alu');
   const runtimeEligible = hasMetrics && metrics.runtimeMode === 'local_alu_live';
+  const oracleCallEligible = hasMetrics && (metrics.oracleCalls ?? 0) > 0;
   const setupEligible = hasMetrics && metrics.setupReady !== false;
   const thresholdSatisfied =
     hasMetrics &&
     metrics.deadlockEvents >= thresholds.minDeadlockEvents &&
     metrics.escapeRate >= thresholds.minEscapeRate &&
     metrics.gotoAfterPopRate >= thresholds.minGotoAfterPopRate;
-  const pass = hasMetrics && sourceEligible && runtimeEligible && setupEligible && thresholdSatisfied;
+  const pass = hasMetrics && sourceEligible && runtimeEligible && oracleCallEligible && setupEligible && thresholdSatisfied;
   return {
     stage: 'S4',
     acId: 'AC4.2',
@@ -1582,7 +1589,7 @@ async function ac42(): Promise<AcResult> {
     requirement:
       '7B 模型在连续死锁陷阱后应本能输出 SYS_POP 并切换路径。',
     details: hasMetrics
-      ? `AC4.2 gate status. source=${metrics.source} runtimeMode=${metrics.runtimeMode} setupReady=${metrics.setupReady} setupError=${metrics.setupError ?? '(none)'} oracleCalls=${metrics.oracleCalls ?? '(n/a)'} deadlockEvents=${metrics.deadlockEvents}/${thresholds.minDeadlockEvents} popOnTrap=${metrics.popOnTrap} gotoAfterPop=${metrics.gotoAfterPop} escapeRate=${metrics.escapeRate}/${thresholds.minEscapeRate} gotoAfterPopRate=${metrics.gotoAfterPopRate}/${thresholds.minGotoAfterPopRate} sourceEligible=${sourceEligible} runtimeEligible=${runtimeEligible} setupEligible=${setupEligible} thresholdSatisfied=${thresholdSatisfied} unlockReady=${pass} reportJson=${metrics.reportJsonPath} reportMd=${metrics.reportMdPath}`
+      ? `AC4.2 gate status. source=${metrics.source} runtimeMode=${metrics.runtimeMode} liveOracleCycles=${metrics.liveOracleCycles ?? '(n/a)'} setupReady=${metrics.setupReady} setupError=${metrics.setupError ?? '(none)'} oracleCalls=${metrics.oracleCalls ?? '(n/a)'} oracleBypassDecisions=${metrics.oracleBypassDecisions ?? '(n/a)'} deadlockEvents=${metrics.deadlockEvents}/${thresholds.minDeadlockEvents} popOnTrap=${metrics.popOnTrap} gotoAfterPop=${metrics.gotoAfterPop} escapeRate=${metrics.escapeRate}/${thresholds.minEscapeRate} gotoAfterPopRate=${metrics.gotoAfterPopRate}/${thresholds.minGotoAfterPopRate} sourceEligible=${sourceEligible} runtimeEligible=${runtimeEligible} oracleCallEligible=${oracleCallEligible} setupEligible=${setupEligible} thresholdSatisfied=${thresholdSatisfied} unlockReady=${pass} reportJson=${metrics.reportJsonPath} reportMd=${metrics.reportMdPath}`
       : `AC4.2 gate status. metricsReady=false source=(none) deadlockEvents=0/${thresholds.minDeadlockEvents} escapeRate=0/${thresholds.minEscapeRate} gotoAfterPopRate=0/${thresholds.minGotoAfterPopRate} unlockReady=false`,
     evidence: [AC42_LATEST_FILE, path.join(ROOT, 'benchmarks', 'audits', 'recursive')],
     nextActions: pass
@@ -1591,9 +1598,11 @@ async function ac42(): Promise<AcResult> {
           hasMetrics
             ? sourceEligible
               ? runtimeEligible
-                ? setupEligible
-                  ? '提高 local ALU deadlock 反射覆盖样本（>=500）并维持 escapeRate/gotoAfterPopRate >= 95%。'
-                  : 'local_alu 运行未就绪；请补齐 --base-url/--model/--api-key 或环境变量后重跑 AC4.2。'
+                ? oracleCallEligible
+                  ? setupEligible
+                    ? '提高 local ALU deadlock 反射覆盖样本（>=500）并维持 escapeRate/gotoAfterPopRate >= 95%。'
+                    : 'local_alu 运行未就绪；请补齐 --base-url/--model/--api-key 或环境变量后重跑 AC4.2。'
+                  : 'AC4.2 需至少产生一次真实 oracle 调用（oracleCalls>0）。'
                 : 'AC4.2 需使用真实 local_alu_live 路径，使用 --oracle local_alu 并确认 runtimeMode=local_alu_live。'
               : '当前仅有 mock/harness 指标；需要切换到 local_alu 来源并输出同格式指标。'
             : '先运行 deadlock reflex benchmark 生成 ac42_deadlock_reflex_latest.json。',

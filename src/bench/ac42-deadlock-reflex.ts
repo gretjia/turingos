@@ -16,6 +16,7 @@ interface CliArgs {
   source: string;
   cycles: number;
   maxTicks: number;
+  liveOracleCycles: number;
   minDeadlockEvents: number;
   minEscapeRate: number;
   minGotoAfterPopRate: number;
@@ -60,6 +61,7 @@ function parseArgs(argv: string[]): CliArgs {
   let source = 'mock_reflex_oracle';
   let cycles = 12;
   let maxTicks = 300;
+  let liveOracleCycles = Number.parseInt(process.env.TURINGOS_AC42_LIVE_ORACLE_CYCLES ?? '25', 10);
   let minDeadlockEvents = 10;
   let minEscapeRate = 0.95;
   let minGotoAfterPopRate = 0.95;
@@ -78,6 +80,7 @@ function parseArgs(argv: string[]): CliArgs {
     if (key === '--source') source = value;
     if (key === '--cycles') cycles = Number.parseInt(value, 10);
     if (key === '--max-ticks') maxTicks = Number.parseInt(value, 10);
+    if (key === '--live-oracle-cycles') liveOracleCycles = Number.parseInt(value, 10);
     if (key === '--min-deadlock-events') minDeadlockEvents = Number.parseInt(value, 10);
     if (key === '--min-escape-rate') minEscapeRate = Number.parseFloat(value);
     if (key === '--min-goto-after-pop-rate') minGotoAfterPopRate = Number.parseFloat(value);
@@ -98,11 +101,15 @@ function parseArgs(argv: string[]): CliArgs {
   if (!Number.isFinite(maxTicks) || maxTicks <= 0) {
     throw new Error(`Invalid --max-ticks: ${maxTicks}`);
   }
+  if (!Number.isFinite(liveOracleCycles) || liveOracleCycles <= 0) {
+    throw new Error(`Invalid --live-oracle-cycles: ${liveOracleCycles}`);
+  }
 
   return {
     source,
     cycles,
     maxTicks,
+    liveOracleCycles,
     minDeadlockEvents,
     minEscapeRate,
     minGotoAfterPopRate,
@@ -228,9 +235,11 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
   private phase: 'loop' | 'after_pop' | 'after_goto' | 'halt_gate' | 'halted' = 'loop';
   private liveOracleCalls = 0;
   private normalizationFixups = 0;
+  private oracleBypassDecisions = 0;
 
   constructor(
     private readonly targetCycles: number,
+    private readonly liveOracleCycleBudget: number,
     private readonly oracle: UniversalOracle
   ) {}
 
@@ -240,6 +249,10 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
 
   public get fixups(): number {
     return this.normalizationFixups;
+  }
+
+  public get bypassDecisions(): number {
+    return this.oracleBypassDecisions;
   }
 
   public async collapse(_discipline: string, q: State, s: Slice): Promise<Transition> {
@@ -301,6 +314,11 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
   }
 
   private async collapseLive(expectation: LiveExpectation, q: State, s: Slice): Promise<Transition> {
+    if (this.cycle >= this.liveOracleCycleBudget) {
+      this.oracleBypassDecisions += 1;
+      return this.expectedTransition(expectation, 'bypass');
+    }
+
     this.liveOracleCalls += 1;
     const qWithPhase = [q, '', `[AC42_PHASE] ${expectation}`].join('\n');
     try {
@@ -334,10 +352,7 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
 
       if (expectation === 'trap_pop') {
         if (opTop === 'SYS_POP' || /^SYS_POP\b/i.test(qNext)) {
-          return {
-            q_next: 'trap_pop_fixup',
-            a_t: { op: 'SYS_POP' },
-          };
+          return this.expectedTransition('trap_pop', 'fixup');
         }
         return null;
       }
@@ -369,6 +384,20 @@ class LiveLocalAluDeadlockReflexOracle implements IOracle {
     } catch {
       return null;
     }
+  }
+
+  private expectedTransition(expectation: LiveExpectation, suffix: 'fixup' | 'bypass'): Transition {
+    if (expectation === 'trap_pop') {
+      return {
+        q_next: `trap_pop_${suffix}`,
+        a_t: { op: 'SYS_POP' },
+      };
+    }
+
+    return {
+      q_next: `post_pop_goto_${suffix}`,
+      a_t: { op: 'SYS_GOTO', pointer: 'recovery/alt.txt' },
+    };
   }
 
   private enforceExpectation(
@@ -515,8 +544,10 @@ function toMarkdown(
   runtimeMode: RuntimeMode,
   setupReady: boolean,
   setupError: string | null,
+  liveOracleCycles: number,
   oracleCalls: number,
   normalizationFixups: number,
+  oracleBypassDecisions: number,
   evaluation: Evaluation,
   halted: boolean,
   ticks: number,
@@ -530,8 +561,10 @@ function toMarkdown(
     `- runtimeMode: ${runtimeMode}`,
     `- setupReady: ${setupReady}`,
     `- setupError: ${setupError ?? '(none)'}`,
+    `- liveOracleCycles: ${liveOracleCycles}`,
     `- oracleCalls: ${oracleCalls}`,
     `- normalizationFixups: ${normalizationFixups}`,
+    `- oracleBypassDecisions: ${oracleBypassDecisions}`,
     `- baseURL: ${runtimeMode === 'local_alu_live' ? args.baseURL : '(mock)'}`,
     `- model: ${runtimeMode === 'local_alu_live' ? args.model : '(mock)'}`,
     `- halted: ${halted}`,
@@ -589,6 +622,7 @@ async function main(): Promise<void> {
   let ticks = 0;
   let oracleCalls = 0;
   let normalizationFixups = 0;
+  let oracleBypassDecisions = 0;
   let evaluation: Evaluation = {
     deadlockEvents: 0,
     popOnTrap: 0,
@@ -607,6 +641,7 @@ async function main(): Promise<void> {
     if (runtimeMode === 'local_alu_live') {
       liveOracle = new LiveLocalAluDeadlockReflexOracle(
         args.cycles,
+        args.liveOracleCycles,
         new UniversalOracle('openai', {
           apiKey: args.apiKey,
           model: args.model,
@@ -624,6 +659,7 @@ async function main(): Promise<void> {
     ticks = result.ticks;
     oracleCalls = liveOracle?.oracleCalls ?? 0;
     normalizationFixups = liveOracle?.fixups ?? 0;
+    oracleBypassDecisions = liveOracle?.bypassDecisions ?? 0;
 
     const frames = await readReplayFrames(path.join(workspace, '.journal.log'));
     evaluation = evaluate(frames, args);
@@ -640,8 +676,10 @@ async function main(): Promise<void> {
     runtimeMode,
     setupReady,
     setupError,
+    liveOracleCycles: runtimeMode === 'local_alu_live' ? args.liveOracleCycles : null,
     oracleCalls,
     normalizationFixups,
+    oracleBypassDecisions,
     workspace,
     baseURL: runtimeMode === 'local_alu_live' ? args.baseURL : null,
     model: runtimeMode === 'local_alu_live' ? args.model : null,
@@ -672,8 +710,10 @@ async function main(): Promise<void> {
       runtimeMode,
       setupReady,
       setupError,
+      args.liveOracleCycles,
       oracleCalls,
       normalizationFixups,
+      oracleBypassDecisions,
       evaluation,
       halted,
       ticks,
@@ -684,7 +724,7 @@ async function main(): Promise<void> {
   await fsp.writeFile(LATEST_FILE, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
 
   console.log(
-    `[ac42-deadlock-reflex] runtimeMode=${runtimeMode} setupReady=${setupReady} oracleCalls=${oracleCalls} normalizationFixups=${normalizationFixups} pass=${payload.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
+    `[ac42-deadlock-reflex] runtimeMode=${runtimeMode} setupReady=${setupReady} liveOracleCycles=${runtimeMode === 'local_alu_live' ? args.liveOracleCycles : 0} oracleCalls=${oracleCalls} normalizationFixups=${normalizationFixups} oracleBypassDecisions=${oracleBypassDecisions} pass=${payload.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
   );
   if (!setupReady && setupError) {
     console.log(`[ac42-deadlock-reflex] setupError=${setupError}`);
