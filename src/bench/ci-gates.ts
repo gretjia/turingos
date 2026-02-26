@@ -12,7 +12,7 @@ interface AuditReport {
   results?: AcRow[];
 }
 
-const REQUIRED_GATES = ['AC2.3', 'AC3.1', 'AC3.2'] as const;
+const REQUIRED_GATES = ['AC2.1', 'AC2.2', 'AC2.3', 'AC3.1', 'AC3.2'] as const;
 const REPORT_PATTERN = /^staged_acceptance_recursive_\d{8}_\d{6}\.json$/;
 const AUDIT_DIR = path.join(process.cwd(), 'benchmarks', 'audits', 'recursive');
 
@@ -80,4 +80,3 @@ main().catch((error: unknown) => {
   console.error(`[ci-gates] fatal: ${message}`);
   process.exitCode = 1;
 });
-

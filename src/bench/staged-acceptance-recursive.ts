@@ -189,6 +189,45 @@ async function seedAc31Baseline(workspace: string): Promise<void> {
   await fsp.writeFile(path.join(workspace, 'checkpoint', 'step1.txt'), 'verified\n', 'utf-8');
 }
 
+async function collectTraceStats(tracePath: string): Promise<{ execOps: number; timeoutSignals: number; frames: number }> {
+  try {
+    const raw = await fsp.readFile(tracePath, 'utf-8');
+    const lines = raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+    let execOps = 0;
+    let timeoutSignals = 0;
+    let frames = 0;
+    for (const line of lines) {
+      const match = line.match(/\[REPLAY_TUPLE\]\s*(\{.*\})$/);
+      if (!match?.[1]) {
+        continue;
+      }
+      try {
+        const tuple = JSON.parse(match[1]) as {
+          a_t?: { op?: string };
+          observed_slice?: string;
+          s_t?: string;
+        };
+        frames += 1;
+        if (tuple.a_t?.op === 'SYS_EXEC') {
+          execOps += 1;
+        }
+        const observed = `${tuple.observed_slice ?? ''}\n${tuple.s_t ?? ''}`;
+        if (/(429|502|timeout|rate limit|gateway)/i.test(observed)) {
+          timeoutSignals += 1;
+        }
+      } catch {
+        // ignore malformed tuple
+      }
+    }
+    return { execOps, timeoutSignals, frames };
+  } catch {
+    return { execOps: 0, timeoutSignals: 0, frames: 0 };
+  }
+}
+
 class DualActionOracle implements IOracle {
   public async collapse(_discipline: string, q: State, _s: Slice): Promise<Transition> {
     return {
@@ -870,6 +909,19 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     };
   }
 
+  const parseSummary = (stdout: string): Record<string, unknown> | null => {
+    const start = stdout.indexOf('{');
+    const end = stdout.lastIndexOf('}');
+    if (start < 0 || end <= start) {
+      return null;
+    }
+    try {
+      return JSON.parse(stdout.slice(start, end + 1)) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  };
+
   const tempRoot = mkWorkspace('turingos-ac32-');
   const sourceWorkspace = path.join(tempRoot, 'source');
   const tracePath = path.join(sourceWorkspace, '.journal.log');
@@ -890,14 +942,28 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   const cmd2 = `npm run bench:replay-runner -- --trace "${tracePath}" --workspace "${run2Workspace}"`;
   const r1 = await runCommand(cmd1);
   const r2 = await runCommand(cmd2);
-  const hash1 = r1.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
-  const hash2 = r2.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
+  const summary1 = parseSummary(r1.stdout);
+  const summary2 = parseSummary(r2.stdout);
+  const hash1 = typeof summary1?.treeHash === 'string' ? summary1.treeHash : '';
+  const hash2 = typeof summary2?.treeHash === 'string' ? summary2.treeHash : '';
+  const s1Qs = summary1?.qsHashVerified === true;
+  const s1Merkle = summary1?.merkleVerified === true;
+  const s1Continuity = summary1?.continuityVerified === true;
+  const s2Qs = summary2?.qsHashVerified === true;
+  const s2Merkle = summary2?.merkleVerified === true;
+  const s2Continuity = summary2?.continuityVerified === true;
   const syntheticPass =
     r1.code === 0 &&
     r2.code === 0 &&
     hash1.length > 0 &&
     hash1 === hash2 &&
-    hash1 === sourceHash;
+    hash1 === sourceHash &&
+    s1Qs &&
+    s1Merkle &&
+    s1Continuity &&
+    s2Qs &&
+    s2Merkle &&
+    s2Continuity;
 
   const dirtyTracePath = runtime?.ac31TracePath ?? '';
   const dirtySourceWorkspace = runtime?.ac31Workspace ?? '';
@@ -914,6 +980,12 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   let dirtyHash1 = '';
   let dirtyHash2 = '';
   let dirtySourceHash = '';
+  let dirtyQs1 = false;
+  let dirtyQs2 = false;
+  let dirtyMerkle1 = false;
+  let dirtyMerkle2 = false;
+  let dirtyContinuity1 = false;
+  let dirtyContinuity2 = false;
   let dirtyCode1: number | null = null;
   let dirtyCode2: number | null = null;
   if (dirtyTraceReady) {
@@ -924,43 +996,95 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     const dirtyCmd2 = `npm run bench:replay-runner -- --trace "${dirtyTracePath}" --workspace "${dirtyRun2Workspace}"`;
     const dr1 = await runCommand(dirtyCmd1);
     const dr2 = await runCommand(dirtyCmd2);
+    const dSummary1 = parseSummary(dr1.stdout);
+    const dSummary2 = parseSummary(dr2.stdout);
     dirtyCode1 = dr1.code;
     dirtyCode2 = dr2.code;
-    dirtyHash1 = dr1.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
-    dirtyHash2 = dr2.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
+    dirtyHash1 = typeof dSummary1?.treeHash === 'string' ? dSummary1.treeHash : '';
+    dirtyHash2 = typeof dSummary2?.treeHash === 'string' ? dSummary2.treeHash : '';
+    dirtyQs1 = dSummary1?.qsHashVerified === true;
+    dirtyQs2 = dSummary2?.qsHashVerified === true;
+    dirtyMerkle1 = dSummary1?.merkleVerified === true;
+    dirtyMerkle2 = dSummary2?.merkleVerified === true;
+    dirtyContinuity1 = dSummary1?.continuityVerified === true;
+    dirtyContinuity2 = dSummary2?.continuityVerified === true;
     dirtyPass =
       dr1.code === 0 &&
       dr2.code === 0 &&
       dirtyHash1.length > 0 &&
       dirtyHash1 === dirtyHash2 &&
-      dirtyHash1 === dirtySourceHash;
-    dirtyDetails = `dirtySource=${dirtySourceHash} dirtyHash1=${dirtyHash1} dirtyHash2=${dirtyHash2} dirtyCode1=${dr1.code} dirtyCode2=${dr2.code}`;
+      dirtyHash1 === dirtySourceHash &&
+      dirtyQs1 &&
+      dirtyQs2 &&
+      dirtyMerkle1 &&
+      dirtyMerkle2 &&
+      dirtyContinuity1 &&
+      dirtyContinuity2;
+    dirtyDetails = `dirtySource=${dirtySourceHash} dirtyHash1=${dirtyHash1} dirtyHash2=${dirtyHash2} dirtyCode1=${dr1.code} dirtyCode2=${dr2.code} dirtyQs=(${dirtyQs1},${dirtyQs2}) dirtyMerkle=(${dirtyMerkle1},${dirtyMerkle2}) dirtyContinuity=(${dirtyContinuity1},${dirtyContinuity2})`;
   }
 
-  const mutationTracePath = path.join(tempRoot, 'mutating_exec_trace.jsonl');
-  const mutationWorkspace = path.join(tempRoot, 'mutating_exec_run');
+  const execSnapshotTracePath = path.join(tempRoot, 'exec_snapshot_trace.jsonl');
+  const execSnapshotWorkspace = path.join(tempRoot, 'exec_snapshot_run');
+  const execCmd = 'echo 123 > mutation.txt';
+  const execPointer = `$ ${execCmd}`;
+  const commandSlice = ['[COMMAND] echo 123 > mutation.txt', '[EXIT_CODE] 0', '[STDOUT]', '', '[STDERR]', ''].join('\n');
   await fsp.writeFile(
-    mutationTracePath,
-    `${JSON.stringify({ d_t: 'MAIN_TAPE.md', a_t: { op: 'SYS_EXEC', cmd: 'echo 123 > mutation.txt' } })}\n`,
+    execSnapshotTracePath,
+    [
+      JSON.stringify({
+        d_t: 'MAIN_TAPE.md',
+        a_t: { op: 'SYS_EXEC', cmd: execCmd },
+        d_next: execPointer,
+        q_next: 'q_exec_1',
+      }),
+      JSON.stringify({
+        d_t: execPointer,
+        observed_slice: commandSlice,
+        s_t: commandSlice,
+        h_s: createHash('sha256').update(commandSlice).digest('hex'),
+        a_t: { op: 'SYS_HALT' },
+        d_next: 'HALT',
+        q_t: 'q_exec_1',
+        h_q: createHash('sha256').update('q_exec_1').digest('hex'),
+        q_next: 'HALT',
+      }),
+    ].join('\n') + '\n',
     'utf-8'
   );
-  await fsp.mkdir(mutationWorkspace, { recursive: true });
-  const mutationCmd = `npm run bench:replay-runner -- --trace "${mutationTracePath}" --workspace "${mutationWorkspace}"`;
-  const mutationRun = await runCommand(mutationCmd);
-  const mutationCode = mutationRun.code ?? 1;
-  const mutationOut = `${mutationRun.stdout}\n${mutationRun.stderr}`;
-  const mutationGuardPass = mutationCode !== 0 && /Offline replay blocked mutating SYS_EXEC/i.test(mutationOut);
-  const mutationDetails = `mutationCode=${mutationCode} guardMatched=${/Offline replay blocked mutating SYS_EXEC/i.test(mutationOut)}`;
+  await fsp.mkdir(execSnapshotWorkspace, { recursive: true });
+  const execSnapshotCmd = `npm run bench:replay-runner -- --trace "${execSnapshotTracePath}" --workspace "${execSnapshotWorkspace}"`;
+  const execSnapshotRun = await runCommand(execSnapshotCmd);
+  const execSummary = parseSummary(execSnapshotRun.stdout);
+  const execSnapshotFrames =
+    typeof execSummary?.execSnapshotFrames === 'number' ? (execSummary.execSnapshotFrames as number) : 0;
+  const mutationArtifact = path.join(execSnapshotWorkspace, 'mutation.txt');
+  let mutationArtifactExists = false;
+  try {
+    await fsp.access(mutationArtifact);
+    mutationArtifactExists = true;
+  } catch {
+    mutationArtifactExists = false;
+  }
+  const execSnapshotPass =
+    execSnapshotRun.code === 0 &&
+    execSnapshotFrames >= 1 &&
+    execSummary?.qsHashVerified === true &&
+    execSummary?.merkleVerified === true &&
+    execSummary?.continuityVerified === true &&
+    !mutationArtifactExists;
+  const execSnapshotDetails = `execCode=${execSnapshotRun.code} execSnapshotFrames=${execSnapshotFrames} qs=${
+    execSummary?.qsHashVerified === true
+  } merkle=${execSummary?.merkleVerified === true} continuity=${execSummary?.continuityVerified === true} mutationArtifactExists=${mutationArtifactExists}`;
 
-  const pass = syntheticPass && dirtyPass && mutationGuardPass;
+  const pass = syntheticPass && dirtyPass && execSnapshotPass;
   const evidence = [
     replayRunnerPath,
     tracePath,
     sourceWorkspace,
     run1Workspace,
     run2Workspace,
-    mutationTracePath,
-    mutationWorkspace,
+    execSnapshotTracePath,
+    execSnapshotWorkspace,
   ];
   if (dirtyTraceReady) {
     evidence.push(dirtyTracePath, dirtySourceWorkspace, dirtyRun1Workspace, dirtyRun2Workspace);
@@ -972,33 +1096,38 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     title: 'Bit-for-bit Replay',
     status: pass ? 'PASS' : 'FAIL',
     requirement:
-      '应支持离线重放 trace.jsonl，并通过 synthetic + kill -9 dirty trace 双轨校验哈希一致性，同时禁止重放阶段执行变更型 SYS_EXEC。',
+      '应支持离线重放 trace.jsonl，并通过 synthetic + kill -9 dirty trace 双轨校验哈希一致性；每 tick 强制校验 h_q/h_s 与 Merkle 链；SYS_EXEC 通过历史快照注入而非宿主重执行。',
     details: pass
-      ? `Synthetic and dirty replay hashes matched source with offline-exec guard. synthetic=${hash1} dirty=${dirtyHash1} ${mutationDetails}`
-      : `Replay mismatch. synthetic(code1=${r1.code},code2=${r2.code},source=${sourceHash},hash1=${hash1},hash2=${hash2}) dirty(${dirtyDetails},dirtyCode1=${dirtyCode1},dirtyCode2=${dirtyCode2}) mutation(${mutationDetails})`,
+      ? `Synthetic/dirty replay passed with per-tick hash+merkle checks and exec-snapshot injection. synthetic=${hash1} dirty=${dirtyHash1} ${execSnapshotDetails}`
+      : `Replay mismatch. synthetic(code1=${r1.code},code2=${r2.code},source=${sourceHash},hash1=${hash1},hash2=${hash2},qs=(${s1Qs},${s2Qs}),merkle=(${s1Merkle},${s2Merkle}),continuity=(${s1Continuity},${s2Continuity})) dirty(${dirtyDetails},dirtyCode1=${dirtyCode1},dirtyCode2=${dirtyCode2}) execSnapshot(${execSnapshotDetails})`,
     evidence,
     nextActions: pass
-      ? ['将 AC3.2 dirty trace 回放 + mutating SYS_EXEC 拦截结果接入 CI，形成强门禁。']
+      ? ['将 AC3.2 h_q/h_s + Merkle + dirty replay + exec snapshot 注入结果接入 CI，形成强门禁。']
       : [
+          '修复 replay-runner 逐 tick 校验链路，确保 h_q/h_s 与 Merkle 链强一致。',
+          '修复 exec snapshot 注入链路，禁止宿主命令重执行但保留历史命令观测。',
           '修复 replay-runner/seed 基线链路，确保 dirty trace 在双 workspace 回放哈希稳定。',
-          '修复 replay-runner 离线模式，确保 mutating SYS_EXEC 被强制阻断。',
-          '若 source 哈希不一致，补充 baseline snapshot 机制并重放校对。',
           '将 replay-runner 结果接入 CI 断网回放用例。',
         ],
   };
 }
 
-async function ac41(): Promise<AcResult> {
+async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
+  const tracePath = runtime?.ac31TracePath ?? '';
+  const traceReady = tracePath.length > 0 && fs.existsSync(tracePath);
+  const stats = traceReady ? await collectTraceStats(tracePath) : { execOps: 0, timeoutSignals: 0, frames: 0 };
+  const unlockReady = stats.execOps >= 5 && stats.timeoutSignals >= 1;
   return {
     stage: 'S4',
     acId: 'AC4.1',
     title: 'Zero-Prompt Instinct',
     status: 'BLOCKED',
     requirement:
-      '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率。',
-    details: 'No in-repo SFT pipeline/dataset builder/checkpoint evaluator found.',
-    evidence: [path.join(ROOT, 'src')],
+      '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率；且 S4 解锁前必须提供 >=5 次 SYS_EXEC + >=1 次 429/502/timeout 的真实脏轨迹回放证据。',
+    details: `S4 unlock gate remains blocked. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps} timeoutSignals=${stats.timeoutSignals} unlockReady=${unlockReady}`,
+    evidence: [path.join(ROOT, 'src'), tracePath || path.join(ROOT, 'benchmarks')],
     nextActions: [
+      '生成真实脏轨迹（>=5 SYS_EXEC 且包含 >=1 次 429/502/timeout）并提交回放证据。',
       '建立 trace 数据清洗与 SFT 数据集生成管线。',
       '新增 syscall JSON 良品率评估脚本（>=99.9%）。',
     ],
@@ -1072,7 +1201,7 @@ async function main(): Promise<void> {
   results.push(await ac23());
   results.push(await ac31(runtime));
   results.push(await ac32(runtime));
-  results.push(await ac41());
+  results.push(await ac41(runtime));
   results.push(await ac42());
   results.push(await voyager());
 

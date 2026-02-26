@@ -31,6 +31,39 @@ export class FileChronos implements IChronos {
     this.lastHash = hash;
   }
 
+  public async readReplayCursor(): Promise<{ tickSeq: number; merkleRoot: string } | null> {
+    if (!fs.existsSync(this.logFilePath)) {
+      return null;
+    }
+
+    try {
+      const raw = fs.readFileSync(this.logFilePath, 'utf-8');
+      const lines = raw
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+      for (let idx = lines.length - 1; idx >= 0; idx -= 1) {
+        const line = lines[idx];
+        const match = line.match(/\[REPLAY_TUPLE\]\s*(\{.*\})$/);
+        if (!match?.[1]) {
+          continue;
+        }
+        const parsed = JSON.parse(match[1]) as { tick_seq?: unknown; merkle_root?: unknown };
+        const tickSeqRaw = parsed.tick_seq;
+        const merkleRootRaw = parsed.merkle_root;
+        if (typeof tickSeqRaw === 'number' && Number.isFinite(tickSeqRaw) && typeof merkleRootRaw === 'string') {
+          return {
+            tickSeq: tickSeqRaw + 1,
+            merkleRoot: merkleRootRaw,
+          };
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   private initializeMerkleChain(): void {
     if (this.chainInitialized) {
       return;

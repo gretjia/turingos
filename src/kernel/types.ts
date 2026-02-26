@@ -27,6 +27,7 @@ export interface IPhysicalManifold {
 
 export interface IChronos {
   engrave(entry: string): Promise<void>;
+  readReplayCursor?(): Promise<{ tickSeq: number; merkleRoot: string } | null>;
 }
 
 export interface ContractCheckResult {

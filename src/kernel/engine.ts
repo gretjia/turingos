@@ -29,9 +29,13 @@ export class TuringEngine {
   private readonly verificationSignalDepth = 6;
   private readonly trapLoopDepth = 4;
   private readonly oracleFrameHardLimitChars = 4096;
-  private readonly oracleContractMaxChars = 640;
-  private readonly oracleL1TraceMaxChars = 320;
-  private readonly oracleCallStackMaxChars = 768;
+  private readonly oracleFrameMinChars = 1024;
+  private readonly oracleFrameSafetyMarginChars = 512;
+  private readonly oracleObservedMinChars = 512;
+  private readonly oracleRequestCharBudget = Number.parseInt(process.env.TURINGOS_ALU_REQUEST_CHAR_BUDGET ?? '8192', 10);
+  private replayTupleSeq = 0;
+  private replayMerkleRoot = 'GENESIS';
+  private replayCursorLoaded = false;
   private lastObservedPointer?: Pointer;
   private lastObservedSlice?: Slice;
   private lastTrapDetails = new Map<string, string>();
@@ -194,6 +198,7 @@ export class TuringEngine {
     this.recordVerificationSignal(pointer, s_t);
 
     // 1.8) Inject managed context channels for short-horizon anti-looping.
+    const observedSliceForReplay = s_t;
     const callStackSlice = await this.observeCallStackSnapshot();
     const l1TraceSlice = this.renderL1Trace();
     const contractSlice = this.renderContractGuidance(
@@ -203,7 +208,7 @@ export class TuringEngine {
       nextRequiredReady,
       nextRequiredReason
     );
-    const frameGuard = this.composeOracleFrame(contractSlice, l1TraceSlice, callStackSlice, s_t);
+    const frameGuard = this.composeOracleFrame(q_t, contractSlice, l1TraceSlice, callStackSlice, s_t);
     if (frameGuard.truncated) {
       await this.chronos.engrave(
         `[FRAME_HARD_LIMIT] original=${frameGuard.originalLength} emitted=${frameGuard.emittedLength} hash=${frameGuard.hash} clipped=${frameGuard.clippedSections.join(
@@ -305,15 +310,34 @@ export class TuringEngine {
       );
     }
 
-    const replayTuple = {
+    await this.ensureReplayCursorLoaded();
+    const replayPayload = {
+      tick_seq: this.replayTupleSeq,
+      q_t,
       h_q: createHash('sha256').update(q_t).digest('hex'),
-      h_s: createHash('sha256').update(s_t).digest('hex'),
       d_t,
+      observed_slice: observedSliceForReplay,
+      s_t,
+      h_s: createHash('sha256').update(s_t).digest('hex'),
+      a_t: transition.a_t,
+      q_next,
+      d_next,
       write_target:
         typeof transition.a_t.op === 'string' && transition.a_t.op === 'SYS_WRITE'
           ? writePointer
           : d_next,
-      a_t: transition.a_t,
+    };
+    const leafHash = createHash('sha256').update(JSON.stringify(replayPayload)).digest('hex');
+    const prevMerkleRoot = this.replayMerkleRoot;
+    const merkleRoot = createHash('sha256').update(`${prevMerkleRoot}\n${leafHash}`).digest('hex');
+    this.replayMerkleRoot = merkleRoot;
+    this.replayTupleSeq += 1;
+
+    const replayTuple = {
+      ...replayPayload,
+      leaf_hash: leafHash,
+      prev_merkle_root: prevMerkleRoot,
+      merkle_root: merkleRoot,
     };
     await this.chronos.engrave(`[REPLAY_TUPLE] ${JSON.stringify(replayTuple)}`);
 
@@ -535,6 +559,37 @@ export class TuringEngine {
     return [q_next, d_next];
   }
 
+  private async ensureReplayCursorLoaded(): Promise<void> {
+    if (this.replayCursorLoaded) {
+      return;
+    }
+    this.replayCursorLoaded = true;
+
+    const reader = this.chronos.readReplayCursor;
+    if (typeof reader !== 'function') {
+      return;
+    }
+
+    try {
+      const cursor = await reader.call(this.chronos);
+      if (!cursor) {
+        return;
+      }
+      const tickSeq =
+        typeof cursor.tickSeq === 'number' && Number.isFinite(cursor.tickSeq) && cursor.tickSeq >= 0
+          ? cursor.tickSeq
+          : 0;
+      const merkleRoot = typeof cursor.merkleRoot === 'string' && cursor.merkleRoot.length > 0
+        ? cursor.merkleRoot
+        : 'GENESIS';
+      this.replayTupleSeq = tickSeq;
+      this.replayMerkleRoot = merkleRoot;
+    } catch {
+      this.replayTupleSeq = 0;
+      this.replayMerkleRoot = 'GENESIS';
+    }
+  }
+
   public async ignite(initialQ: State, initialD: Pointer, options: IgniteOptions = {}): Promise<IgniteResult> {
     const maxTicks = options.maxTicks ?? Number.POSITIVE_INFINITY;
     let ticks = 0;
@@ -703,6 +758,7 @@ export class TuringEngine {
   }
 
   private composeOracleFrame(
+    q_t: State,
     contractSlice: Slice,
     l1TraceSlice: Slice,
     callStackSlice: Slice,
@@ -730,22 +786,27 @@ export class TuringEngine {
     ].join('\n');
 
     const clippedSections: string[] = [];
+    const frameBudget = this.computeOracleFrameBudget(q_t);
+    const metaBudget = Math.max(256, Math.floor(frameBudget * 0.28));
+    const contractBudget = Math.max(96, Math.floor(metaBudget * 0.4));
+    const l1Budget = Math.max(64, Math.floor(metaBudget * 0.2));
+    const callStackBudget = Math.max(96, metaBudget - contractBudget - l1Budget);
     const contract = this.clipFrameSection(
       'OS_CONTRACT',
       contractSlice,
-      this.oracleContractMaxChars,
+      contractBudget,
       clippedSections
     );
     const l1Trace = this.clipFrameSection(
       'L1_TRACE_CACHE',
       l1TraceSlice,
-      this.oracleL1TraceMaxChars,
+      l1Budget,
       clippedSections
     );
     const callStack = this.clipFrameSection(
       'OS_CALL_STACK',
       callStackSlice,
-      this.oracleCallStackMaxChars,
+      callStackBudget,
       clippedSections
     );
 
@@ -761,10 +822,13 @@ export class TuringEngine {
       '',
       '[OBSERVED_SLICE]',
     ].join('\n');
-    const observedBudget = Math.max(0, this.oracleFrameHardLimitChars - prefix.length - 1);
+    const observedBudget = Math.max(
+      this.oracleObservedMinChars,
+      Math.max(0, frameBudget - prefix.length - 1)
+    );
     const observed = this.clipFrameSection('OBSERVED_SLICE', observedSlice, observedBudget, clippedSections);
     const assembled = `${prefix}\n${observed}`;
-    const fallback = this.applyOracleFrameHardLimit(assembled);
+    const fallback = this.applyOracleFrameHardLimit(assembled, frameBudget);
     const truncated = clippedSections.length > 0 || fallback.truncated;
 
     return {
@@ -775,6 +839,15 @@ export class TuringEngine {
       hash: fallback.hash,
       clippedSections,
     };
+  }
+
+  private computeOracleFrameBudget(q_t: State): number {
+    const requestBudget =
+      Number.isFinite(this.oracleRequestCharBudget) && this.oracleRequestCharBudget > 0
+        ? this.oracleRequestCharBudget
+        : 8192;
+    const dynamic = requestBudget - this.disciplinePrompt.length - q_t.length - this.oracleFrameSafetyMarginChars;
+    return Math.min(this.oracleFrameHardLimitChars, Math.max(this.oracleFrameMinChars, dynamic));
   }
 
   private clipFrameSection(section: string, content: string, limit: number, clippedSections: string[]): string {
@@ -792,7 +865,7 @@ export class TuringEngine {
     return `${header}\n${content.slice(0, Math.max(0, bodyBudget))}`;
   }
 
-  private applyOracleFrameHardLimit(frame: Slice): {
+  private applyOracleFrameHardLimit(frame: Slice, maxChars: number): {
     slice: Slice;
     truncated: boolean;
     originalLength: number;
@@ -801,7 +874,7 @@ export class TuringEngine {
   } {
     const originalLength = frame.length;
     const hash = createHash('sha256').update(frame).digest('hex').slice(0, 16);
-    if (originalLength <= this.oracleFrameHardLimitChars) {
+    if (originalLength <= maxChars) {
       return {
         slice: frame,
         truncated: false,
@@ -813,14 +886,14 @@ export class TuringEngine {
 
     const header = [
       '[OS_FRAME_HARD_LIMIT]',
-      `MaxChars=${this.oracleFrameHardLimitChars}`,
+      `MaxChars=${maxChars}`,
       `OriginalChars=${originalLength}`,
       `FrameHash=${hash}`,
       'Action: use SYS_GOTO/SYS_EXEC to page through full evidence; this frame is clipped for O(1) safety.',
       '',
     ].join('\n');
     const footer = '\n\n[OS_FRAME_HARD_LIMIT_END]';
-    const budget = Math.max(0, this.oracleFrameHardLimitChars - header.length - footer.length);
+    const budget = Math.max(0, maxChars - header.length - footer.length);
     const clipped = frame.slice(0, budget);
     const guarded = `${header}${clipped}${footer}`;
 
