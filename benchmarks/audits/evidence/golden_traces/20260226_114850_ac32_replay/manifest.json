@@ -1,0 +1,52 @@
+{
+  "createdAt": "2026-02-26T11:48:59.488Z",
+  "bundleId": "20260226_114850_ac32_replay",
+  "metadata": {
+    "acId": "AC3.2",
+    "pass": true,
+    "syntheticHash": "686d69ac90ff2eabc1cc76c32db89d163c1ac114f27752164a31239393632a19",
+    "dirtyHash": "ba8fd05d5194bb4d7d195b206b285047df7d14480e39c7f81d3b5fa66ff22d3c",
+    "syntheticPass": true,
+    "dirtyPass": true,
+    "execSnapshotPass": true,
+    "execSnapshotFrames": 1,
+    "dirtyTraceReady": true
+  },
+  "files": [
+    {
+      "source": "/tmp/turingos-ac32-QMpWbw/source/.journal.log",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac32_replay/ac32.synthetic.journal.log",
+      "bytes": 6140,
+      "sha256": "7c8e16dabceaaaba2b27bc1c37f6c38cf41bdbac6f301419cfe11338277a5738",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac32-QMpWbw/source/.journal.merkle.jsonl",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac32_replay/ac32.synthetic.journal.merkle.jsonl",
+      "bytes": 7790,
+      "sha256": "dc8f819ade6425a6e8a1dbe321eaf3d371d376c853b645b1e76ef4eca2a4480d",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac32-QMpWbw/exec_snapshot_trace.jsonl",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac32_replay/ac32.exec_snapshot_trace.jsonl",
+      "bytes": 1342,
+      "sha256": "9a3ae578526358c7aac7ec332c3f656a0934708ab7b15e143b448e553b88e7bf",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-q7pDrY/.journal.log",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac32_replay/ac32.dirty.journal.log",
+      "bytes": 18710,
+      "sha256": "02a25a9188cb0b3fa2d3c07049c30f509850fa65e894b9e08885492e3836d5ce",
+      "status": "copied"
+    },
+    {
+      "source": "/tmp/turingos-ac31-q7pDrY/.journal.merkle.jsonl",
+      "target": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac32_replay/ac32.dirty.journal.merkle.jsonl",
+      "bytes": 23784,
+      "sha256": "1c48b95ee0471dc8b61535ba9f3e7181c6b7bfcfc43400ae7050d8ac748f890a",
+      "status": "copied"
+    }
+  ]
+}

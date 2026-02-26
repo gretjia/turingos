@@ -1,0 +1,17 @@
+{
+  "stamp": "20260226_114846",
+  "source": "smoke_cycleN1",
+  "input": "/tmp/ac41b_smoke.jsonl",
+  "totalSamples": 5,
+  "validSamples": 5,
+  "mutexViolations": 0,
+  "validJsonRate": 1,
+  "mutexViolationRate": 0,
+  "minSamples": 1000,
+  "minValidJsonRate": 0.999,
+  "maxMutexViolationRate": 0,
+  "pass": false,
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_20260226_114846.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_20260226_114846.md",
+  "generatedAt": "2026-02-26T11:48:46.109Z"
+}

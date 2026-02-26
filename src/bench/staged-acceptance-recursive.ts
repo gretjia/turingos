@@ -52,6 +52,8 @@ interface AcceptanceRuntimeContext {
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'recursive');
 const GOLDEN_TRACE_DIR = path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'golden_traces');
+const LOCAL_ALU_AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'local_alu');
+const LOCAL_ALU_LATEST_FILE = path.join(LOCAL_ALU_AUDIT_DIR, 'ac41b_latest.json');
 
 interface GoldenTraceSource {
   source: string;
@@ -63,6 +65,19 @@ interface GoldenTraceBundle {
   bundleDir: string;
   manifestPath: string;
   copiedPaths: string[];
+}
+
+interface LocalAluGateMetrics {
+  stamp: string;
+  source: string;
+  totalSamples: number;
+  validSamples: number;
+  mutexViolations: number;
+  validJsonRate: number;
+  mutexViolationRate: number;
+  pass: boolean;
+  reportJsonPath: string;
+  reportMdPath: string;
 }
 
 function timestamp(): string {
@@ -214,6 +229,61 @@ async function readTrimmed(filePath: string): Promise<string> {
     return (await fsp.readFile(filePath, 'utf-8')).trim();
   } catch {
     return '';
+  }
+}
+
+async function readLocalAluGateMetrics(): Promise<LocalAluGateMetrics | null> {
+  try {
+    const raw = await fsp.readFile(LOCAL_ALU_LATEST_FILE, 'utf-8');
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+
+    const toNumber = (value: unknown): number | null =>
+      typeof value === 'number' && Number.isFinite(value) ? value : null;
+    const toString = (value: unknown): string | null =>
+      typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+
+    const stamp = toString(parsed.stamp);
+    const source = toString(parsed.source);
+    const totalSamples = toNumber(parsed.totalSamples);
+    const validSamples = toNumber(parsed.validSamples);
+    const mutexViolations = toNumber(parsed.mutexViolations);
+    const validJsonRate = toNumber(parsed.validJsonRate);
+    const mutexViolationRate = toNumber(parsed.mutexViolationRate);
+    const pass = parsed.pass === true;
+    const reportJsonPath = toString(parsed.reportJsonPath);
+    const reportMdPath = toString(parsed.reportMdPath);
+
+    if (
+      !stamp ||
+      !source ||
+      totalSamples === null ||
+      validSamples === null ||
+      mutexViolations === null ||
+      validJsonRate === null ||
+      mutexViolationRate === null ||
+      !reportJsonPath ||
+      !reportMdPath
+    ) {
+      return null;
+    }
+
+    return {
+      stamp,
+      source,
+      totalSamples,
+      validSamples,
+      mutexViolations,
+      validJsonRate,
+      mutexViolationRate,
+      pass,
+      reportJsonPath,
+      reportMdPath,
+    };
+  } catch {
+    return null;
   }
 }
 
@@ -1362,10 +1432,18 @@ async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     stats.mmuSignals >= matrixThresholds.mmuSignalsMin &&
     stats.deadlockSignals >= matrixThresholds.deadlockSignalsMin &&
     stats.execMmuSignals >= matrixThresholds.execMmuSignalsMin;
-  // AC4.1b is intentionally pinned false until local ALU bench is implemented.
-  const ac41bLocalAluReady = false;
+  const localAluMetrics = await readLocalAluGateMetrics();
+  const ac41bLocalAluReady =
+    localAluMetrics !== null &&
+    localAluMetrics.totalSamples >= localAluThresholds.minSamples &&
+    localAluMetrics.validJsonRate >= localAluThresholds.validJsonRateMin &&
+    localAluMetrics.mutexViolationRate <= localAluThresholds.mutexViolationRateMax;
   const unlockReady = ac41aTraceMatrixReady && ac41bLocalAluReady;
   const status: AcStatus = unlockReady ? 'PASS' : 'BLOCKED';
+  const localAluMetricsSegment =
+    localAluMetrics === null
+      ? 'ac41b_source=(none) ac41b_totalSamples=0 ac41b_validJsonRate=0 ac41b_mutexViolationRate=1 ac41b_report=(none)'
+      : `ac41b_source=${localAluMetrics.source} ac41b_totalSamples=${localAluMetrics.totalSamples} ac41b_validJsonRate=${localAluMetrics.validJsonRate} ac41b_mutexViolationRate=${localAluMetrics.mutexViolationRate} ac41b_reportJson=${localAluMetrics.reportJsonPath} ac41b_reportMd=${localAluMetrics.reportMdPath}`;
   return {
     stage: 'S4',
     acId: 'AC4.1',
@@ -1373,8 +1451,13 @@ async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
     status,
     requirement:
       '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率；且 S4 解锁前必须提供混沌矩阵证据：>=5 次 SYS_EXEC、>=1 次 timeout(429/502/timeout)、>=1 次 MMU 截断信号、>=1 次 deadlock/panic 信号、>=1 次 SYS_EXEC 与 MMU 信号耦合命中。',
-    details: `S4 unlock gate status. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps}/${matrixThresholds.execOpsMin} timeoutSignals=${stats.timeoutSignals}/${matrixThresholds.timeoutSignalsMin} mmuSignals=${stats.mmuSignals}/${matrixThresholds.mmuSignalsMin} deadlockSignals=${stats.deadlockSignals}/${matrixThresholds.deadlockSignalsMin} execMmuSignals=${stats.execMmuSignals}/${matrixThresholds.execMmuSignalsMin} traceCorrupted=${stats.traceCorrupted} corruptionReason=${stats.corruptionReason || '(none)'} ac41a_traceMatrixReady=${ac41aTraceMatrixReady} ac41b_localAluReady=${ac41bLocalAluReady} ac41b_minSamples=${localAluThresholds.minSamples} ac41b_validJsonRateMin=${localAluThresholds.validJsonRateMin} ac41b_mutexViolationRateMax=${localAluThresholds.mutexViolationRateMax} unlockReady=${unlockReady}`,
-    evidence: [path.join(ROOT, 'src'), tracePath || path.join(ROOT, 'benchmarks')],
+    details: `S4 unlock gate status. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps}/${matrixThresholds.execOpsMin} timeoutSignals=${stats.timeoutSignals}/${matrixThresholds.timeoutSignalsMin} mmuSignals=${stats.mmuSignals}/${matrixThresholds.mmuSignalsMin} deadlockSignals=${stats.deadlockSignals}/${matrixThresholds.deadlockSignalsMin} execMmuSignals=${stats.execMmuSignals}/${matrixThresholds.execMmuSignalsMin} traceCorrupted=${stats.traceCorrupted} corruptionReason=${stats.corruptionReason || '(none)'} ac41a_traceMatrixReady=${ac41aTraceMatrixReady} ac41b_localAluReady=${ac41bLocalAluReady} ac41b_minSamples=${localAluThresholds.minSamples} ac41b_validJsonRateMin=${localAluThresholds.validJsonRateMin} ac41b_mutexViolationRateMax=${localAluThresholds.mutexViolationRateMax} ${localAluMetricsSegment} unlockReady=${unlockReady}`,
+    evidence: [
+      path.join(ROOT, 'src'),
+      tracePath || path.join(ROOT, 'benchmarks'),
+      LOCAL_ALU_LATEST_FILE,
+      path.join(ROOT, 'benchmarks', 'audits', 'local_alu'),
+    ],
     nextActions: unlockReady
       ? []
       : [
