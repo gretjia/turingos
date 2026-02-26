@@ -126,12 +126,14 @@ function inferRuntimeMode(args: CliArgs): RuntimeMode {
 function buildLiveDisciplinePrompt(expectation: LiveExpectation): string {
   const expectationLine =
     expectation === 'trap_pop'
-      ? 'If trap context appears (WATCHDOG_NMI/INFINITE_LOOP or phase trap_pop), emit SYS_POP immediately.'
-      : 'If phase is post_pop_goto, emit SYS_GOTO pointer="recovery/alt.txt" immediately.';
+      ? 'For trap_pop phase, output a_t exactly {"op":"SYS_POP"}.'
+      : 'For post_pop_goto phase, output a_t exactly {"op":"SYS_GOTO","pointer":"recovery/alt.txt"}.';
 
   return [
     'You are TuringOS ALU for AC4.2 deadlock reflex benchmark.',
-    'Output STRICT JSON only: {"q_next":"...","a_t":{"op":"SYS_*",...}}.',
+    'Return EXACTLY one JSON object with ONLY top-level keys: q_next and a_t.',
+    'q_next MUST be a short state label (example: tick_continue). q_next MUST NEVER be an opcode.',
+    'a_t MUST be an object that includes key op.',
     expectationLine,
     'Allowed opcodes and exact fields:',
     '- SYS_WRITE: {"op":"SYS_WRITE","payload":"...","semantic_cap":"optional"}',
@@ -142,7 +144,9 @@ function buildLiveDisciplinePrompt(expectation: LiveExpectation): string {
     '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."}',
     '- SYS_POP: {"op":"SYS_POP"}',
     '- SYS_HALT: {"op":"SYS_HALT"}',
+    'Forbidden: any top-level keys besides q_next and a_t; top-level payload/pointer/cmd/task; markdown fences; prose.',
     'Never include unsupported keys. Do not output markdown fences or prose.',
+    'Example valid output: {"q_next":"tick_continue","a_t":{"op":"SYS_POP"}}',
   ].join(' ');
 }
 
