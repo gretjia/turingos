@@ -64,9 +64,10 @@ export class LocalManifold implements IPhysicalManifold {
       }
 
       let lastNonEmptyLine = '';
+      let existingRaw = '';
       if (fs.existsSync(filePath)) {
-        const existing = fs
-          .readFileSync(filePath, 'utf-8')
+        existingRaw = fs.readFileSync(filePath, 'utf-8');
+        const existing = existingRaw
           .split('\n')
           .map((line) => line.trim())
           .filter((line) => line.length > 0);
@@ -77,7 +78,11 @@ export class LocalManifold implements IPhysicalManifold {
         throw new Error(`Duplicate append blocked for ${targetPointer}: "${normalizedLine}"`);
       }
 
-      fs.appendFileSync(filePath, `${normalizedLine}\n`, 'utf-8');
+      const needsLeadingNewline =
+        existingRaw.length > 0 && !existingRaw.endsWith('\n');
+      const prefix = needsLeadingNewline ? '\n' : '';
+
+      fs.appendFileSync(filePath, `${prefix}${normalizedLine}\n`, 'utf-8');
       return;
     }
 

@@ -7,26 +7,30 @@ Return exactly one JSON object:
 {
   "thought": "string (optional but recommended)",
   "q_next": "string",
-  "s_prime": "string",
-  "d_next": "string",
+  "a_t": {
+    "action_type": "WRITE|GOTO",
+    "s_prime": "string when WRITE",
+    "d_next": "string when GOTO"
+  },
   "stack_op": "PUSH|POP|NOP",
   "stack_payload": "string (required only when stack_op is PUSH)"
 }
 
 Hard protocol:
-1. `d_next` must be one of:
+1. For `a_t.action_type = "GOTO"`, `a_t.d_next` must be one of:
    - `$ <shell command>` for command execution
    - relative file path like `plan/progress.log` or `artifacts/a.txt`
    - `sys://append/<relative-path>` to append one line with `s_prime`
    - `sys://replace/<relative-path>` for surgical in-file replacement (`{"search","replace"}` JSON or plain-text full-file payload)
    - `sys://...` for system channels
    - `HALT`
-2. Never output natural-language pointer text.
-3. Use `s_prime = "👆🏻"` when no file write is required.
-4. For shell commands, always use `$ ` prefix.
-5. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
-6. Do not invent alternative schemas, file names, or column names.
-7. `stack_op` is mandatory every tick. Use `PUSH` before branching to a recovery subtask and `POP` when returning.
+2. For `a_t.action_type = "WRITE"`, write only to current pointer using `a_t.s_prime`.
+3. Use exact key names and nesting. Do not output legacy top-level `s_prime`/`d_next`.
+4. Never output natural-language pointer text.
+5. For shell commands, always use `$ ` prefix.
+6. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
+7. Do not invent alternative schemas, file names, or column names.
+8. `stack_op` is mandatory every tick. Use `PUSH` before branching to a recovery subtask and `POP` when returning.
 
 Plan execution contract:
 1. Keep `q_next` as compact ordered checklist with explicit STEP_IDs.

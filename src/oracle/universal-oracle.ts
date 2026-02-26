@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { IOracle, Slice, StackOp, State, Transition } from '../kernel/types.js';
+import { ActionOperator, IOracle, Slice, StackOp, State, Transition } from '../kernel/types.js';
 
 type OracleMode = 'openai' | 'kimi';
 
@@ -230,16 +230,17 @@ export class UniversalOracle implements IOracle {
     for (const candidate of candidates) {
       try {
         const parsed = JSON.parse(candidate);
-        if (this.isTransition(parsed)) {
-          const normalized = this.normalizeTransition(parsed);
-          if (normalized.stack_op === 'PUSH' && (!normalized.stack_payload || normalized.stack_payload.length === 0)) {
-            throw new Error('PUSH requires stack_payload');
-          }
-          if (!normalized.thought && extractedThought) {
-            normalized.thought = extractedThought;
-          }
-          return normalized;
+        const normalized = this.tryNormalizeTransition(parsed);
+        if (!normalized) {
+          continue;
         }
+        if (normalized.stack_op === 'PUSH' && (!normalized.stack_payload || normalized.stack_payload.length === 0)) {
+          throw new Error('PUSH requires stack_payload');
+        }
+        if (!normalized.thought && extractedThought) {
+          normalized.thought = extractedThought;
+        }
+        return normalized;
       } catch {
         // Try next candidate shape.
       }
@@ -267,6 +268,29 @@ export class UniversalOracle implements IOracle {
     return false;
   }
 
+  private isLegacyTransition(value: unknown): value is Record<string, unknown> {
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+
+    const asRecord = value as Record<string, unknown>;
+    if (typeof asRecord.q_next !== 'string') {
+      return false;
+    }
+
+    const hasSP = typeof asRecord.s_prime === 'string';
+    const hasDN = typeof asRecord.d_next === 'string';
+    if (!hasSP && !hasDN) {
+      return false;
+    }
+
+    if (asRecord.stack_op !== undefined && !this.normalizeStackOp(asRecord.stack_op)) {
+      return false;
+    }
+
+    return true;
+  }
+
   private extractThought(rawOutput: string): string | undefined {
     const thoughtMatch = rawOutput.match(/<thought>([\s\S]*?)<\/thought>/i);
     if (!thoughtMatch?.[1]) {
@@ -286,6 +310,47 @@ export class UniversalOracle implements IOracle {
     const normalized: Transition = {
       q_next: value.q_next,
       a_t: value.a_t,
+      stack_op: stackOp,
+    };
+
+    if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
+      normalized.thought = value.thought.trim();
+    }
+
+    if (typeof value.stack_payload === 'string' && value.stack_payload.trim().length > 0) {
+      normalized.stack_payload = value.stack_payload.trim();
+    }
+
+    return normalized;
+  }
+
+  private tryNormalizeTransition(value: unknown): Transition | null {
+    if (this.isTransition(value)) {
+      return this.normalizeTransition(value);
+    }
+    if (this.isLegacyTransition(value)) {
+      return this.normalizeLegacyTransition(value);
+    }
+    return null;
+  }
+
+  private normalizeLegacyTransition(value: Record<string, unknown>): Transition {
+    const stackOp = this.normalizeStackOp(value.stack_op) ?? 'NOP';
+    const sPrime = typeof value.s_prime === 'string' ? value.s_prime : '👆🏻';
+    const dNext = typeof value.d_next === 'string' ? value.d_next.trim() : '';
+
+    let action: ActionOperator;
+    if (dNext.length > 0) {
+      action = { action_type: 'GOTO', d_next: dNext };
+    } else if (sPrime.trim() !== '👆🏻') {
+      action = { action_type: 'WRITE', s_prime: sPrime };
+    } else {
+      throw new Error('Legacy transition missing actionable fields');
+    }
+
+    const normalized: Transition = {
+      q_next: value.q_next as string,
+      a_t: action,
       stack_op: stackOp,
     };
 

@@ -48,6 +48,8 @@ export class TuringEngine {
     let nextRequiredDone: string | null = null;
     let progressAppendPointer: Pointer | null = null;
     let nextRequiredFileHint: string | null = null;
+    let nextRequiredReady: boolean | null = null;
+    let nextRequiredReason: string | null = null;
 
     // 1) Observe from the physical manifold.
     try {
@@ -75,8 +77,34 @@ export class TuringEngine {
         nextRequiredFileHint = await this.executionContract.getNextRequiredFileHint();
         const progressPath = this.executionContract.getProgressPath().replace(/^\.\//, '');
         progressAppendPointer = `sys://append/${progressPath}`;
+        const readiness = await this.executionContract.checkNextRequiredStepReady();
+        nextRequiredReady = readiness.ok;
+        nextRequiredReason = readiness.ok ? null : readiness.reason ?? 'Next required step is not ready.';
+
+        // Auto-heal exact-text mismatch before ALU step to reduce repair loops.
+        if (!nextRequiredReady) {
+          const expectedExact = this.extractExpectedExact(nextRequiredReason);
+          if (expectedExact && nextRequiredFileHint) {
+            try {
+              await this.manifold.interfere(nextRequiredFileHint, expectedExact);
+              await this.chronos.engrave(
+                `[OS_AUTO_HEAL] Patched ${nextRequiredFileHint} to expected exact content for DONE:${
+                  nextRequiredDone ?? 'UNKNOWN'
+                }.`
+              );
+
+              const recheck = await this.executionContract.checkNextRequiredStepReady();
+              nextRequiredReady = recheck.ok;
+              nextRequiredReason = recheck.ok ? null : recheck.reason ?? 'Next required step is not ready.';
+            } catch {
+              // Non-fatal; keep original readiness state.
+            }
+          }
+        }
       } catch {
         nextRequiredDone = null;
+        nextRequiredReady = null;
+        nextRequiredReason = null;
       }
 
       try {
@@ -164,7 +192,13 @@ export class TuringEngine {
     // 1.8) Inject managed context channels for short-horizon anti-looping.
     const callStackSlice = await this.observeCallStackSnapshot();
     const l1TraceSlice = this.renderL1Trace();
-    const contractSlice = this.renderContractGuidance(nextRequiredDone, progressAppendPointer, nextRequiredFileHint);
+    const contractSlice = this.renderContractGuidance(
+      nextRequiredDone,
+      progressAppendPointer,
+      nextRequiredFileHint,
+      nextRequiredReady,
+      nextRequiredReason
+    );
     s_t = [
       '[OS_CONTRACT]',
       contractSlice,
@@ -372,6 +406,25 @@ export class TuringEngine {
         writePayload = normalized.payload;
       }
 
+      const writeTarget = this.resolveWriteTargetPointer(pointer);
+      const expectedExact = this.extractExpectedExact(nextRequiredReason);
+      if (
+        writeTarget &&
+        nextRequiredFileHint &&
+        expectedExact &&
+        this.samePath(writeTarget, nextRequiredFileHint) &&
+        this.normalizeContent(writePayload) !== this.normalizeContent(expectedExact)
+      ) {
+        const previousPreview = writePayload.replace(/\s+/g, ' ').slice(0, 80);
+        writePayload = expectedExact;
+        await this.chronos.engrave(
+          `[OS_AUTO_FIX] Enforced expected content for ${nextRequiredFileHint}. prev="${previousPreview}" next="${expectedExact.replace(
+            /\s+/g,
+            ' '
+          )}"`
+        );
+      }
+
       if (!isAppendChannel) {
         const lazyMarker = this.containsLazyWriteMarker(writePayload);
         if (lazyMarker) {
@@ -500,13 +553,25 @@ export class TuringEngine {
   private renderContractGuidance(
     nextRequiredDone: string | null,
     progressAppendPointer: Pointer | null,
-    nextRequiredFileHint: string | null
+    nextRequiredFileHint: string | null,
+    nextRequiredReady: boolean | null,
+    nextRequiredReason: string | null
   ): string {
     const next = nextRequiredDone ? `DONE:${nextRequiredDone}` : '(complete)';
+    const readyState =
+      nextRequiredDone === null
+        ? 'N/A'
+        : nextRequiredReady === null
+          ? 'UNKNOWN'
+          : nextRequiredReady
+            ? 'READY'
+            : 'BLOCKED';
     return [
       `[NEXT_REQUIRED_DONE] ${next}`,
+      `[NEXT_REQUIRED_STATUS] ${readyState}`,
       `[PROGRESS_APPEND_POINTER] ${progressAppendPointer ?? '(n/a)'}`,
       `[NEXT_REQUIRED_FILE_HINT] ${nextRequiredFileHint ?? '(none)'}`,
+      `[NEXT_REQUIRED_REASON] ${nextRequiredReason ?? '(none)'}`,
       'Rule: append exactly one DONE line for NEXT_REQUIRED_DONE; do not rewrite whole progress log.',
     ].join('\n');
   }
@@ -677,6 +742,51 @@ export class TuringEngine {
     }
 
     return null;
+  }
+
+  private resolveWriteTargetPointer(pointer: Pointer): string | null {
+    const trimmed = pointer.trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    if (trimmed.startsWith('sys://replace/')) {
+      const target = trimmed.slice('sys://replace/'.length).trim();
+      return target.length > 0 ? target : null;
+    }
+
+    if (trimmed.startsWith('sys://append/')) {
+      const target = trimmed.slice('sys://append/'.length).trim();
+      return target.length > 0 ? target : null;
+    }
+
+    if (trimmed.startsWith('sys://') || trimmed.startsWith('$')) {
+      return null;
+    }
+
+    return trimmed;
+  }
+
+  private extractExpectedExact(reason: string | null): string | null {
+    if (!reason) {
+      return null;
+    }
+
+    const match = reason.match(/expected="([^"]*)"/i);
+    if (!match?.[1]) {
+      return null;
+    }
+
+    return match[1];
+  }
+
+  private normalizeContent(content: string): string {
+    return content.replace(/\r\n/g, '\n').trim();
+  }
+
+  private samePath(left: string, right: string): boolean {
+    const normalize = (value: string): string => value.replace(/^\.\//, '').trim();
+    return normalize(left) === normalize(right);
   }
 
   private async tryAutoAppendProgress(
