@@ -10,6 +10,10 @@ TuringOS is a minimal long-horizon agent kernel based on deterministic transitio
 
 This project is built from lessons learned in `gretjia/turingclaw`, with stricter modular boundaries and trap-oriented execution.
 
+## Topology
+
+- [TuringOS: AGI 时代的冯·诺依曼底层拓扑与生态蓝图 (v3.2)](./topology.md)
+
 ## Core modules
 
 - `src/kernel/engine.ts`: tick loop, trap handling, watchdog
