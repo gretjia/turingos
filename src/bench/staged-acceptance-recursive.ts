@@ -1,0 +1,1005 @@
+import { exec, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs';
+import fsp from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { FileChronos } from '../chronos/file-chronos.js';
+import { TuringEngine } from '../kernel/engine.js';
+import { IOracle, Slice, State, Transition } from '../kernel/types.js';
+import { LocalManifold } from '../manifold/local-manifold.js';
+import { UniversalOracle } from '../oracle/universal-oracle.js';
+
+type AcStatus = 'PASS' | 'FAIL' | 'BLOCKED';
+type StageId = 'S1' | 'S2' | 'S3' | 'S4' | 'VOYAGER';
+
+interface AcResult {
+  stage: StageId;
+  acId: string;
+  title: string;
+  status: AcStatus;
+  requirement: string;
+  details: string;
+  evidence: string[];
+  nextActions: string[];
+}
+
+interface StageSummary {
+  stage: StageId;
+  total: number;
+  pass: number;
+  fail: number;
+  blocked: number;
+  status: 'PASS' | 'FAIL' | 'PARTIAL';
+}
+
+interface CommandResult {
+  code: number | null;
+  stdout: string;
+  stderr: string;
+}
+
+interface SpawnResult extends CommandResult {
+  signal: NodeJS.Signals | null;
+}
+
+const ROOT = path.resolve(process.cwd());
+const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'recursive');
+
+function timestamp(): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mi = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  return `${yyyy}${mm}${dd}_${hh}${mi}${ss}`;
+}
+
+function mkWorkspace(prefix: string): string {
+  return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+}
+
+function runCommand(command: string, cwd = ROOT, timeoutMs = 120000): Promise<CommandResult> {
+  return new Promise((resolve) => {
+    exec(
+      command,
+      {
+        cwd,
+        timeout: timeoutMs,
+        maxBuffer: 1024 * 1024 * 8,
+      },
+      (error, stdout, stderr) => {
+        if (!error) {
+          resolve({ code: 0, stdout, stderr });
+          return;
+        }
+        const anyErr = error as Error & { code?: number | null };
+        resolve({
+          code: anyErr.code ?? 1,
+          stdout,
+          stderr: `${stderr}\n${error.message}`,
+        });
+      }
+    );
+  });
+}
+
+function spawnNpm(
+  args: string[],
+  cwd = ROOT,
+  env: NodeJS.ProcessEnv = process.env
+): { child: ReturnType<typeof spawn>; done: Promise<SpawnResult> } {
+  const child = spawn('npm', args, { cwd, env, detached: true });
+  let stdout = '';
+  let stderr = '';
+
+  child.stdout.on('data', (chunk: Buffer) => {
+    stdout += chunk.toString('utf-8');
+  });
+  child.stderr.on('data', (chunk: Buffer) => {
+    stderr += chunk.toString('utf-8');
+  });
+
+  const done = new Promise<SpawnResult>((resolve, reject) => {
+    child.on('error', reject);
+    child.on('close', (code, signal) => {
+      resolve({
+        code,
+        signal,
+        stdout,
+        stderr,
+      });
+    });
+  });
+
+  return { child, done };
+}
+
+async function readTrimmed(filePath: string): Promise<string> {
+  try {
+    return (await fsp.readFile(filePath, 'utf-8')).trim();
+  } catch {
+    return '';
+  }
+}
+
+async function waitForRegisterQ(workspace: string, expectedQ: string, timeoutMs: number): Promise<boolean> {
+  const qPath = path.join(workspace, '.reg_q');
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const q = await readTrimmed(qPath);
+    if (q === expectedQ) {
+      return true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return false;
+}
+
+async function collectFiles(root: string, current = root, out: string[] = []): Promise<string[]> {
+  const entries = await fsp.readdir(current, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(current, entry.name);
+    if (entry.isDirectory()) {
+      await collectFiles(root, full, out);
+      continue;
+    }
+    if (!entry.isFile()) {
+      continue;
+    }
+
+    const relative = path.relative(root, full).replace(/\\/g, '/');
+    if (
+      relative === '.journal.log' ||
+      relative === '.journal.merkle.jsonl' ||
+      relative.startsWith('.reg_')
+    ) {
+      continue;
+    }
+    out.push(relative);
+  }
+  return out;
+}
+
+async function computeWorkspaceTreeHash(workspace: string): Promise<string> {
+  const relFiles = (await collectFiles(workspace)).sort((a, b) => a.localeCompare(b));
+  const chunks: string[] = [];
+  for (const rel of relFiles) {
+    const full = path.join(workspace, rel);
+    const raw = await fsp.readFile(full);
+    const digest = createHash('sha256').update(raw).digest('hex');
+    chunks.push(`${rel}\t${digest}`);
+  }
+  return createHash('sha256').update(chunks.join('\n')).digest('hex');
+}
+
+class DualActionOracle implements IOracle {
+  public async collapse(_discipline: string, q: State, _s: Slice): Promise<Transition> {
+    return {
+      q_next: `${q}\nDUAL_ACTION_SENT`,
+      a_t: {
+        op: 'SYS_WRITE',
+        payload: 'X',
+        // Intentional illegal mixed intent for AC1.2.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...( { pointer: 'illegal-next-pointer.txt' } as any ),
+      },
+    };
+  }
+}
+
+class ReplayTupleOracle implements IOracle {
+  private step = 0;
+
+  public async collapse(_discipline: string, q: State, _s: Slice): Promise<Transition> {
+    this.step += 1;
+    if (this.step === 1) {
+      return { q_next: `${q}\nW_A`, a_t: { op: 'SYS_WRITE', payload: 'A' } };
+    }
+    if (this.step === 2) {
+      return { q_next: `${q}\nTO_B`, a_t: { op: 'SYS_GOTO', pointer: 'artifacts/b.txt' } };
+    }
+    if (this.step === 3) {
+      return { q_next: `${q}\nW_B`, a_t: { op: 'SYS_WRITE', payload: 'B' } };
+    }
+    if (this.step === 4) {
+      return { q_next: `${q}\nBACK_A`, a_t: { op: 'SYS_GOTO', pointer: 'artifacts/a.txt' } };
+    }
+
+    return { q_next: q, a_t: { op: 'SYS_GOTO', pointer: 'artifacts/a.txt' } };
+  }
+}
+
+class FrameCaptureOracle implements IOracle {
+  public calls = 0;
+  public lastFrame: Slice = '';
+
+  public async collapse(_discipline: string, q: State, s: Slice): Promise<Transition> {
+    this.calls += 1;
+    this.lastFrame = s;
+    return {
+      q_next: `${q}\nFRAME_CAPTURED`,
+      a_t: { op: 'SYS_GOTO', pointer: 'logs/huge.log' },
+    };
+  }
+}
+
+function stageStatus(results: AcResult[]): StageSummary[] {
+  const stages: StageId[] = ['S1', 'S2', 'S3', 'S4', 'VOYAGER'];
+  return stages.map((stage) => {
+    const rows = results.filter((row) => row.stage === stage);
+    const pass = rows.filter((row) => row.status === 'PASS').length;
+    const fail = rows.filter((row) => row.status === 'FAIL').length;
+    const blocked = rows.filter((row) => row.status === 'BLOCKED').length;
+    let status: StageSummary['status'] = 'PASS';
+    if (fail > 0) {
+      status = 'FAIL';
+    } else if (blocked > 0) {
+      status = 'PARTIAL';
+    }
+    return {
+      stage,
+      total: rows.length,
+      pass,
+      fail,
+      blocked,
+      status,
+    };
+  });
+}
+
+function recursiveActionsForStage(stageRows: AcResult[]): string[] {
+  const actions = new Set<string>();
+  for (const row of stageRows) {
+    for (const action of row.nextActions) {
+      actions.add(action);
+    }
+  }
+  return [...actions];
+}
+
+function toMarkdown(results: AcResult[], summaries: StageSummary[], stamp: string): string {
+  const lines: string[] = [
+    '# TuringOS Staged Acceptance + Recursive Audit',
+    '',
+    `- timestamp: ${stamp}`,
+    `- repo: ${ROOT}`,
+    '',
+    '## Stage Summary',
+    '',
+    '| Stage | Total | Pass | Fail | Blocked | StageStatus |',
+    '|---|---:|---:|---:|---:|---|',
+    ...summaries.map((s) => `| ${s.stage} | ${s.total} | ${s.pass} | ${s.fail} | ${s.blocked} | ${s.status} |`),
+    '',
+    '## AC Results',
+    '',
+    '| Stage | AC | Status | Title |',
+    '|---|---|---|---|',
+    ...results.map((r) => `| ${r.stage} | ${r.acId} | ${r.status} | ${r.title} |`),
+    '',
+  ];
+
+  const stageOrder: StageId[] = ['S1', 'S2', 'S3', 'S4', 'VOYAGER'];
+  for (const stage of stageOrder) {
+    const rows = results.filter((r) => r.stage === stage);
+    if (rows.length === 0) continue;
+    lines.push(`## ${stage} Recursive Audit`);
+    lines.push('');
+    for (const row of rows) {
+      lines.push(`### ${row.acId} ${row.title} [${row.status}]`);
+      lines.push(`- requirement: ${row.requirement}`);
+      lines.push(`- details: ${row.details}`);
+      lines.push(`- evidence: ${row.evidence.length > 0 ? row.evidence.join(' ; ') : '(none)'}`);
+      lines.push(`- next_actions: ${row.nextActions.length > 0 ? row.nextActions.join(' ; ') : '(none)'}`);
+      lines.push('');
+    }
+    const stageActions = recursiveActionsForStage(rows);
+    lines.push(`### ${stage} Next Recursive Loop`);
+    if (stageActions.length === 0) {
+      lines.push('- no pending actions');
+    } else {
+      for (const action of stageActions) {
+        lines.push(`- ${action}`);
+      }
+    }
+    lines.push('');
+  }
+
+  lines.push('## Notes');
+  lines.push('- AC marked BLOCKED means the requirement is defined but current repo lacks required infrastructure/telemetry/runtime scale.');
+  lines.push('- AC marked FAIL means requirement is testable now and did not meet pass condition.');
+  lines.push('');
+  return `${lines.join('\n')}\n`;
+}
+
+async function ac11(): Promise<AcResult> {
+  const ws = mkWorkspace('turingos-ac11-');
+  const manifold = new LocalManifold(ws);
+  const chronos = new FileChronos(path.join(ws, '.journal.log'));
+  await manifold.interfere('MAIN_TAPE.md', 'AC11');
+  const oracle = new UniversalOracle('openai', { apiKey: 'test-key', model: 'test-model' });
+  let requestCount = 0;
+  (oracle as unknown as { openai: unknown }).openai = {
+    chat: {
+      completions: {
+        create: async (payload: unknown) => {
+          requestCount += 1;
+          if (requestCount === 1) {
+            return {
+              choices: [
+                {
+                  message: {
+                    content: 'not-a-json-payload',
+                  },
+                },
+              ],
+            };
+          }
+
+          const record = payload as { messages?: Array<{ role?: string; content?: string }> };
+          const userFrame = record.messages?.find((item) => item.role === 'user')?.content ?? '';
+          const sawCpuFaultTrap = userFrame.includes('[OS_TRAP: CPU_FAULT]');
+          return {
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    q_next: sawCpuFaultTrap ? 'q_recovered' : 'q_unrecovered',
+                    a_t: { op: 'SYS_GOTO', pointer: 'MAIN_TAPE.md' },
+                  }),
+                },
+              },
+            ],
+          };
+        },
+      },
+    },
+  };
+  const engine = new TuringEngine(manifold, oracle, chronos, 'ac11');
+
+  const [q1, d1] = await engine.tick('q0', 'MAIN_TAPE.md');
+  const [q2, d2] = await engine.tick(q1, d1);
+  const trapped = d1.includes('sys://trap/cpu_fault') && q1.includes('[OS_TRAP: CPU_FAULT]');
+  const recovered = d2 === 'MAIN_TAPE.md' && q2.includes('q_recovered') && requestCount >= 2;
+  const pass = trapped && recovered;
+  return {
+    stage: 'S1',
+    acId: 'AC1.1',
+    title: 'No-Yapping Protocol',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '非法输出必须触发 INVALID_OPCODE trap，且在最多2个tick内恢复到合法系统调用。',
+    details: pass
+      ? 'Engine trapped invalid opcode and recovered via runtime trap-aware oracle response in second tick.'
+      : `Unexpected flow. requests=${requestCount} q1=${q1.slice(0, 120)} d1=${d1} q2=${q2.slice(0, 120)} d2=${d2}`,
+    evidence: [ws, path.join(ws, '.journal.log')],
+    nextActions: pass
+      ? []
+      : ['收紧 oracle 解析异常路径，确保 INVALID_OPCODE 固定映射到 sys://trap/cpu_fault 并完成二次收敛。'],
+  };
+}
+
+async function ac12(): Promise<AcResult> {
+  const ws = mkWorkspace('turingos-ac12-');
+  const manifold = new LocalManifold(ws);
+  const chronos = new FileChronos(path.join(ws, '.journal.log'));
+  await manifold.interfere('MAIN_TAPE.md', 'AC12');
+  const engine = new TuringEngine(manifold, new DualActionOracle(), chronos, 'ac12');
+
+  const [q1, d1] = await engine.tick('q0', 'MAIN_TAPE.md');
+  const wrote = await manifold.observe('MAIN_TAPE.md');
+  const trapped = d1.includes('sys://trap/cpu_fault') || q1.includes('MUTEX');
+  const parserOracle = new UniversalOracle('openai', { apiKey: 'test-key', model: 'test-model' });
+  let parserRejectedMixedIntent = false;
+  try {
+    (parserOracle as unknown as { parseTransition: (raw: string) => Transition }).parseTransition(
+      JSON.stringify({
+        q_next: 'q_bad',
+        a_t: { op: 'SYS_WRITE', payload: 'X', pointer: 'illegal-next-pointer.txt' },
+      })
+    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    parserRejectedMixedIntent = message.includes('MUTEX_VIOLATION') || message.includes('INVALID_OPCODE');
+  }
+  const pass = trapped && parserRejectedMixedIntent;
+  return {
+    stage: 'S1',
+    acId: 'AC1.2',
+    title: 'Mutex Test',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '当输出同时包含写入与跳转意图时，内核应拒绝执行并抛出互斥违规中断。',
+    details: pass
+      ? 'Engine rejected mixed action intent and UniversalOracle parser rejected mixed-intent syscall payload.'
+      : `Runtime trapped=${trapped}; parserRejectedMixedIntent=${parserRejectedMixedIntent}; d1=${d1}; MAIN_TAPE preview=${wrote.slice(0, 80)}`,
+    evidence: [ws, path.join(ws, '.journal.log')],
+    nextActions: pass
+      ? []
+      : [
+          '补充 UniversalOracle 解析层混合意图拒绝测试，验证 MUTEX_VIOLATION 错误路径。',
+          '补充端到端测试覆盖双动作输出拒绝路径（解析层 + 内核层双防线）。',
+        ],
+  };
+}
+
+async function ac13(): Promise<AcResult> {
+  const filePath = path.join(ROOT, 'src', 'oracle', 'universal-oracle.ts');
+  const openAIOracle = new UniversalOracle('openai', { apiKey: 'test-key', model: 'test-model' });
+  let openAIRequestPayload: { messages?: unknown; [key: string]: unknown } = {};
+  (openAIOracle as unknown as { openai: unknown }).openai = {
+    chat: {
+      completions: {
+        create: async (payload: unknown) => {
+          openAIRequestPayload = (payload as { messages?: unknown; [key: string]: unknown }) ?? {};
+          return {
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    q_next: 'q_openai_next',
+                    a_t: { op: 'SYS_GOTO', pointer: 'NEXT_OPENAI.md' },
+                  }),
+                },
+              },
+            ],
+          };
+        },
+      },
+    },
+  };
+
+  let kimiRequestPayload: { messages?: unknown; system?: unknown; [key: string]: unknown } = {};
+  const originalFetch = globalThis.fetch;
+  const mockedFetch: typeof fetch = async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    if (typeof init?.body === 'string') {
+      try {
+        kimiRequestPayload = JSON.parse(init.body) as {
+          messages?: unknown;
+          system?: unknown;
+          [key: string]: unknown;
+        };
+      } catch {
+        kimiRequestPayload = {};
+      }
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                q_next: 'q_kimi_next',
+                a_t: { op: 'SYS_GOTO', pointer: 'NEXT_KIMI.md' },
+              }),
+            },
+          ],
+        }),
+    } as Response;
+  };
+
+  try {
+    (globalThis as { fetch: typeof fetch }).fetch = mockedFetch;
+    await openAIOracle.collapse('ROM_OPENAI', 'q_openai', 's_openai');
+    const kimiOracle = new UniversalOracle('kimi', {
+      apiKey: 'test-key',
+      model: 'test-model',
+      baseURL: 'https://api.kimi.com/coding',
+    });
+    await kimiOracle.collapse('ROM_KIMI', 'q_kimi', 's_kimi');
+  } finally {
+    (globalThis as { fetch: typeof fetch }).fetch = originalFetch;
+  }
+
+  const openAIMessages = Array.isArray(openAIRequestPayload?.messages)
+    ? (openAIRequestPayload.messages as Array<Record<string, unknown>>)
+    : [];
+  const openAISystemRole = openAIMessages[0]?.role === 'system';
+  const openAIUserRole = openAIMessages[1]?.role === 'user';
+  const openAIFrameOk = openAIMessages.length === 2 && openAISystemRole && openAIUserRole;
+
+  const kimiMessages = Array.isArray(kimiRequestPayload?.messages)
+    ? (kimiRequestPayload.messages as Array<Record<string, unknown>>)
+    : [];
+  const kimiSystem = typeof kimiRequestPayload?.system === 'string' ? kimiRequestPayload.system : '';
+  const kimiRoleOk = kimiMessages.length === 1 && kimiMessages[0]?.role === 'user';
+  const kimiFrameOk = kimiSystem.trim().length > 0 && kimiRoleOk;
+
+  const pass = openAIFrameOk && kimiFrameOk;
+
+  return {
+    stage: 'S1',
+    acId: 'AC1.3',
+    title: 'Stateless Payload',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '发送给模型的请求帧必须只包含 ROM + 当前帧，不得拼接历史对话。',
+    details: pass
+      ? 'Runtime payload capture confirmed OpenAI(2-frame) and Kimi(system + single-user-frame) stateless requests.'
+      : `Runtime payload assertion failed. openAIFrameOk=${openAIFrameOk} kimiFrameOk=${kimiFrameOk}`,
+    evidence: [filePath],
+    nextActions: pass
+      ? []
+      : [
+          '增加 provider 请求层拦截断言，确保每次请求不携带历史消息。',
+          '修复 OpenAI/Kimi 请求构造，保持仅 ROM + 当前 tick 输入帧。',
+        ],
+  };
+}
+
+async function ac21(): Promise<AcResult> {
+  const ws = mkWorkspace('turingos-ac21-');
+  const manifold = new LocalManifold(ws);
+  for (let i = 0; i < 200; i += 1) {
+    await manifold.interfere('sys://callstack', `PUSH: AC21_STACK_${i}_${'X'.repeat(180)}`);
+  }
+  const huge = Array.from({ length: 100000 }, (_, i) => `ERR_${i}`).join('\n');
+  await manifold.interfere('logs/huge.log', huge);
+  const chronos = new FileChronos(path.join(ws, '.journal.log'));
+  const oracle = new FrameCaptureOracle();
+  const engine = new TuringEngine(manifold, oracle, chronos, 'ac21');
+  await engine.tick('q_ac21', 'logs/huge.log');
+  const stackSnapshot = await manifold.observe('sys://callstack');
+  const stackDepth = Number.parseInt(stackSnapshot.match(/\[CALL_STACK_DEPTH\]\s+(\d+)/)?.[1] ?? '0', 10);
+  const frame = oracle.lastFrame;
+  const journal = await fsp.readFile(path.join(ws, '.journal.log'), 'utf-8').catch(() => '');
+  const observedSourceSeen = frame.includes('Source=file:logs/huge.log');
+  const hardwallVisible = frame.includes('[OS_FRAME_HARD_LIMIT]') || frame.includes('[OS_SECTION_CLIPPED]');
+  const pass =
+    oracle.calls === 1 &&
+    frame.length <= 4096 &&
+    observedSourceSeen &&
+    hardwallVisible &&
+    stackDepth === 64 &&
+    journal.includes('[FRAME_HARD_LIMIT]');
+  return {
+    stage: 'S2',
+    acId: 'AC2.1',
+    title: 'OOM Shield',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '超长观测必须分页，焦点页输出长度受硬墙约束（<=4096 chars），不能发生上下文溢出。',
+    details: pass
+      ? `Engine frame hardwall ok. frame_len=${frame.length} stack_depth=${stackDepth} observed_source=file:logs/huge.log oracle_calls=${oracle.calls}`
+      : `Engine hardwall failed. frame_len=${frame.length} stack_depth=${stackDepth} oracle_calls=${oracle.calls} observed_source=${observedSourceSeen} hardwall_marker=${hardwallVisible}`,
+    evidence: [ws, path.join(ROOT, 'src', 'kernel', 'engine.ts'), path.join(ROOT, 'src', 'manifold', 'local-manifold.ts')],
+    nextActions: pass ? [] : ['在 engine tick 前增加最终帧长度断言，并将超限写入 chronos 审计日志。'],
+  };
+}
+
+async function ac22(): Promise<AcResult> {
+  const ws = mkWorkspace('turingos-ac22-');
+  const manifold = new LocalManifold(ws);
+  const huge = Array.from({ length: 5000 }, (_, i) => `LINE_${i.toString().padStart(4, '0')}`).join('\n');
+  await manifold.interfere('logs/nav.log', huge);
+  const p1 = await manifold.observe('logs/nav.log');
+  const token = p1.match(/Token=([a-f0-9]+)/)?.[1] ?? '';
+  const p2 = token ? await manifold.observe(`sys://page/${token}?p=2`) : '';
+  const pass = token.length > 0 && p2.includes('FocusPage=2');
+  return {
+    stage: 'S2',
+    acId: 'AC2.2',
+    title: 'Semantic Navigation',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '系统应支持翻页导航，模型可通过页面句柄定位下一页而不丢失执行状态。',
+    details: pass ? `Token=${token}` : 'Failed to obtain token or navigate to page 2.',
+    evidence: [ws],
+    nextActions: pass ? [] : ['修复 page token 生成/解析链路，保障 SYS_GOTO 翻页可达。'],
+  };
+}
+
+async function ac23(): Promise<AcResult> {
+  const ws = mkWorkspace('turingos-ac23-');
+  const telemetryPath = path.join(ws, '.token_telemetry.jsonl');
+  const previousTelemetryPath = process.env.TURINGOS_TOKEN_TELEMETRY_PATH;
+  process.env.TURINGOS_TOKEN_TELEMETRY_PATH = telemetryPath;
+
+  const manifold = new LocalManifold(ws);
+  await manifold.interfere('MAIN_TAPE.md', 'AC23 entropy line dynamic paging benchmark');
+  const huge = Array.from({ length: 20000 }, (_, i) => `ROW_${i.toString().padStart(5, '0')}`).join('\n');
+  await manifold.interfere('logs/huge.log', huge);
+  const chronos = new FileChronos(path.join(ws, '.journal.log'));
+  const oracle = new UniversalOracle('openai', { apiKey: 'test-key', model: 'test-model' });
+  let observedRequestCount = 0;
+  let pageNavigationCount = 0;
+  let fallbackReads = 0;
+  (oracle as unknown as { openai: unknown }).openai = {
+    chat: {
+      completions: {
+        create: async (payload: unknown) => {
+          observedRequestCount += 1;
+          const record = payload as { messages?: Array<{ role?: string; content?: string }> };
+          const userFrame = record.messages?.find((item) => item.role === 'user')?.content ?? '';
+          const token = userFrame.match(/Token=([a-f0-9]+)/)?.[1] ?? '';
+          const phase = (observedRequestCount - 1) % 4;
+          let pointer = 'MAIN_TAPE.md';
+          if (phase === 0) {
+            pointer = 'logs/huge.log';
+          } else if (phase === 1) {
+            pointer = token ? `sys://page/${token}?p=2` : 'logs/huge.log';
+          } else if (phase === 2) {
+            pointer = token ? `sys://page/${token}?p=3` : 'logs/huge.log';
+          } else {
+            pointer = 'MAIN_TAPE.md';
+          }
+          if (pointer.startsWith('sys://page/')) {
+            pageNavigationCount += 1;
+          }
+          if (pointer === 'logs/huge.log' && phase !== 0) {
+            fallbackReads += 1;
+          }
+
+          return {
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    q_next: `q_entropy_${phase}`,
+                    a_t: { op: 'SYS_GOTO', pointer },
+                  }),
+                },
+              },
+            ],
+          };
+        },
+      },
+    },
+  };
+  const engine = new TuringEngine(manifold, oracle, chronos, 'ac23');
+
+  const ticks = 500;
+  try {
+    let q = 'q_entropy';
+    let d = 'MAIN_TAPE.md';
+    for (let i = 0; i < ticks; i += 1) {
+      [q, d] = await engine.tick(q, d);
+    }
+  } finally {
+    if (previousTelemetryPath === undefined) {
+      delete process.env.TURINGOS_TOKEN_TELEMETRY_PATH;
+    } else {
+      process.env.TURINGOS_TOKEN_TELEMETRY_PATH = previousTelemetryPath;
+    }
+  }
+
+  const raw = await fsp.readFile(telemetryPath, 'utf-8').catch(() => '');
+  const totals = raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      try {
+        const row = JSON.parse(line) as Record<string, unknown>;
+        const v = row.total_tokens_est ?? row.total_tokens;
+        return typeof v === 'number' && Number.isFinite(v) ? v : null;
+      } catch {
+        return null;
+      }
+    })
+    .filter((value): value is number => value !== null);
+
+  const samples = totals.length;
+  const mean = samples > 0 ? totals.reduce((sum, value) => sum + value, 0) / samples : 0;
+  const variance =
+    samples > 0 ? totals.reduce((sum, value) => sum + (value - mean) ** 2, 0) / samples : Number.POSITIVE_INFINITY;
+  const cv = mean === 0 ? Number.POSITIVE_INFINITY : Math.sqrt(variance) / mean;
+  const headWindow = totals.slice(0, Math.min(100, totals.length));
+  const tailWindow = totals.slice(Math.max(0, totals.length - 100));
+  const headMean =
+    headWindow.length > 0 ? headWindow.reduce((sum, value) => sum + value, 0) / headWindow.length : 0;
+  const tailMean =
+    tailWindow.length > 0 ? tailWindow.reduce((sum, value) => sum + value, 0) / tailWindow.length : 0;
+  const driftRatio = headMean === 0 ? Number.POSITIVE_INFINITY : Math.abs(tailMean - headMean) / headMean;
+  let slope = Number.POSITIVE_INFINITY;
+  if (samples > 1) {
+    let sumX = 0;
+    let sumY = 0;
+    let sumXY = 0;
+    let sumX2 = 0;
+    for (let i = 0; i < samples; i += 1) {
+      const x = i;
+      const y = totals[i];
+      sumX += x;
+      sumY += y;
+      sumXY += x * y;
+      sumX2 += x * x;
+    }
+    const denominator = samples * sumX2 - sumX * sumX;
+    if (denominator !== 0) {
+      slope = (samples * sumXY - sumX * sumY) / denominator;
+    }
+  }
+  const pass =
+    samples === ticks &&
+    observedRequestCount === ticks &&
+    pageNavigationCount >= Math.floor(ticks / 4) &&
+    fallbackReads <= Math.floor(ticks * 0.1) &&
+    Math.abs(slope) <= 0.2 &&
+    driftRatio <= 0.15;
+
+  return {
+    stage: 'S2',
+    acId: 'AC2.3',
+    title: 'O(1) Entropy Line',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '500 tick 长程任务中，API token 消耗折线需保持稳定水平线（O(1)）。',
+    details: pass
+      ? `Engine-driven telemetry on dynamic paging workload passed. samples=${samples} requests=${observedRequestCount} pageNavigations=${pageNavigationCount} fallbackReads=${fallbackReads} tokenCV=${cv.toFixed(4)} slope=${Number.isFinite(slope) ? slope.toFixed(4) : 'inf'} drift=${Number.isFinite(driftRatio) ? driftRatio.toFixed(4) : 'inf'}`
+      : `Telemetry trend check failed. samples=${samples} expected=500 requests=${observedRequestCount} pageNavigations=${pageNavigationCount} fallbackReads=${fallbackReads} cv=${
+          Number.isFinite(cv) ? cv.toFixed(4) : 'inf'
+        } slope=${
+          Number.isFinite(slope) ? slope.toFixed(4) : 'inf'
+        } drift=${Number.isFinite(driftRatio) ? driftRatio.toFixed(4) : 'inf'
+        }`,
+    evidence: [
+      telemetryPath,
+      path.join(ws, '.journal.log'),
+      path.join(ROOT, 'src', 'oracle', 'universal-oracle.ts'),
+      path.join(ROOT, 'src', 'bench', 'os-longrun.ts'),
+    ],
+    nextActions: pass
+      ? ['将 telemetry 统计接入 os-longrun 报告与 CI 基线门禁。']
+      : [
+          '检查 telemetry 写入链路，确保每 tick 固定写入一条 token 样本。',
+          '扩展 os-longrun 的 500 tick 长跑并输出 token CV 折线。',
+        ],
+  };
+}
+
+async function ac31(): Promise<AcResult> {
+  const ws = mkWorkspace('turingos-ac31-');
+  const workerScriptPath = path.join(ROOT, 'src', 'bench', 'ac31-kill9-worker.ts');
+  const firstArgs = [
+    'run',
+    'bench:ac31-worker',
+    '--',
+    '--workspace',
+    ws,
+    '--max-ticks',
+    '30',
+    '--tick-delay-ms',
+    '800',
+  ];
+  const firstRun = spawnNpm(firstArgs);
+  const reachedCheckpoint = await waitForRegisterQ(ws, 'q1', 15000);
+  if (firstRun.child.pid && !firstRun.child.killed) {
+    try {
+      process.kill(-firstRun.child.pid, 'SIGKILL');
+    } catch {
+      firstRun.child.kill('SIGKILL');
+    }
+  }
+  const killedResult = await firstRun.done;
+
+  const qAfterKill = await readTrimmed(path.join(ws, '.reg_q'));
+  const dAfterKill = await readTrimmed(path.join(ws, '.reg_d'));
+
+  const secondArgs = [
+    'run',
+    'bench:ac31-worker',
+    '--',
+    '--workspace',
+    ws,
+    '--max-ticks',
+    '30',
+    '--tick-delay-ms',
+    '20',
+  ];
+  const secondRun = spawnNpm(secondArgs);
+  const resumedResult = await secondRun.done;
+
+  const qFinal = await readTrimmed(path.join(ws, '.reg_q'));
+  const dFinal = await readTrimmed(path.join(ws, '.reg_d'));
+  const resumeFile = await readTrimmed(path.join(ws, 'artifacts', 'resume.txt'));
+  const ticksLog = await readTrimmed(path.join(ws, '.ac31_worker_ticks.log'));
+
+  const wasKilled = killedResult.signal === 'SIGKILL';
+  const resumedFromQ1 = qAfterKill === 'q1' && resumedResult.stdout.includes('tick=1 q=q2');
+  const halted = qFinal === 'HALT' || dFinal === 'HALT';
+  const pass = reachedCheckpoint && wasKilled && resumedFromQ1 && resumedResult.code === 0 && halted && resumeFile === 'resumed-ok';
+  return {
+    stage: 'S3',
+    acId: 'AC3.1',
+    title: 'Lazarus Test',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '进程被 kill -9 后，重启必须从持久化寄存器继续推进下一步，而不是重置到初始状态。',
+    details: pass
+      ? 'Process-level kill -9 + restart continuation succeeded from persisted registers.'
+      : `Kill/restart mismatch. reachedCheckpoint=${reachedCheckpoint} killSignal=${killedResult.signal} qAfterKill=${qAfterKill} dAfterKill=${dAfterKill} resumedExit=${resumedResult.code} qFinal=${qFinal} dFinal=${dFinal} resumeFile=${resumeFile} ticksLogTail=${ticksLog.slice(-200)}`,
+    evidence: [
+      workerScriptPath,
+      ws,
+      path.join(ws, '.reg_q'),
+      path.join(ws, '.reg_d'),
+      path.join(ws, '.journal.log'),
+      path.join(ws, '.ac31_worker_ticks.log'),
+      path.join(ws, 'artifacts', 'resume.txt'),
+    ],
+    nextActions: pass
+      ? ['将该 kill -9 验收接入 CI，防止续跑能力回归。']
+      : [
+          '检查 worker 重启时寄存器读取顺序，确认未被 bootstrap 回写覆盖。',
+          '检查 kill -9 时机，确保第一阶段状态已持久化再杀进程。',
+        ],
+  };
+}
+
+async function ac32(): Promise<AcResult> {
+  const replayRunnerPath = path.join(ROOT, 'src', 'bench', 'replay-runner.ts');
+  if (!fs.existsSync(replayRunnerPath)) {
+    return {
+      stage: 'S3',
+      acId: 'AC3.2',
+      title: 'Bit-for-bit Replay',
+      status: 'FAIL',
+      requirement:
+        '应支持离线重放 trace.jsonl，在断网条件下重建最终状态并校验哈希一致性。',
+      details: 'No dedicated replay-runner implementation found in repo.',
+      evidence: [path.join(ROOT, 'src', 'bench')],
+      nextActions: [
+        '新增 replay-runner：读取 REPLAY_TUPLE/trace，离线应用动作并输出最终树哈希。',
+        '新增断网 CI 用例验证 bit-for-bit 一致性。',
+      ],
+    };
+  }
+
+  const tempRoot = mkWorkspace('turingos-ac32-');
+  const sourceWorkspace = path.join(tempRoot, 'source');
+  const tracePath = path.join(sourceWorkspace, '.journal.log');
+  const run1Workspace = path.join(tempRoot, 'run1');
+  const run2Workspace = path.join(tempRoot, 'run2');
+  await fsp.mkdir(sourceWorkspace, { recursive: true });
+  const sourceManifold = new LocalManifold(sourceWorkspace);
+  const sourceChronos = new FileChronos(path.join(sourceWorkspace, '.journal.log'));
+  const sourceEngine = new TuringEngine(sourceManifold, new ReplayTupleOracle(), sourceChronos, 'ac32');
+  let sourceQ = 'q0';
+  let sourceD = 'artifacts/a.txt';
+  for (let i = 0; i < 4; i += 1) {
+    [sourceQ, sourceD] = await sourceEngine.tick(sourceQ, sourceD);
+  }
+  const sourceHash = await computeWorkspaceTreeHash(sourceWorkspace);
+
+  const cmd1 = `npm run bench:replay-runner -- --trace "${tracePath}" --workspace "${run1Workspace}"`;
+  const cmd2 = `npm run bench:replay-runner -- --trace "${tracePath}" --workspace "${run2Workspace}"`;
+  const r1 = await runCommand(cmd1);
+  const r2 = await runCommand(cmd2);
+  const hash1 = r1.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
+  const hash2 = r2.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
+  const pass =
+    r1.code === 0 &&
+    r2.code === 0 &&
+    hash1.length > 0 &&
+    hash1 === hash2 &&
+    hash1 === sourceHash;
+
+  return {
+    stage: 'S3',
+    acId: 'AC3.2',
+    title: 'Bit-for-bit Replay',
+    status: pass ? 'PASS' : 'FAIL',
+    requirement:
+      '应支持离线重放 trace.jsonl，在断网条件下重建最终状态并校验哈希一致性。',
+    details: pass
+      ? `Replay hash stable and matches source trace workspace: ${hash1}`
+      : `Replay mismatch or runner failure. code1=${r1.code} code2=${r2.code} source=${sourceHash} hash1=${hash1} hash2=${hash2}`,
+    evidence: [replayRunnerPath, tracePath, sourceWorkspace, run1Workspace, run2Workspace],
+    nextActions: pass
+      ? ['补充真实 kill -9 后的 REPLAY_TUPLE 回放对照用例。']
+      : [
+          '修复 replay-runner 执行链路，确保同一 REPLAY_TUPLE 轨迹在不同 workspace 得到一致树哈希。',
+          '将 replay-runner 结果接入 CI 断网回放用例。',
+        ],
+  };
+}
+
+async function ac41(): Promise<AcResult> {
+  return {
+    stage: 'S4',
+    acId: 'AC4.1',
+    title: 'Zero-Prompt Instinct',
+    status: 'BLOCKED',
+    requirement:
+      '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率。',
+    details: 'No in-repo SFT pipeline/dataset builder/checkpoint evaluator found.',
+    evidence: [path.join(ROOT, 'src')],
+    nextActions: [
+      '建立 trace 数据清洗与 SFT 数据集生成管线。',
+      '新增 syscall JSON 良品率评估脚本（>=99.9%）。',
+    ],
+  };
+}
+
+async function ac42(): Promise<AcResult> {
+  return {
+    stage: 'S4',
+    acId: 'AC4.2',
+    title: 'Deadlock Reflex',
+    status: 'BLOCKED',
+    requirement:
+      '7B 模型在连续死锁陷阱后应本能输出 SYS_POP 并切换路径。',
+    details: 'No fine-tuned local ALU model + deadlock reflex benchmark harness yet.',
+    evidence: [path.join(ROOT, 'benchmarks')],
+    nextActions: [
+      '定义 deadlock 诱导场景基准并加入模型行为断言（3次trap后必须 SYS_POP）。',
+      '将该断言纳入微调后回归测试。',
+    ],
+  };
+}
+
+async function voyager(): Promise<AcResult> {
+  return {
+    stage: 'VOYAGER',
+    acId: 'V-1',
+    title: 'Voyager Infinite Horizon Benchmark',
+    status: 'BLOCKED',
+    requirement:
+      '在4K窗口限制+混沌注入（网络抖动/权限陷阱/周期性kill -9）下完成长期真实仓库修复并最终 SYS_HALT。',
+    details:
+      'Long-duration chaos harness and target-repo benchmark pack are not yet assembled in current repo.',
+    evidence: [path.join(ROOT, 'benchmarks')],
+    nextActions: [
+      '实现 chaos monkey harness（API断连、chmod陷阱、定时kill -9）。',
+      '定义 Voyager 目标仓库与验收指标（ticks、恢复次数、最终测试通过）。',
+      '接入图形化指标：恢复曲线、HALT 证据、O(1) token 折线。',
+    ],
+  };
+}
+
+async function runPreflight(): Promise<AcResult[]> {
+  const results: AcResult[] = [];
+  const typecheck = await runCommand('npm run typecheck');
+  results.push({
+    stage: 'S1',
+    acId: 'PRECHECK',
+    title: 'Repo Typecheck Baseline',
+    status: typecheck.code === 0 ? 'PASS' : 'FAIL',
+    requirement: '执行阶段验收前需保证当前代码可通过 typecheck。',
+    details: typecheck.code === 0 ? 'typecheck passed' : `typecheck failed code=${typecheck.code}`,
+    evidence: [path.join(ROOT, 'package.json')],
+    nextActions: typecheck.code === 0 ? [] : ['先修复 typecheck 再执行分阶段验收。'],
+  });
+  return results;
+}
+
+async function main(): Promise<void> {
+  await fsp.mkdir(AUDIT_DIR, { recursive: true });
+  const stamp = timestamp();
+
+  const results: AcResult[] = [];
+  results.push(...(await runPreflight()));
+  results.push(await ac11());
+  results.push(await ac12());
+  results.push(await ac13());
+  results.push(await ac21());
+  results.push(await ac22());
+  results.push(await ac23());
+  results.push(await ac31());
+  results.push(await ac32());
+  results.push(await ac41());
+  results.push(await ac42());
+  results.push(await voyager());
+
+  const summaries = stageStatus(results);
+  const jsonPath = path.join(AUDIT_DIR, `staged_acceptance_recursive_${stamp}.json`);
+  const mdPath = path.join(AUDIT_DIR, `staged_acceptance_recursive_${stamp}.md`);
+  await fsp.writeFile(jsonPath, `${JSON.stringify({ stamp, summaries, results }, null, 2)}\n`, 'utf-8');
+  await fsp.writeFile(mdPath, toMarkdown(results, summaries, stamp), 'utf-8');
+
+  console.log(`[staged-acceptance] wrote ${jsonPath}`);
+  console.log(`[staged-acceptance] wrote ${mdPath}`);
+}
+
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  console.error(`[staged-acceptance] fatal: ${message}`);
+  process.exitCode = 1;
+});

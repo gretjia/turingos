@@ -8,36 +8,41 @@ Return exactly one JSON object:
   "thought": "string (optional but recommended)",
   "q_next": "string",
   "a_t": {
-    "action_type": "WRITE|GOTO",
-    "s_prime": "string when WRITE",
-    "d_next": "string when GOTO"
-  },
-  "stack_op": "PUSH|POP|NOP",
-  "stack_payload": "string (required only when stack_op is PUSH)"
+    "op": "SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_PUSH|SYS_POP|SYS_HALT",
+    "payload": "string when op=SYS_WRITE",
+    "semantic_cap": "string optional when op=SYS_WRITE (vfd://... handle)",
+    "pointer": "string when op=SYS_GOTO",
+    "cmd": "string when op=SYS_EXEC",
+    "task": "string when op=SYS_PUSH"
+  }
 }
 
 Hard protocol:
-1. For `a_t.action_type = "GOTO"`, `a_t.d_next` must be one of:
+1. For `a_t.op = "SYS_GOTO"`, `a_t.pointer` must be one of:
    - `$ <shell command>` for command execution
    - relative file path like `plan/progress.log` or `artifacts/a.txt`
-   - `sys://append/<relative-path>` to append one line with `s_prime`
+   - `vfd://...` semantic capability handle
+   - `sys://append/<relative-path>` to append one line with `a_t.payload` in next tick
    - `sys://replace/<relative-path>` for surgical in-file replacement (`{"search","replace"}` JSON or plain-text full-file payload)
+   - `sys://cap/issue/<pointer>?access=r|w|rw` to issue capability handles
+   - `sys://cap/list` / `sys://cap/describe/<url-encoded-vfd-handle>` for capability introspection
    - `sys://...` for system channels
    - `HALT`
-2. For `a_t.action_type = "WRITE"`, write only to current pointer using `a_t.s_prime`.
-3. Use exact key names and nesting. Do not output legacy top-level `s_prime`/`d_next`.
-4. Never output natural-language pointer text.
-5. For shell commands, always use `$ ` prefix.
-6. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
-7. Do not invent alternative schemas, file names, or column names.
-8. `stack_op` is mandatory every tick. Use `PUSH` before branching to a recovery subtask and `POP` when returning.
+2. For `a_t.op = "SYS_WRITE"`, default write target is current pointer; if `a_t.semantic_cap` is present, write to that capability target.
+3. For `a_t.op = "SYS_EXEC"`, set `a_t.cmd` only (engine maps it to `$ <cmd>` pointer).
+4. Use exact key names and nesting. Do not output legacy top-level `s_prime`/`d_next`.
+5. Never output natural-language pointer text.
+6. For shell commands, `SYS_EXEC.cmd` should be command text without markdown.
+7. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
+8. Do not invent alternative schemas, file names, or column names.
+9. Use `SYS_PUSH` before branching to a recovery subtask and `SYS_POP` when returning.
 
 Plan execution contract:
 1. Keep `q_next` as compact ordered checklist with explicit STEP_IDs.
 2. Complete steps in MAIN_TAPE order.
 3. After finishing each step, append one line exactly `DONE:<STEP_ID>` by:
-   - `d_next = "sys://append/plan/progress.log"`
-   - `s_prime = "DONE:<STEP_ID>"`
+   - `a_t.op = "SYS_GOTO"` and `a_t.pointer = "sys://append/plan/progress.log"`
+   - next tick `a_t.op = "SYS_WRITE"` and `a_t.payload = "DONE:<STEP_ID>"`
    - note: OS may auto-append `DONE:<STEP_ID>` when artifact validation already passes
 4. Never rewrite or delete previous DONE lines.
 5. Do not append any non-DONE lines to `plan/progress.log`.
@@ -48,7 +53,7 @@ Trap handling:
 3. If you receive `sys://trap/halt_guard`, inspect `[DETAILS]`, create missing outputs, then continue plan.
 4. Do not repeat identical action more than 2 times; choose a different operation.
 5. If append channel reports duplicate append blocked, advance to the next unfinished step instead of retrying same DONE line.
-6. If you detect short-loop signals (`[OS_TRAP: L1_CACHE_HIT]`), immediately change strategy and consider `stack_op=PUSH`.
+6. If you detect short-loop signals (`[OS_TRAP: L1_CACHE_HIT]`), immediately change strategy and consider `SYS_PUSH`.
 7. Always prioritize `[NEXT_REQUIRED_DONE]` from `[OS_CONTRACT]`; append exactly that one line and do not rewrite full progress log.
 8. Keep syscall contract strict: malformed JSON or missing required keys causes CPU fault.
 

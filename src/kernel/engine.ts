@@ -28,6 +28,10 @@ export class TuringEngine {
   private readonly watchdogDepth = 5;
   private readonly verificationSignalDepth = 6;
   private readonly trapLoopDepth = 4;
+  private readonly oracleFrameHardLimitChars = 4096;
+  private readonly oracleContractMaxChars = 640;
+  private readonly oracleL1TraceMaxChars = 320;
+  private readonly oracleCallStackMaxChars = 768;
   private lastObservedPointer?: Pointer;
   private lastObservedSlice?: Slice;
   private lastTrapDetails = new Map<string, string>();
@@ -199,19 +203,15 @@ export class TuringEngine {
       nextRequiredReady,
       nextRequiredReason
     );
-    s_t = [
-      '[OS_CONTRACT]',
-      contractSlice,
-      '',
-      '[L1_TRACE_CACHE]',
-      l1TraceSlice,
-      '',
-      '[OS_CALL_STACK]',
-      callStackSlice,
-      '',
-      '[OBSERVED_SLICE]',
-      s_t,
-    ].join('\n');
+    const frameGuard = this.composeOracleFrame(contractSlice, l1TraceSlice, callStackSlice, s_t);
+    if (frameGuard.truncated) {
+      await this.chronos.engrave(
+        `[FRAME_HARD_LIMIT] original=${frameGuard.originalLength} emitted=${frameGuard.emittedLength} hash=${frameGuard.hash} clipped=${frameGuard.clippedSections.join(
+          ','
+        )}`
+      );
+    }
+    s_t = frameGuard.slice;
 
     // 2) Run the oracle transition.
     let transition: Transition;
@@ -219,48 +219,106 @@ export class TuringEngine {
       transition = await this.oracle.collapse(this.disciplinePrompt, q_t, s_t);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return [
+      const invalidOpcode = message.includes('INVALID_OPCODE');
+      const trapDetails = invalidOpcode
+        ? `Invalid opcode or malformed syscall ABI: ${message}`
+        : `Previous output caused kernel panic: ${message}`;
+      return this.raiseManagedTrap(
+        'sys://trap/cpu_fault',
+        trapDetails,
         [
-          `[OS_TRAP: CPU_FAULT] Previous output caused kernel panic: ${message}`,
-          'You MUST output strictly valid JSON. Keep Todo stack intact and try again.',
+          `[OS_TRAP: CPU_FAULT] ${trapDetails}`,
+          'You MUST output strict JSON with a_t.op and valid SYS_* opcode.',
           '',
           '[RECOVERED STATE q]:',
           q_t,
         ].join('\n'),
-        'sys://trap/cpu_fault',
-      ];
+        q_t
+      );
     }
 
     const q_next = transition.q_next;
-    let d_next: Pointer;
-    let s_prime: string;
+    let d_next: Pointer = d_t;
+    let writePointer: Pointer = d_t;
+    let s_prime = '👆🏻';
 
-    if (transition.a_t.action_type === 'WRITE') {
-      d_next = d_t;
-      s_prime = transition.a_t.s_prime;
-    } else {
-      d_next = transition.a_t.d_next;
-      s_prime = '👆🏻';
-    }
-
-    // 2.2) Apply syscall-driven call stack operations (OS-managed memory).
     try {
-      await this.applyStackSyscall(transition);
+      const syscall = transition.a_t;
+      const strictViolation = this.validateSyscallEnvelope(syscall as unknown as Record<string, unknown>);
+      if (strictViolation) {
+        throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${strictViolation}`);
+      }
+      switch (syscall.op) {
+        case 'SYS_WRITE':
+          d_next = d_t;
+          writePointer = typeof syscall.semantic_cap === 'string' && syscall.semantic_cap.trim().length > 0
+            ? syscall.semantic_cap.trim()
+            : d_t;
+          s_prime = syscall.payload;
+          break;
+        case 'SYS_GOTO':
+          d_next = syscall.pointer;
+          s_prime = '👆🏻';
+          break;
+        case 'SYS_EXEC': {
+          const cmd = syscall.cmd.trim();
+          d_next = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
+          s_prime = '👆🏻';
+          break;
+        }
+        case 'SYS_PUSH': {
+          const task = syscall.task.trim();
+          if (task.length === 0) {
+            throw new Error('SYS_PUSH requires non-empty task.');
+          }
+          await this.manifold.interfere('sys://callstack', `PUSH: ${task}`);
+          d_next = d_t;
+          s_prime = '👆🏻';
+          break;
+        }
+        case 'SYS_POP':
+          await this.manifold.interfere('sys://callstack', 'POP');
+          d_next = d_t;
+          s_prime = '👆🏻';
+          break;
+        case 'SYS_HALT':
+          d_next = 'HALT';
+          s_prime = '👆🏻';
+          break;
+        default: {
+          const exhaustiveCheck: never = syscall;
+          throw new Error(`Unhandled syscall variant: ${JSON.stringify(exhaustiveCheck)}`);
+        }
+      }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return [
+      return this.raiseManagedTrap(
+        'sys://trap/cpu_fault',
+        `Failed to dispatch syscall: ${message}`,
         [
           q_t,
           '',
-          `[OS_TRAP: STACK_FAULT] Failed to apply stack syscall: ${message}`,
-          'Action: emit valid stack_op and stack_payload (for PUSH) in next JSON transition.',
+          `[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: ${message}`,
+          'Action: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_PUSH/SYS_POP/SYS_HALT).',
         ].join('\n'),
-        'sys://trap/stack_fault',
-      ];
+        q_t
+      );
     }
 
+    const replayTuple = {
+      h_q: createHash('sha256').update(q_t).digest('hex'),
+      h_s: createHash('sha256').update(s_t).digest('hex'),
+      d_t,
+      write_target:
+        typeof transition.a_t.op === 'string' && transition.a_t.op === 'SYS_WRITE'
+          ? writePointer
+          : d_next,
+      a_t: transition.a_t,
+    };
+    await this.chronos.engrave(`[REPLAY_TUPLE] ${JSON.stringify(replayTuple)}`);
+
     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
-    const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT';
+    const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT' || transition.a_t.op === 'SYS_HALT';
     if (haltRequested) {
       const verification = this.checkRecentVerificationEvidence();
       if (!verification.ok) {
@@ -333,33 +391,8 @@ export class TuringEngine {
       ];
     }
 
-    // 3) L1 trace pre-watchdog interrupt for short action loops.
+    // 3) Action-loop interrupts: evaluate watchdog (deep horizon) before L1 (short horizon).
     const actionHash = this.actionSignature(d_next, s_prime);
-    this.l1TraceCache.push(actionHash);
-    if (this.l1TraceCache.length > this.l1TraceDepth) {
-      this.l1TraceCache.shift();
-    }
-
-    const l1LoopDetected =
-      this.l1TraceCache.length === this.l1TraceDepth &&
-      this.l1TraceCache.every((item) => item === actionHash);
-    if (l1LoopDetected) {
-      this.l1TraceCache = [];
-      return [
-        [
-          '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
-          `Action signature: ${actionHash.slice(0, 12)}`,
-          'Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.',
-          '',
-          '[RECOVERED STATE q]:',
-          q_next,
-        ].join('\n'),
-        'sys://trap/l1_cache_hit',
-      ];
-    }
-
-    // 3.5) Watchdog non-maskable interrupt against repeated actions.
-
     this.watchdogHistory.push(actionHash);
     if (this.watchdogHistory.length > this.watchdogDepth) {
       this.watchdogHistory.shift();
@@ -384,19 +417,46 @@ export class TuringEngine {
       ];
     }
 
+    this.l1TraceCache.push(actionHash);
+    if (this.l1TraceCache.length > this.l1TraceDepth) {
+      this.l1TraceCache.shift();
+    }
+
+    const l1LoopDetected =
+      this.l1TraceCache.length === this.l1TraceDepth &&
+      this.l1TraceCache.every((item) => item === actionHash);
+    if (l1LoopDetected) {
+      this.l1TraceCache = [];
+      return [
+        [
+          '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
+          `Action signature: ${actionHash.slice(0, 12)}`,
+          'Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.',
+          '',
+          '[RECOVERED STATE q]:',
+          q_next,
+        ].join('\n'),
+        'sys://trap/l1_cache_hit',
+      ];
+    }
+
     // 4) Interfere with physical world unless this is a pure read/exec step.
-    const isAppendChannel = pointer.startsWith('sys://append/');
-    const isReplaceChannel = pointer.startsWith('sys://replace/');
-    if (s_prime.trim() !== '👆🏻' && (!pointer.startsWith('sys://') || isAppendChannel || isReplaceChannel)) {
+    const writePointerTrimmed = writePointer.trim();
+    const isAppendChannel = writePointerTrimmed.startsWith('sys://append/');
+    const isReplaceChannel = writePointerTrimmed.startsWith('sys://replace/');
+    if (
+      s_prime.trim() !== '👆🏻' &&
+      (!writePointerTrimmed.startsWith('sys://') || isAppendChannel || isReplaceChannel)
+    ) {
       let writePayload = s_prime;
-      if (isAppendChannel && progressAppendPointer && pointer === progressAppendPointer) {
+      if (isAppendChannel && progressAppendPointer && writePointerTrimmed === progressAppendPointer) {
         const normalized = await this.normalizeProgressPayload(s_prime, nextRequiredDone, nextRequiredFileHint);
         if (!normalized.ok) {
           return [
             [
               q_next,
               '',
-              `[OS_TRAP: IO_FAULT] Failed to write to ${d_t}: ${normalized.reason}`,
+              `[OS_TRAP: IO_FAULT] Failed to write to ${writePointerTrimmed}: ${normalized.reason}`,
               `Action: append exact line DONE:${nextRequiredDone ?? '<none>'} once.`,
             ].join('\n'),
             'sys://trap/io_fault',
@@ -406,7 +466,7 @@ export class TuringEngine {
         writePayload = normalized.payload;
       }
 
-      const writeTarget = this.resolveWriteTargetPointer(pointer);
+      const writeTarget = this.resolveWriteTargetPointer(writePointerTrimmed);
       const expectedExact = this.extractExpectedExact(nextRequiredReason);
       if (
         writeTarget &&
@@ -447,14 +507,14 @@ export class TuringEngine {
       }
 
       try {
-        await this.manifold.interfere(d_t, writePayload);
+        await this.manifold.interfere(writePointerTrimmed, writePayload);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         return [
           [
             q_next,
             '',
-            `[OS_TRAP: IO_FAULT] Failed to write to ${d_t}: ${message}`,
+            `[OS_TRAP: IO_FAULT] Failed to write to ${writePointerTrimmed}: ${message}`,
             'Push a task to fix permission or syntax issue and retry.',
           ].join('\n'),
           'sys://trap/io_fault',
@@ -467,13 +527,9 @@ export class TuringEngine {
       typeof transition.thought === 'string'
         ? transition.thought.split('\n').find((line) => line.trim().length > 0)?.slice(0, 80) ?? ''
         : '';
-    const stackOp = transition.stack_op ?? 'NOP';
-    const stackNote =
-      stackOp === 'PUSH'
-        ? `${stackOp}(${(transition.stack_payload ?? '').slice(0, 40)})`
-        : stackOp;
+    const syscallNote = this.renderSyscallNote(transition);
     await this.chronos.engrave(
-      `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | stack:${stackNote} | thought:${shortThought || '-'}`
+      `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | syscall:${syscallNote} | thought:${shortThought || '-'}`
     );
 
     return [q_next, d_next];
@@ -506,6 +562,38 @@ export class TuringEngine {
     return `${base}?details=${encodeURIComponent(details)}`;
   }
 
+  private raiseManagedTrap(
+    trapBase: string,
+    details: string,
+    trapState: State,
+    recoveredState: State
+  ): [State, Pointer] {
+    this.lastTrapDetails.set(trapBase, details);
+    const pointer = this.systemTrapPointer(trapBase, details);
+    const trapLoop = this.trackTrapPointerLoop(pointer);
+    if (trapLoop.loop) {
+      const panicDetails = [
+        'Kernel panic reset: repeated trap pointer loop detected.',
+        `Repeated trap: ${trapLoop.trapBase}`,
+        'Action: abandon current approach and switch to a different diagnosis path immediately.',
+      ].join('\n');
+      this.lastTrapDetails.set('sys://trap/panic_reset', panicDetails);
+      return [
+        [
+          '[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.',
+          `Repeated trap: ${trapLoop.trapBase}`,
+          'Action: use a different pointer/command strategy and avoid the last failing function path.',
+          '',
+          '[RECOVERED STATE q]:',
+          recoveredState,
+        ].join('\n'),
+        this.systemTrapPointer('sys://trap/panic_reset', panicDetails),
+      ];
+    }
+
+    return [trapState, pointer];
+  }
+
   private actionSignature(dNext: Pointer, sPrime: string): string {
     return createHash('sha256')
       .update(`${dNext}|${sPrime.slice(0, 120)}`)
@@ -531,23 +619,61 @@ export class TuringEngine {
     }
   }
 
-  private async applyStackSyscall(transition: Transition): Promise<void> {
-    const op = transition.stack_op;
-    if (op === 'NOP') {
-      return;
+  private renderSyscallNote(transition: Transition): string {
+    const syscall = transition.a_t;
+    switch (syscall.op) {
+      case 'SYS_WRITE':
+        return `${syscall.op}(len=${syscall.payload.length}${
+          syscall.semantic_cap ? `,cap=${syscall.semantic_cap.slice(0, 32)}` : ''
+        })`;
+      case 'SYS_GOTO':
+        return `${syscall.op}(${syscall.pointer.slice(0, 40)})`;
+      case 'SYS_EXEC':
+        return `${syscall.op}(${syscall.cmd.slice(0, 40)})`;
+      case 'SYS_PUSH':
+        return `${syscall.op}(${syscall.task.slice(0, 40)})`;
+      case 'SYS_POP':
+      case 'SYS_HALT':
+        return syscall.op;
+      default: {
+        const exhaustiveCheck: never = syscall;
+        return `UNKNOWN(${JSON.stringify(exhaustiveCheck)})`;
+      }
+    }
+  }
+
+  private validateSyscallEnvelope(syscall: Record<string, unknown>): string | null {
+    const op = typeof syscall.op === 'string' ? syscall.op : '';
+    if (op.length === 0) {
+      return 'Missing syscall op field.';
     }
 
-    if (op === 'POP') {
-      await this.manifold.interfere('sys://callstack', 'POP');
-      return;
+    const keys = Object.keys(syscall);
+    const allowSet = (allowed: string[]): string | null => {
+      const disallowed = keys.filter((key) => !allowed.includes(key));
+      if (disallowed.length > 0) {
+        return `MUTEX_VIOLATION: ${op} carries extra fields: ${disallowed.join(', ')}`;
+      }
+      return null;
+    };
+
+    if (op === 'SYS_WRITE') {
+      return allowSet(['op', 'payload', 'semantic_cap']);
+    }
+    if (op === 'SYS_GOTO') {
+      return allowSet(['op', 'pointer']);
+    }
+    if (op === 'SYS_EXEC') {
+      return allowSet(['op', 'cmd']);
+    }
+    if (op === 'SYS_PUSH') {
+      return allowSet(['op', 'task']);
+    }
+    if (op === 'SYS_POP' || op === 'SYS_HALT') {
+      return allowSet(['op']);
     }
 
-    const payload = (transition.stack_payload ?? '').trim();
-    if (payload.length === 0) {
-      throw new Error('PUSH requires stack_payload.');
-    }
-
-    await this.manifold.interfere('sys://callstack', `PUSH: ${payload}`);
+    return `Unknown syscall op: ${op}`;
   }
 
   private renderContractGuidance(
@@ -574,6 +700,137 @@ export class TuringEngine {
       `[NEXT_REQUIRED_REASON] ${nextRequiredReason ?? '(none)'}`,
       'Rule: append exactly one DONE line for NEXT_REQUIRED_DONE; do not rewrite whole progress log.',
     ].join('\n');
+  }
+
+  private composeOracleFrame(
+    contractSlice: Slice,
+    l1TraceSlice: Slice,
+    callStackSlice: Slice,
+    observedSlice: Slice
+  ): {
+    slice: Slice;
+    truncated: boolean;
+    originalLength: number;
+    emittedLength: number;
+    hash: string;
+    clippedSections: string[];
+  } {
+    const raw = [
+      '[OS_CONTRACT]',
+      contractSlice,
+      '',
+      '[L1_TRACE_CACHE]',
+      l1TraceSlice,
+      '',
+      '[OS_CALL_STACK]',
+      callStackSlice,
+      '',
+      '[OBSERVED_SLICE]',
+      observedSlice,
+    ].join('\n');
+
+    const clippedSections: string[] = [];
+    const contract = this.clipFrameSection(
+      'OS_CONTRACT',
+      contractSlice,
+      this.oracleContractMaxChars,
+      clippedSections
+    );
+    const l1Trace = this.clipFrameSection(
+      'L1_TRACE_CACHE',
+      l1TraceSlice,
+      this.oracleL1TraceMaxChars,
+      clippedSections
+    );
+    const callStack = this.clipFrameSection(
+      'OS_CALL_STACK',
+      callStackSlice,
+      this.oracleCallStackMaxChars,
+      clippedSections
+    );
+
+    const prefix = [
+      '[OS_CONTRACT]',
+      contract,
+      '',
+      '[L1_TRACE_CACHE]',
+      l1Trace,
+      '',
+      '[OS_CALL_STACK]',
+      callStack,
+      '',
+      '[OBSERVED_SLICE]',
+    ].join('\n');
+    const observedBudget = Math.max(0, this.oracleFrameHardLimitChars - prefix.length - 1);
+    const observed = this.clipFrameSection('OBSERVED_SLICE', observedSlice, observedBudget, clippedSections);
+    const assembled = `${prefix}\n${observed}`;
+    const fallback = this.applyOracleFrameHardLimit(assembled);
+    const truncated = clippedSections.length > 0 || fallback.truncated;
+
+    return {
+      slice: fallback.slice,
+      truncated,
+      originalLength: raw.length,
+      emittedLength: fallback.emittedLength,
+      hash: fallback.hash,
+      clippedSections,
+    };
+  }
+
+  private clipFrameSection(section: string, content: string, limit: number, clippedSections: string[]): string {
+    if (content.length <= limit) {
+      return content;
+    }
+    clippedSections.push(section);
+
+    const header = `[OS_SECTION_CLIPPED] ${section} chars=${content.length} limit=${limit}`;
+    if (limit <= header.length) {
+      return header.slice(0, Math.max(0, limit));
+    }
+
+    const bodyBudget = limit - header.length - 1;
+    return `${header}\n${content.slice(0, Math.max(0, bodyBudget))}`;
+  }
+
+  private applyOracleFrameHardLimit(frame: Slice): {
+    slice: Slice;
+    truncated: boolean;
+    originalLength: number;
+    emittedLength: number;
+    hash: string;
+  } {
+    const originalLength = frame.length;
+    const hash = createHash('sha256').update(frame).digest('hex').slice(0, 16);
+    if (originalLength <= this.oracleFrameHardLimitChars) {
+      return {
+        slice: frame,
+        truncated: false,
+        originalLength,
+        emittedLength: originalLength,
+        hash,
+      };
+    }
+
+    const header = [
+      '[OS_FRAME_HARD_LIMIT]',
+      `MaxChars=${this.oracleFrameHardLimitChars}`,
+      `OriginalChars=${originalLength}`,
+      `FrameHash=${hash}`,
+      'Action: use SYS_GOTO/SYS_EXEC to page through full evidence; this frame is clipped for O(1) safety.',
+      '',
+    ].join('\n');
+    const footer = '\n\n[OS_FRAME_HARD_LIMIT_END]';
+    const budget = Math.max(0, this.oracleFrameHardLimitChars - header.length - footer.length);
+    const clipped = frame.slice(0, budget);
+    const guarded = `${header}${clipped}${footer}`;
+
+    return {
+      slice: guarded,
+      truncated: true,
+      originalLength,
+      emittedLength: guarded.length,
+      hash,
+    };
   }
 
   private async normalizeProgressPayload(
@@ -691,13 +948,14 @@ export class TuringEngine {
   }
 
   private checkRecentVerificationEvidence(): { ok: true } | { ok: false; reason: string } {
-    if (this.recentVerificationSignals.length > 0) {
+    const commandSignals = this.recentVerificationSignals.filter((signal) => signal.startsWith('CMD:'));
+    if (commandSignals.length > 0) {
       return { ok: true };
     }
 
     return {
       ok: false,
-      reason: 'No recent physical verification evidence was observed.',
+      reason: 'No successful verification command was observed. Require CMD:* signal with [EXIT_CODE] 0.',
     };
   }
 

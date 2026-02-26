@@ -1,0 +1,42 @@
+name: acceptance-gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  staged-acceptance-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run Staged Acceptance
+        run: npm run bench:staged-acceptance-recursive
+
+      - name: Enforce AC2.3 + AC3.1 + AC3.2 Gates
+        run: npm run bench:ci-gates
+
+      - name: Upload Staged Acceptance Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staged-acceptance-reports
+          path: benchmarks/audits/recursive/staged_acceptance_recursive_*.*
+

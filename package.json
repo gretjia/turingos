@@ -11,7 +11,13 @@
     "smoke:mock": "tsx src/runtime/boot.ts --oracle mock --max-ticks 8",
     "bench:pilot": "tsx src/bench/pilot.ts",
     "bench:os-longrun": "tsx src/bench/os-longrun.ts",
-    "bench:industry-matrix": "tsx src/bench/industry-matrix.ts"
+    "bench:industry-matrix": "tsx src/bench/industry-matrix.ts",
+    "bench:topology-v3-gate": "tsx src/bench/topology-v3-gate.ts",
+    "bench:staged-acceptance-recursive": "tsx src/bench/staged-acceptance-recursive.ts",
+    "bench:staged-acceptance-joint": "bash scripts/run_joint_recursive_audit.sh",
+    "bench:ci-gates": "tsx src/bench/ci-gates.ts",
+    "bench:replay-runner": "tsx src/bench/replay-runner.ts",
+    "bench:ac31-worker": "tsx src/bench/ac31-kill9-worker.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

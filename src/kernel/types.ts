@@ -2,18 +2,18 @@ export type State = string;
 export type Pointer = string;
 export type Slice = string;
 
-export type StackOp = 'PUSH' | 'POP' | 'NOP';
-
-export type ActionOperator =
-  | { action_type: 'WRITE'; s_prime: string }
-  | { action_type: 'GOTO'; d_next: Pointer };
+export type Syscall =
+  | { op: 'SYS_WRITE'; payload: string; semantic_cap?: Pointer }
+  | { op: 'SYS_GOTO'; pointer: Pointer }
+  | { op: 'SYS_EXEC'; cmd: string }
+  | { op: 'SYS_PUSH'; task: string }
+  | { op: 'SYS_POP' }
+  | { op: 'SYS_HALT' };
 
 export interface Transition {
   thought?: string;
   q_next: State;
-  a_t: ActionOperator;
-  stack_op: StackOp;
-  stack_payload?: string;
+  a_t: Syscall;
 }
 
 export interface IOracle {

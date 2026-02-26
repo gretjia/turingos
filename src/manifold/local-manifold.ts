@@ -1,4 +1,5 @@
 import { exec } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { IPhysicalManifold, Pointer, Slice } from '../kernel/types.js';
@@ -8,19 +9,39 @@ export interface LocalManifoldOptions {
   maxSliceChars?: number;
 }
 
+type CapabilityAccess = 'r' | 'w' | 'rw';
+
+interface SemanticCapabilityEntry {
+  handle: string;
+  targetPointer: string;
+  access: CapabilityAccess;
+  issuedAt: string;
+}
+
 export class LocalManifold implements IPhysicalManifold {
   private timeoutMs: number;
   private maxSliceChars: number;
+  private pageSizeChars: number;
+  private readonly maxCallStackDepth = 64;
   private callStackFile: string;
+  private capabilityFile: string;
+  private readonly pageStore = new Map<string, { source: string; pages: string[]; createdAt: string }>();
+  private readonly maxPageStoreEntries = 128;
+  private readonly capabilityStore = new Map<string, SemanticCapabilityEntry>();
+  private readonly capabilityOrder: string[] = [];
+  private readonly maxCapabilities = 2048;
 
   constructor(private workspaceDir: string, options: LocalManifoldOptions = {}) {
     this.timeoutMs = options.timeoutMs ?? 120_000;
     this.maxSliceChars = options.maxSliceChars ?? 3000;
+    this.pageSizeChars = this.maxSliceChars;
     fs.mkdirSync(this.workspaceDir, { recursive: true });
     this.callStackFile = path.join(this.workspaceDir, '.callstack.json');
+    this.capabilityFile = path.join(this.workspaceDir, '.vfd_caps.json');
     if (!fs.existsSync(this.callStackFile)) {
       fs.writeFileSync(this.callStackFile, '[]\n', 'utf-8');
     }
+    this.loadCapabilities();
   }
 
   public async observe(pointer: Pointer): Promise<Slice> {
@@ -30,28 +51,48 @@ export class LocalManifold implements IPhysicalManifold {
       throw new Error('Pointer is empty.');
     }
 
-    if (trimmed.startsWith('sys://')) {
-      return this.guardSlice(this.observeSystemChannel(trimmed), `system:${trimmed}`);
+    if (trimmed.startsWith('sys://cap/')) {
+      return this.guardSlice(this.observeCapabilityChannel(trimmed), `system:${trimmed}`);
     }
 
-    if (trimmed.startsWith('$')) {
-      const command = trimmed.replace(/^\$\s*/, '');
+    const resolvedPointer = trimmed.startsWith('vfd://') ? this.resolveCapabilityHandle(trimmed, 'r') : trimmed;
+
+    if (resolvedPointer.startsWith('sys://page/')) {
+      return this.observePagedChannel(resolvedPointer);
+    }
+
+    if (resolvedPointer.startsWith('sys://')) {
+      return this.guardSlice(this.observeSystemChannel(resolvedPointer), `system:${resolvedPointer}`);
+    }
+
+    if (resolvedPointer.startsWith('$')) {
+      const command = resolvedPointer.replace(/^\$\s*/, '');
       return this.executeCommandSlice(command);
     }
 
-    const filePath = this.resolveWorkspacePath(trimmed);
+    const filePath = this.resolveWorkspacePath(resolvedPointer);
     if (!fs.existsSync(filePath)) {
-      throw new Error(this.buildPageFaultDetails(trimmed, filePath));
+      throw new Error(this.buildPageFaultDetails(resolvedPointer, filePath));
     }
 
-    return this.guardSlice(fs.readFileSync(filePath, 'utf-8'), `file:${trimmed}`);
+    return this.guardSlice(fs.readFileSync(filePath, 'utf-8'), `file:${resolvedPointer}`);
   }
 
   public async interfere(pointer: Pointer, payload: string): Promise<void> {
     const trimmed = pointer.trim();
+    if (trimmed.length === 0) {
+      throw new Error('Pointer is empty.');
+    }
 
-    if (trimmed.startsWith('sys://append/')) {
-      const targetPointer = trimmed.slice('sys://append/'.length).trim();
+    if (trimmed.startsWith('sys://cap/')) {
+      // Capability channels are read-only control planes.
+      throw new Error(`Capability control channel is read-only: ${trimmed}`);
+    }
+
+    const resolvedPointer = trimmed.startsWith('vfd://') ? this.resolveCapabilityHandle(trimmed, 'w') : trimmed;
+
+    if (resolvedPointer.startsWith('sys://append/')) {
+      const targetPointer = resolvedPointer.slice('sys://append/'.length).trim();
       if (targetPointer.length === 0) {
         throw new Error('Append target is empty.');
       }
@@ -86,8 +127,8 @@ export class LocalManifold implements IPhysicalManifold {
       return;
     }
 
-    if (trimmed.startsWith('sys://replace/')) {
-      const targetPointer = trimmed.slice('sys://replace/'.length).trim();
+    if (resolvedPointer.startsWith('sys://replace/')) {
+      const targetPointer = resolvedPointer.slice('sys://replace/'.length).trim();
       if (targetPointer.length === 0) {
         throw new Error('Replace target is empty.');
       }
@@ -96,21 +137,21 @@ export class LocalManifold implements IPhysicalManifold {
       return;
     }
 
-    if (trimmed === 'sys://callstack') {
+    if (resolvedPointer === 'sys://callstack') {
       this.applyCallStackSyscall(payload);
       return;
     }
 
-    if (trimmed.startsWith('sys://')) {
+    if (resolvedPointer.startsWith('sys://')) {
       return;
     }
 
     // Commands are observed through '$ ...', not written back to tape cells.
-    if (trimmed.startsWith('$')) {
+    if (resolvedPointer.startsWith('$')) {
       return;
     }
 
-    const filePath = this.resolveWorkspacePath(trimmed);
+    const filePath = this.resolveWorkspacePath(resolvedPointer);
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, payload, 'utf-8');
   }
@@ -249,22 +290,89 @@ export class LocalManifold implements IPhysicalManifold {
       return slice;
     }
 
-    const truncated = slice.slice(0, this.maxSliceChars);
+    const token = this.storePagedSlice(source, slice);
+    return this.renderPagedSlice(token, 1);
+  }
+
+  private observePagedChannel(pointer: string): string {
+    const [base, query = ''] = pointer.split('?', 2);
+    const token = base.slice('sys://page/'.length).trim();
+    if (token.length === 0) {
+      return '[OS_TRAP: PAGE_FAULT] Missing page token in sys://page channel.';
+    }
+
+    const params = new URLSearchParams(query);
+    const pageParam = params.get('p') ?? params.get('page') ?? '1';
+    const requested = Number.parseInt(pageParam, 10);
+    const pageNumber = Number.isFinite(requested) && requested > 0 ? requested : 1;
+    return this.renderPagedSlice(token, pageNumber);
+  }
+
+  private storePagedSlice(source: string, slice: string): string {
+    const token = createHash('sha256').update(`${source}\n${slice}`).digest('hex').slice(0, 16);
+    if (!this.pageStore.has(token)) {
+      const pages = this.chunkSlice(slice, this.pageSizeChars);
+      this.pageStore.set(token, { source, pages, createdAt: new Date().toISOString() });
+
+      while (this.pageStore.size > this.maxPageStoreEntries) {
+        const oldest = this.pageStore.keys().next().value;
+        if (!oldest) {
+          break;
+        }
+        this.pageStore.delete(oldest);
+      }
+    }
+
+    return token;
+  }
+
+  private chunkSlice(slice: string, maxChars: number): string[] {
+    const chunks: string[] = [];
+    for (let i = 0; i < slice.length; i += maxChars) {
+      chunks.push(slice.slice(i, i + maxChars));
+    }
+
+    return chunks.length > 0 ? chunks : [''];
+  }
+
+  private renderPagedSlice(token: string, pageNumber: number): string {
+    const entry = this.pageStore.get(token);
+    if (!entry) {
+      return [
+        '[OS_TRAP: PAGE_FAULT] Unknown page token.',
+        `Token=${token}`,
+        'Action: re-read original pointer to regenerate page table.',
+      ].join('\n');
+    }
+
+    const total = entry.pages.length;
+    const clamped = Math.min(Math.max(pageNumber, 1), total);
+    const idx = clamped - 1;
+    const prev = clamped > 1 ? `sys://page/${token}?p=${clamped - 1}` : '(none)';
+    const next = clamped < total ? `sys://page/${token}?p=${clamped + 1}` : '(none)';
+
     return [
-      truncated,
+      '[PAGE_TABLE_SUMMARY]',
+      `Token=${token}`,
+      `Source=${entry.source}`,
+      `TotalPages=${total}`,
+      `FocusPage=${clamped}`,
+      `PrevPage=${prev}`,
+      `NextPage=${next}`,
+      `CapturedAt=${entry.createdAt}`,
       '',
-      '[OS_TRAP: MMU_TRUNCATED]',
-      `Source=${source}`,
-      `OriginalChars=${slice.length}`,
-      `TruncatedTo=${this.maxSliceChars}`,
-      'Action: Narrow I/O scope with grep/head/tail/sed and retry.',
+      '[FOCUS_PAGE_CONTENT]',
+      entry.pages[idx] ?? '',
+      '',
+      'Action: use SYS_GOTO with PrevPage/NextPage pointer to flip pages.',
     ].join('\n');
   }
 
   private renderCallStackSnapshot(channel: string): string {
     const stack = this.readCallStack();
     const top = stack.length > 0 ? stack[stack.length - 1] : '(empty)';
-    const frames = stack.length > 0 ? stack.map((item, idx) => `${idx + 1}. ${item}`).join('\n') : '(empty)';
+    const frames =
+      stack.length > 0 ? [...stack].reverse().map((item, idx) => `${idx + 1}. ${item}`).join('\n') : '(empty)';
 
     return [
       `[SYSTEM_CHANNEL] ${channel}`,
@@ -272,7 +380,7 @@ export class LocalManifold implements IPhysicalManifold {
       `[CALL_STACK_TOP] ${top}`,
       '[CALL_STACK]',
       frames,
-      'Action: use stack_op PUSH/POP/NOP and stack_payload in JSON syscall.',
+      'Action: use SYS_PUSH(task) / SYS_POP syscall opcodes for stack control.',
     ].join('\n');
   }
 
@@ -300,6 +408,9 @@ export class LocalManifold implements IPhysicalManifold {
       }
 
       stack.push(task.slice(0, 200));
+      if (stack.length > this.maxCallStackDepth) {
+        stack.splice(0, stack.length - this.maxCallStackDepth);
+      }
       this.writeCallStack(stack);
       return;
     }
@@ -368,6 +479,247 @@ export class LocalManifold implements IPhysicalManifold {
     fs.writeFileSync(targetPath, next, 'utf-8');
   }
 
+  private loadCapabilities(): void {
+    if (!fs.existsSync(this.capabilityFile)) {
+      fs.writeFileSync(this.capabilityFile, `${JSON.stringify({ entries: [] }, null, 2)}\n`, 'utf-8');
+      return;
+    }
+
+    try {
+      const raw = fs.readFileSync(this.capabilityFile, 'utf-8');
+      const parsed = JSON.parse(raw) as unknown;
+      const candidateEntries = Array.isArray(parsed)
+        ? parsed
+        : (parsed as { entries?: unknown })?.entries;
+      if (!Array.isArray(candidateEntries)) {
+        return;
+      }
+
+      for (const item of candidateEntries) {
+        if (!item || typeof item !== 'object') {
+          continue;
+        }
+        const maybe = item as Partial<SemanticCapabilityEntry>;
+        const handle = typeof maybe.handle === 'string' ? maybe.handle.trim() : '';
+        const targetPointer = typeof maybe.targetPointer === 'string' ? maybe.targetPointer.trim() : '';
+        const access = maybe.access;
+        const issuedAt = typeof maybe.issuedAt === 'string' ? maybe.issuedAt : new Date().toISOString();
+        if (handle.length === 0 || targetPointer.length === 0) {
+          continue;
+        }
+        if (access !== 'r' && access !== 'w' && access !== 'rw') {
+          continue;
+        }
+
+        if (!this.capabilityStore.has(handle)) {
+          this.capabilityStore.set(handle, {
+            handle,
+            targetPointer,
+            access,
+            issuedAt,
+          });
+          this.capabilityOrder.push(handle);
+        }
+      }
+    } catch {
+      // Ignore malformed capability file and continue with empty store.
+    }
+  }
+
+  private persistCapabilities(): void {
+    const entries = this.capabilityOrder
+      .map((handle) => this.capabilityStore.get(handle))
+      .filter((entry): entry is SemanticCapabilityEntry => !!entry);
+    fs.writeFileSync(this.capabilityFile, `${JSON.stringify({ entries }, null, 2)}\n`, 'utf-8');
+  }
+
+  private parseCapabilityAccess(raw: string | null | undefined): CapabilityAccess | null {
+    if (!raw) {
+      return 'rw';
+    }
+
+    const normalized = raw.trim().toLowerCase();
+    if (normalized === 'r' || normalized === 'read') {
+      return 'r';
+    }
+    if (normalized === 'w' || normalized === 'write') {
+      return 'w';
+    }
+    if (normalized === 'rw' || normalized === 'wr' || normalized === 'readwrite' || normalized === 'read-write') {
+      return 'rw';
+    }
+
+    return null;
+  }
+
+  private issueCapabilityHandle(targetPointer: string, access: CapabilityAccess): SemanticCapabilityEntry {
+    const normalizedTarget = targetPointer.trim();
+    if (normalizedTarget.length === 0) {
+      throw new Error('Capability target pointer is empty.');
+    }
+    if (normalizedTarget.startsWith('sys://cap/')) {
+      throw new Error('Cannot issue capability to capability control channels.');
+    }
+
+    for (const handle of this.capabilityOrder) {
+      const existing = this.capabilityStore.get(handle);
+      if (!existing) {
+        continue;
+      }
+      if (existing.targetPointer === normalizedTarget && existing.access === access) {
+        return existing;
+      }
+    }
+
+    const semanticTail = this.semanticTail(normalizedTarget);
+    const hash = createHash('sha256')
+      .update(`${access}\n${normalizedTarget}\n${Date.now()}\n${Math.random().toString(16).slice(2)}`)
+      .digest('hex')
+      .slice(0, 12);
+    const handle = `vfd://${access}/${hash}/${semanticTail}`;
+    const entry: SemanticCapabilityEntry = {
+      handle,
+      targetPointer: normalizedTarget,
+      access,
+      issuedAt: new Date().toISOString(),
+    };
+
+    this.capabilityStore.set(handle, entry);
+    this.capabilityOrder.push(handle);
+    while (this.capabilityOrder.length > this.maxCapabilities) {
+      const oldest = this.capabilityOrder.shift();
+      if (!oldest) {
+        break;
+      }
+      this.capabilityStore.delete(oldest);
+    }
+    this.persistCapabilities();
+    return entry;
+  }
+
+  private semanticTail(pointer: string): string {
+    const normalized = pointer
+      .replace(/^\.\//, '')
+      .replace(/\\/g, '/')
+      .replace(/[^a-zA-Z0-9._/-]+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^\/+/, '')
+      .slice(0, 80);
+    return normalized.length > 0 ? normalized : 'target';
+  }
+
+  private resolveCapabilityHandle(handlePointer: string, requiredAccess: 'r' | 'w'): string {
+    const baseHandle = handlePointer.split('?', 1)[0].trim();
+    const entry = this.capabilityStore.get(baseHandle);
+    if (!entry) {
+      throw new Error(`[OS_TRAP: EACCES] Unknown capability handle: ${baseHandle}`);
+    }
+
+    const allowRead = entry.access === 'r' || entry.access === 'rw';
+    const allowWrite = entry.access === 'w' || entry.access === 'rw';
+    if (requiredAccess === 'r' && !allowRead) {
+      throw new Error(`[OS_TRAP: EACCES] Capability is not readable: ${baseHandle}`);
+    }
+    if (requiredAccess === 'w' && !allowWrite) {
+      throw new Error(`[OS_TRAP: EACCES] Capability is not writable: ${baseHandle}`);
+    }
+
+    return entry.targetPointer;
+  }
+
+  private observeCapabilityChannel(pointer: string): string {
+    const [base, query = ''] = pointer.split('?', 2);
+    const params = new URLSearchParams(query);
+
+    if (base === 'sys://cap/list') {
+      if (this.capabilityOrder.length === 0) {
+        return [
+          '[SYSTEM_CHANNEL] sys://cap/list',
+          '[CAPABILITY_TABLE]',
+          '(empty)',
+          'Action: issue handle via sys://cap/issue/<pointer>?access=rw',
+        ].join('\n');
+      }
+
+      const lines = this.capabilityOrder
+        .map((handle, index) => {
+          const entry = this.capabilityStore.get(handle);
+          if (!entry) {
+            return null;
+          }
+          return `${index + 1}. ${entry.handle} -> ${entry.targetPointer} [${entry.access}]`;
+        })
+        .filter((line): line is string => !!line);
+      return [
+        '[SYSTEM_CHANNEL] sys://cap/list',
+        '[CAPABILITY_TABLE]',
+        ...lines,
+      ].join('\n');
+    }
+
+    if (base.startsWith('sys://cap/describe/')) {
+      const encoded = base.slice('sys://cap/describe/'.length).trim();
+      const decoded = this.decodeURIComponentSafe(encoded);
+      const handle = decoded.startsWith('vfd://') ? decoded : `vfd://${decoded.replace(/^vfd:\/\//, '')}`;
+      const entry = this.capabilityStore.get(handle);
+      if (!entry) {
+        return [
+          `[SYSTEM_CHANNEL] ${base}`,
+          '[OS_TRAP: EACCES]',
+          `Unknown capability: ${decoded}`,
+        ].join('\n');
+      }
+      return [
+        `[SYSTEM_CHANNEL] ${base}`,
+        `[HANDLE] ${entry.handle}`,
+        `[TARGET] ${entry.targetPointer}`,
+        `[ACCESS] ${entry.access}`,
+        `[ISSUED_AT] ${entry.issuedAt}`,
+      ].join('\n');
+    }
+
+    if (base.startsWith('sys://cap/issue/')) {
+      const encodedTarget = base.slice('sys://cap/issue/'.length).trim();
+      const targetPointer = this.decodeURIComponentSafe(encodedTarget);
+      if (targetPointer.length === 0) {
+        return [
+          `[SYSTEM_CHANNEL] ${base}`,
+          '[OS_TRAP: INVALID_ARGUMENT]',
+          'Target pointer is empty.',
+          'Usage: sys://cap/issue/<pointer>?access=r|w|rw',
+        ].join('\n');
+      }
+
+      const access = this.parseCapabilityAccess(params.get('access') ?? params.get('mode'));
+      if (!access) {
+        return [
+          `[SYSTEM_CHANNEL] ${base}`,
+          '[OS_TRAP: INVALID_ARGUMENT]',
+          'Invalid access mode. Expected r|w|rw.',
+        ].join('\n');
+      }
+
+      const entry = this.issueCapabilityHandle(targetPointer, access);
+      return [
+        `[SYSTEM_CHANNEL] ${base}`,
+        '[CAPABILITY_ISSUED]',
+        `[HANDLE] ${entry.handle}`,
+        `[TARGET] ${entry.targetPointer}`,
+        `[ACCESS] ${entry.access}`,
+        '[NEXT]',
+        'Use SYS_GOTO pointer=<HANDLE> to read, or SYS_WRITE semantic_cap=<HANDLE> to write if access allows.',
+      ].join('\n');
+    }
+
+    return [
+      `[SYSTEM_CHANNEL] ${base}`,
+      '[CAP_HELP]',
+      'Issue:    sys://cap/issue/<pointer>?access=r|w|rw',
+      'List:     sys://cap/list',
+      'Describe: sys://cap/describe/<url-encoded-vfd-handle>',
+    ].join('\n');
+  }
+
   private readCallStack(): string[] {
     try {
       const raw = fs.readFileSync(this.callStackFile, 'utf-8');
@@ -382,6 +734,14 @@ export class LocalManifold implements IPhysicalManifold {
         .filter((value) => value.length > 0);
     } catch {
       return [];
+    }
+  }
+
+  private decodeURIComponentSafe(value: string): string {
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
     }
   }
 

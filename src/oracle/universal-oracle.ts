@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
-import { ActionOperator, IOracle, Slice, StackOp, State, Transition } from '../kernel/types.js';
+import fsp from 'node:fs/promises';
+import { IOracle, Slice, State, Syscall, Transition } from '../kernel/types.js';
 
 type OracleMode = 'openai' | 'kimi';
 
@@ -33,6 +34,8 @@ export class UniversalOracle implements IOracle {
   private readonly maxRetries: number;
   private readonly retryBaseDelayMs: number;
   private readonly retryMaxDelayMs: number;
+  private readonly telemetryPath: string | null;
+  private telemetrySeq = 0;
   private kimimart?: {
     endpoint: string;
     apiKey: string;
@@ -45,6 +48,8 @@ export class UniversalOracle implements IOracle {
     this.maxRetries = config.maxRetries ?? 6;
     this.retryBaseDelayMs = config.retryBaseDelayMs ?? 2000;
     this.retryMaxDelayMs = config.retryMaxDelayMs ?? 60000;
+    const telemetryPath = (process.env.TURINGOS_TOKEN_TELEMETRY_PATH ?? '').trim();
+    this.telemetryPath = telemetryPath.length > 0 ? telemetryPath : null;
     if (mode === 'openai') {
       const clientConfig: { apiKey: string; baseURL?: string } = { apiKey: config.apiKey };
       if (config.baseURL) {
@@ -66,9 +71,7 @@ export class UniversalOracle implements IOracle {
   }
 
   public async collapse(discipline: string, q: State, s: Slice): Promise<Transition> {
-    const prompt = [
-      discipline,
-      '',
+    const userFrame = [
       '================',
       '[CPU REGISTER q]:',
       q,
@@ -78,25 +81,37 @@ export class UniversalOracle implements IOracle {
       s,
     ].join('\n');
 
-    const rawOutput = await this.request(prompt);
+    const rawOutput = await this.request(discipline, userFrame);
     return this.parseTransition(rawOutput);
   }
 
-  private async request(prompt: string): Promise<string> {
+  private async request(systemPrompt: string, userFrame: string): Promise<string> {
+    const openAIMessages = [
+      { role: 'system' as const, content: systemPrompt.trim() },
+      { role: 'user' as const, content: userFrame.trim() },
+    ];
+
     if (this.mode === 'openai' && this.openai) {
       return this.withRetry('openai', async () => {
         const response = await this.openai!.chat.completions.create({
           model: this.model,
-          messages: [{ role: 'user', content: prompt }],
+          messages: openAIMessages,
           temperature: 0,
           response_format: { type: 'json_object' },
         });
-        return response.choices[0]?.message?.content ?? '{}';
+        const output = response.choices[0]?.message?.content ?? '{}';
+        await this.recordTelemetry('openai', systemPrompt, userFrame, output, {
+          promptTokens: this.readTokenValue(response.usage?.prompt_tokens),
+          completionTokens: this.readTokenValue(response.usage?.completion_tokens),
+          totalTokens: this.readTokenValue(response.usage?.total_tokens),
+        });
+        return output;
       });
     }
 
     if (this.mode === 'kimi' && this.kimimart) {
       return this.withRetry('kimi', async () => {
+        const kimiMessages = [{ role: 'user' as const, content: userFrame.trim() }];
         const response = await fetch(this.kimimart!.endpoint, {
           method: 'POST',
           headers: {
@@ -108,7 +123,8 @@ export class UniversalOracle implements IOracle {
             model: this.kimimart!.model,
             max_tokens: this.kimimart!.maxOutputTokens,
             temperature: 0,
-            messages: [{ role: 'user', content: prompt }],
+            system: systemPrompt.trim(),
+            messages: kimiMessages,
           }),
         });
 
@@ -120,8 +136,10 @@ export class UniversalOracle implements IOracle {
         }
 
         let parsed: KimiMessageResponse;
+        let parsedRaw: Record<string, unknown>;
         try {
-          parsed = JSON.parse(raw) as KimiMessageResponse;
+          parsedRaw = JSON.parse(raw) as Record<string, unknown>;
+          parsed = parsedRaw as KimiMessageResponse;
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : String(error);
           throw new Error(`Invalid Kimi response JSON: ${message}. Raw: ${raw.slice(0, 500)}`);
@@ -136,6 +154,19 @@ export class UniversalOracle implements IOracle {
         if (text.length === 0) {
           throw new Error(`Empty model output. Raw: ${raw.slice(0, 500)}`);
         }
+
+        const usageRaw =
+          parsedRaw.usage && typeof parsedRaw.usage === 'object'
+            ? (parsedRaw.usage as Record<string, unknown>)
+            : parsedRaw;
+        const promptTokens = this.readTokenValue(usageRaw.input_tokens ?? usageRaw.prompt_tokens);
+        const completionTokens = this.readTokenValue(usageRaw.output_tokens ?? usageRaw.completion_tokens);
+        const totalTokens = this.readTokenValue(usageRaw.total_tokens);
+        await this.recordTelemetry('kimi', systemPrompt, userFrame, text, {
+          promptTokens,
+          completionTokens,
+          totalTokens,
+        });
 
         return text;
       });
@@ -211,6 +242,59 @@ export class UniversalOracle implements IOracle {
     await new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  private readTokenValue(value: unknown): number | undefined {
+    if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+      return value;
+    }
+    return undefined;
+  }
+
+  private estimateTokens(text: string): number {
+    if (!text || text.length === 0) {
+      return 0;
+    }
+    return Math.ceil(text.length / 4);
+  }
+
+  private async recordTelemetry(
+    provider: OracleMode,
+    systemPrompt: string,
+    userFrame: string,
+    output: string,
+    usage: { promptTokens?: number; completionTokens?: number; totalTokens?: number }
+  ): Promise<void> {
+    if (!this.telemetryPath) {
+      return;
+    }
+
+    const promptTokensEst = this.estimateTokens(`${systemPrompt}\n${userFrame}`);
+    const completionTokensEst = this.estimateTokens(output);
+    const totalTokensEst = promptTokensEst + completionTokensEst;
+
+    const row = {
+      ts: new Date().toISOString(),
+      seq: this.telemetrySeq,
+      provider,
+      model: this.model,
+      prompt_chars: systemPrompt.length + userFrame.length,
+      completion_chars: output.length,
+      prompt_tokens_est: promptTokensEst,
+      completion_tokens_est: completionTokensEst,
+      total_tokens_est: totalTokensEst,
+      prompt_tokens: usage.promptTokens ?? null,
+      completion_tokens: usage.completionTokens ?? null,
+      total_tokens: usage.totalTokens ?? null,
+    };
+    this.telemetrySeq += 1;
+
+    try {
+      await fsp.appendFile(this.telemetryPath, `${JSON.stringify(row)}\n`, 'utf-8');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`[oracle:telemetry] append failed path=${this.telemetryPath}: ${message}`);
+    }
+  }
+
   private parseTransition(rawOutput: string): Transition {
     const extractedThought = this.extractThought(rawOutput);
     const candidates: string[] = [rawOutput];
@@ -227,6 +311,7 @@ export class UniversalOracle implements IOracle {
       candidates.push(rawOutput.slice(firstBrace, lastBrace + 1));
     }
 
+    let parseError: Error | null = null;
     for (const candidate of candidates) {
       try {
         const parsed = JSON.parse(candidate);
@@ -234,61 +319,29 @@ export class UniversalOracle implements IOracle {
         if (!normalized) {
           continue;
         }
-        if (normalized.stack_op === 'PUSH' && (!normalized.stack_payload || normalized.stack_payload.length === 0)) {
-          throw new Error('PUSH requires stack_payload');
-        }
         if (!normalized.thought && extractedThought) {
           normalized.thought = extractedThought;
         }
         return normalized;
-      } catch {
-        // Try next candidate shape.
+      } catch (error: unknown) {
+        parseError = error instanceof Error ? error : new Error(String(error));
       }
     }
 
-    throw new Error(`Invalid ALU output shape. Raw: ${rawOutput}`);
+    const detail = parseError ? ` Details: ${parseError.message}` : '';
+    throw new Error(
+      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_PUSH|SYS_POP|SYS_HALT.${detail} Raw: ${rawOutput}`
+    );
   }
 
-  private isTransition(value: unknown): value is Transition {
+  private isTransition(value: unknown): value is { q_next: string; a_t: unknown; thought?: unknown } {
     if (!value || typeof value !== 'object') {
       return false;
     }
 
     const asRecord = value as Record<string, unknown>;
     if (typeof asRecord.q_next !== 'string') return false;
-    if (!asRecord.a_t || typeof asRecord.a_t !== 'object') return false;
-    
-    const a_t = asRecord.a_t as Record<string, unknown>;
-    if (a_t.action_type === 'WRITE') {
-      return typeof a_t.s_prime === 'string';
-    } else if (a_t.action_type === 'GOTO') {
-      return typeof a_t.d_next === 'string';
-    }
-    
-    return false;
-  }
-
-  private isLegacyTransition(value: unknown): value is Record<string, unknown> {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-
-    const asRecord = value as Record<string, unknown>;
-    if (typeof asRecord.q_next !== 'string') {
-      return false;
-    }
-
-    const hasSP = typeof asRecord.s_prime === 'string';
-    const hasDN = typeof asRecord.d_next === 'string';
-    if (!hasSP && !hasDN) {
-      return false;
-    }
-
-    if (asRecord.stack_op !== undefined && !this.normalizeStackOp(asRecord.stack_op)) {
-      return false;
-    }
-
-    return true;
+    return !!asRecord.a_t && typeof asRecord.a_t === 'object';
   }
 
   private extractThought(rawOutput: string): string | undefined {
@@ -301,24 +354,21 @@ export class UniversalOracle implements IOracle {
     return thought.length > 0 ? thought : undefined;
   }
 
-  private normalizeTransition(value: any): Transition {
-    const stackOp = this.normalizeStackOp(value.stack_op);
-    if (!stackOp) {
-      throw new Error('Missing or invalid stack_op');
+  private normalizeTransition(value: { q_next: string; a_t: unknown; thought?: unknown }): Transition {
+    const syscall = this.normalizeSyscall(value.a_t);
+    if (!syscall) {
+      throw new Error(
+        '[CPU_FAULT: INVALID_OPCODE] Missing or invalid a_t.op. Expected SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_PUSH|SYS_POP|SYS_HALT.'
+      );
     }
 
     const normalized: Transition = {
       q_next: value.q_next,
-      a_t: value.a_t,
-      stack_op: stackOp,
+      a_t: syscall,
     };
 
     if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
       normalized.thought = value.thought.trim();
-    }
-
-    if (typeof value.stack_payload === 'string' && value.stack_payload.trim().length > 0) {
-      normalized.stack_payload = value.stack_payload.trim();
     }
 
     return normalized;
@@ -328,53 +378,115 @@ export class UniversalOracle implements IOracle {
     if (this.isTransition(value)) {
       return this.normalizeTransition(value);
     }
-    if (this.isLegacyTransition(value)) {
-      return this.normalizeLegacyTransition(value);
-    }
     return null;
   }
 
-  private normalizeLegacyTransition(value: Record<string, unknown>): Transition {
-    const stackOp = this.normalizeStackOp(value.stack_op) ?? 'NOP';
-    const sPrime = typeof value.s_prime === 'string' ? value.s_prime : '👆🏻';
-    const dNext = typeof value.d_next === 'string' ? value.d_next.trim() : '';
-
-    let action: ActionOperator;
-    if (dNext.length > 0) {
-      action = { action_type: 'GOTO', d_next: dNext };
-    } else if (sPrime.trim() !== '👆🏻') {
-      action = { action_type: 'WRITE', s_prime: sPrime };
-    } else {
-      throw new Error('Legacy transition missing actionable fields');
+  private normalizeSyscall(value: unknown): Syscall | null {
+    if (!value || typeof value !== 'object') {
+      return null;
     }
 
-    const normalized: Transition = {
-      q_next: value.q_next as string,
-      a_t: action,
-      stack_op: stackOp,
+    const syscall = value as Record<string, unknown>;
+    const opcodeRaw =
+      (typeof syscall.op === 'string' && syscall.op) ||
+      (typeof syscall.sys === 'string' && syscall.sys) ||
+      (typeof syscall.syscall === 'string' && syscall.syscall) ||
+      '';
+    const opcode = opcodeRaw.trim().toUpperCase();
+    const keys = Object.keys(syscall);
+    const rejectMutex = (message: string): never => {
+      throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${message}`);
+    };
+    const allowOnly = (allowed: string[], opname: string): void => {
+      const disallowed = keys.filter((key) => !allowed.includes(key));
+      if (disallowed.length > 0) {
+        rejectMutex(`MUTEX_VIOLATION: ${opname} has unsupported fields: ${disallowed.join(', ')}`);
+      }
     };
 
-    if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
-      normalized.thought = value.thought.trim();
+    if (opcode === 'SYS_WRITE') {
+      allowOnly(['op', 'sys', 'syscall', 'payload', 'content', 's_prime', 'semantic_cap', 'semanticCap', 'cap', 'capability'], 'SYS_WRITE');
+      const payload =
+        typeof syscall.payload === 'string'
+          ? syscall.payload
+          : typeof syscall.content === 'string'
+            ? syscall.content
+            : typeof syscall.s_prime === 'string'
+              ? syscall.s_prime
+              : null;
+      if (payload === null) {
+        return null;
+      }
+      const semanticCap =
+        typeof syscall.semantic_cap === 'string'
+          ? syscall.semantic_cap.trim()
+          : typeof syscall.semanticCap === 'string'
+            ? syscall.semanticCap.trim()
+            : typeof syscall.cap === 'string'
+              ? syscall.cap.trim()
+              : typeof syscall.capability === 'string'
+                ? syscall.capability.trim()
+                : '';
+      if (semanticCap.length > 0) {
+        return { op: 'SYS_WRITE', payload, semantic_cap: semanticCap };
+      }
+      return { op: 'SYS_WRITE', payload };
     }
 
-    if (typeof value.stack_payload === 'string' && value.stack_payload.trim().length > 0) {
-      normalized.stack_payload = value.stack_payload.trim();
+    if (opcode === 'SYS_GOTO') {
+      allowOnly(['op', 'sys', 'syscall', 'pointer', 'handle', 'd_next'], 'SYS_GOTO');
+      const pointer =
+        typeof syscall.pointer === 'string'
+          ? syscall.pointer.trim()
+          : typeof syscall.handle === 'string'
+            ? syscall.handle.trim()
+            : typeof syscall.d_next === 'string'
+              ? syscall.d_next.trim()
+              : '';
+      if (pointer.length === 0) {
+        return null;
+      }
+      return { op: 'SYS_GOTO', pointer };
     }
 
-    return normalized;
-  }
-
-  private normalizeStackOp(value: unknown): StackOp | undefined {
-    if (typeof value !== 'string') {
-      return undefined;
+    if (opcode === 'SYS_EXEC') {
+      allowOnly(['op', 'sys', 'syscall', 'cmd', 'command'], 'SYS_EXEC');
+      const cmd =
+        typeof syscall.cmd === 'string'
+          ? syscall.cmd.trim()
+          : typeof syscall.command === 'string'
+            ? syscall.command.trim()
+            : '';
+      if (cmd.length === 0) {
+        return null;
+      }
+      return { op: 'SYS_EXEC', cmd };
     }
 
-    const upper = value.trim().toUpperCase();
-    if (upper === 'PUSH' || upper === 'POP' || upper === 'NOP') {
-      return upper;
+    if (opcode === 'SYS_PUSH') {
+      allowOnly(['op', 'sys', 'syscall', 'task', 'stack_payload'], 'SYS_PUSH');
+      const task =
+        typeof syscall.task === 'string'
+          ? syscall.task.trim()
+          : typeof syscall.stack_payload === 'string'
+            ? syscall.stack_payload.trim()
+            : '';
+      if (task.length === 0) {
+        return null;
+      }
+      return { op: 'SYS_PUSH', task };
     }
 
-    return undefined;
+    if (opcode === 'SYS_POP') {
+      allowOnly(['op', 'sys', 'syscall'], 'SYS_POP');
+      return { op: 'SYS_POP' };
+    }
+
+    if (opcode === 'SYS_HALT') {
+      allowOnly(['op', 'sys', 'syscall'], 'SYS_HALT');
+      return { op: 'SYS_HALT' };
+    }
+
+    return null;
   }
 }

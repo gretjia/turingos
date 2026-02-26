@@ -10,10 +10,9 @@ export class MockOracle implements IOracle {
       return {
         q_next: 'q_1: MOCK_WRITE_FILE',
         a_t: {
-          action_type: 'WRITE',
-          s_prime: `${s}\n\n[MOCK] Bootstrapped by mock oracle.`
+          op: 'SYS_WRITE',
+          payload: `${s}\n\n[MOCK] Bootstrapped by mock oracle.`,
         },
-        stack_op: 'NOP',
       };
     }
 
@@ -25,20 +24,16 @@ export class MockOracle implements IOracle {
           `[x] stderr visible: ${s.includes('mock failure')}`,
         ].join('\n'),
         a_t: {
-          action_type: 'GOTO',
-          d_next: 'HALT'
+          op: 'SYS_HALT',
         },
-        stack_op: 'NOP',
       };
     }
 
     return {
       q_next: q,
       a_t: {
-        action_type: 'GOTO',
-        d_next: 'HALT'
+        op: 'SYS_HALT',
       },
-      stack_op: 'NOP',
     };
   }
 }

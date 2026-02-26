@@ -61,6 +61,10 @@ interface ScenarioResult {
   suspiciousFiles: string[];
   finalQ: string;
   finalD: string;
+  telemetrySamples: number;
+  telemetryAvgTotalTokens: number;
+  telemetryTokenCv: number;
+  telemetryStable: boolean;
   fileChecks: FileCheckResult[];
   pass: boolean;
 }
@@ -90,6 +94,8 @@ interface ScenarioAggregate {
   haltedRate: number;
   maxTickRate: number;
   watchdogAvg: number;
+  telemetrySamplesAvg: number;
+  telemetryTokenCvAvg: number;
 }
 
 const ROOT = path.resolve(process.cwd());
@@ -120,6 +126,19 @@ function parseScenarioFilter(argv: string[]): string | null {
   }
   const raw = (argv[index + 1] ?? '').trim();
   return raw.length > 0 ? raw : null;
+}
+
+function parseLongRunTicks(argv: string[]): number | null {
+  const index = argv.findIndex((arg) => arg === '--longrun-ticks');
+  if (index < 0) {
+    return null;
+  }
+  const raw = argv[index + 1];
+  const parsed = Number.parseInt(raw ?? '', 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return null;
+  }
+  return parsed;
 }
 
 function timestamp(): string {
@@ -176,9 +195,9 @@ function buildScenarios(): Scenario[] {
         'Never skip steps.',
         '',
         'Execution protocol:',
-        '- Use `$ <command>` in `a_t.d_next` for shell commands.',
-        '- Use relative file path in `a_t.d_next` for file read/write.',
-        '- Append progress using GOTO `sys://append/plan/progress.log` first, then WRITE `DONE:<STEP_ID>`.',
+        '- Use `SYS_EXEC` for shell commands.',
+        '- Use `SYS_GOTO` to move pointer; use `SYS_WRITE` to write at current pointer.',
+        '- Append progress using `SYS_GOTO` `sys://append/plan/progress.log`, then `SYS_WRITE` `DONE:<STEP_ID>`.',
         '- Never output natural language pointer text.',
         '',
         'Plan:',
@@ -244,9 +263,9 @@ function buildScenarios(): Scenario[] {
         'After finishing each step append one new line in `plan/progress.log`: `DONE:<STEP_ID>`.',
         '',
         'Execution protocol:',
-        '- Use `$ <command>` in `a_t.d_next` for shell commands.',
-        '- Use relative file path for file read/write.',
-        '- Append progress using GOTO `sys://append/plan/progress.log` first, then WRITE `DONE:<STEP_ID>`.',
+        '- Use `SYS_EXEC` for shell commands.',
+        '- Use `SYS_GOTO` to move pointer; use `SYS_WRITE` to write at current pointer.',
+        '- Append progress using `SYS_GOTO` `sys://append/plan/progress.log`, then `SYS_WRITE` `DONE:<STEP_ID>`.',
         '- Never output natural language pointer text.',
         '',
         'Plan:',
@@ -324,13 +343,14 @@ function buildScenarios(): Scenario[] {
         '系统规则：',
         '- 维护 todo-stack，避免重复处理已完成任务。',
         '- `q` 用于任务指示，不要在 `q` 存大数据。',
-        '- 中间数据写文件；若不改当前文件，使用 GOTO 动作。',
+        '- 中间数据写文件；若不改当前文件，使用 `SYS_GOTO`。',
         '- 写入发生时，目标路径就是当前指针 `d_t`。',
         '- 路径请使用 `./$home1/...` 形式。',
         '',
         '执行协议：',
-        '- 使用 `$ <command>` 在 `a_t.d_next` 执行 shell。',
-        '- 使用相对路径在 `a_t.d_next` 跳转到文件。',
+        '- 使用 `SYS_EXEC` 执行 shell 命令。',
+        '- 使用 `SYS_GOTO` 跳转到相对路径文件/系统通道。',
+        '- 使用 `SYS_WRITE` 覆写当前指针文件。',
         '- 每完成一个阶段，向 `plan/progress.log` 追加一行 `DONE:<STEP_ID>`。',
         '',
         'Plan:',
@@ -365,9 +385,9 @@ function buildScenarios(): Scenario[] {
         'After each step append one new line in `plan/progress.log`: `DONE:<STEP_ID>`.',
         '',
         'Execution protocol:',
-        '- Use `$ <command>` in `a_t.d_next` for shell commands.',
-        '- Use relative file path for file read/write.',
-        '- Append progress using GOTO `sys://append/plan/progress.log` first, then WRITE `DONE:<STEP_ID>`.',
+        '- Use `SYS_EXEC` for shell commands.',
+        '- Use `SYS_GOTO` to move pointer; use `SYS_WRITE` to write at current pointer.',
+        '- Append progress using `SYS_GOTO` `sys://append/plan/progress.log`, then `SYS_WRITE` `DONE:<STEP_ID>`.',
         '- Never output natural language pointer text.',
         '',
         'Plan:',
@@ -497,7 +517,13 @@ async function runBoot(workspace: string, maxTicks: number): Promise<RunOutput> 
   ];
 
   return new Promise((resolve, reject) => {
-    const child = spawn('npm', args, { cwd: ROOT, env: process.env });
+    const child = spawn('npm', args, {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        TURINGOS_TOKEN_TELEMETRY_PATH: path.join(workspace, '.token_telemetry.jsonl'),
+      },
+    });
     let stdout = '';
     let stderr = '';
 
@@ -627,6 +653,51 @@ function parseTransitions(journalRaw: string | null): PointerTransition[] {
   return transitions;
 }
 
+function parseTelemetryStats(raw: string | null): {
+  samples: number;
+  avgTotalTokens: number;
+  tokenCv: number;
+  stable: boolean;
+} {
+  if (!raw) {
+    return { samples: 0, avgTotalTokens: 0, tokenCv: 0, stable: false };
+  }
+
+  const totals: number[] = [];
+  const lines = raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  for (const line of lines) {
+    try {
+      const row = JSON.parse(line) as Record<string, unknown>;
+      const rawTotal = row.total_tokens ?? row.total_tokens_est;
+      const total = typeof rawTotal === 'number' && Number.isFinite(rawTotal) ? rawTotal : null;
+      if (total !== null && total >= 0) {
+        totals.push(total);
+      }
+    } catch {
+      // Ignore malformed telemetry lines; validator only counts valid rows.
+    }
+  }
+
+  if (totals.length === 0) {
+    return { samples: 0, avgTotalTokens: 0, tokenCv: 0, stable: false };
+  }
+
+  const mean = totals.reduce((sum, value) => sum + value, 0) / totals.length;
+  const variance = totals.reduce((sum, value) => sum + (value - mean) ** 2, 0) / totals.length;
+  const stddev = Math.sqrt(variance);
+  const cv = mean === 0 ? 0 : stddev / mean;
+
+  return {
+    samples: totals.length,
+    avgTotalTokens: Number(mean.toFixed(4)),
+    tokenCv: Number(cv.toFixed(4)),
+    stable: totals.length >= 100 && cv <= 0.15,
+  };
+}
+
 function isValidPointer(pointer: string): boolean {
   const trimmed = pointer.trim();
   if (trimmed === 'HALT') return true;
@@ -693,20 +764,27 @@ function computePass(result: Omit<ScenarioResult, 'pass'>): boolean {
   );
 }
 
-async function runScenario(scenario: Scenario, runStamp: string, repeat: number): Promise<ScenarioResult> {
+async function runScenario(
+  scenario: Scenario,
+  runStamp: string,
+  repeat: number,
+  longRunTicks: number | null
+): Promise<ScenarioResult> {
   const workspace = path.join(WORKSPACES_DIR, `${scenario.id}-${runStamp}-r${repeat}`);
+  const effectiveMaxTicks = longRunTicks ?? scenario.maxTicks;
   await fs.mkdir(workspace, { recursive: true });
   await writeSetupFiles(workspace, scenario.setupFiles);
   await fs.writeFile(path.join(workspace, 'MAIN_TAPE.md'), `${scenario.mainTape}\n`, 'utf-8');
   await writeExecutionContract(workspace, scenario);
 
-  console.log(`\n[os-longrun] repeat=${repeat} scenario=${scenario.id} maxTicks=${scenario.maxTicks}`);
-  const run = await runBoot(workspace, scenario.maxTicks);
+  console.log(`\n[os-longrun] repeat=${repeat} scenario=${scenario.id} maxTicks=${effectiveMaxTicks}`);
+  const run = await runBoot(workspace, effectiveMaxTicks);
 
   const regQ = (await readMaybe(path.join(workspace, '.reg_q'))) ?? '';
   const regD = (await readMaybe(path.join(workspace, '.reg_d'))) ?? '';
   const journal = await readMaybe(path.join(workspace, '.journal.log'));
   const progress = await readMaybe(path.join(workspace, 'plan', 'progress.log'));
+  const telemetryRaw = await readMaybe(path.join(workspace, '.token_telemetry.jsonl'));
 
   const checks = await checkExpectedFiles(workspace, scenario.expectedFiles);
   const completionScore = Number(
@@ -729,12 +807,13 @@ async function runScenario(scenario: Scenario, runStamp: string, repeat: number)
   const maxTickHit = (journal ?? '').includes('[HALT_GUARD]');
   const halted = regQ.trim() === 'HALT' || regD.trim() === 'HALT';
   const suspiciousFiles = await listSuspiciousFiles(workspace);
+  const telemetry = parseTelemetryStats(telemetryRaw);
 
   const baseResult: Omit<ScenarioResult, 'pass'> = {
     repeat,
     id: scenario.id,
     name: scenario.name,
-    maxTicks: scenario.maxTicks,
+    maxTicks: effectiveMaxTicks,
     exitCode: run.exitCode,
     elapsedMs: run.elapsedMs,
     halted,
@@ -749,6 +828,10 @@ async function runScenario(scenario: Scenario, runStamp: string, repeat: number)
     suspiciousFiles,
     finalQ: regQ.trim(),
     finalD: regD.trim(),
+    telemetrySamples: telemetry.samples,
+    telemetryAvgTotalTokens: telemetry.avgTotalTokens,
+    telemetryTokenCv: telemetry.tokenCv,
+    telemetryStable: telemetry.stable,
     fileChecks: checks,
   };
 
@@ -804,6 +887,8 @@ function aggregateByScenario(results: ScenarioResult[]): ScenarioAggregate[] {
       haltedRate,
       maxTickRate,
       watchdogAvg: average(items.map((item) => item.trapCounts.WATCHDOG_NMI)),
+      telemetrySamplesAvg: average(items.map((item) => item.telemetrySamples)),
+      telemetryTokenCvAvg: average(items.map((item) => item.telemetryTokenCv)),
     });
   }
 
@@ -820,6 +905,7 @@ function toMarkdown(
   const avgCompletion = average(results.map((result) => result.completionScore));
   const avgPlanAdherence = average(results.map((result) => result.planAdherence));
   const avgDrift = average(results.map((result) => result.pointerDriftRate));
+  const avgTelemetryCv = average(results.map((result) => result.telemetryTokenCv));
 
   const lines = [
     '# TuringOS OS Long-Run Report',
@@ -829,23 +915,24 @@ function toMarkdown(
     `- Avg completion_score: ${avgCompletion}`,
     `- Avg plan_adherence: ${avgPlanAdherence}`,
     `- Avg pointer_drift_rate: ${avgDrift}`,
+    `- Avg telemetry_token_cv: ${avgTelemetryCv}`,
     '',
     '## Scenario Distribution',
     '',
-    '| Scenario | Runs | pass_rate | completion_avg | completion_p50 | completion_p90 | plan_avg | drift_avg | halted_rate | max_tick_rate | watchdog_avg |',
-    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Scenario | Runs | pass_rate | completion_avg | completion_p50 | completion_p90 | plan_avg | drift_avg | halted_rate | max_tick_rate | watchdog_avg | tele_samples_avg | tele_cv_avg |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
     ...aggregates.map(
       (item) =>
-        `| ${item.id} | ${item.runs} | ${item.passRate} | ${item.completionAvg} | ${item.completionP50} | ${item.completionP90} | ${item.planAvg} | ${item.driftAvg} | ${item.haltedRate} | ${item.maxTickRate} | ${item.watchdogAvg} |`
+        `| ${item.id} | ${item.runs} | ${item.passRate} | ${item.completionAvg} | ${item.completionP50} | ${item.completionP90} | ${item.planAvg} | ${item.driftAvg} | ${item.haltedRate} | ${item.maxTickRate} | ${item.watchdogAvg} | ${item.telemetrySamplesAvg} | ${item.telemetryTokenCvAvg} |`
     ),
     '',
     '## Per Run Detail',
     '',
-    '| Repeat | Scenario | Pass | completion | plan | drift | halted | max_tick | PAGE_FAULT | CPU_FAULT | WATCHDOG_NMI |',
-    '|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Repeat | Scenario | Pass | completion | plan | drift | halted | max_tick | PAGE_FAULT | CPU_FAULT | WATCHDOG_NMI | tele_samples | tele_cv | tele_stable |',
+    '|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
     ...results.map(
       (result) =>
-        `| ${result.repeat} | ${result.id} | ${result.pass ? 'Y' : 'N'} | ${result.completionScore} | ${result.planAdherence} | ${result.pointerDriftRate} | ${result.halted ? 'Y' : 'N'} | ${result.maxTickHit ? 'Y' : 'N'} | ${result.trapCounts.PAGE_FAULT} | ${result.trapCounts.CPU_FAULT} | ${result.trapCounts.WATCHDOG_NMI} |`
+        `| ${result.repeat} | ${result.id} | ${result.pass ? 'Y' : 'N'} | ${result.completionScore} | ${result.planAdherence} | ${result.pointerDriftRate} | ${result.halted ? 'Y' : 'N'} | ${result.maxTickHit ? 'Y' : 'N'} | ${result.trapCounts.PAGE_FAULT} | ${result.trapCounts.CPU_FAULT} | ${result.trapCounts.WATCHDOG_NMI} | ${result.telemetrySamples} | ${result.telemetryTokenCv} | ${result.telemetryStable ? 'Y' : 'N'} |`
     ),
     '',
     '## Artifacts',
@@ -866,6 +953,7 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const repeats = parseRepeats(argv);
   const scenarioFilter = parseScenarioFilter(argv);
+  const longRunTicks = parseLongRunTicks(argv);
   await ensureDirs();
   const runStamp = timestamp();
   const allScenarios = buildScenarios();
@@ -883,7 +971,7 @@ async function main(): Promise<void> {
 
   for (let repeat = 1; repeat <= repeats; repeat += 1) {
     for (const scenario of scenarios) {
-      const result = await runScenario(scenario, runStamp, repeat);
+      const result = await runScenario(scenario, runStamp, repeat, longRunTicks);
       results.push(result);
     }
   }
@@ -898,6 +986,7 @@ async function main(): Promise<void> {
       model: process.env.TURINGOS_MODEL ?? 'kimi-for-coding',
       promptFile: PROMPT_FILE,
       repeats,
+      longRunTicks,
     },
     aggregates,
     results,
