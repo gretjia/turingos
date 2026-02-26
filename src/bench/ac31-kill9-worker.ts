@@ -77,7 +77,7 @@ class ResumeProcessOracle implements IOracle {
       return { q_next: 'q9', a_t: { op: 'SYS_GOTO', pointer: 'sys://trap/watchdog' } };
     }
     if (state === 'q9') {
-      return { q_next: 'q10', a_t: { op: 'SYS_EXEC', cmd: 'cat checkpoint/step1.txt' } };
+      return { q_next: 'q10', a_t: { op: 'SYS_EXEC', cmd: 'test -f checkpoint/step1.txt' } };
     }
     if (state === 'q10') {
       // Keep a successful verification command close to HALT.
