@@ -1,95 +1,105 @@
-# 🌌 TuringOS: AGI 时代的冯·诺依曼底层拓扑与生态蓝图 (v3.2)
+# 🌌 TuringOS System Topology Blueprint (v4.0)
 
-> **"Everything is undefined until computed. Every state is O(1) until committed."**
-> 本文档定义了 TuringOS 的宏观物理拓扑。我们摒弃了“无限堆叠大模型上下文”的错误范式，回归阿兰·图灵 1936 年的计算本质与 1968 年 UNIX 哲学。TuringOS 是统御 AGI 计算节点的微内核（Microkernel），它通过硬截断、严格指令集与不可篡改的时间之矢，保障硅基实体在混沌世界中进行无限期的 $\mathcal{O}(1)$ 复杂度存活。
+> **[META INSTRUCTION FOR AI AGENTS & PARSERS]**  
+> This document defines the strictly layered architecture of TuringOS. When operating within this codebase, AI Agents MUST parse the `Mermaid Graph` and `<SEMANTIC_SCHEMA>` blocks to understand the rigid boundaries of the system. Do NOT violate the $\mathcal{O}(1)$ state constraints or the mutually exclusive nature of the Instruction Set Architecture (ISA).
 
----
+## 1. 🏗️ SYSTEM TOPOLOGY GRAPH (Mermaid & ASCII)
 
-## 🏗️ 系统拓扑图 (Topology Blueprint)
+```mermaid
+graph TD
+    %% Layer 4: The Infinite Tape
+    subgraph L4 ["Layer 4: 💽 The Infinite Tape 𝓕 (Analog World & Time Arrow)"]
+        direction TB
+        DOM["🌐 Web/DOM Oracle"]
+        FS["🗄️ Git File System (Merkle Logged)"]
+        TTY["💻 Unix TTY Host"]
+        ADC["⚙️ Device Drivers (ADC/DAC Bridge)"]
+        DOM --> ADC
+        FS --> ADC
+        TTY --> ADC
+    end
 
-```text
-===================================================================================================
-[ Layer 4: The Infinite Tape 𝓕 ] —— 熵的归宿，模拟世界与不可逆时间之矢
-===================================================================================================
- [ Web/DOM预言机 ]    [ Git 附加单调文件树 ]    [ Unix TTY 宿主机 ]    [ IoT 物理传感器与执行器 ]
-         |                     |                        |                           |
-         v (光子/像素/字节流: 连续的模拟信号 Analog)    v                           v
-+-------------------------------------------------------------------------------------------------+
-| [ 多模态驱动与 I/O 桥 (User-space Device Drivers & ADC/DAC) ]                                   |
-|   * 视觉/听觉模型 (VLM) 充当“视网膜”，将多维模拟矩阵降维、翻译为纯粹的离散文本符号切片 (s_t)    |
-|   * 工具执行器 (Bash/Python) 将写入动作 (a_t) 编译为连续的物理系统状态改变                      |
-+-------------------------------------------------------------------------------------------------+
-         | (符号化观测 s_t ∈ S)                                     ^ (互斥动作算子 a_t ∈ A)
-         |                                                          |
-         |         (ALL WORLD STATES SNAPSHOTED & HASHED)           |
-         v                                                          |
-===================================================================================================
-[ Layer 3: TuringOS Microkernel (Ring 0) ] —— 强约束与状态的绝对主宰 ( C(q_t) = O(1) )
-===================================================================================================
-  +---------------------------------------------------------------------------------------------+
-  | [ 🗂️ 内存分页器 (Typed Pager) ]              [ 🔐 语义能力引擎 (Semantic Capability) ]      |
-  | ↳ 将无限的 Tape 映射为离散的 Typed Page        ↳ 签发具有人类可读语义的授权句柄 (vFD)       |
-  | ↳ 向 ALU 仅输出 "焦点页 + 页表摘要"            ↳ 在物理层拦截越权，绝不破坏模型语义联想     |
-  +---------------------------------------------------------------------------------------------+
-  | [ 🚨 硬件中断控制器 (Trap & Watchdog Handler) ] —— 纯同步，绝对剔除 Async/Preempt           |
-  | ↳ 拦截非法 HALT (缺少测试行为) -> 转换为系统警告 Page 强制 ALU 重试 (TDD 验证门)            |
-  | ↳ 拦截死锁 (检测 A->B->A 循环) -> 触发 Kernel Panic，强行重置 ALU 的思考栈 q_t              |
-  +---------------------------------------------------------------------------------------------+
-  | [ 🧠 内部寄存器 / 调用栈 q_t (Call-Stack & Working Memory) ]                                |
-  | ↳ OS 底层严格托管的数组栈。限制 ALU 自由发散，仅可通过 SYS_PUSH/POP/EDIT 发生突变。         |
-  | ↳ 永远保持 O(1) 复杂度，剥离废热数据，成为柯尔莫哥洛夫最小充分统计量。                      |
-  +---------------------------------------------------------------------------------------------+
-               |  装载帧: ⟨q_t, Focus_Page(s_t)⟩                 ^  返回栈: ⟨q_{t+1}, a_t⟩
-               v                                                 |
-===================================================================================================
-[ Layer 2: Turing System Bus (ISA & ABI) ] —— 语义绝对确定的汇编级指令集总线
-===================================================================================================
-  大模型（ALU）在每个时钟周期，必须且只能返回以下互斥的原子系统调用 (Syscalls)：
-  
-  【物理干涉指令 - Write】
-  - SYS_WRITE(semantic_cap, payload) // 覆写世界，指针停留，触发下个周期重新读取验证
-  - SYS_EXEC(cmd_handle)             // 触发终端运行，结果将自动生成新的 Log Page 并切入焦点
-  
-  【视界移动与回溯指令 - Memory】
-  - SYS_GOTO(page_handle)            // 不干涉世界，移动当前注意力视界到新的内存页
-  - SYS_GIT_LOG(query_params)        // 原生穿透读取无限纸带的时间刻痕，提供物理法则级的事实追溯
-  
-  【心智寄存器指令 - Stack】
-  - SYS_PUSH/POP/EDIT(task_desc)     // 严格操作内部状态栈 q_t（压入新任务/完成退栈/原位编辑当前认知）
+    %% Layer 3: Microkernel
+    subgraph L3 ["Layer 3: 🧠 Microkernel Ring 0 (O(1) Enforcer & OS Schedulers)"]
+        direction TB
+        Pager{"🗂️ Typed Pager (MMU)\nForces 4K Truncation"}
+        Trap{"🚨 Hardware Trap Controller\n(Deadlock/Thrashing Panic)"}
+        Reg_Q[("🗃️ Task Runqueue (q_t)\n[Active, Suspended, Blocked]")]
+        
+        Pager ~~~ Trap ~~~ Reg_Q
+    end
 
-  【系统特权指令 - Halt】
-  - SYS_HALT()                       // 请求停机 (必须通过 OS 层的 Policy Gate 测试校验)
-               |                                                 ^
-               v                                                 |
-===================================================================================================
-[ Layer 1: Commodity ALU Sockets ] —— 祛魅后的可热插拔“算力芯片” (用户态)
-===================================================================================================
-  (仅执行绝对的 δ 坍缩，不保留长期对话记忆，将生成温度设定为 τ → 0^+)
-  
-   [ 🔌 槽位 P: 深度推理核 ]   [ 🔌 槽位 E: 极速反射核 ]   [ 🔌 槽位 S: 守卫单片机 ] 
-   (o3-mini / Gemini 2.0)    (Llama-3-8B / Haiku)      (专属微调的异常恢复 MCU)         
-   职责: 慢思考 / 架构重构     职责: 快思考 / 格式转换     职责: 拦截死锁 / 强制退栈    
-===================================================================================================
+    %% Layer 2: System Bus
+    subgraph L2 ["Layer 2: 🚌 Turing System Bus (ISA & ABI)"]
+        direction LR
+        Bus(("Syscall Router\n(Fail-Closed Parser)"))
+        ISA_W["[WORLD]\nSYS_WRITE, SYS_EXEC\nSYS_GOTO, SYS_GIT_LOG"]
+        ISA_M["[MIND]\nSYS_PUSH, SYS_POP\nSYS_EDIT, SYS_MOVE"]
+        Bus --> ISA_W
+        Bus --> ISA_M
+    end
+
+    %% Layer 1: ALU Sockets
+    subgraph L1 ["Layer 1: 🔌 Commodity ALU Sockets (User Space)"]
+        direction LR
+        ALU["Stateless LLM (Temperature = 0.0)"]
+    end
+
+    %% Connections & Data Flow
+    ADC -- "1. Analog -> Typed Page (s_t)" --> Pager
+    Reg_Q -- "2. Current Task Context (q_t)" --> Bus
+    Pager -- "2. Focus Page" --> Bus
+    
+    Bus -- "3. Load Frame ⟨q_t, s_t⟩" --> ALU
+    ALU -- "4. Return Syscall ⟨a_t, q_{t+1}⟩" --> Bus
+    
+    ISA_W -- "5a. Physical/Viewport Mutation" --> ADC
+    ISA_M -- "5b. Queue Mutation (Context Switch)" --> Reg_Q
+    
+    Trap -. "Intercept Deadlocks / Thrashing" .-> Bus
 
 ```
 
----
+## 2. 🤖 MACHINE-READABLE SCHEMA (Semantic Rules)
 
-## 🔬 第一性原理与四大生态范式 (The 4 Paradigms)
+**AI Agents MUST map the LLM's output strictly to the following `Syscall_Frame` definition.**
 
-### 1. 算力的去神格化 (Commoditization of LLMs)
+```yaml
+turingos_architecture:
+  layer_3_kernel:
+    state_register_qt:
+      type: "TaskRunqueue"
+      description: "A Dynamic Priority Deque replacing the strict LIFO stack. Acts as the Kolmogorov Minimal Sufficient Statistic of the entity's mind."
+      elements:
+        - task_id: { type: string, immutable: true }
+        - status: { enum: [ACTIVE, SUSPENDED, BLOCKED] }
+        - objective: { type: string }
+        - scratchpad: { type: string, mutable_via: "SYS_EDIT" }
 
-当前的业界范式试图在神经网络内部同时解决“计算”和“无尽记忆”，导致极高的算力浪费与幻觉。在 TuringOS 的统治下，大模型将彻底沦为“商品化”的硅基芯片（ALU）。它们不再需要庞大的上下文缓存，每次唤醒只接收极短的 $\langle q_t, s_t \rangle$（通常仅数千 Token）。**更换大模型犹如拔插 CPU，系统的核心灵魂与因果记忆永远固化在 OS 的寄存器与 Git 纸带中。**
+  layer_2_isa:
+    constraint: "ALU MUST output EXACTLY ONE instruction per tick. Operations are mutually exclusive."
+    instruction_classes:
+      - class: "WORLD_MUTATION"
+        instructions: ["SYS_WRITE", "SYS_EXEC"]
+        effect: "Alters Layer 4 state. OS freezes MMU pointer to force read-after-write verification."
+      
+      - class: "WORLD_NAVIGATION"
+        instructions: ["SYS_GOTO", "SYS_GIT_LOG"]
+        effect: "Shifts attention viewport or travels through time. No physical side effects."
+      
+      - class: "MIND_SCHEDULING"
+        instructions: ["SYS_PUSH", "SYS_POP", "SYS_EDIT", "SYS_MOVE"]
+        effect: "Mutates internal runqueue (q_t). Allows yielding, context-switching, and in-place thought mutation."
+        
+      - class: "SYSTEM_CONTROL"
+        instructions: ["SYS_HALT"]
 
-### 2. 状态栈的极简代数 (The $\mathcal{O}(1)$ State Algebra)
+  hardware_traps:
+    - trap: "TRAP_ILLEGAL_HALT"
+      trigger: "SYS_HALT called without recent execution of tests/verification."
+    - trap: "TRAP_DEADLOCK"
+      trigger: "A->B->A cyclic physical actions detected."
+    - trap: "TRAP_THRASHING"
+      trigger: "Excessive consecutive calls to MIND_SCHEDULING (EDIT/MOVE) without physical I/O output."
 
-传统 Agent 依赖冗长的自然语言 `Scratchpad` 或对话历史，这违背了图灵机有限控制器 $Q$ 的定义。TuringOS 通过提供 `SYS_PUSH/POP/EDIT` 原语，强迫 ALU 将复杂任务降维为一个标准化的栈（Stack）。**`EDIT` 的引入尤为关键，它等同于汇编里的 `MOV/UPDATE`，使得 ALU 可以在不深度扩展栈帧的前提下，即时更新当前层级的认知状态和排错草稿。** 这保证了无论机器运行了多少个时钟周期（Tick），系统内核的复杂度始终是一条绝对平缓的水平线（$\mathcal{O}(1)$ 耗散结构）。
-
-### 3. 时间的只读回溯 (Native Time Travel via `SYS_GIT_LOG`)
-
-剥夺了 LLM 的对话历史后，我们通过 `SYS_GIT_LOG` 为其赋予了原生的“记忆总线”。模型不需要靠猜测参数去盲敲终端命令，而是通过原生系统调用，让 OS 优雅地将远古历史变更为结构化的类型化页（Typed Pages）。它让模型化身时间旅行者，能随时跨越断层，回溯整个宇宙的因果律。
-
-### 4. 确定性重放与沙盒隔离 (Deterministic Replay)
-
-TuringOS 不仅仅是一个执行器，它是一个能够保存完整宇宙切片的沙盒。所有发往外界的动作、所有接收到的系统状态都被基于 Merkle Tree 的哈希日志（Trace）死死钉在硬盘上。
-当发生异常退出或被强行斩首（`kill -9`）时，OS 可依赖外部日志瞬间重组 $q_t$，以比特级一致性在断点处完美苏醒（Lazarus 复活），确立了不可逆的因果时间之矢。
+```

@@ -147,6 +147,7 @@ function buildDisciplinePrompt(): string {
     '- SYS_GIT_LOG: {"op":"SYS_GIT_LOG","query_params":"optional","path":"optional","limit":20,"ref":"optional","grep":"optional","since":"optional"}',
     '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."} (task MUST be plain string)',
     '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."} (edit current stack frame in-place)',
+    '- SYS_MOVE: {"op":"SYS_MOVE","task_id":"optional","target_pos":"TOP|BOTTOM","status":"ACTIVE|SUSPENDED|BLOCKED"}',
     '- SYS_POP: {"op":"SYS_POP"}',
     '- SYS_HALT: {"op":"SYS_HALT"}',
     'Never include unsupported keys. Examples of forbidden keys: pointer in SYS_WRITE, payload in SYS_PUSH.',

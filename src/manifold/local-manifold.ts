@@ -2,7 +2,7 @@ import { exec, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { IPhysicalManifold, Pointer, Slice } from '../kernel/types.js';
+import { IPhysicalManifold, Pointer, RunqueueStatus, RunqueueTargetPos, Slice } from '../kernel/types.js';
 
 export interface LocalManifoldOptions {
   timeoutMs?: number;
@@ -16,6 +16,15 @@ interface SemanticCapabilityEntry {
   targetPointer: string;
   access: CapabilityAccess;
   issuedAt: string;
+}
+
+interface RunQueueTask {
+  task_id: string;
+  status: RunqueueStatus;
+  objective: string;
+  scratchpad: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export class LocalManifold implements IPhysicalManifold {
@@ -373,39 +382,63 @@ export class LocalManifold implements IPhysicalManifold {
   }
 
   private renderCallStackSnapshot(channel: string): string {
-    const stack = this.readCallStack();
-    const top = stack.length > 0 ? stack[stack.length - 1] : '(empty)';
+    const queue = this.normalizeRunQueue(this.readRunQueue());
+    const topTask = this.resolveActiveTask(queue);
+    const top = topTask ? topTask.objective : '(empty)';
     const frames =
-      stack.length > 0 ? [...stack].reverse().map((item, idx) => `${idx + 1}. ${item}`).join('\n') : '(empty)';
+      queue.length > 0
+        ? [...queue]
+            .reverse()
+            .map(
+              (item, idx) =>
+                `${idx + 1}. [${item.status}] ${item.task_id} :: ${item.objective}${
+                  item.scratchpad && item.scratchpad !== item.objective ? ` | scratchpad=${item.scratchpad}` : ''
+                }`
+            )
+            .join('\n')
+        : '(empty)';
+    const active = queue.filter((task) => task.status === 'ACTIVE');
+    const suspended = queue.filter((task) => task.status === 'SUSPENDED');
+    const blocked = queue.filter((task) => task.status === 'BLOCKED');
+    const renderBucket = (tasks: RunQueueTask[]): string =>
+      tasks.length === 0 ? '(none)' : tasks.map((task) => `${task.task_id}:${task.objective}`).join(' | ');
 
     return [
       `[SYSTEM_CHANNEL] ${channel}`,
-      `[CALL_STACK_DEPTH] ${stack.length}`,
+      `[CALL_STACK_DEPTH] ${queue.length}`,
       `[CALL_STACK_TOP] ${top}`,
+      `[RUNQUEUE_ACTIVE] ${renderBucket(active)}`,
+      `[RUNQUEUE_SUSPENDED] ${renderBucket(suspended)}`,
+      `[RUNQUEUE_BLOCKED] ${renderBucket(blocked)}`,
+      '[RUNQUEUE_JSON]',
+      JSON.stringify(queue, null, 2),
       '[CALL_STACK]',
       frames,
-      'Action: use SYS_PUSH(task) / SYS_EDIT(task) / SYS_POP syscall opcodes for stack control.',
+      'Action: use SYS_PUSH(task) / SYS_EDIT(task) / SYS_MOVE(task_id,target_pos,status) / SYS_POP syscall opcodes for queue control.',
     ].join('\n');
   }
 
   private applyCallStackSyscall(payload: string): void {
     const instruction = payload.trim();
-    const stack = this.readCallStack();
+    const queue = this.normalizeRunQueue(this.readRunQueue());
 
     if (instruction.length === 0 || instruction.toUpperCase() === 'NOP') {
       return;
     }
 
     if (instruction.toUpperCase() === 'POP') {
-      if (stack.length > 0) {
-        stack.pop();
-        this.writeCallStack(stack);
+      const activeIdx = this.resolveActiveTaskIndex(queue);
+      if (activeIdx >= 0) {
+        queue.splice(activeIdx, 1);
+      } else if (queue.length > 0) {
+        queue.pop();
       }
+      this.writeRunQueue(this.normalizeRunQueue(queue));
       return;
     }
 
     if (instruction.toUpperCase() === 'RESET' || instruction.toUpperCase() === 'CLEAR') {
-      this.writeCallStack([]);
+      this.writeRunQueue([]);
       return;
     }
 
@@ -416,11 +449,25 @@ export class LocalManifold implements IPhysicalManifold {
         throw new Error('PUSH payload is empty.');
       }
 
-      stack.push(task.slice(0, 200));
-      if (stack.length > this.maxCallStackDepth) {
-        stack.splice(0, stack.length - this.maxCallStackDepth);
+      const now = new Date().toISOString();
+      for (const item of queue) {
+        if (item.status === 'ACTIVE') {
+          item.status = 'SUSPENDED';
+          item.updated_at = now;
+        }
       }
-      this.writeCallStack(stack);
+      queue.push({
+        task_id: this.issueTaskId(task),
+        status: 'ACTIVE',
+        objective: task.slice(0, 200),
+        scratchpad: task.slice(0, 200),
+        created_at: now,
+        updated_at: now,
+      });
+      if (queue.length > this.maxCallStackDepth) {
+        queue.splice(0, queue.length - this.maxCallStackDepth);
+      }
+      this.writeRunQueue(this.normalizeRunQueue(queue));
       return;
     }
 
@@ -430,12 +477,59 @@ export class LocalManifold implements IPhysicalManifold {
       if (task.length === 0) {
         throw new Error('EDIT payload is empty.');
       }
-      if (stack.length === 0) {
-        throw new Error('EDIT requires non-empty call stack.');
+      const activeIdx = this.resolveActiveTaskIndex(queue);
+      if (activeIdx < 0) {
+        throw new Error('EDIT requires non-empty runqueue.');
       }
 
-      stack[stack.length - 1] = task.slice(0, 200);
-      this.writeCallStack(stack);
+      const target = queue[activeIdx];
+      target.objective = task.slice(0, 200);
+      target.scratchpad = task.slice(0, 200);
+      target.updated_at = new Date().toISOString();
+      this.writeRunQueue(this.normalizeRunQueue(queue));
+      return;
+    }
+
+    const moveMatch = instruction.match(/^MOVE\s*:?\s*(.*)$/is);
+    if (moveMatch) {
+      const move = this.parseMoveInstruction(moveMatch[1] ?? '');
+      const normalizedTarget = move.targetPos ?? 'BOTTOM';
+      const sourceIdx = this.resolveMoveSourceIndex(queue, move.taskId);
+      if (sourceIdx < 0) {
+        throw new Error('MOVE requires non-empty runqueue.');
+      }
+
+      const [task] = queue.splice(sourceIdx, 1);
+      if (!task) {
+        throw new Error('MOVE source task is empty.');
+      }
+      const now = new Date().toISOString();
+      task.updated_at = now;
+
+      if (move.status) {
+        task.status = move.status;
+      } else if (normalizedTarget === 'TOP') {
+        task.status = 'ACTIVE';
+      } else if (normalizedTarget === 'BOTTOM' && task.status === 'ACTIVE') {
+        task.status = 'SUSPENDED';
+      }
+
+      if (normalizedTarget === 'TOP') {
+        queue.push(task);
+      } else {
+        queue.unshift(task);
+      }
+
+      if (task.status === 'ACTIVE') {
+        for (const item of queue) {
+          if (item.task_id !== task.task_id && item.status === 'ACTIVE') {
+            item.status = 'SUSPENDED';
+            item.updated_at = now;
+          }
+        }
+      }
+
+      this.writeRunQueue(this.normalizeRunQueue(queue));
       return;
     }
 
@@ -829,23 +923,6 @@ export class LocalManifold implements IPhysicalManifold {
     ].join('\n');
   }
 
-  private readCallStack(): string[] {
-    try {
-      const raw = fs.readFileSync(this.callStackFile, 'utf-8');
-      const parsed = JSON.parse(raw) as unknown;
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
-      return parsed
-        .filter((value): value is string => typeof value === 'string')
-        .map((value) => value.trim())
-        .filter((value) => value.length > 0);
-    } catch {
-      return [];
-    }
-  }
-
   private decodeURIComponentSafe(value: string): string {
     try {
       return decodeURIComponent(value);
@@ -854,7 +931,215 @@ export class LocalManifold implements IPhysicalManifold {
     }
   }
 
-  private writeCallStack(stack: string[]): void {
-    fs.writeFileSync(this.callStackFile, `${JSON.stringify(stack, null, 2)}\n`, 'utf-8');
+  private readRunQueue(): RunQueueTask[] {
+    try {
+      const raw = fs.readFileSync(this.callStackFile, 'utf-8');
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      if (parsed.every((value) => typeof value === 'string')) {
+        const legacy = parsed
+          .map((value) => (typeof value === 'string' ? value.trim() : ''))
+          .filter((value) => value.length > 0)
+          .slice(-this.maxCallStackDepth);
+        const now = new Date().toISOString();
+        return legacy.map((objective, idx) => ({
+          task_id: this.legacyTaskId(objective, idx),
+          status: idx === legacy.length - 1 ? 'ACTIVE' : 'SUSPENDED',
+          objective: objective.slice(0, 200),
+          scratchpad: objective.slice(0, 200),
+          created_at: now,
+          updated_at: now,
+        }));
+      }
+
+      return parsed
+        .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && !Array.isArray(item))
+        .map((item) => {
+          const objectiveRaw =
+            typeof item.objective === 'string'
+              ? item.objective
+              : typeof item.task === 'string'
+                ? item.task
+                : typeof item.scratchpad === 'string'
+                  ? item.scratchpad
+                  : '';
+          const objective = objectiveRaw.trim().slice(0, 200);
+          if (objective.length === 0) {
+            return null;
+          }
+
+          const taskIdRaw =
+            typeof item.task_id === 'string'
+              ? item.task_id
+              : typeof item.id === 'string'
+                ? item.id
+                : '';
+          const taskId = taskIdRaw.trim().length > 0 ? taskIdRaw.trim() : this.issueTaskId(objective);
+
+          const statusRaw = typeof item.status === 'string' ? item.status.trim().toUpperCase() : '';
+          const status: RunqueueStatus =
+            statusRaw === 'ACTIVE' || statusRaw === 'SUSPENDED' || statusRaw === 'BLOCKED'
+              ? statusRaw
+              : 'SUSPENDED';
+
+          const scratchpadRaw = typeof item.scratchpad === 'string' ? item.scratchpad.trim() : objective;
+          const scratchpad = scratchpadRaw.length > 0 ? scratchpadRaw.slice(0, 200) : objective;
+          const createdAt = typeof item.created_at === 'string' ? item.created_at : new Date().toISOString();
+          const updatedAt = typeof item.updated_at === 'string' ? item.updated_at : createdAt;
+
+          return {
+            task_id: taskId,
+            status,
+            objective,
+            scratchpad,
+            created_at: createdAt,
+            updated_at: updatedAt,
+          } satisfies RunQueueTask;
+        })
+        .filter((item): item is RunQueueTask => item !== null);
+    } catch {
+      return [];
+    }
+  }
+
+  private normalizeRunQueue(queue: RunQueueTask[]): RunQueueTask[] {
+    const normalized = queue
+      .filter((task) => task && typeof task === 'object')
+      .map((task) => {
+        const objective = task.objective.trim().slice(0, 200);
+        const scratchpad = (task.scratchpad || objective).trim().slice(0, 200);
+        const statusRaw = task.status.trim().toUpperCase();
+        const status: RunqueueStatus =
+          statusRaw === 'ACTIVE' || statusRaw === 'SUSPENDED' || statusRaw === 'BLOCKED' ? statusRaw : 'SUSPENDED';
+        const taskId = task.task_id.trim().length > 0 ? task.task_id.trim() : this.issueTaskId(objective);
+        return {
+          task_id: taskId,
+          status,
+          objective,
+          scratchpad: scratchpad.length > 0 ? scratchpad : objective,
+          created_at: task.created_at || new Date().toISOString(),
+          updated_at: task.updated_at || task.created_at || new Date().toISOString(),
+        };
+      })
+      .filter((task) => task.objective.length > 0)
+      .slice(-this.maxCallStackDepth);
+
+    const seen = new Set<string>();
+    for (let i = 0; i < normalized.length; i += 1) {
+      const candidate = normalized[i];
+      if (!seen.has(candidate.task_id)) {
+        seen.add(candidate.task_id);
+        continue;
+      }
+      candidate.task_id = `${candidate.task_id}_${i}`;
+      seen.add(candidate.task_id);
+    }
+
+    const activeIndices = normalized
+      .map((task, idx) => (task.status === 'ACTIVE' ? idx : -1))
+      .filter((idx) => idx >= 0);
+    if (activeIndices.length > 1) {
+      const keep = activeIndices[activeIndices.length - 1];
+      for (const idx of activeIndices) {
+        if (idx !== keep) {
+          normalized[idx].status = 'SUSPENDED';
+        }
+      }
+    } else if (activeIndices.length === 0 && normalized.length > 0) {
+      const candidate = [...normalized].reverse().find((task) => task.status !== 'BLOCKED');
+      if (candidate) {
+        candidate.status = 'ACTIVE';
+      }
+    }
+
+    return normalized;
+  }
+
+  private resolveActiveTaskIndex(queue: RunQueueTask[]): number {
+    for (let i = queue.length - 1; i >= 0; i -= 1) {
+      if (queue[i].status === 'ACTIVE') {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private resolveActiveTask(queue: RunQueueTask[]): RunQueueTask | null {
+    const idx = this.resolveActiveTaskIndex(queue);
+    return idx >= 0 ? queue[idx] : null;
+  }
+
+  private parseMoveInstruction(raw: string): { taskId?: string; targetPos: RunqueueTargetPos; status?: RunqueueStatus } {
+    const parts = raw
+      .split(/[;,]/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+    let taskId: string | undefined;
+    let targetPos: RunqueueTargetPos = 'BOTTOM';
+    let status: RunqueueStatus | undefined;
+
+    for (const part of parts) {
+      const keyValue = part.match(/^([a-z_]+)\s*=\s*(.+)$/i);
+      if (keyValue?.[1] && keyValue[2]) {
+        const key = keyValue[1].trim().toLowerCase();
+        const value = keyValue[2].trim();
+        if ((key === 'task_id' || key === 'task' || key === 'id') && value.length > 0) {
+          taskId = value;
+          continue;
+        }
+        if ((key === 'target_pos' || key === 'target' || key === 'position') && value.length > 0) {
+          const normalized = value.toUpperCase();
+          if (normalized !== 'TOP' && normalized !== 'BOTTOM') {
+            throw new Error(`MOVE target_pos invalid: ${value}`);
+          }
+          targetPos = normalized;
+          continue;
+        }
+        if ((key === 'status' || key === 'state') && value.length > 0) {
+          const normalized = value.toUpperCase();
+          if (normalized !== 'ACTIVE' && normalized !== 'SUSPENDED' && normalized !== 'BLOCKED') {
+            throw new Error(`MOVE status invalid: ${value}`);
+          }
+          status = normalized;
+        }
+        continue;
+      }
+
+      const maybeTarget = part.toUpperCase();
+      if (maybeTarget === 'TOP' || maybeTarget === 'BOTTOM') {
+        targetPos = maybeTarget;
+      } else if (part.length > 0) {
+        taskId = part;
+      }
+    }
+
+    return { taskId, targetPos, status };
+  }
+
+  private resolveMoveSourceIndex(queue: RunQueueTask[], taskId?: string): number {
+    if (taskId && taskId.trim().length > 0) {
+      return queue.findIndex((task) => task.task_id === taskId.trim());
+    }
+    return this.resolveActiveTaskIndex(queue);
+  }
+
+  private issueTaskId(task: string): string {
+    const digest = createHash('sha256')
+      .update(`${new Date().toISOString()}|${task}|${Math.random()}`)
+      .digest('hex')
+      .slice(0, 12);
+    return `task_${digest}`;
+  }
+
+  private legacyTaskId(task: string, index: number): string {
+    const digest = createHash('sha256').update(`legacy|${index}|${task}`).digest('hex').slice(0, 10);
+    return `legacy_${digest}`;
+  }
+
+  private writeRunQueue(queue: RunQueueTask[]): void {
+    fs.writeFileSync(this.callStackFile, `${JSON.stringify(queue, null, 2)}\n`, 'utf-8');
   }
 }

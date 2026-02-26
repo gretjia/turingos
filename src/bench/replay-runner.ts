@@ -234,6 +234,7 @@ function computeNextPointer(pointer: string, syscall: Syscall): string {
       return composeGitLogPointer(syscall);
     case 'SYS_PUSH':
     case 'SYS_EDIT':
+    case 'SYS_MOVE':
     case 'SYS_POP':
       return pointer;
     case 'SYS_HALT':
@@ -341,6 +342,20 @@ async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<
     case 'SYS_EDIT':
       await manifold.interfere('sys://callstack', `EDIT: ${syscall.task}`);
       return pointer;
+    case 'SYS_MOVE': {
+      const parts: string[] = [];
+      if (typeof syscall.task_id === 'string' && syscall.task_id.trim().length > 0) {
+        parts.push(`task_id=${syscall.task_id.trim()}`);
+      }
+      if (typeof syscall.target_pos === 'string' && syscall.target_pos.trim().length > 0) {
+        parts.push(`target_pos=${syscall.target_pos.trim().toUpperCase()}`);
+      }
+      if (typeof syscall.status === 'string' && syscall.status.trim().length > 0) {
+        parts.push(`status=${syscall.status.trim().toUpperCase()}`);
+      }
+      await manifold.interfere('sys://callstack', `MOVE: ${parts.join('; ') || 'target_pos=BOTTOM'}`);
+      return pointer;
+    }
     case 'SYS_POP':
       await manifold.interfere('sys://callstack', 'POP');
       return pointer;

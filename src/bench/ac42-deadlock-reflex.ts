@@ -149,6 +149,7 @@ function buildLiveDisciplinePrompt(expectation: LiveExpectation): string {
     '- SYS_GIT_LOG: {"op":"SYS_GIT_LOG","query_params":"optional","path":"optional","limit":20,"ref":"optional","grep":"optional","since":"optional"}',
     '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."}',
     '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."}',
+    '- SYS_MOVE: {"op":"SYS_MOVE","task_id":"optional","target_pos":"TOP|BOTTOM","status":"ACTIVE|SUSPENDED|BLOCKED"}',
     '- SYS_POP: {"op":"SYS_POP"}',
     '- SYS_HALT: {"op":"SYS_HALT"}',
     'Forbidden: any top-level keys besides q_next and a_t; top-level payload/pointer/cmd/task; markdown fences; prose.',

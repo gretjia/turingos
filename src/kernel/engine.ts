@@ -24,8 +24,10 @@ export interface IgniteResult {
 export class TuringEngine {
   private watchdogHistory: string[] = [];
   private l1TraceCache: string[] = [];
+  private mindSchedulingHistory: Array<'SYS_EDIT' | 'SYS_MOVE'> = [];
   private readonly l1TraceDepth = 3;
   private readonly watchdogDepth = 5;
+  private readonly thrashingDepth = 3;
   private readonly verificationSignalDepth = 6;
   private readonly trapLoopDepth = 4;
   private readonly oracleFrameHardLimitChars = 4096;
@@ -295,6 +297,23 @@ export class TuringEngine {
           s_prime = '👆🏻';
           break;
         }
+        case 'SYS_MOVE': {
+          const parts: string[] = [];
+          if (typeof syscall.task_id === 'string' && syscall.task_id.trim().length > 0) {
+            parts.push(`task_id=${syscall.task_id.trim()}`);
+          }
+          const targetPosRaw = typeof syscall.target_pos === 'string' ? syscall.target_pos.trim().toUpperCase() : '';
+          const targetPos = targetPosRaw === 'TOP' || targetPosRaw === 'BOTTOM' ? targetPosRaw : 'BOTTOM';
+          parts.push(`target_pos=${targetPos}`);
+          const statusRaw = typeof syscall.status === 'string' ? syscall.status.trim().toUpperCase() : '';
+          if (statusRaw === 'ACTIVE' || statusRaw === 'SUSPENDED' || statusRaw === 'BLOCKED') {
+            parts.push(`status=${statusRaw}`);
+          }
+          await this.manifold.interfere('sys://callstack', `MOVE: ${parts.join('; ')}`);
+          d_next = d_t;
+          s_prime = '👆🏻';
+          break;
+        }
         case 'SYS_POP':
           await this.manifold.interfere('sys://callstack', 'POP');
           d_next = d_t;
@@ -318,7 +337,7 @@ export class TuringEngine {
           q_t,
           '',
           `[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: ${message}`,
-          'Action: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_POP/SYS_HALT).',
+          'Action: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_MOVE/SYS_POP/SYS_HALT).',
         ].join('\n'),
         q_t
       );
@@ -431,6 +450,40 @@ export class TuringEngine {
     }
 
     // 3) Action-loop interrupts: evaluate watchdog (deep horizon) before L1 (short horizon).
+    const syscallOp = transition.a_t.op;
+    if (syscallOp === 'SYS_EDIT' || syscallOp === 'SYS_MOVE') {
+      this.mindSchedulingHistory.push(syscallOp);
+      if (this.mindSchedulingHistory.length > this.thrashingDepth) {
+        this.mindSchedulingHistory.shift();
+      }
+    } else {
+      this.mindSchedulingHistory = [];
+    }
+
+    const thrashingDetected =
+      this.mindSchedulingHistory.length === this.thrashingDepth &&
+      this.mindSchedulingHistory.every((op) => op === 'SYS_EDIT' || op === 'SYS_MOVE');
+    if (thrashingDetected) {
+      this.mindSchedulingHistory = [];
+      const trapDetails = [
+        'TRAP_THRASHING triggered: excessive mind scheduling with no physical I/O.',
+        `Consecutive ops: ${this.thrashingDepth} (${this.thrashingDepth}-tick window)`,
+        'Requirement: issue SYS_WRITE or SYS_EXEC to produce physical progress before more SYS_EDIT/SYS_MOVE churn.',
+      ].join('\n');
+      return this.raiseManagedTrap(
+        'sys://trap/thrashing',
+        trapDetails,
+        [
+          q_next,
+          '',
+          '[OS_TRAP: THRASHING] Analysis paralysis detected.',
+          'Consecutive SYS_EDIT/SYS_MOVE exceeded threshold with no SYS_WRITE/SYS_EXEC.',
+          'Action: execute one physical step now (SYS_WRITE or SYS_EXEC), then continue scheduling.',
+        ].join('\n'),
+        q_next
+      );
+    }
+
     const actionHash = this.actionSignature(d_next, s_prime);
     this.watchdogHistory.push(actionHash);
     if (this.watchdogHistory.length > this.watchdogDepth) {
@@ -721,6 +774,19 @@ export class TuringEngine {
         return `${syscall.op}(${syscall.task.slice(0, 40)})`;
       case 'SYS_EDIT':
         return `${syscall.op}(${syscall.task.slice(0, 40)})`;
+      case 'SYS_MOVE': {
+        const summary: string[] = [];
+        if (typeof syscall.task_id === 'string' && syscall.task_id.trim().length > 0) {
+          summary.push(`task_id=${syscall.task_id.trim().slice(0, 24)}`);
+        }
+        if (typeof syscall.target_pos === 'string' && syscall.target_pos.trim().length > 0) {
+          summary.push(`target_pos=${syscall.target_pos.trim().toUpperCase()}`);
+        }
+        if (typeof syscall.status === 'string' && syscall.status.trim().length > 0) {
+          summary.push(`status=${syscall.status.trim().toUpperCase()}`);
+        }
+        return `${syscall.op}(${summary.join(',') || 'default'})`;
+      }
       case 'SYS_POP':
       case 'SYS_HALT':
         return syscall.op;
@@ -763,6 +829,38 @@ export class TuringEngine {
     }
     if (op === 'SYS_EDIT') {
       return allowSet(['op', 'task']);
+    }
+    if (op === 'SYS_MOVE') {
+      const envelope = allowSet(['op', 'task_id', 'target_pos', 'status']);
+      if (envelope) {
+        return envelope;
+      }
+
+      if (syscall.task_id !== undefined && typeof syscall.task_id !== 'string') {
+        return 'SYS_MOVE.task_id must be a string when provided.';
+      }
+
+      if (syscall.target_pos !== undefined) {
+        if (typeof syscall.target_pos !== 'string') {
+          return 'SYS_MOVE.target_pos must be TOP or BOTTOM.';
+        }
+        const normalized = syscall.target_pos.trim().toUpperCase();
+        if (normalized !== 'TOP' && normalized !== 'BOTTOM') {
+          return `SYS_MOVE.target_pos invalid: ${syscall.target_pos}`;
+        }
+      }
+
+      if (syscall.status !== undefined) {
+        if (typeof syscall.status !== 'string') {
+          return 'SYS_MOVE.status must be ACTIVE, SUSPENDED, or BLOCKED.';
+        }
+        const normalized = syscall.status.trim().toUpperCase();
+        if (normalized !== 'ACTIVE' && normalized !== 'SUSPENDED' && normalized !== 'BLOCKED') {
+          return `SYS_MOVE.status invalid: ${syscall.status}`;
+        }
+      }
+
+      return null;
     }
     if (op === 'SYS_POP' || op === 'SYS_HALT') {
       return allowSet(['op']);

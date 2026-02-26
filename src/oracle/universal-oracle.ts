@@ -330,7 +330,7 @@ export class UniversalOracle implements IOracle {
 
     const detail = parseError ? ` Details: ${parseError.message}` : '';
     throw new Error(
-      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_POP|SYS_HALT.${detail} Raw: ${rawOutput}`
+      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT.${detail} Raw: ${rawOutput}`
     );
   }
 
@@ -358,7 +358,7 @@ export class UniversalOracle implements IOracle {
     const syscall = this.normalizeSyscall(value.a_t);
     if (!syscall) {
       throw new Error(
-        '[CPU_FAULT: INVALID_OPCODE] Missing or invalid a_t.op. Expected SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_POP|SYS_HALT.'
+        '[CPU_FAULT: INVALID_OPCODE] Missing or invalid a_t.op. Expected SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT.'
       );
     }
 
@@ -397,6 +397,8 @@ export class UniversalOracle implements IOracle {
       ? 'SYS_GIT_LOG'
       : opcodeNormalized === 'SYS_STACK_EDIT'
         ? 'SYS_EDIT'
+        : opcodeNormalized === 'SYS_STACK_MOVE'
+          ? 'SYS_MOVE'
         : opcodeNormalized;
     const keys = Object.keys(syscall);
     const rejectMutex = (message: string): never => {
@@ -586,6 +588,53 @@ export class UniversalOracle implements IOracle {
         return null;
       }
       return { op: 'SYS_EDIT', task };
+    }
+
+    if (opcode === 'SYS_MOVE') {
+      allowOnly(
+        ['op', 'sys', 'syscall', 'task_id', 'task', 'id', 'target_pos', 'target', 'position', 'status', 'state'],
+        'SYS_MOVE'
+      );
+
+      const normalizeMaybeString = (candidate: unknown): string | undefined => {
+        if (typeof candidate !== 'string') {
+          return undefined;
+        }
+        const trimmed = candidate.trim();
+        return trimmed.length > 0 ? trimmed : undefined;
+      };
+
+      const taskId =
+        normalizeMaybeString(syscall.task_id) ||
+        normalizeMaybeString(syscall.task) ||
+        normalizeMaybeString(syscall.id);
+      const targetPosRaw =
+        normalizeMaybeString(syscall.target_pos) ||
+        normalizeMaybeString(syscall.target) ||
+        normalizeMaybeString(syscall.position);
+      const statusRaw =
+        normalizeMaybeString(syscall.status) ||
+        normalizeMaybeString(syscall.state);
+
+      const normalized: Extract<Syscall, { op: 'SYS_MOVE' }> = { op: 'SYS_MOVE' };
+      if (taskId) {
+        normalized.task_id = taskId;
+      }
+      if (targetPosRaw) {
+        const targetPos = targetPosRaw.toUpperCase();
+        if (targetPos !== 'TOP' && targetPos !== 'BOTTOM') {
+          return null;
+        }
+        normalized.target_pos = targetPos;
+      }
+      if (statusRaw) {
+        const status = statusRaw.toUpperCase();
+        if (status !== 'ACTIVE' && status !== 'SUSPENDED' && status !== 'BLOCKED') {
+          return null;
+        }
+        normalized.status = status;
+      }
+      return normalized;
     }
 
     if (opcode === 'SYS_POP') {

@@ -12,7 +12,7 @@ This project is built from lessons learned in `gretjia/turingclaw`, with stricte
 
 ## Topology
 
-- [TuringOS: AGI 时代的冯·诺依曼底层拓扑与生态蓝图 (v3.2)](./topology.md)
+- [TuringOS System Topology Blueprint (v4.0)](./topology.md)
 
 ## Core modules
 

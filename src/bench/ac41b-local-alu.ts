@@ -193,6 +193,35 @@ function validateSyscallEnvelope(syscall: Record<string, unknown>): SyscallEnvel
     return typeof syscall.task === 'string' ? envelope : { ok: false, mutexViolation: false };
   }
 
+  if (op === 'SYS_MOVE') {
+    const envelope = allowOnly(['op', 'task_id', 'target_pos', 'status']);
+    if (!envelope.ok) {
+      return envelope;
+    }
+    if (syscall.task_id !== undefined && typeof syscall.task_id !== 'string') {
+      return { ok: false, mutexViolation: false };
+    }
+    if (syscall.target_pos !== undefined) {
+      if (typeof syscall.target_pos !== 'string') {
+        return { ok: false, mutexViolation: false };
+      }
+      const target = syscall.target_pos.trim().toUpperCase();
+      if (target !== 'TOP' && target !== 'BOTTOM') {
+        return { ok: false, mutexViolation: false };
+      }
+    }
+    if (syscall.status !== undefined) {
+      if (typeof syscall.status !== 'string') {
+        return { ok: false, mutexViolation: false };
+      }
+      const status = syscall.status.trim().toUpperCase();
+      if (status !== 'ACTIVE' && status !== 'SUSPENDED' && status !== 'BLOCKED') {
+        return { ok: false, mutexViolation: false };
+      }
+    }
+    return envelope;
+  }
+
   if (op === 'SYS_POP' || op === 'SYS_HALT') {
     return allowOnly(['op']);
   }

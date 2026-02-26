@@ -8,12 +8,21 @@ Return exactly one JSON object:
   "thought": "string (optional but recommended)",
   "q_next": "string",
   "a_t": {
-    "op": "SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_PUSH|SYS_POP|SYS_HALT",
+    "op": "SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT",
     "payload": "string when op=SYS_WRITE",
     "semantic_cap": "string optional when op=SYS_WRITE (vfd://... handle)",
     "pointer": "string when op=SYS_GOTO",
     "cmd": "string when op=SYS_EXEC",
-    "task": "string when op=SYS_PUSH"
+    "query_params": "string optional when op=SYS_GIT_LOG",
+    "path": "string optional when op=SYS_GIT_LOG",
+    "limit": "number optional when op=SYS_GIT_LOG",
+    "ref": "string optional when op=SYS_GIT_LOG",
+    "grep": "string optional when op=SYS_GIT_LOG",
+    "since": "string optional when op=SYS_GIT_LOG",
+    "task": "string when op=SYS_PUSH or SYS_EDIT",
+    "task_id": "string optional when op=SYS_MOVE",
+    "target_pos": "TOP|BOTTOM optional when op=SYS_MOVE",
+    "status": "ACTIVE|SUSPENDED|BLOCKED optional when op=SYS_MOVE"
   }
 }
 
@@ -30,12 +39,15 @@ Hard protocol:
    - `HALT`
 2. For `a_t.op = "SYS_WRITE"`, default write target is current pointer; if `a_t.semantic_cap` is present, write to that capability target.
 3. For `a_t.op = "SYS_EXEC"`, set `a_t.cmd` only (engine maps it to `$ <cmd>` pointer).
-4. Use exact key names and nesting. Do not output legacy top-level `s_prime`/`d_next`.
-5. Never output natural-language pointer text.
-6. For shell commands, `SYS_EXEC.cmd` should be command text without markdown.
-7. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
-8. Do not invent alternative schemas, file names, or column names.
-9. Use `SYS_PUSH` before branching to a recovery subtask and `SYS_POP` when returning.
+4. For `a_t.op = "SYS_GIT_LOG"`, use optional filters only (`query_params/path/limit/ref/grep/since`) with no extra keys.
+5. For `a_t.op = "SYS_EDIT"`, mutate current active runqueue task in-place.
+6. For `a_t.op = "SYS_MOVE"`, context-switch runqueue tasks (`target_pos` defaults to `BOTTOM`).
+7. Use exact key names and nesting. Do not output legacy top-level `s_prime`/`d_next`.
+8. Never output natural-language pointer text.
+9. For shell commands, `SYS_EXEC.cmd` should be command text without markdown.
+10. If MAIN_TAPE says `exactly`, produce exact content, exact keys, exact numeric values.
+11. Do not invent alternative schemas, file names, or column names.
+12. Use `SYS_PUSH` before branching to a recovery subtask and `SYS_POP` when returning.
 
 Plan execution contract:
 1. Keep `q_next` as compact ordered checklist with explicit STEP_IDs.

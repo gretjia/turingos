@@ -13,6 +13,7 @@
     "bench:os-longrun": "tsx src/bench/os-longrun.ts",
     "bench:industry-matrix": "tsx src/bench/industry-matrix.ts",
     "bench:topology-v3-gate": "tsx src/bench/topology-v3-gate.ts",
+    "bench:topology-v4-gate": "tsx src/bench/topology-v4-gate.ts",
     "bench:staged-acceptance-recursive": "tsx src/bench/staged-acceptance-recursive.ts",
     "bench:ac41b-local-alu": "tsx src/bench/ac41b-local-alu.ts",
     "bench:ac41b-build-trace-dataset": "tsx src/bench/ac41b-build-trace-dataset.ts",

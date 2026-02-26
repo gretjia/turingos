@@ -1,6 +1,8 @@
 export type State = string;
 export type Pointer = string;
 export type Slice = string;
+export type RunqueueStatus = 'ACTIVE' | 'SUSPENDED' | 'BLOCKED';
+export type RunqueueTargetPos = 'TOP' | 'BOTTOM';
 
 export type Syscall =
   | { op: 'SYS_WRITE'; payload: string; semantic_cap?: Pointer }
@@ -17,6 +19,12 @@ export type Syscall =
     }
   | { op: 'SYS_PUSH'; task: string }
   | { op: 'SYS_EDIT'; task: string }
+  | {
+      op: 'SYS_MOVE';
+      task_id?: string;
+      target_pos?: RunqueueTargetPos;
+      status?: RunqueueStatus;
+    }
   | { op: 'SYS_POP' }
   | { op: 'SYS_HALT' };
 
