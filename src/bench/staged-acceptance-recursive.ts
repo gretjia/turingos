@@ -43,6 +43,11 @@ interface SpawnResult extends CommandResult {
   signal: NodeJS.Signals | null;
 }
 
+interface AcceptanceRuntimeContext {
+  ac31Workspace?: string;
+  ac31TracePath?: string;
+}
+
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'recursive');
 
@@ -154,7 +159,8 @@ async function collectFiles(root: string, current = root, out: string[] = []): P
     if (
       relative === '.journal.log' ||
       relative === '.journal.merkle.jsonl' ||
-      relative.startsWith('.reg_')
+      relative.startsWith('.reg_') ||
+      relative === '.ac31_worker_ticks.log'
     ) {
       continue;
     }
@@ -173,6 +179,14 @@ async function computeWorkspaceTreeHash(workspace: string): Promise<string> {
     chunks.push(`${rel}\t${digest}`);
   }
   return createHash('sha256').update(chunks.join('\n')).digest('hex');
+}
+
+async function seedAc31Baseline(workspace: string): Promise<void> {
+  await fsp.mkdir(workspace, { recursive: true });
+  await fsp.mkdir(path.join(workspace, 'checkpoint'), { recursive: true });
+  await fsp.mkdir(path.join(workspace, 'artifacts'), { recursive: true });
+  await fsp.writeFile(path.join(workspace, 'MAIN_TAPE.md'), 'AC31 process-level kill -9 test\n', 'utf-8');
+  await fsp.writeFile(path.join(workspace, 'checkpoint', 'step1.txt'), 'verified\n', 'utf-8');
 }
 
 class DualActionOracle implements IOracle {
@@ -754,9 +768,13 @@ async function ac23(): Promise<AcResult> {
   };
 }
 
-async function ac31(): Promise<AcResult> {
+async function ac31(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   const ws = mkWorkspace('turingos-ac31-');
   const workerScriptPath = path.join(ROOT, 'src', 'bench', 'ac31-kill9-worker.ts');
+  if (runtime) {
+    runtime.ac31Workspace = ws;
+    runtime.ac31TracePath = path.join(ws, '.journal.log');
+  }
   const firstArgs = [
     'run',
     'bench:ac31-worker',
@@ -833,7 +851,7 @@ async function ac31(): Promise<AcResult> {
   };
 }
 
-async function ac32(): Promise<AcResult> {
+async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
   const replayRunnerPath = path.join(ROOT, 'src', 'bench', 'replay-runner.ts');
   if (!fs.existsSync(replayRunnerPath)) {
     return {
@@ -874,12 +892,79 @@ async function ac32(): Promise<AcResult> {
   const r2 = await runCommand(cmd2);
   const hash1 = r1.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
   const hash2 = r2.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
-  const pass =
+  const syntheticPass =
     r1.code === 0 &&
     r2.code === 0 &&
     hash1.length > 0 &&
     hash1 === hash2 &&
     hash1 === sourceHash;
+
+  const dirtyTracePath = runtime?.ac31TracePath ?? '';
+  const dirtySourceWorkspace = runtime?.ac31Workspace ?? '';
+  const dirtyRun1Workspace = path.join(tempRoot, 'dirty_run1');
+  const dirtyRun2Workspace = path.join(tempRoot, 'dirty_run2');
+  const dirtyTraceReady =
+    dirtyTracePath.length > 0 &&
+    dirtySourceWorkspace.length > 0 &&
+    fs.existsSync(dirtyTracePath) &&
+    fs.existsSync(dirtySourceWorkspace);
+
+  let dirtyPass = false;
+  let dirtyDetails = `dirtyTraceReady=${dirtyTraceReady}`;
+  let dirtyHash1 = '';
+  let dirtyHash2 = '';
+  let dirtySourceHash = '';
+  let dirtyCode1: number | null = null;
+  let dirtyCode2: number | null = null;
+  if (dirtyTraceReady) {
+    await seedAc31Baseline(dirtyRun1Workspace);
+    await seedAc31Baseline(dirtyRun2Workspace);
+    dirtySourceHash = await computeWorkspaceTreeHash(dirtySourceWorkspace);
+    const dirtyCmd1 = `npm run bench:replay-runner -- --trace "${dirtyTracePath}" --workspace "${dirtyRun1Workspace}"`;
+    const dirtyCmd2 = `npm run bench:replay-runner -- --trace "${dirtyTracePath}" --workspace "${dirtyRun2Workspace}"`;
+    const dr1 = await runCommand(dirtyCmd1);
+    const dr2 = await runCommand(dirtyCmd2);
+    dirtyCode1 = dr1.code;
+    dirtyCode2 = dr2.code;
+    dirtyHash1 = dr1.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
+    dirtyHash2 = dr2.stdout.match(/"treeHash"\s*:\s*"([a-f0-9]+)"/)?.[1] ?? '';
+    dirtyPass =
+      dr1.code === 0 &&
+      dr2.code === 0 &&
+      dirtyHash1.length > 0 &&
+      dirtyHash1 === dirtyHash2 &&
+      dirtyHash1 === dirtySourceHash;
+    dirtyDetails = `dirtySource=${dirtySourceHash} dirtyHash1=${dirtyHash1} dirtyHash2=${dirtyHash2} dirtyCode1=${dr1.code} dirtyCode2=${dr2.code}`;
+  }
+
+  const mutationTracePath = path.join(tempRoot, 'mutating_exec_trace.jsonl');
+  const mutationWorkspace = path.join(tempRoot, 'mutating_exec_run');
+  await fsp.writeFile(
+    mutationTracePath,
+    `${JSON.stringify({ d_t: 'MAIN_TAPE.md', a_t: { op: 'SYS_EXEC', cmd: 'echo 123 > mutation.txt' } })}\n`,
+    'utf-8'
+  );
+  await fsp.mkdir(mutationWorkspace, { recursive: true });
+  const mutationCmd = `npm run bench:replay-runner -- --trace "${mutationTracePath}" --workspace "${mutationWorkspace}"`;
+  const mutationRun = await runCommand(mutationCmd);
+  const mutationCode = mutationRun.code ?? 1;
+  const mutationOut = `${mutationRun.stdout}\n${mutationRun.stderr}`;
+  const mutationGuardPass = mutationCode !== 0 && /Offline replay blocked mutating SYS_EXEC/i.test(mutationOut);
+  const mutationDetails = `mutationCode=${mutationCode} guardMatched=${/Offline replay blocked mutating SYS_EXEC/i.test(mutationOut)}`;
+
+  const pass = syntheticPass && dirtyPass && mutationGuardPass;
+  const evidence = [
+    replayRunnerPath,
+    tracePath,
+    sourceWorkspace,
+    run1Workspace,
+    run2Workspace,
+    mutationTracePath,
+    mutationWorkspace,
+  ];
+  if (dirtyTraceReady) {
+    evidence.push(dirtyTracePath, dirtySourceWorkspace, dirtyRun1Workspace, dirtyRun2Workspace);
+  }
 
   return {
     stage: 'S3',
@@ -887,15 +972,17 @@ async function ac32(): Promise<AcResult> {
     title: 'Bit-for-bit Replay',
     status: pass ? 'PASS' : 'FAIL',
     requirement:
-      '应支持离线重放 trace.jsonl，在断网条件下重建最终状态并校验哈希一致性。',
+      '应支持离线重放 trace.jsonl，并通过 synthetic + kill -9 dirty trace 双轨校验哈希一致性，同时禁止重放阶段执行变更型 SYS_EXEC。',
     details: pass
-      ? `Replay hash stable and matches source trace workspace: ${hash1}`
-      : `Replay mismatch or runner failure. code1=${r1.code} code2=${r2.code} source=${sourceHash} hash1=${hash1} hash2=${hash2}`,
-    evidence: [replayRunnerPath, tracePath, sourceWorkspace, run1Workspace, run2Workspace],
+      ? `Synthetic and dirty replay hashes matched source with offline-exec guard. synthetic=${hash1} dirty=${dirtyHash1} ${mutationDetails}`
+      : `Replay mismatch. synthetic(code1=${r1.code},code2=${r2.code},source=${sourceHash},hash1=${hash1},hash2=${hash2}) dirty(${dirtyDetails},dirtyCode1=${dirtyCode1},dirtyCode2=${dirtyCode2}) mutation(${mutationDetails})`,
+    evidence,
     nextActions: pass
-      ? ['补充真实 kill -9 后的 REPLAY_TUPLE 回放对照用例。']
+      ? ['将 AC3.2 dirty trace 回放 + mutating SYS_EXEC 拦截结果接入 CI，形成强门禁。']
       : [
-          '修复 replay-runner 执行链路，确保同一 REPLAY_TUPLE 轨迹在不同 workspace 得到一致树哈希。',
+          '修复 replay-runner/seed 基线链路，确保 dirty trace 在双 workspace 回放哈希稳定。',
+          '修复 replay-runner 离线模式，确保 mutating SYS_EXEC 被强制阻断。',
+          '若 source 哈希不一致，补充 baseline snapshot 机制并重放校对。',
           '将 replay-runner 结果接入 CI 断网回放用例。',
         ],
   };
@@ -973,6 +1060,7 @@ async function runPreflight(): Promise<AcResult[]> {
 async function main(): Promise<void> {
   await fsp.mkdir(AUDIT_DIR, { recursive: true });
   const stamp = timestamp();
+  const runtime: AcceptanceRuntimeContext = {};
 
   const results: AcResult[] = [];
   results.push(...(await runPreflight()));
@@ -982,8 +1070,8 @@ async function main(): Promise<void> {
   results.push(await ac21());
   results.push(await ac22());
   results.push(await ac23());
-  results.push(await ac31());
-  results.push(await ac32());
+  results.push(await ac31(runtime));
+  results.push(await ac32(runtime));
   results.push(await ac41());
   results.push(await ac42());
   results.push(await voyager());

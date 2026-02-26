@@ -105,6 +105,21 @@ async function ensureWorkspace(workspace: string): Promise<void> {
   await fsp.mkdir(workspace, { recursive: true });
 }
 
+function isLikelyMutatingCommand(command: string): boolean {
+  const normalized = command.trim().toLowerCase();
+  if (normalized.length === 0) {
+    return false;
+  }
+
+  const mutatingPatterns = [
+    /(^|\s)(rm|mv|cp|install|touch|chmod|chown|mkdir|rmdir|truncate|tee|dd)(\s|$)/,
+    /(^|\s)git\s+(add|commit|reset|clean|checkout|restore|pull|push)(\s|$)/,
+    /(^|\s)(npm|pnpm|yarn)\s+(install|add|remove|update|up|dedupe)(\s|$)/,
+    /(>|>>|2>|2>>|&>|1>|1>>)/,
+  ];
+  return mutatingPatterns.some((pattern) => pattern.test(normalized));
+}
+
 async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<string> {
   const pointer = frame.d_t.trim();
   const syscall = frame.a_t;
@@ -121,9 +136,12 @@ async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<
     case 'SYS_GOTO':
       return syscall.pointer;
     case 'SYS_EXEC': {
-      const execPointer = syscall.cmd.trim().startsWith('$') ? syscall.cmd.trim() : `$ ${syscall.cmd.trim()}`;
-      await manifold.observe(execPointer);
-      return execPointer;
+      const command = syscall.cmd.trim();
+      if (isLikelyMutatingCommand(command)) {
+        throw new Error(`Offline replay blocked mutating SYS_EXEC: ${command.slice(0, 160)}`);
+      }
+      // Strict offline replay: never execute host commands from historical trace.
+      return pointer;
     }
     case 'SYS_PUSH':
       await manifold.interfere('sys://callstack', `PUSH: ${syscall.task}`);
