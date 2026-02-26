@@ -1329,6 +1329,18 @@ async function ac32(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
 }
 
 async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
+  const matrixThresholds = {
+    execOpsMin: 5,
+    timeoutSignalsMin: 1,
+    mmuSignalsMin: 1,
+    deadlockSignalsMin: 1,
+    execMmuSignalsMin: 1,
+  };
+  const localAluThresholds = {
+    minSamples: 1000,
+    validJsonRateMin: 0.999,
+    mutexViolationRateMax: 0,
+  };
   const tracePath = runtime?.ac31TracePath ?? '';
   const traceReady = tracePath.length > 0 && fs.existsSync(tracePath);
   const stats = traceReady
@@ -1343,29 +1355,30 @@ async function ac41(runtime?: AcceptanceRuntimeContext): Promise<AcResult> {
         traceCorrupted: false,
         corruptionReason: '',
       };
-  const traceMatrixReady =
+  const ac41aTraceMatrixReady =
     !stats.traceCorrupted &&
-    stats.execOps >= 5 &&
-    stats.timeoutSignals >= 1 &&
-    stats.mmuSignals >= 1 &&
-    stats.deadlockSignals >= 1 &&
-    stats.execMmuSignals >= 1;
-  const localAluReady = false;
-  const unlockReady = traceMatrixReady && localAluReady;
+    stats.execOps >= matrixThresholds.execOpsMin &&
+    stats.timeoutSignals >= matrixThresholds.timeoutSignalsMin &&
+    stats.mmuSignals >= matrixThresholds.mmuSignalsMin &&
+    stats.deadlockSignals >= matrixThresholds.deadlockSignalsMin &&
+    stats.execMmuSignals >= matrixThresholds.execMmuSignalsMin;
+  // AC4.1b is intentionally pinned false until local ALU bench is implemented.
+  const ac41bLocalAluReady = false;
+  const unlockReady = ac41aTraceMatrixReady && ac41bLocalAluReady;
   const status: AcStatus = unlockReady ? 'PASS' : 'BLOCKED';
   return {
     stage: 'S4',
     acId: 'AC4.1',
-    title: 'Zero-Prompt Instinct',
+    title: 'Zero-Prompt Instinct (Split Gate AC4.1a/AC4.1b)',
     status,
     requirement:
       '需完成专属7B微调并在极短系统提示下保持 99.9% JSON syscall 良品率；且 S4 解锁前必须提供混沌矩阵证据：>=5 次 SYS_EXEC、>=1 次 timeout(429/502/timeout)、>=1 次 MMU 截断信号、>=1 次 deadlock/panic 信号、>=1 次 SYS_EXEC 与 MMU 信号耦合命中。',
-    details: `S4 unlock gate status. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps} timeoutSignals=${stats.timeoutSignals} mmuSignals=${stats.mmuSignals} deadlockSignals=${stats.deadlockSignals} execMmuSignals=${stats.execMmuSignals} traceCorrupted=${stats.traceCorrupted} corruptionReason=${stats.corruptionReason || '(none)'} traceMatrixReady=${traceMatrixReady} localAluReady=${localAluReady} unlockReady=${unlockReady}`,
+    details: `S4 unlock gate status. traceReady=${traceReady} replayFrames=${stats.frames} execOps=${stats.execOps}/${matrixThresholds.execOpsMin} timeoutSignals=${stats.timeoutSignals}/${matrixThresholds.timeoutSignalsMin} mmuSignals=${stats.mmuSignals}/${matrixThresholds.mmuSignalsMin} deadlockSignals=${stats.deadlockSignals}/${matrixThresholds.deadlockSignalsMin} execMmuSignals=${stats.execMmuSignals}/${matrixThresholds.execMmuSignalsMin} traceCorrupted=${stats.traceCorrupted} corruptionReason=${stats.corruptionReason || '(none)'} ac41a_traceMatrixReady=${ac41aTraceMatrixReady} ac41b_localAluReady=${ac41bLocalAluReady} ac41b_minSamples=${localAluThresholds.minSamples} ac41b_validJsonRateMin=${localAluThresholds.validJsonRateMin} ac41b_mutexViolationRateMax=${localAluThresholds.mutexViolationRateMax} unlockReady=${unlockReady}`,
     evidence: [path.join(ROOT, 'src'), tracePath || path.join(ROOT, 'benchmarks')],
     nextActions: unlockReady
       ? []
       : [
-          traceMatrixReady
+          ac41aTraceMatrixReady
             ? '混沌矩阵已满足，进入本地 7B ALU 微调与良品率验证（>=99.9% JSON syscall）。'
             : '生成真实脏轨迹并满足混沌矩阵：>=5 SYS_EXEC、>=1 timeout、>=1 MMU 截断、>=1 deadlock/panic、>=1 execMmu 耦合。',
           '建立 trace 数据清洗与 SFT 数据集生成管线。',
