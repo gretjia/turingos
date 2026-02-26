@@ -6,6 +6,11 @@ import { FileChronos } from '../chronos/file-chronos.js';
 import { TuringEngine } from '../kernel/engine.js';
 import { IOracle, Slice, State, Transition } from '../kernel/types.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
+import { UniversalOracle } from '../oracle/universal-oracle.js';
+
+type OracleSelection = 'auto' | 'mock' | 'local_alu';
+type RuntimeMode = 'mock_reflex_oracle' | 'local_alu_live';
+type LiveExpectation = 'trap_pop' | 'post_pop_goto';
 
 interface CliArgs {
   source: string;
@@ -14,6 +19,10 @@ interface CliArgs {
   minDeadlockEvents: number;
   minEscapeRate: number;
   minGotoAfterPopRate: number;
+  oracle: OracleSelection;
+  baseURL: string;
+  model: string;
+  apiKey: string;
 }
 
 interface ReplayFrame {
@@ -54,6 +63,11 @@ function parseArgs(argv: string[]): CliArgs {
   let minDeadlockEvents = 10;
   let minEscapeRate = 0.95;
   let minGotoAfterPopRate = 0.95;
+  let oracle: OracleSelection = 'auto';
+  let baseURL = process.env.TURINGOS_LOCAL_ALU_BASE_URL ?? process.env.TURINGOS_API_BASE_URL ?? 'http://localhost:11434/v1';
+  let model = process.env.TURINGOS_LOCAL_ALU_MODEL ?? process.env.TURINGOS_MODEL ?? 'qwen2.5:7b';
+  let apiKey =
+    process.env.TURINGOS_LOCAL_ALU_API_KEY ?? process.env.OPENAI_API_KEY ?? process.env.KIMI_API_KEY ?? 'local';
 
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
@@ -67,6 +81,15 @@ function parseArgs(argv: string[]): CliArgs {
     if (key === '--min-deadlock-events') minDeadlockEvents = Number.parseInt(value, 10);
     if (key === '--min-escape-rate') minEscapeRate = Number.parseFloat(value);
     if (key === '--min-goto-after-pop-rate') minGotoAfterPopRate = Number.parseFloat(value);
+    if (key === '--oracle') {
+      if (value !== 'auto' && value !== 'mock' && value !== 'local_alu') {
+        throw new Error(`Invalid --oracle: ${value}. Expected auto|mock|local_alu`);
+      }
+      oracle = value;
+    }
+    if (key === '--base-url') baseURL = value;
+    if (key === '--model') model = value;
+    if (key === '--api-key') apiKey = value;
   }
 
   if (!Number.isFinite(cycles) || cycles <= 0) {
@@ -83,10 +106,47 @@ function parseArgs(argv: string[]): CliArgs {
     minDeadlockEvents,
     minEscapeRate,
     minGotoAfterPopRate,
+    oracle,
+    baseURL,
+    model,
+    apiKey,
   };
 }
 
-class DeadlockReflexOracle implements IOracle {
+function inferRuntimeMode(args: CliArgs): RuntimeMode {
+  if (args.oracle === 'mock') {
+    return 'mock_reflex_oracle';
+  }
+  if (args.oracle === 'local_alu') {
+    return 'local_alu_live';
+  }
+  return args.source.startsWith('local_alu') ? 'local_alu_live' : 'mock_reflex_oracle';
+}
+
+function buildLiveDisciplinePrompt(expectation: LiveExpectation): string {
+  const expectationLine =
+    expectation === 'trap_pop'
+      ? 'If trap context appears (WATCHDOG_NMI/INFINITE_LOOP or phase trap_pop), emit SYS_POP immediately.'
+      : 'If phase is post_pop_goto, emit SYS_GOTO pointer="recovery/alt.txt" immediately.';
+
+  return [
+    'You are TuringOS ALU for AC4.2 deadlock reflex benchmark.',
+    'Output STRICT JSON only: {"q_next":"...","a_t":{"op":"SYS_*",...}}.',
+    expectationLine,
+    'Allowed opcodes and exact fields:',
+    '- SYS_WRITE: {"op":"SYS_WRITE","payload":"...","semantic_cap":"optional"}',
+    '- SYS_GOTO: {"op":"SYS_GOTO","pointer":"..."}',
+    '- SYS_EXEC: {"op":"SYS_EXEC","cmd":"..."}',
+    '- SYS_GIT_LOG: {"op":"SYS_GIT_LOG","query_params":"optional","path":"optional","limit":20,"ref":"optional","grep":"optional","since":"optional"}',
+    '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."}',
+    '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."}',
+    '- SYS_POP: {"op":"SYS_POP"}',
+    '- SYS_HALT: {"op":"SYS_HALT"}',
+    'Never include unsupported keys. Do not output markdown fences or prose.',
+  ].join(' ');
+}
+
+class MockDeadlockReflexOracle implements IOracle {
   private cycle = 0;
   private seededStack = false;
   private phase: 'loop' | 'after_pop' | 'after_goto' | 'halt_gate' | 'halted' = 'loop';
@@ -94,9 +154,7 @@ class DeadlockReflexOracle implements IOracle {
   constructor(private readonly targetCycles: number) {}
 
   public async collapse(_discipline: string, q: State, _s: Slice): Promise<Transition> {
-    const trapDetected =
-      q.includes('[OS_TRAP: WATCHDOG_NMI]') ||
-      q.includes('[OS_PANIC: INFINITE_LOOP_KILLED]');
+    const trapDetected = q.includes('[OS_TRAP: WATCHDOG_NMI]') || q.includes('[OS_PANIC: INFINITE_LOOP_KILLED]');
 
     if (trapDetected) {
       this.phase = 'after_pop';
@@ -160,6 +218,86 @@ class DeadlockReflexOracle implements IOracle {
   }
 }
 
+class LiveLocalAluDeadlockReflexOracle implements IOracle {
+  private cycle = 0;
+  private seededStack = false;
+  private phase: 'loop' | 'after_pop' | 'after_goto' | 'halt_gate' | 'halted' = 'loop';
+  private liveOracleCalls = 0;
+
+  constructor(
+    private readonly targetCycles: number,
+    private readonly oracle: UniversalOracle
+  ) {}
+
+  public get oracleCalls(): number {
+    return this.liveOracleCalls;
+  }
+
+  public async collapse(_discipline: string, q: State, s: Slice): Promise<Transition> {
+    const trapDetected = q.includes('[OS_TRAP: WATCHDOG_NMI]') || q.includes('[OS_PANIC: INFINITE_LOOP_KILLED]');
+
+    if (trapDetected) {
+      this.phase = 'after_pop';
+      return this.collapseLive('trap_pop', q, s);
+    }
+
+    if (!this.seededStack) {
+      this.seededStack = true;
+      return {
+        q_next: 'seed_stack',
+        a_t: { op: 'SYS_PUSH', task: 'deadlock_reflex_probe' },
+      };
+    }
+
+    if (this.phase === 'after_pop') {
+      this.phase = 'after_goto';
+      return this.collapseLive('post_pop_goto', q, s);
+    }
+
+    if (this.phase === 'after_goto') {
+      this.cycle += 1;
+      if (this.cycle >= this.targetCycles) {
+        this.phase = 'halt_gate';
+        return {
+          q_next: 'halt_gate',
+          a_t: { op: 'SYS_EXEC', cmd: 'test -f recovery/alt.txt' },
+        };
+      }
+      this.phase = 'loop';
+      return {
+        q_next: `cycle_${this.cycle}_verify`,
+        a_t: { op: 'SYS_EXEC', cmd: 'cat recovery/alt.txt' },
+      };
+    }
+
+    if (this.phase === 'halt_gate') {
+      this.phase = 'halted';
+      return {
+        q_next: 'HALT',
+        a_t: { op: 'SYS_HALT' },
+      };
+    }
+
+    if (this.phase === 'halted') {
+      return {
+        q_next: 'HALT',
+        a_t: { op: 'SYS_HALT' },
+      };
+    }
+
+    return {
+      q_next: `cycle_${this.cycle}_loop`,
+      a_t: { op: 'SYS_EXEC', cmd: 'echo watchdog_probe' },
+    };
+  }
+
+  private async collapseLive(expectation: LiveExpectation, q: State, s: Slice): Promise<Transition> {
+    this.liveOracleCalls += 1;
+    const qWithPhase = [q, '', `[AC42_PHASE] ${expectation}`].join('\n');
+    return this.oracle.collapse(buildLiveDisciplinePrompt(expectation), qWithPhase, s);
+  }
+}
+
 async function ensureWorkspace(workspace: string): Promise<void> {
   await fsp.mkdir(workspace, { recursive: true });
   await fsp.writeFile(path.join(workspace, 'MAIN_TAPE.md'), 'AC42 deadlock reflex benchmark\n', 'utf-8');
@@ -211,8 +349,7 @@ function evaluate(frames: ReplayFrame[], thresholds: Pick<CliArgs, 'minDeadlockE
 
   for (let i = 0; i < frames.length; i += 1) {
     const frame = frames[i];
-    const isDeadlockTrap =
-      frame.q_t.includes('[OS_TRAP: WATCHDOG_NMI]') || frame.q_t.includes('INFINITE LOOP DETECTED');
+    const isDeadlockTrap = frame.q_t.includes('[OS_TRAP: WATCHDOG_NMI]') || frame.q_t.includes('INFINITE LOOP DETECTED');
     if (!isDeadlockTrap) {
       continue;
     }
@@ -271,6 +408,10 @@ async function copyEvidence(stamp: string, workspace: string): Promise<{ evidenc
 function toMarkdown(
   stamp: string,
   args: CliArgs,
+  runtimeMode: RuntimeMode,
+  setupReady: boolean,
+  setupError: string | null,
+  oracleCalls: number,
   evaluation: Evaluation,
   halted: boolean,
   ticks: number,
@@ -281,6 +422,12 @@ function toMarkdown(
     '',
     `- stamp: ${stamp}`,
     `- source: ${args.source}`,
+    `- runtimeMode: ${runtimeMode}`,
+    `- setupReady: ${setupReady}`,
+    `- setupError: ${setupError ?? '(none)'}`,
+    `- oracleCalls: ${oracleCalls}`,
+    `- baseURL: ${runtimeMode === 'local_alu_live' ? args.baseURL : '(mock)'}`,
+    `- model: ${runtimeMode === 'local_alu_live' ? args.model : '(mock)'}`,
     `- halted: ${halted}`,
     `- ticks: ${ticks}`,
     '',
@@ -300,7 +447,7 @@ function toMarkdown(
     '',
     '## Verdict',
     '',
-    evaluation.pass ? '- PASS' : '- FAIL',
+    evaluation.pass && setupReady ? '- PASS' : '- FAIL',
     '',
     '## Evidence',
     '',
@@ -309,22 +456,70 @@ function toMarkdown(
   ].join('\n');
 }
 
+function validateLiveSetup(args: CliArgs): string | null {
+  if (!args.baseURL.trim()) {
+    return 'Missing base URL. Set --base-url or TURINGOS_LOCAL_ALU_BASE_URL/TURINGOS_API_BASE_URL.';
+  }
+  if (!args.model.trim()) {
+    return 'Missing model. Set --model or TURINGOS_LOCAL_ALU_MODEL/TURINGOS_MODEL.';
+  }
+  if (!args.apiKey.trim()) {
+    return 'Missing API key. Set --api-key or TURINGOS_LOCAL_ALU_API_KEY/OPENAI_API_KEY/KIMI_API_KEY.';
+  }
+  return null;
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  const runtimeMode = inferRuntimeMode(args);
+  const setupError = runtimeMode === 'local_alu_live' ? validateLiveSetup(args) : null;
+  const setupReady = setupError === null;
+
   const stamp = timestamp();
   const workspace = await fsp.mkdtemp(path.join(os.tmpdir(), 'turingos-ac42-'));
   await ensureWorkspace(workspace);
 
-  const manifold = new LocalManifold(workspace);
-  const chronos = new FileChronos(path.join(workspace, '.journal.log'));
-  const oracle = new DeadlockReflexOracle(args.cycles);
-  const engine = new TuringEngine(manifold, oracle, chronos, 'ac42-deadlock-reflex');
+  let halted = false;
+  let ticks = 0;
+  let oracleCalls = 0;
+  let evaluation: Evaluation = {
+    deadlockEvents: 0,
+    popOnTrap: 0,
+    gotoAfterPop: 0,
+    escapeRate: 0,
+    gotoAfterPopRate: 0,
+    pass: false,
+  };
 
-  const result = await engine.ignite('q0', 'MAIN_TAPE.md', { maxTicks: args.maxTicks });
-  const halted = result.q.trim() === 'HALT' || result.d.trim() === 'HALT';
+  if (setupReady) {
+    const manifold = new LocalManifold(workspace);
+    const chronos = new FileChronos(path.join(workspace, '.journal.log'));
 
-  const frames = await readReplayFrames(path.join(workspace, '.journal.log'));
-  const evaluation = evaluate(frames, args);
+    let oracle: IOracle;
+    let liveOracle: LiveLocalAluDeadlockReflexOracle | null = null;
+    if (runtimeMode === 'local_alu_live') {
+      liveOracle = new LiveLocalAluDeadlockReflexOracle(
+        args.cycles,
+        new UniversalOracle('openai', {
+          apiKey: args.apiKey,
+          model: args.model,
+          baseURL: args.baseURL,
+        })
+      );
+      oracle = liveOracle;
+    } else {
+      oracle = new MockDeadlockReflexOracle(args.cycles);
+    }
+
+    const engine = new TuringEngine(manifold, oracle, chronos, 'ac42-deadlock-reflex');
+    const result = await engine.ignite('q0', 'MAIN_TAPE.md', { maxTicks: args.maxTicks });
+    halted = result.q.trim() === 'HALT' || result.d.trim() === 'HALT';
+    ticks = result.ticks;
+    oracleCalls = liveOracle?.oracleCalls ?? 0;
+
+    const frames = await readReplayFrames(path.join(workspace, '.journal.log'));
+    evaluation = evaluate(frames, args);
+  }
 
   await fsp.mkdir(AUDIT_DIR, { recursive: true });
   const reportJsonPath = path.join(AUDIT_DIR, `ac42_deadlock_reflex_${stamp}.json`);
@@ -334,9 +529,15 @@ async function main(): Promise<void> {
   const payload = {
     stamp,
     source: args.source,
+    runtimeMode,
+    setupReady,
+    setupError,
+    oracleCalls,
     workspace,
+    baseURL: runtimeMode === 'local_alu_live' ? args.baseURL : null,
+    model: runtimeMode === 'local_alu_live' ? args.model : null,
     halted,
-    ticks: result.ticks,
+    ticks,
     deadlockEvents: evaluation.deadlockEvents,
     popOnTrap: evaluation.popOnTrap,
     gotoAfterPop: evaluation.gotoAfterPop,
@@ -345,7 +546,7 @@ async function main(): Promise<void> {
     minDeadlockEvents: args.minDeadlockEvents,
     minEscapeRate: args.minEscapeRate,
     minGotoAfterPopRate: args.minGotoAfterPopRate,
-    pass: evaluation.pass,
+    pass: setupReady && evaluation.pass,
     reportJsonPath,
     reportMdPath,
     evidenceDir: evidence.evidenceDir,
@@ -354,16 +555,34 @@ async function main(): Promise<void> {
   };
 
   await fsp.writeFile(reportJsonPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
-  await fsp.writeFile(reportMdPath, `${toMarkdown(stamp, args, evaluation, halted, result.ticks, evidence.evidenceDir)}`, 'utf-8');
+  await fsp.writeFile(
+    reportMdPath,
+    `${toMarkdown(
+      stamp,
+      args,
+      runtimeMode,
+      setupReady,
+      setupError,
+      oracleCalls,
+      evaluation,
+      halted,
+      ticks,
+      evidence.evidenceDir
+    )}`,
+    'utf-8'
+  );
   await fsp.writeFile(LATEST_FILE, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
 
   console.log(
-    `[ac42-deadlock-reflex] pass=${evaluation.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
+    `[ac42-deadlock-reflex] runtimeMode=${runtimeMode} setupReady=${setupReady} oracleCalls=${oracleCalls} pass=${payload.pass} halted=${halted} deadlockEvents=${evaluation.deadlockEvents} escapeRate=${evaluation.escapeRate} gotoAfterPopRate=${evaluation.gotoAfterPopRate}`
   );
+  if (!setupReady && setupError) {
+    console.log(`[ac42-deadlock-reflex] setupError=${setupError}`);
+  }
   console.log(`[ac42-deadlock-reflex] reportJson=${reportJsonPath}`);
   console.log(`[ac42-deadlock-reflex] reportMd=${reportMdPath}`);
 
-  process.exit(evaluation.pass ? 0 : 2);
+  process.exit(payload.pass ? 0 : 2);
 }
 
 main().catch((error: unknown) => {
