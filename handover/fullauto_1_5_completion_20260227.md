@@ -3,7 +3,8 @@
 ## Scope
 
 - Completed roadmap items 1-5 in one pass with dual-audit workflow (Codex implement + Gemini independent audit).
-- Branch: `main` (local working tree has code changes + generated benchmark artifacts).
+- Branch: `main`
+- GitHub head after rollout: `180ce26`
 
 ## Completed Items
 
@@ -60,3 +61,14 @@
 - Step 3: GO
 - Step 4: GO
 - Step 5: GO
+
+## Multi-host Sync
+
+- VM (`/home/zephryj/projects/turingos`): pushed to `origin/main` at `180ce26`.
+- Mac (`/Users/zephryj/work/turingos`): fast-forward synced to `180ce26`.
+- Mac post-sync checks:
+  - `npm run typecheck` PASS
+  - `npm run bench:dispatcher-gate` PASS
+  - `npm run bench:guard-analytics` PASS
+  - `npm run bench:longrun-dispatcher-soak` PASS
+  - `npm run bench:guard-sft-dataset` PASS
