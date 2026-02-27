@@ -257,6 +257,10 @@ export class TuringEngine {
         q_t
       );
     }
+    const routeTrace = this.consumeOracleRouteTrace();
+    if (routeTrace) {
+      await this.chronos.engrave(`[BUS_ROUTE] ${routeTrace}`);
+    }
 
     const q_next = transition.q_next;
     let d_next: Pointer = d_t;
@@ -817,6 +821,25 @@ export class TuringEngine {
 
     this.panicResetCount = 0;
     return this.trapReturn(trapBase, details, trapState, pointer, { source: 'raise_managed_trap' });
+  }
+
+  private consumeOracleRouteTrace(): string | null {
+    const withTelemetry = this.oracle as IOracle & {
+      consumeLastRouteTrace?: () => Record<string, unknown> | null;
+    };
+    if (typeof withTelemetry.consumeLastRouteTrace !== 'function') {
+      return null;
+    }
+
+    try {
+      const payload = withTelemetry.consumeLastRouteTrace();
+      if (!payload) {
+        return null;
+      }
+      return JSON.stringify(payload);
+    } catch {
+      return null;
+    }
   }
 
   private actionSignature(dNext: Pointer, sPrime: string): string {

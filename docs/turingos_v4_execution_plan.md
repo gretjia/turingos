@@ -97,3 +97,56 @@ Acceptance gates:
   - `npm run bench:syscall-schema-gate` PASS (59/59 malformed reject)
   - `npm run bench:staged-acceptance-recursive` PASS
   - `npm run bench:ci-gates` PASS
+
+### 2026-02-27 Week-3 Dispatcher MVP Completed
+- Added dispatcher runtime lane:
+  - `src/oracle/dispatcher-oracle.ts`
+  - static P/E routing with context-based escalation and health-score fallback
+  - deterministic failover from E->P on routine lane failure
+- Kernel route journaling added:
+  - `src/kernel/engine.ts` now emits `[BUS_ROUTE] {json}` when oracle supports route telemetry
+- Boot/runtime lane configuration added:
+  - `src/runtime/boot.ts`
+  - `TURINGOS_DISPATCHER_ENABLED`
+  - `TURINGOS_DISPATCHER_{P,E}_{ORACLE,MODEL,BASE_URL,API_KEY}`
+- Dispatcher gate added:
+  - `src/bench/dispatcher-gate.ts`
+  - `npm run bench:dispatcher-gate`
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:dispatcher-gate` PASS
+  - `npm run bench:topology-v4-gate` PASS
+- Dual-pass audit:
+  - Gemini audit: GO (routing logic, failover, deterministic route logs).
+
+### 2026-02-27 Week-4 Long-run Integration Completed
+- Long-run harness upgraded for integrated routing telemetry:
+  - `src/bench/os-longrun.ts`
+  - new CLI runtime overrides: `--oracle`, `--dispatcher`
+  - added route metrics: coverage, P/E lane rate, failover count
+- Added 1000+ tick deterministic soak benchmark:
+  - `src/bench/longrun-dispatcher-soak.ts`
+  - `npm run bench:longrun-dispatcher-soak`
+- Added Mac execution command pack:
+  - `handover/mac_longrun_command_pack_20260227.md`
+- Validation:
+  - `npm run bench:longrun-dispatcher-soak` PASS (1200 ticks, route coverage=1.0, cpu_fault=0, unrecoverable=0)
+  - `npm run bench:ci-gates` PASS
+- Dual-pass audit:
+  - Gemini audit: GO (runtime overrides + route metrics + 1000+ tick evidence).
+
+### 2026-02-27 Step-5 Guard SFT Pipeline Completed
+- Added guard SFT dataset builder:
+  - `src/bench/guard-sft-dataset.ts`
+  - outputs policy and trap-reflex datasets from `REPLAY_TUPLE` + `TRAP_FRAME`
+- Added script:
+  - `npm run bench:guard-sft-dataset`
+- Latest generated artifacts:
+  - `benchmarks/data/sft/guard_policy_20260227_033312.jsonl`
+  - `benchmarks/data/sft/guard_reflex_20260227_033312.jsonl`
+  - `benchmarks/audits/sft/guard_sft_dataset_latest.json`
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:guard-sft-dataset` PASS (`policy_rows=537`, `reflex_rows=25`, `scanned_traces=59`)
+- Dual-pass audit:
+  - Gemini audit: GO (policy extraction + trap-to-recovery mapping + reproducible latest pointer).

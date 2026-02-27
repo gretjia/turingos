@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 type TrapKind = 'PAGE_FAULT' | 'CPU_FAULT' | 'IO_FAULT' | 'WATCHDOG_NMI';
+type OracleMode = 'kimi' | 'openai' | 'mock';
 
 interface TextExpectation {
   kind: 'text';
@@ -52,6 +53,11 @@ interface ScenarioResult {
   halted: boolean;
   maxTickHit: boolean;
   ticksObserved: number;
+  routeSamples: number;
+  routeCoverage: number;
+  routePLaneRate: number;
+  routeELaneRate: number;
+  routeFailoverCount: number;
   completionScore: number;
   planAdherence: number;
   pointerDriftRate: number;
@@ -81,6 +87,11 @@ interface PointerTransition {
   to: string;
 }
 
+interface RouteEvent {
+  lane: 'P' | 'E' | 'UNKNOWN';
+  failoverFrom?: 'P' | 'E';
+}
+
 interface ScenarioAggregate {
   id: string;
   name: string;
@@ -94,6 +105,8 @@ interface ScenarioAggregate {
   haltedRate: number;
   maxTickRate: number;
   watchdogAvg: number;
+  routeCoverageAvg: number;
+  routeFailoverAvg: number;
   telemetrySamplesAvg: number;
   telemetryTokenCvAvg: number;
 }
@@ -139,6 +152,30 @@ function parseLongRunTicks(argv: string[]): number | null {
     return null;
   }
   return parsed;
+}
+
+function parseOracleOverride(argv: string[]): OracleMode | null {
+  const index = argv.findIndex((arg) => arg === '--oracle');
+  if (index < 0) {
+    return null;
+  }
+  const raw = (argv[index + 1] ?? '').trim();
+  return raw === 'kimi' || raw === 'openai' || raw === 'mock' ? raw : null;
+}
+
+function parseDispatcherOverride(argv: string[]): boolean | null {
+  const index = argv.findIndex((arg) => arg === '--dispatcher');
+  if (index < 0) {
+    return null;
+  }
+  const raw = (argv[index + 1] ?? '').trim().toLowerCase();
+  if (raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on') {
+    return true;
+  }
+  if (raw === '0' || raw === 'false' || raw === 'no' || raw === 'off') {
+    return false;
+  }
+  return null;
 }
 
 function timestamp(): string {
@@ -502,7 +539,11 @@ async function writeSetupFiles(workspace: string, setupFiles: SetupFile[] | unde
   }
 }
 
-async function runBoot(workspace: string, maxTicks: number): Promise<RunOutput> {
+async function runBoot(
+  workspace: string,
+  maxTicks: number,
+  runtimeOverrides: { oracle: OracleMode | null; dispatcherEnabled: boolean | null }
+): Promise<RunOutput> {
   const started = Date.now();
   const args = [
     'run',
@@ -522,6 +563,10 @@ async function runBoot(workspace: string, maxTicks: number): Promise<RunOutput> 
       env: {
         ...process.env,
         TURINGOS_TOKEN_TELEMETRY_PATH: path.join(workspace, '.token_telemetry.jsonl'),
+        ...(runtimeOverrides.oracle ? { TURINGOS_ORACLE: runtimeOverrides.oracle } : {}),
+        ...(runtimeOverrides.dispatcherEnabled === null
+          ? {}
+          : { TURINGOS_DISPATCHER_ENABLED: runtimeOverrides.dispatcherEnabled ? '1' : '0' }),
       },
     });
     let stdout = '';
@@ -653,6 +698,38 @@ function parseTransitions(journalRaw: string | null): PointerTransition[] {
   return transitions;
 }
 
+function parseBusRoutes(journalRaw: string | null): RouteEvent[] {
+  if (!journalRaw) {
+    return [];
+  }
+
+  const events: RouteEvent[] = [];
+  const lines = journalRaw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.includes('[BUS_ROUTE]'));
+  for (const line of lines) {
+    const match = line.match(/\[BUS_ROUTE\]\s*(\{.*\})$/);
+    if (!match?.[1]) {
+      continue;
+    }
+    try {
+      const parsed = JSON.parse(match[1]) as Record<string, unknown>;
+      const laneRaw = typeof parsed.lane === 'string' ? parsed.lane.trim().toUpperCase() : '';
+      const failoverRaw =
+        typeof parsed.failover_from === 'string' ? parsed.failover_from.trim().toUpperCase() : undefined;
+      events.push({
+        lane: laneRaw === 'P' || laneRaw === 'E' ? laneRaw : 'UNKNOWN',
+        ...(failoverRaw === 'P' || failoverRaw === 'E' ? { failoverFrom: failoverRaw } : {}),
+      });
+    } catch {
+      continue;
+    }
+  }
+
+  return events;
+}
+
 function parseTelemetryStats(raw: string | null): {
   samples: number;
   avgTotalTokens: number;
@@ -768,7 +845,8 @@ async function runScenario(
   scenario: Scenario,
   runStamp: string,
   repeat: number,
-  longRunTicks: number | null
+  longRunTicks: number | null,
+  runtimeOverrides: { oracle: OracleMode | null; dispatcherEnabled: boolean | null }
 ): Promise<ScenarioResult> {
   const workspace = path.join(WORKSPACES_DIR, `${scenario.id}-${runStamp}-r${repeat}`);
   const effectiveMaxTicks = longRunTicks ?? scenario.maxTicks;
@@ -778,7 +856,7 @@ async function runScenario(
   await writeExecutionContract(workspace, scenario);
 
   console.log(`\n[os-longrun] repeat=${repeat} scenario=${scenario.id} maxTicks=${effectiveMaxTicks}`);
-  const run = await runBoot(workspace, effectiveMaxTicks);
+  const run = await runBoot(workspace, effectiveMaxTicks, runtimeOverrides);
 
   const regQ = (await readMaybe(path.join(workspace, '.reg_q'))) ?? '';
   const regD = (await readMaybe(path.join(workspace, '.reg_d'))) ?? '';
@@ -796,10 +874,28 @@ async function runScenario(
   const planAdherence = parseProgressAdherence(progress, scenario.stepIds);
 
   const transitions = parseTransitions(journal);
+  const routes = parseBusRoutes(journal);
   const invalidPointerCount = transitions.filter((transition) => !isValidPointer(transition.to)).length;
   const pointerDriftRate = Number(
     (invalidPointerCount / (transitions.length === 0 ? 1 : transitions.length)).toFixed(4)
   );
+  const routeSamples = routes.length;
+  const routeCoverage = Number(
+    (routeSamples / (transitions.length === 0 ? 1 : transitions.length)).toFixed(4)
+  );
+  const routePLaneRate = Number(
+    (
+      routes.filter((route) => route.lane === 'P').length /
+      (routeSamples === 0 ? 1 : routeSamples)
+    ).toFixed(4)
+  );
+  const routeELaneRate = Number(
+    (
+      routes.filter((route) => route.lane === 'E').length /
+      (routeSamples === 0 ? 1 : routeSamples)
+    ).toFixed(4)
+  );
+  const routeFailoverCount = routes.filter((route) => route.failoverFrom === 'P' || route.failoverFrom === 'E').length;
 
   const mergedLog = [run.stdout, run.stderr, regQ, regD, journal ?? ''].join('\n');
   const trapCounts = buildTrapCounts(mergedLog);
@@ -819,6 +915,11 @@ async function runScenario(
     halted,
     maxTickHit,
     ticksObserved: transitions.length,
+    routeSamples,
+    routeCoverage,
+    routePLaneRate,
+    routeELaneRate,
+    routeFailoverCount,
     completionScore,
     planAdherence,
     pointerDriftRate,
@@ -887,6 +988,8 @@ function aggregateByScenario(results: ScenarioResult[]): ScenarioAggregate[] {
       haltedRate,
       maxTickRate,
       watchdogAvg: average(items.map((item) => item.trapCounts.WATCHDOG_NMI)),
+      routeCoverageAvg: average(items.map((item) => item.routeCoverage)),
+      routeFailoverAvg: average(items.map((item) => item.routeFailoverCount)),
       telemetrySamplesAvg: average(items.map((item) => item.telemetrySamples)),
       telemetryTokenCvAvg: average(items.map((item) => item.telemetryTokenCv)),
     });
@@ -919,20 +1022,20 @@ function toMarkdown(
     '',
     '## Scenario Distribution',
     '',
-    '| Scenario | Runs | pass_rate | completion_avg | completion_p50 | completion_p90 | plan_avg | drift_avg | halted_rate | max_tick_rate | watchdog_avg | tele_samples_avg | tele_cv_avg |',
-    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Scenario | Runs | pass_rate | completion_avg | completion_p50 | completion_p90 | plan_avg | drift_avg | halted_rate | max_tick_rate | watchdog_avg | route_coverage_avg | route_failover_avg | tele_samples_avg | tele_cv_avg |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
     ...aggregates.map(
       (item) =>
-        `| ${item.id} | ${item.runs} | ${item.passRate} | ${item.completionAvg} | ${item.completionP50} | ${item.completionP90} | ${item.planAvg} | ${item.driftAvg} | ${item.haltedRate} | ${item.maxTickRate} | ${item.watchdogAvg} | ${item.telemetrySamplesAvg} | ${item.telemetryTokenCvAvg} |`
+        `| ${item.id} | ${item.runs} | ${item.passRate} | ${item.completionAvg} | ${item.completionP50} | ${item.completionP90} | ${item.planAvg} | ${item.driftAvg} | ${item.haltedRate} | ${item.maxTickRate} | ${item.watchdogAvg} | ${item.routeCoverageAvg} | ${item.routeFailoverAvg} | ${item.telemetrySamplesAvg} | ${item.telemetryTokenCvAvg} |`
     ),
     '',
     '## Per Run Detail',
     '',
-    '| Repeat | Scenario | Pass | completion | plan | drift | halted | max_tick | PAGE_FAULT | CPU_FAULT | WATCHDOG_NMI | tele_samples | tele_cv | tele_stable |',
-    '|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Repeat | Scenario | Pass | completion | plan | drift | route_cov | route_p | route_e | route_failover | halted | max_tick | PAGE_FAULT | CPU_FAULT | WATCHDOG_NMI | tele_samples | tele_cv | tele_stable |',
+    '|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
     ...results.map(
       (result) =>
-        `| ${result.repeat} | ${result.id} | ${result.pass ? 'Y' : 'N'} | ${result.completionScore} | ${result.planAdherence} | ${result.pointerDriftRate} | ${result.halted ? 'Y' : 'N'} | ${result.maxTickHit ? 'Y' : 'N'} | ${result.trapCounts.PAGE_FAULT} | ${result.trapCounts.CPU_FAULT} | ${result.trapCounts.WATCHDOG_NMI} | ${result.telemetrySamples} | ${result.telemetryTokenCv} | ${result.telemetryStable ? 'Y' : 'N'} |`
+        `| ${result.repeat} | ${result.id} | ${result.pass ? 'Y' : 'N'} | ${result.completionScore} | ${result.planAdherence} | ${result.pointerDriftRate} | ${result.routeCoverage} | ${result.routePLaneRate} | ${result.routeELaneRate} | ${result.routeFailoverCount} | ${result.halted ? 'Y' : 'N'} | ${result.maxTickHit ? 'Y' : 'N'} | ${result.trapCounts.PAGE_FAULT} | ${result.trapCounts.CPU_FAULT} | ${result.trapCounts.WATCHDOG_NMI} | ${result.telemetrySamples} | ${result.telemetryTokenCv} | ${result.telemetryStable ? 'Y' : 'N'} |`
     ),
     '',
     '## Artifacts',
@@ -945,15 +1048,12 @@ function toMarkdown(
 }
 
 async function main(): Promise<void> {
-  const apiKey = process.env.KIMI_API_KEY;
-  if (!apiKey) {
-    throw new Error('KIMI_API_KEY missing. Set it in .env before running os-longrun benchmark.');
-  }
-
   const argv = process.argv.slice(2);
   const repeats = parseRepeats(argv);
   const scenarioFilter = parseScenarioFilter(argv);
   const longRunTicks = parseLongRunTicks(argv);
+  const oracleOverride = parseOracleOverride(argv);
+  const dispatcherOverride = parseDispatcherOverride(argv);
   await ensureDirs();
   const runStamp = timestamp();
   const allScenarios = buildScenarios();
@@ -971,7 +1071,10 @@ async function main(): Promise<void> {
 
   for (let repeat = 1; repeat <= repeats; repeat += 1) {
     for (const scenario of scenarios) {
-      const result = await runScenario(scenario, runStamp, repeat, longRunTicks);
+      const result = await runScenario(scenario, runStamp, repeat, longRunTicks, {
+        oracle: oracleOverride,
+        dispatcherEnabled: dispatcherOverride,
+      });
       results.push(result);
     }
   }
@@ -984,6 +1087,11 @@ async function main(): Promise<void> {
       runStamp,
       executedAt: new Date().toISOString(),
       model: process.env.TURINGOS_MODEL ?? 'kimi-for-coding',
+      oracle: oracleOverride ?? process.env.TURINGOS_ORACLE ?? 'kimi',
+      dispatcherEnabled:
+        dispatcherOverride === null
+          ? /^(1|true|yes|on)$/i.test((process.env.TURINGOS_DISPATCHER_ENABLED ?? '').trim())
+          : dispatcherOverride,
       promptFile: PROMPT_FILE,
       repeats,
       longRunTicks,

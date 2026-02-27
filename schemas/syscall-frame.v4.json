@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_id": "turingos.syscall_frame.v4",
+  "version": "4.0.0",
+  "constraint": "ALU must emit exactly one syscall per tick.",
+  "opcodes": [
+    "SYS_WRITE",
+    "SYS_GOTO",
+    "SYS_EXEC",
+    "SYS_GIT_LOG",
+    "SYS_PUSH",
+    "SYS_EDIT",
+    "SYS_MOVE",
+    "SYS_POP",
+    "SYS_HALT"
+  ],
+  "instruction_classes": {
+    "WORLD_MUTATION": [
+      "SYS_WRITE",
+      "SYS_EXEC"
+    ],
+    "WORLD_NAVIGATION": [
+      "SYS_GOTO",
+      "SYS_GIT_LOG"
+    ],
+    "MIND_SCHEDULING": [
+      "SYS_PUSH",
+      "SYS_POP",
+      "SYS_EDIT",
+      "SYS_MOVE"
+    ],
+    "SYSTEM_CONTROL": [
+      "SYS_HALT"
+    ]
+  },
+  "exact_field_prompt_lines": [
+    "- SYS_WRITE: {\"op\":\"SYS_WRITE\",\"payload\":\"...\",\"semantic_cap\":\"optional\"}",
+    "- SYS_GOTO: {\"op\":\"SYS_GOTO\",\"pointer\":\"...\"}",
+    "- SYS_EXEC: {\"op\":\"SYS_EXEC\",\"cmd\":\"...\"}",
+    "- SYS_GIT_LOG: {\"op\":\"SYS_GIT_LOG\",\"query_params\":\"optional\",\"path\":\"optional\",\"limit\":20,\"ref\":\"optional\",\"grep\":\"optional\",\"since\":\"optional\"}",
+    "- SYS_PUSH: {\"op\":\"SYS_PUSH\",\"task\":\"...\"}",
+    "- SYS_EDIT: {\"op\":\"SYS_EDIT\",\"task\":\"...\"}",
+    "- SYS_MOVE: {\"op\":\"SYS_MOVE\",\"task_id\":\"optional\",\"target_pos\":\"TOP|BOTTOM\",\"status\":\"ACTIVE|SUSPENDED|BLOCKED\"}",
+    "- SYS_POP: {\"op\":\"SYS_POP\"}",
+    "- SYS_HALT: {\"op\":\"SYS_HALT\"}"
+  ]
+}

@@ -1,0 +1,62 @@
+# TuringOS Full-Auto 1-5 Completion Snapshot (2026-02-27)
+
+## Scope
+
+- Completed roadmap items 1-5 in one pass with dual-audit workflow (Codex implement + Gemini independent audit).
+- Branch: `main` (local working tree has code changes + generated benchmark artifacts).
+
+## Completed Items
+
+1. Bus schema freeze + consistency gate
+2. Dispatcher MVP (P/E route + deterministic route logs)
+3. Guard analytics benchmark
+4. Long-run integration + 1200 tick soak + Mac command pack
+5. Guard SFT dataset pipeline (`REPLAY_TUPLE + TRAP_FRAME -> policy/reflex`)
+
+## Key Code Artifacts
+
+- `schemas/syscall-frame.v4.json`
+- `src/bench/syscall-schema-consistency.ts`
+- `src/oracle/dispatcher-oracle.ts`
+- `src/kernel/engine.ts` (`[BUS_ROUTE]` journal emission)
+- `src/runtime/boot.ts` (dispatcher lane wiring via env)
+- `src/bench/dispatcher-gate.ts`
+- `src/bench/guard-analytics.ts`
+- `src/bench/os-longrun.ts` (oracle/dispatcher overrides + route metrics)
+- `src/bench/longrun-dispatcher-soak.ts`
+- `src/bench/guard-sft-dataset.ts`
+- `handover/mac_longrun_command_pack_20260227.md`
+- `docs/turingos_v4_execution_plan.md` (execution log updated)
+
+## Verification Results
+
+- `npm run typecheck` PASS
+- `npm run bench:syscall-schema-consistency` PASS
+- `npm run bench:syscall-schema-gate` PASS (valid 17/17, invalid 59/59, mutex 21/21)
+- `npm run bench:dispatcher-gate` PASS
+- `npm run bench:guard-analytics` PASS
+- `npm run bench:longrun-dispatcher-soak` PASS (ticks=1200, coverage=1, cpu_fault=0, unrecoverable=0)
+- `npm run bench:guard-sft-dataset` PASS (`policy_rows=537`, `reflex_rows=25`)
+- `npm run bench:ci-gates` PASS
+
+## Latest Output Paths
+
+- Protocol:
+  - `benchmarks/audits/protocol/syscall_schema_consistency_latest.json`
+  - `benchmarks/audits/protocol/dispatcher_gate_latest.json`
+- Guard:
+  - `benchmarks/audits/guard/guard_analytics_latest.json`
+- Longrun:
+  - `benchmarks/audits/longrun/dispatcher_longrun_soak_latest.json`
+- SFT:
+  - `benchmarks/audits/sft/guard_sft_dataset_latest.json`
+  - `benchmarks/data/sft/guard_policy_20260227_033312.jsonl`
+  - `benchmarks/data/sft/guard_reflex_20260227_033312.jsonl`
+
+## Gemini Audit Verdicts
+
+- Step 1: GO
+- Step 2: GO
+- Step 3: GO
+- Step 4: GO
+- Step 5: GO
