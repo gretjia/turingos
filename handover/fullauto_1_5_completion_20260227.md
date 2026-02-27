@@ -140,3 +140,30 @@
   - verification:
     - `npm run typecheck` PASS
     - `npm run bench:guard-mcu-loop -- --mode gold` PASS (`policy_rows=413`, `reflex_rows=2`, split `reflex train=1 val=1 test=0`)
+
+## Phase 7.2 Addendum (Model Baseline + Tiny Split CI Gate)
+
+- Model-mode baseline on Mac:
+  - local ollama (`http://localhost:11434/v1`, `qwen2.5:7b`):
+    - `guard-mcu-loop --mode model` -> `valid_json_rate=0.1429`, `pass=false`
+  - forced Kimi (`https://api.kimi.com/coding`, `kimi-for-coding`):
+    - `TURINGOS_GUARD_MODEL_*` override -> `valid_json_rate=0`, `pass=false`
+  - interpretation: fail point is syscall-frame JSON conformance quality, not split/eval pipeline.
+
+- Added regression gate:
+  - `src/bench/guard-tiny-split-gate.ts`
+  - deterministic tiny fixtures (`policy=3`, `reflex=2`)
+  - enforces tiny split expectation (`reflex train=1 val=1 test=0`)
+  - runs `guard-mcu-eval --mode gold` and asserts non-empty reflex selection + pass
+
+- CI wiring:
+  - `package.json` script added: `bench:guard-tiny-split-gate`
+  - `bench:ci-gates` now runs `bench:guard-tiny-split-gate`
+
+- VM validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:guard-tiny-split-gate` PASS
+  - `npm run bench:ci-gates` PASS
+
+- Gemini audit:
+  - GO (no blocking findings on gate implementation or CI integration).
