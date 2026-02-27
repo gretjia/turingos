@@ -172,6 +172,10 @@ interface TransitionShape {
   world_ops?: unknown;
 }
 
+interface ParseTransitionOptions {
+  coerceMixedVliwDomains?: boolean;
+}
+
 function readThoughtField(record: Record<string, unknown>): string | undefined {
   const thought =
     asString(record.thought) ??
@@ -243,48 +247,61 @@ function normalizeSyscallOrThrow(value: unknown, label: string): Syscall {
   return parsed.syscall;
 }
 
-function normalizeMindOps(raw: unknown): Syscall[] {
+function normalizeSyscallList(raw: unknown, label: string): Syscall[] {
   if (raw === undefined || raw === null) {
     return [];
   }
   const source = Array.isArray(raw) ? raw : [raw];
   const out: Syscall[] = [];
   for (let i = 0; i < source.length; i += 1) {
-    const syscall = normalizeSyscallOrThrow(source[i], `mind_ops[${i}]`);
-    if (!isMindOpcode(syscall.op)) {
-      throw new Error(
-        `[CPU_FAULT: INVALID_OPCODE] mind_ops[${i}] must be mind scheduling opcode (SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE), got ${syscall.op}`
-      );
-    }
+    const syscall = normalizeSyscallOrThrow(source[i], `${label}[${i}]`);
     out.push(syscall);
   }
   return out;
 }
 
-function normalizeWorldOps(rawWorldOp: unknown, rawWorldOps: unknown): Syscall[] {
-  const candidate = rawWorldOps !== undefined ? rawWorldOps : rawWorldOp;
-  if (candidate === undefined || candidate === null) {
-    return [];
-  }
-  const source = Array.isArray(candidate) ? candidate : [candidate];
-  const out: Syscall[] = [];
-  for (let i = 0; i < source.length; i += 1) {
-    const syscall = normalizeSyscallOrThrow(source[i], `world_op[${i}]`);
-    if (!isWorldOpcode(syscall.op) && !isSystemControlOpcode(syscall.op)) {
-      throw new Error(
-        `[CPU_FAULT: INVALID_OPCODE] world_op[${i}] must be world/system opcode (SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT), got ${syscall.op}`
-      );
-    }
-    out.push(syscall);
-  }
-  return out;
-}
-
-function normalizeTransitionShape(value: TransitionShape): Transition {
+function normalizeTransitionShape(value: TransitionShape, options: ParseTransitionOptions = {}): Transition {
   const hasVliwShape = value.mind_ops !== undefined || value.world_op !== undefined || value.world_ops !== undefined;
   if (hasVliwShape) {
-    const mindOps = normalizeMindOps(value.mind_ops);
-    const worldOps = normalizeWorldOps(value.world_op, value.world_ops);
+    const { mindOps, worldOps } = (() => {
+      const mindRaw = normalizeSyscallList(value.mind_ops, 'mind_ops');
+      const worldCandidate = value.world_ops !== undefined ? value.world_ops : value.world_op;
+      const worldRaw = normalizeSyscallList(worldCandidate, 'world_op');
+
+      const mindOps: Syscall[] = [];
+      const worldOps: Syscall[] = [];
+      const coerceMixedDomains = options.coerceMixedVliwDomains === true;
+      const route = (syscall: Syscall, origin: 'mind_ops' | 'world_op'): void => {
+        if (isMindOpcode(syscall.op)) {
+          if (origin === 'world_op' && !coerceMixedDomains) {
+            throw new Error(
+              `[CPU_FAULT: INVALID_OPCODE] world_op must be world/system opcode (SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT), got ${syscall.op}`
+            );
+          }
+          mindOps.push(syscall);
+          return;
+        }
+        if (origin === 'mind_ops' && !coerceMixedDomains) {
+          throw new Error(
+            `[CPU_FAULT: INVALID_OPCODE] mind_ops must be mind scheduling opcode (SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE), got ${syscall.op}`
+          );
+        }
+        if (!isWorldOpcode(syscall.op) && !isSystemControlOpcode(syscall.op)) {
+          throw new Error(
+            `[CPU_FAULT: INVALID_OPCODE] world_op must be world/system opcode (SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT), got ${syscall.op}`
+          );
+        }
+        worldOps.push(syscall);
+      };
+
+      for (const syscall of mindRaw) {
+        route(syscall, 'mind_ops');
+      }
+      for (const syscall of worldRaw) {
+        route(syscall, 'world_op');
+      }
+      return { mindOps, worldOps };
+    })();
     const primary = worldOps[0] ?? mindOps[mindOps.length - 1];
     if (!primary) {
       throw new Error('[CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op.');
@@ -369,6 +386,10 @@ function collectBalancedObjectCandidates(rawOutput: string): string[] {
 }
 
 export function parseBusTransitionFromText(rawOutput: string): Transition {
+  return parseBusTransitionFromTextWithOptions(rawOutput, {});
+}
+
+function parseBusTransitionFromTextWithOptions(rawOutput: string, options: ParseTransitionOptions): Transition {
   const extractedThought = extractThought(rawOutput);
   const candidates: string[] = [rawOutput];
 
@@ -394,7 +415,7 @@ export function parseBusTransitionFromText(rawOutput: string): Transition {
       if (!transitionShape) {
         continue;
       }
-      const normalized = normalizeTransitionShape(transitionShape);
+      const normalized = normalizeTransitionShape(transitionShape, options);
       if (!normalized.thought && extractedThought) {
         normalized.thought = extractedThought;
       }
@@ -419,7 +440,10 @@ export function parseProviderBusTransition(
     throw new Error(`Invalid ${provider} response: ${extracted.reason}`);
   }
   return {
-    transition: parseBusTransitionFromText(extracted.text),
+    transition: parseBusTransitionFromTextWithOptions(extracted.text, {
+      // Domain sanitizer is intentionally limited to local Ollama path.
+      coerceMixedVliwDomains: provider === 'ollama',
+    }),
     text: extracted.text,
     usage: extracted.usage,
   };

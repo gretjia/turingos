@@ -48,6 +48,7 @@ export class TuringEngine {
   private readonly thrashingDepth = 3;
   private readonly verificationSignalDepth = 6;
   private readonly trapLoopDepth = 4;
+  private readonly trapBreakerDepth = 3;
   private readonly oracleFrameHardLimitChars = 4096;
   private readonly oracleFrameMinChars = 1024;
   private readonly oracleFrameSafetyMarginChars = 512;
@@ -64,6 +65,8 @@ export class TuringEngine {
   private lastTrapDetails = new Map<string, string>();
   private recentVerificationSignals: string[] = [];
   private trapPointerHistory: string[] = [];
+  private trapBaseStreakBase: string | null = null;
+  private trapBaseStreakCount = 0;
 
   constructor(
     private manifold: IPhysicalManifold,
@@ -711,6 +714,10 @@ export class TuringEngine {
       `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | syscall:${syscallNote} | thought:${shortThought || '-'}`
     );
 
+    if (!d_next.trim().startsWith('sys://trap/')) {
+      this.resetTrapBaseStreak();
+    }
+
     return [q_next, d_next];
   }
 
@@ -804,6 +811,11 @@ export class TuringEngine {
     trapPointer: Pointer,
     metadata?: Record<string, unknown>
   ): Promise<[State, Pointer]> {
+    const streak = this.recordTrapBaseStreak(trapBase);
+    if (trapBase !== 'sys://trap/trap_breaker' && streak >= this.trapBreakerDepth) {
+      return this.raiseTrapBreaker(trapBase, trapState, streak);
+    }
+
     const frame = this.buildTrapFrame(trapBase, trapPointer, details, metadata);
     await this.chronos.engrave(`[TRAP_FRAME] ${JSON.stringify(frame)}`);
     return [this.appendTrapFrameToState(trapState, frame), trapPointer];
@@ -1338,6 +1350,7 @@ export class TuringEngine {
     if (!trimmed.startsWith('sys://trap/')) {
       this.trapPointerHistory = [];
       this.panicResetCount = 0;
+      this.resetTrapBaseStreak();
       return { loop: false };
     }
 
@@ -1368,6 +1381,65 @@ export class TuringEngine {
     }
 
     return { loop: false };
+  }
+
+  private recordTrapBaseStreak(trapBase: string): number {
+    if (this.trapBaseStreakBase === trapBase) {
+      this.trapBaseStreakCount += 1;
+    } else {
+      this.trapBaseStreakBase = trapBase;
+      this.trapBaseStreakCount = 1;
+    }
+    return this.trapBaseStreakCount;
+  }
+
+  private resetTrapBaseStreak(): void {
+    this.trapBaseStreakBase = null;
+    this.trapBaseStreakCount = 0;
+  }
+
+  private async raiseTrapBreaker(
+    trappedBase: string,
+    recoveredState: State,
+    streak: number
+  ): Promise<[State, Pointer]> {
+    this.watchdogHistory = [];
+    this.l1TraceCache = [];
+    this.mindSchedulingHistory = [];
+    this.trapPointerHistory = [];
+    this.panicResetCount = 0;
+    await this.resetCallStackBestEffort();
+
+    const details = [
+      'TRAP_BREAKER fired: repeated identical trap signature.',
+      `Trap base: ${trappedBase}`,
+      `Streak: ${streak}`,
+      `Threshold: ${this.trapBreakerDepth}`,
+      'Action: re-read sys://callstack and issue one physical world op before more mind scheduling.',
+    ].join('\n');
+    this.lastTrapDetails.set('sys://trap/trap_breaker', details);
+
+    const trapState = [
+      '[OS_TRAP_BREAKER] Repeated trap streak interrupted.',
+      `Trap base: ${trappedBase}`,
+      `Streak: ${streak}`,
+      'Action: pivot strategy now; issue SYS_EXEC or SYS_WRITE to restore physical progress.',
+      '',
+      '[RECOVERED STATE q]:',
+      recoveredState,
+    ].join('\n');
+
+    const pointer: Pointer = 'sys://callstack';
+    const frame = this.buildTrapFrame('sys://trap/trap_breaker', pointer, details, {
+      source: 'trap_breaker',
+      trapped_base: trappedBase,
+      streak,
+      threshold: this.trapBreakerDepth,
+    });
+    await this.chronos.engrave(`[TRAP_BREAKER] ${details}`);
+    await this.chronos.engrave(`[TRAP_FRAME] ${JSON.stringify(frame)}`);
+    this.resetTrapBaseStreak();
+    return [this.appendTrapFrameToState(trapState, frame), pointer];
   }
 
   private async resetCallStackBestEffort(): Promise<void> {
