@@ -184,6 +184,22 @@ async function checkThrashingTrap(): Promise<CheckResult> {
 
   assert.ok(d.startsWith('sys://trap/thrashing'), `Expected thrashing trap pointer, got: ${d}`);
   assert.ok(q.includes('[OS_TRAP: THRASHING]'), `Expected THRASHING trap state, got: ${q}`);
+  assert.ok(q.includes('[OS_TRAP_FRAME_JSON]'), 'Expected machine-readable trap frame in trap state');
+  const journalRaw = await fsp.readFile(path.join(ws, '.journal.log'), 'utf-8');
+  const trapFrameLine = journalRaw
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line.includes('[TRAP_FRAME] ') && line.includes('sys://trap/thrashing'));
+  assert.ok(trapFrameLine, 'Expected thrashing [TRAP_FRAME] line in journal');
+  const marker = '[TRAP_FRAME] ';
+  const markerIdx = trapFrameLine!.indexOf(marker);
+  assert.ok(markerIdx >= 0, 'Expected [TRAP_FRAME] marker in journal line');
+  const trapFrame = JSON.parse(trapFrameLine!.slice(markerIdx + marker.length)) as {
+    trap_base?: string;
+    details?: string;
+  };
+  assert.equal(trapFrame.trap_base, 'sys://trap/thrashing', 'Unexpected trap frame base');
+  assert.ok(typeof trapFrame.details === 'string' && trapFrame.details.includes('TRAP_THRASHING'), 'Unexpected trap frame details');
 
   return {
     name: 'Kernel TRAP_THRASHING',

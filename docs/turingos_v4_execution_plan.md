@@ -81,3 +81,19 @@ Acceptance gates:
 - Dual-pass audit:
   - Gemini pass-1 found `semantic_cap` type gap (NO-GO), fixed.
   - Gemini pass-2 reported no high/medium findings (GO).
+
+### 2026-02-27 Week-2 Guard MVP Started
+- Guard lane minimum implementation landed in runtime engine:
+  - machine-readable trap frame emission to journal: `[TRAP_FRAME] {json}`
+  - trap state now carries parser-friendly frame block: `[OS_TRAP_FRAME_JSON]`
+  - bounded panic-reset budget (`maxPanicResets=2`) with fail-closed stop route (`HALT`) via `sys://trap/unrecoverable_loop`
+  - panic budget auto-resets when pointer exits `sys://trap/*`
+- Refactored trap return paths to use centralized helper in engine for structured trap logging.
+- Gate hardening:
+  - `topology-v4-gate` now asserts thrashing scenario emits both trap-state JSON block and journal trap frame.
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:topology-v4-gate` PASS (8/8)
+  - `npm run bench:syscall-schema-gate` PASS (59/59 malformed reject)
+  - `npm run bench:staged-acceptance-recursive` PASS
+  - `npm run bench:ci-gates` PASS

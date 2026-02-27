@@ -22,6 +22,16 @@ export interface IgniteResult {
   d: Pointer;
 }
 
+interface TrapFrame {
+  seq: number;
+  ts: string;
+  trap_base: string;
+  trap_pointer: Pointer;
+  details: string;
+  panic_reset_count: number;
+  metadata?: Record<string, unknown>;
+}
+
 export class TuringEngine {
   private watchdogHistory: string[] = [];
   private l1TraceCache: string[] = [];
@@ -35,10 +45,13 @@ export class TuringEngine {
   private readonly oracleFrameMinChars = 1024;
   private readonly oracleFrameSafetyMarginChars = 512;
   private readonly oracleObservedMinChars = 512;
+  private readonly maxPanicResets = 2;
   private readonly oracleRequestCharBudget = Number.parseInt(process.env.TURINGOS_ALU_REQUEST_CHAR_BUDGET ?? '8192', 10);
   private replayTupleSeq = 0;
   private replayMerkleRoot = 'GENESIS';
   private replayCursorLoaded = false;
+  private trapFrameSeq = 0;
+  private panicResetCount = 0;
   private lastObservedPointer?: Pointer;
   private lastObservedSlice?: Slice;
   private lastTrapDetails = new Map<string, string>();
@@ -389,10 +402,13 @@ export class TuringEngine {
           'Action: run a test command (e.g., $ npm test / $ pytest / $ go test) and inspect output before HALT.',
         ].join('\n');
         this.lastTrapDetails.set('sys://trap/illegal_halt', trapDetails);
-        return [
+        return this.trapReturn(
+          'sys://trap/illegal_halt',
+          trapDetails,
           q_t,
           this.systemTrapPointer('sys://trap/illegal_halt', trapDetails),
-        ];
+          { source: 'halt_guard', guard: 'verification' }
+        );
       }
     }
 
@@ -406,10 +422,13 @@ export class TuringEngine {
             'Action: Complete remaining plan steps and required files, then HALT.',
           ].join('\n');
           this.lastTrapDetails.set('sys://trap/halt_guard', trapDetails);
-          return [
+          return this.trapReturn(
+            'sys://trap/halt_guard',
+            trapDetails,
             q_t,
             this.systemTrapPointer('sys://trap/halt_guard', trapDetails),
-          ];
+            { source: 'halt_guard', guard: 'acceptance_contract' }
+          );
         }
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
@@ -419,10 +438,13 @@ export class TuringEngine {
           'Action: Retry HALT only after contract checker recovers.',
         ].join('\n');
         this.lastTrapDetails.set('sys://trap/halt_guard', trapDetails);
-        return [
+        return this.trapReturn(
+          'sys://trap/halt_guard',
+          trapDetails,
           q_t,
           this.systemTrapPointer('sys://trap/halt_guard', trapDetails),
-        ];
+          { source: 'halt_guard', guard: 'contract_crash' }
+        );
       }
     }
 
@@ -430,24 +452,7 @@ export class TuringEngine {
     if (trapLoop.loop) {
       this.watchdogHistory = [];
       this.l1TraceCache = [];
-      await this.resetCallStackBestEffort();
-      const trapDetails = [
-        'Kernel panic reset: repeated trap pointer loop detected.',
-        `Repeated trap: ${trapLoop.trapBase}`,
-        'Action: abandon current approach and switch to a different diagnosis path immediately.',
-      ].join('\n');
-      this.lastTrapDetails.set('sys://trap/panic_reset', trapDetails);
-      return [
-        [
-          '[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.',
-          `Repeated trap: ${trapLoop.trapBase}`,
-          'Action: use a different pointer/command strategy and avoid the last failing function path.',
-          '',
-          '[RECOVERED STATE q]:',
-          q_next,
-        ].join('\n'),
-        this.systemTrapPointer('sys://trap/panic_reset', trapDetails),
-      ];
+      return this.panicResetFromLoop(trapLoop.trapBase, q_next);
     }
 
     // 3) Action-loop interrupts: evaluate watchdog (deep horizon) before L1 (short horizon).
@@ -497,7 +502,14 @@ export class TuringEngine {
 
     if (isStuck) {
       this.watchdogHistory = [];
-      return [
+      const trapDetails = [
+        'WATCHDOG_NMI triggered: repeated identical action signature.',
+        `Action signature: ${actionHash.slice(0, 12)}`,
+        `Window: ${this.watchdogDepth}`,
+      ].join('\n');
+      return this.trapReturn(
+        'sys://trap/watchdog',
+        trapDetails,
         [
           '[OS_TRAP: WATCHDOG_NMI] INFINITE LOOP DETECTED!',
           'You repeated the same action 5 times with no progress.',
@@ -507,7 +519,8 @@ export class TuringEngine {
           q_next,
         ].join('\n'),
         'sys://trap/watchdog',
-      ];
+        { source: 'watchdog', action_signature: actionHash.slice(0, 12), window: this.watchdogDepth }
+      );
     }
 
     this.l1TraceCache.push(actionHash);
@@ -520,7 +533,14 @@ export class TuringEngine {
       this.l1TraceCache.every((item) => item === actionHash);
     if (l1LoopDetected) {
       this.l1TraceCache = [];
-      return [
+      const trapDetails = [
+        'L1_CACHE_HIT triggered: repeated short-horizon action signature.',
+        `Action signature: ${actionHash.slice(0, 12)}`,
+        `Window: ${this.l1TraceDepth}`,
+      ].join('\n');
+      return this.trapReturn(
+        'sys://trap/l1_cache_hit',
+        trapDetails,
         [
           '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
           `Action signature: ${actionHash.slice(0, 12)}`,
@@ -530,7 +550,8 @@ export class TuringEngine {
           q_next,
         ].join('\n'),
         'sys://trap/l1_cache_hit',
-      ];
+        { source: 'l1_cache', action_signature: actionHash.slice(0, 12), window: this.l1TraceDepth }
+      );
     }
 
     // 4) Interfere with physical world unless this is a pure read/exec step.
@@ -545,7 +566,9 @@ export class TuringEngine {
       if (isAppendChannel && progressAppendPointer && writePointerTrimmed === progressAppendPointer) {
         const normalized = await this.normalizeProgressPayload(s_prime, nextRequiredDone, nextRequiredFileHint);
         if (!normalized.ok) {
-          return [
+          return this.trapReturn(
+            'sys://trap/io_fault',
+            `Failed to write to ${writePointerTrimmed}: ${normalized.reason}`,
             [
               q_next,
               '',
@@ -553,7 +576,8 @@ export class TuringEngine {
               `Action: append exact line DONE:${nextRequiredDone ?? '<none>'} once.`,
             ].join('\n'),
             'sys://trap/io_fault',
-          ];
+            { source: 'normalize_progress', pointer: writePointerTrimmed }
+          );
         }
 
         writePayload = normalized.payload;
@@ -587,7 +611,9 @@ export class TuringEngine {
             'Action: output the complete file content with no "... existing ..." placeholders.',
           ].join('\n');
           this.lastTrapDetails.set('sys://trap/content_contract', trapDetails);
-          return [
+          return this.trapReturn(
+            'sys://trap/content_contract',
+            trapDetails,
             [
               q_next,
               '',
@@ -595,7 +621,8 @@ export class TuringEngine {
               `Details: ${trapDetails}`,
             ].join('\n'),
             this.systemTrapPointer('sys://trap/content_contract', trapDetails),
-          ];
+            { source: 'content_contract' }
+          );
         }
       }
 
@@ -603,7 +630,9 @@ export class TuringEngine {
         await this.manifold.interfere(writePointerTrimmed, writePayload);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
-        return [
+        return this.trapReturn(
+          'sys://trap/io_fault',
+          `Failed to write to ${writePointerTrimmed}: ${message}`,
           [
             q_next,
             '',
@@ -611,7 +640,8 @@ export class TuringEngine {
             'Push a task to fix permission or syntax issue and retry.',
           ].join('\n'),
           'sys://trap/io_fault',
-        ];
+          { source: 'manifold_write', pointer: writePointerTrimmed }
+        );
       }
     }
 
@@ -686,6 +716,92 @@ export class TuringEngine {
     return `${base}?details=${encodeURIComponent(details)}`;
   }
 
+  private appendTrapFrameToState(state: State, frame: TrapFrame): State {
+    const frameJson = JSON.stringify(frame);
+    if (state.includes('[OS_TRAP_FRAME_JSON]')) {
+      return state;
+    }
+    return [state, '', '[OS_TRAP_FRAME_JSON]', frameJson].join('\n');
+  }
+
+  private buildTrapFrame(
+    trapBase: string,
+    trapPointer: Pointer,
+    details: string,
+    metadata?: Record<string, unknown>
+  ): TrapFrame {
+    return {
+      seq: this.trapFrameSeq++,
+      ts: new Date().toISOString(),
+      trap_base: trapBase,
+      trap_pointer: trapPointer,
+      details,
+      panic_reset_count: this.panicResetCount,
+      ...(metadata ? { metadata } : {}),
+    };
+  }
+
+  private async trapReturn(
+    trapBase: string,
+    details: string,
+    trapState: State,
+    trapPointer: Pointer,
+    metadata?: Record<string, unknown>
+  ): Promise<[State, Pointer]> {
+    const frame = this.buildTrapFrame(trapBase, trapPointer, details, metadata);
+    await this.chronos.engrave(`[TRAP_FRAME] ${JSON.stringify(frame)}`);
+    return [this.appendTrapFrameToState(trapState, frame), trapPointer];
+  }
+
+  private async panicResetFromLoop(trapBase: string, recoveredState: State): Promise<[State, Pointer]> {
+    this.panicResetCount += 1;
+    await this.resetCallStackBestEffort();
+
+    if (this.panicResetCount > this.maxPanicResets) {
+      const fatalDetails = [
+        'Unrecoverable trap loop: panic reset budget exhausted.',
+        `Repeated trap: ${trapBase}`,
+        `Budget: ${this.maxPanicResets}`,
+        'Action: hard-stop this run and require external intervention.',
+      ].join('\n');
+      this.lastTrapDetails.set('sys://trap/unrecoverable_loop', fatalDetails);
+      return this.trapReturn(
+        'sys://trap/unrecoverable_loop',
+        fatalDetails,
+        [
+          '[OS_PANIC: UNRECOVERABLE_LOOP] Panic reset budget exhausted.',
+          `Repeated trap: ${trapBase}`,
+          `Budget: ${this.maxPanicResets}`,
+          'Action: investigate trap frame log and restart with corrected strategy.',
+        ].join('\n'),
+        'HALT',
+        { source: 'panic_reset_budget', repeated_trap: trapBase }
+      );
+    }
+
+    const panicDetails = [
+      'Kernel panic reset: repeated trap pointer loop detected.',
+      `Repeated trap: ${trapBase}`,
+      `Reset attempt: ${this.panicResetCount}/${this.maxPanicResets}`,
+      'Action: abandon current approach and switch to a different diagnosis path immediately.',
+    ].join('\n');
+    this.lastTrapDetails.set('sys://trap/panic_reset', panicDetails);
+    return this.trapReturn(
+      'sys://trap/panic_reset',
+      panicDetails,
+      [
+        '[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.',
+        `Repeated trap: ${trapBase}`,
+        'Action: use a different pointer/command strategy and avoid the last failing function path.',
+        '',
+        '[RECOVERED STATE q]:',
+        recoveredState,
+      ].join('\n'),
+      this.systemTrapPointer('sys://trap/panic_reset', panicDetails),
+      { source: 'panic_reset', repeated_trap: trapBase }
+    );
+  }
+
   private async raiseManagedTrap(
     trapBase: string,
     details: string,
@@ -696,27 +812,11 @@ export class TuringEngine {
     const pointer = this.systemTrapPointer(trapBase, details);
     const trapLoop = this.trackTrapPointerLoop(pointer);
     if (trapLoop.loop) {
-      await this.resetCallStackBestEffort();
-      const panicDetails = [
-        'Kernel panic reset: repeated trap pointer loop detected.',
-        `Repeated trap: ${trapLoop.trapBase}`,
-        'Action: abandon current approach and switch to a different diagnosis path immediately.',
-      ].join('\n');
-      this.lastTrapDetails.set('sys://trap/panic_reset', panicDetails);
-      return [
-        [
-          '[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.',
-          `Repeated trap: ${trapLoop.trapBase}`,
-          'Action: use a different pointer/command strategy and avoid the last failing function path.',
-          '',
-          '[RECOVERED STATE q]:',
-          recoveredState,
-        ].join('\n'),
-        this.systemTrapPointer('sys://trap/panic_reset', panicDetails),
-      ];
+      return this.panicResetFromLoop(trapLoop.trapBase, recoveredState);
     }
 
-    return [trapState, pointer];
+    this.panicResetCount = 0;
+    return this.trapReturn(trapBase, details, trapState, pointer, { source: 'raise_managed_trap' });
   }
 
   private actionSignature(dNext: Pointer, sPrime: string): string {
@@ -1119,6 +1219,7 @@ export class TuringEngine {
     const trimmed = pointer.trim();
     if (!trimmed.startsWith('sys://trap/')) {
       this.trapPointerHistory = [];
+      this.panicResetCount = 0;
       return { loop: false };
     }
 
