@@ -90,6 +90,7 @@ interface DatasetSummary {
 const ROOT = path.resolve(process.cwd());
 const DEFAULT_ROOTS = [
   path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'golden_traces'),
+  path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'guard_analytics'),
   path.join(ROOT, 'benchmarks', 'os-longrun', 'workspaces'),
 ];
 const DATA_DIR = path.join(ROOT, 'benchmarks', 'data', 'sft');

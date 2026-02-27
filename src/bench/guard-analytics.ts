@@ -78,6 +78,7 @@ class PanicBudgetOracle implements IOracle {
 
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'guard');
+const EVIDENCE_ROOT = path.join(ROOT, 'benchmarks', 'audits', 'evidence', 'guard_analytics');
 
 function timestamp(): string {
   const now = new Date();
@@ -189,8 +190,20 @@ function toMarkdown(report: AnalyticsReport, jsonPath: string): string {
 
 async function main(): Promise<void> {
   await fs.mkdir(AUDIT_DIR, { recursive: true });
+  await fs.mkdir(EVIDENCE_ROOT, { recursive: true });
+  const stamp = timestamp();
   const thrashing = await runScenario('thrashing', new ThrashingScenarioOracle(), 'q_thrashing_boot', 7);
   const panicBudget = await runScenario('panic_budget', new PanicBudgetOracle(), 'q_panic_boot', 12);
+  const evidenceDir = path.join(EVIDENCE_ROOT, stamp);
+  await fs.mkdir(evidenceDir, { recursive: true });
+  await fs.copyFile(
+    path.join(thrashing.workspace, '.journal.log'),
+    path.join(evidenceDir, 'thrashing.journal.log')
+  );
+  await fs.copyFile(
+    path.join(panicBudget.workspace, '.journal.log'),
+    path.join(evidenceDir, 'panic_budget.journal.log')
+  );
 
   const allFrames = [...thrashing.trapFrames, ...panicBudget.trapFrames];
   const schemaValidFrames = allFrames.filter(isSchemaValid).length;
@@ -225,7 +238,6 @@ async function main(): Promise<void> {
     },
   ];
 
-  const stamp = timestamp();
   const report: AnalyticsReport = {
     stamp,
     pass: checks.every((item) => item.pass),
