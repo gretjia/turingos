@@ -196,3 +196,20 @@ Acceptance gates:
   - `npm run bench:ci-gates` PASS
 - Dual-pass audit:
   - Gemini re-audit: GO (deterministic split, stronger deadlock detection, loop arg forwarding).
+
+### 2026-02-27 Phase-7.1 Cross-host Small-sample Stability Fix
+- Trigger:
+  - Mac run (`guard-mcu-loop --mode gold`) failed on tiny reflex split (`reflex_rows=2`) where `val=0`.
+- Fixes:
+  - `src/bench/guard-sft-split.ts`
+  - deterministic tiny-set policy: `total=1 -> train=1`, `total=2 -> train=1,val=1`
+  - relaxed pass gate to `train>0 && (val>0 || test>0)` for both policy/reflex
+  - `src/bench/guard-mcu-eval.ts`
+  - split selector now fail-safe chooses first non-empty split in order `val -> test -> train`
+  - report now records selected split/file for policy and reflex
+- Validation (VM):
+  - `npm run typecheck` PASS
+  - `npm run bench:guard-sft-split` PASS
+  - `npm run bench:guard-mcu-eval -- --mode gold` PASS
+  - `npm run bench:guard-mcu-loop -- --mode gold` PASS
+  - `npm run bench:ci-gates` PASS

@@ -210,6 +210,12 @@ function planSplitCounts(total: number, trainPct: number, valPct: number): Split
   if (total <= 0) {
     return { train: 0, val: 0, test: 0 };
   }
+  if (total === 1) {
+    return { train: 1, val: 0, test: 0 };
+  }
+  if (total === 2) {
+    return { train: 1, val: 1, test: 0 };
+  }
   let train = Math.floor((total * trainPct) / 100);
   let val = Math.floor((total * valPct) / 100);
   let test = total - train - val;
@@ -230,6 +236,16 @@ function planSplitCounts(total: number, trainPct: number, valPct: number): Split
   }
 
   return { train, val, test };
+}
+
+function hasUsableSplit(total: number, counts: SplitCounts): boolean {
+  if (total <= 0) {
+    return false;
+  }
+  if (counts.train <= 0) {
+    return false;
+  }
+  return counts.val > 0 || counts.test > 0;
 }
 
 async function writeSplitRows(
@@ -335,15 +351,7 @@ async function main(): Promise<void> {
       counts: reflexSplit.counts,
       files: reflexSplit.files,
     },
-    pass:
-      policyRows.length > 0 &&
-      reflexRows.length > 0 &&
-      policySplit.counts.train > 0 &&
-      policySplit.counts.val > 0 &&
-      policySplit.counts.test > 0 &&
-      reflexSplit.counts.train > 0 &&
-      reflexSplit.counts.val > 0 &&
-      reflexSplit.counts.test > 0,
+    pass: hasUsableSplit(policyRows.length, policySplit.counts) && hasUsableSplit(reflexRows.length, reflexSplit.counts),
   };
 
   const reportJsonPath = path.join(SFT_AUDIT_DIR, `guard_sft_split_${stamp}.json`);

@@ -108,3 +108,21 @@
   - `npm run bench:guard-analytics` PASS
   - `npm run bench:longrun-dispatcher-soak` PASS
   - `npm run bench:guard-sft-dataset` PASS
+
+## Phase 7.1 Addendum (Cross-host tiny-split fix)
+
+- Incident:
+  - On Mac, `npm run bench:guard-mcu-loop -- --mode gold` failed because reflex validation split could be empty at very small sample sizes.
+- Code changes:
+  - `src/bench/guard-sft-split.ts`
+  - deterministic tiny-set allocation (`n=1 -> train-only`, `n=2 -> train+val`)
+  - split gate now requires usable holdout (`train>0 && (val>0 || test>0)`)
+  - `src/bench/guard-mcu-eval.ts`
+  - automatic non-empty split fallback priority: `val -> test -> train`
+  - report now includes `selectedSplits` and `selectedFiles`
+- VM validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:guard-sft-split` PASS
+  - `npm run bench:guard-mcu-eval -- --mode gold` PASS
+  - `npm run bench:guard-mcu-loop -- --mode gold` PASS
+  - `npm run bench:ci-gates` PASS

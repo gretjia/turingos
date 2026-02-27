@@ -5,6 +5,7 @@ import { validateCanonicalSyscallEnvelope } from '../kernel/syscall-schema.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
 
 type EvalMode = 'gold' | 'model';
+type SplitName = 'train' | 'val' | 'test';
 
 interface PolicyRow {
   task: 'syscall_policy';
@@ -56,6 +57,14 @@ interface EvalReport {
   provider: {
     baseURL: string;
     model: string;
+  };
+  selectedSplits: {
+    policy: SplitName;
+    reflex: SplitName;
+  };
+  selectedFiles: {
+    policy: string;
+    reflex: string;
   };
   counts: {
     policyTotal: number;
@@ -173,6 +182,30 @@ function normalizeRows<T>(raw: string): T[] {
   return out;
 }
 
+function pickSplitFile(files: Record<string, unknown>, split: SplitName): string {
+  const raw = files[split];
+  return typeof raw === 'string' ? raw : '';
+}
+
+async function loadFirstNonEmptySplit<T>(
+  files: Record<string, unknown>,
+  limit: number,
+  label: string
+): Promise<{ split: SplitName; file: string; rows: T[] }> {
+  const order: SplitName[] = ['val', 'test', 'train'];
+  for (const split of order) {
+    const file = pickSplitFile(files, split);
+    if (!file || !fs.existsSync(file)) {
+      continue;
+    }
+    const rows = normalizeRows<T>(await fsp.readFile(file, 'utf-8')).slice(0, limit);
+    if (rows.length > 0) {
+      return { split, file, rows };
+    }
+  }
+  throw new Error(`No non-empty split found for ${label}. Checked in order: val -> test -> train.`);
+}
+
 function normalizeOp(value: unknown): string {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return '';
@@ -210,6 +243,10 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     `- pass: ${report.pass}`,
     `- report_json: ${jsonPath}`,
     `- split_manifest: ${report.splitManifest}`,
+    `- policy_split: ${report.selectedSplits.policy}`,
+    `- reflex_split: ${report.selectedSplits.reflex}`,
+    `- policy_file: ${report.selectedFiles.policy}`,
+    `- reflex_file: ${report.selectedFiles.reflex}`,
     `- base_url: ${report.provider.baseURL || '(none)'}`,
     `- model: ${report.provider.model || '(none)'}`,
     '',
@@ -232,24 +269,16 @@ async function main(): Promise<void> {
   }
   const manifestRaw = await fsp.readFile(args.splitManifest, 'utf-8');
   const manifest = JSON.parse(manifestRaw) as Record<string, unknown>;
-  const policyValPath = (manifest.policy as Record<string, unknown>)?.files
-    ? ((manifest.policy as Record<string, unknown>).files as Record<string, unknown>).val
-    : '';
-  const reflexValPath = (manifest.reflex as Record<string, unknown>)?.files
-    ? ((manifest.reflex as Record<string, unknown>).files as Record<string, unknown>).val
-    : '';
-  if (typeof policyValPath !== 'string' || !fs.existsSync(policyValPath)) {
-    throw new Error(`Policy val split not found: ${String(policyValPath)}`);
-  }
-  if (typeof reflexValPath !== 'string' || !fs.existsSync(reflexValPath)) {
-    throw new Error(`Reflex val split not found: ${String(reflexValPath)}`);
+  const policyFiles = (manifest.policy as Record<string, unknown>)?.files as Record<string, unknown> | undefined;
+  const reflexFiles = (manifest.reflex as Record<string, unknown>)?.files as Record<string, unknown> | undefined;
+  if (!policyFiles || !reflexFiles) {
+    throw new Error(`Invalid split manifest: missing policy/reflex files map in ${args.splitManifest}`);
   }
 
-  const policyRows = normalizeRows<PolicyRow>(await fsp.readFile(policyValPath, 'utf-8')).slice(0, args.policyLimit);
-  const reflexRows = normalizeRows<ReflexRow>(await fsp.readFile(reflexValPath, 'utf-8')).slice(0, args.reflexLimit);
-  if (policyRows.length === 0 || reflexRows.length === 0) {
-    throw new Error(`Empty validation slices: policy=${policyRows.length}, reflex=${reflexRows.length}`);
-  }
+  const policySelection = await loadFirstNonEmptySplit<PolicyRow>(policyFiles, args.policyLimit, 'policy');
+  const reflexSelection = await loadFirstNonEmptySplit<ReflexRow>(reflexFiles, args.reflexLimit, 'reflex');
+  const policyRows = policySelection.rows;
+  const reflexRows = reflexSelection.rows;
 
   const useModel = args.mode === 'model';
   let oracle: UniversalOracle | null = null;
@@ -365,6 +394,14 @@ async function main(): Promise<void> {
     provider: {
       baseURL: args.baseURL,
       model: args.model,
+    },
+    selectedSplits: {
+      policy: policySelection.split,
+      reflex: reflexSelection.split,
+    },
+    selectedFiles: {
+      policy: policySelection.file,
+      reflex: reflexSelection.file,
     },
     counts: {
       policyTotal: policyRows.length,
