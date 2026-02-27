@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { FileChronos } from '../chronos/file-chronos.js';
 import { TuringEngine } from '../kernel/engine.js';
+import { SYSCALL_EXACT_FIELD_PROMPT_LINES } from '../kernel/syscall-schema.js';
 import { IOracle, Slice, State, Transition } from '../kernel/types.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
@@ -143,15 +144,7 @@ function buildLiveDisciplinePrompt(expectation: LiveExpectation): string {
     'a_t MUST be an object that includes key op.',
     expectationLine,
     'Allowed opcodes and exact fields:',
-    '- SYS_WRITE: {"op":"SYS_WRITE","payload":"...","semantic_cap":"optional"}',
-    '- SYS_GOTO: {"op":"SYS_GOTO","pointer":"..."}',
-    '- SYS_EXEC: {"op":"SYS_EXEC","cmd":"..."}',
-    '- SYS_GIT_LOG: {"op":"SYS_GIT_LOG","query_params":"optional","path":"optional","limit":20,"ref":"optional","grep":"optional","since":"optional"}',
-    '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."}',
-    '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."}',
-    '- SYS_MOVE: {"op":"SYS_MOVE","task_id":"optional","target_pos":"TOP|BOTTOM","status":"ACTIVE|SUSPENDED|BLOCKED"}',
-    '- SYS_POP: {"op":"SYS_POP"}',
-    '- SYS_HALT: {"op":"SYS_HALT"}',
+    ...SYSCALL_EXACT_FIELD_PROMPT_LINES,
     'Forbidden: any top-level keys besides q_next and a_t; top-level payload/pointer/cmd/task; markdown fences; prose.',
     'Never include unsupported keys. Do not output markdown fences or prose.',
     'Example valid output: {"q_next":"tick_continue","a_t":{"op":"SYS_POP"}}',

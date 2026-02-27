@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import fsp from 'node:fs/promises';
-import { IOracle, Slice, State, Syscall, Transition } from '../kernel/types.js';
+import { normalizeModelSyscall, SYSCALL_OPCODE_PIPE } from '../kernel/syscall-schema.js';
+import { IOracle, Slice, State, Transition } from '../kernel/types.js';
 
 type OracleMode = 'openai' | 'kimi';
 
@@ -330,7 +331,7 @@ export class UniversalOracle implements IOracle {
 
     const detail = parseError ? ` Details: ${parseError.message}` : '';
     throw new Error(
-      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT.${detail} Raw: ${rawOutput}`
+      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in ${SYSCALL_OPCODE_PIPE}.${detail} Raw: ${rawOutput}`
     );
   }
 
@@ -355,16 +356,14 @@ export class UniversalOracle implements IOracle {
   }
 
   private normalizeTransition(value: { q_next: string; a_t: unknown; thought?: unknown }): Transition {
-    const syscall = this.normalizeSyscall(value.a_t);
-    if (!syscall) {
-      throw new Error(
-        '[CPU_FAULT: INVALID_OPCODE] Missing or invalid a_t.op. Expected SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT.'
-      );
+    const parsedSyscall = normalizeModelSyscall(value.a_t);
+    if (!parsedSyscall.ok) {
+      throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${parsedSyscall.reason}`);
     }
 
     const normalized: Transition = {
       q_next: value.q_next,
-      a_t: syscall,
+      a_t: parsedSyscall.syscall,
     };
 
     if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
@@ -378,275 +377,6 @@ export class UniversalOracle implements IOracle {
     if (this.isTransition(value)) {
       return this.normalizeTransition(value);
     }
-    return null;
-  }
-
-  private normalizeSyscall(value: unknown): Syscall | null {
-    if (!value || typeof value !== 'object') {
-      return null;
-    }
-
-    const syscall = value as Record<string, unknown>;
-    const opcodeRaw =
-      (typeof syscall.op === 'string' && syscall.op) ||
-      (typeof syscall.sys === 'string' && syscall.sys) ||
-      (typeof syscall.syscall === 'string' && syscall.syscall) ||
-      '';
-    const opcodeNormalized = opcodeRaw.trim().toUpperCase();
-    const opcode = opcodeNormalized === 'SYS_GITLOG'
-      ? 'SYS_GIT_LOG'
-      : opcodeNormalized === 'SYS_STACK_EDIT'
-        ? 'SYS_EDIT'
-        : opcodeNormalized === 'SYS_STACK_MOVE'
-          ? 'SYS_MOVE'
-        : opcodeNormalized;
-    const keys = Object.keys(syscall);
-    const rejectMutex = (message: string): never => {
-      throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${message}`);
-    };
-    const allowOnly = (allowed: string[], opname: string): void => {
-      const disallowed = keys.filter((key) => !allowed.includes(key));
-      if (disallowed.length > 0) {
-        rejectMutex(`MUTEX_VIOLATION: ${opname} has unsupported fields: ${disallowed.join(', ')}`);
-      }
-    };
-
-    if (opcode === 'SYS_WRITE') {
-      allowOnly(['op', 'sys', 'syscall', 'payload', 'content', 's_prime', 'semantic_cap', 'semanticCap', 'cap', 'capability'], 'SYS_WRITE');
-      const payload =
-        typeof syscall.payload === 'string'
-          ? syscall.payload
-          : typeof syscall.content === 'string'
-            ? syscall.content
-            : typeof syscall.s_prime === 'string'
-              ? syscall.s_prime
-              : null;
-      if (payload === null) {
-        return null;
-      }
-      const semanticCap =
-        typeof syscall.semantic_cap === 'string'
-          ? syscall.semantic_cap.trim()
-          : typeof syscall.semanticCap === 'string'
-            ? syscall.semanticCap.trim()
-            : typeof syscall.cap === 'string'
-              ? syscall.cap.trim()
-              : typeof syscall.capability === 'string'
-                ? syscall.capability.trim()
-                : '';
-      if (semanticCap.length > 0) {
-        return { op: 'SYS_WRITE', payload, semantic_cap: semanticCap };
-      }
-      return { op: 'SYS_WRITE', payload };
-    }
-
-    if (opcode === 'SYS_GOTO') {
-      allowOnly(['op', 'sys', 'syscall', 'pointer', 'handle', 'd_next'], 'SYS_GOTO');
-      const pointer =
-        typeof syscall.pointer === 'string'
-          ? syscall.pointer.trim()
-          : typeof syscall.handle === 'string'
-            ? syscall.handle.trim()
-            : typeof syscall.d_next === 'string'
-              ? syscall.d_next.trim()
-              : '';
-      if (pointer.length === 0) {
-        return null;
-      }
-      return { op: 'SYS_GOTO', pointer };
-    }
-
-    if (opcode === 'SYS_EXEC') {
-      allowOnly(['op', 'sys', 'syscall', 'cmd', 'command'], 'SYS_EXEC');
-      const cmd =
-        typeof syscall.cmd === 'string'
-          ? syscall.cmd.trim()
-          : typeof syscall.command === 'string'
-            ? syscall.command.trim()
-            : '';
-      if (cmd.length === 0) {
-        return null;
-      }
-      return { op: 'SYS_EXEC', cmd };
-    }
-
-    if (opcode === 'SYS_GIT_LOG') {
-      allowOnly(
-        ['op', 'sys', 'syscall', 'query_params', 'query', 'params', 'path', 'limit', 'ref', 'grep', 'since'],
-        'SYS_GIT_LOG'
-      );
-      const normalized: Extract<Syscall, { op: 'SYS_GIT_LOG' }> = { op: 'SYS_GIT_LOG' };
-
-      const queryParams =
-        typeof syscall.query_params === 'string'
-          ? syscall.query_params.trim()
-          : typeof syscall.query === 'string'
-            ? syscall.query.trim()
-            : typeof syscall.params === 'string'
-              ? syscall.params.trim()
-              : '';
-      if (queryParams.length > 0) {
-        normalized.query_params = queryParams;
-      }
-
-      const path =
-        typeof syscall.path === 'string'
-          ? syscall.path.trim()
-          : '';
-      if (path.length > 0) {
-        normalized.path = path;
-      }
-
-      const ref =
-        typeof syscall.ref === 'string'
-          ? syscall.ref.trim()
-          : '';
-      if (ref.length > 0) {
-        normalized.ref = ref;
-      }
-
-      const grep =
-        typeof syscall.grep === 'string'
-          ? syscall.grep.trim()
-          : '';
-      if (grep.length > 0) {
-        normalized.grep = grep;
-      }
-
-      const since =
-        typeof syscall.since === 'string'
-          ? syscall.since.trim()
-          : '';
-      if (since.length > 0) {
-        normalized.since = since;
-      }
-
-      const rawLimit = syscall.limit;
-      if (rawLimit !== undefined) {
-        const parsed =
-          typeof rawLimit === 'number'
-            ? rawLimit
-            : typeof rawLimit === 'string'
-              ? Number.parseInt(rawLimit, 10)
-              : Number.NaN;
-        if (!Number.isFinite(parsed) || parsed <= 0) {
-          return null;
-        }
-        normalized.limit = Math.min(Math.floor(parsed), 200);
-      }
-
-      return normalized;
-    }
-
-    if (opcode === 'SYS_PUSH') {
-      allowOnly(['op', 'sys', 'syscall', 'task', 'stack_payload', 'cmd', 'command'], 'SYS_PUSH');
-      const normalizeTask = (candidate: unknown): string => {
-        if (typeof candidate === 'string') {
-          return candidate.trim();
-        }
-        if (candidate && typeof candidate === 'object') {
-          try {
-            return JSON.stringify(candidate);
-          } catch {
-            return '';
-          }
-        }
-        return '';
-      };
-      const task =
-        normalizeTask(syscall.task) ||
-        normalizeTask(syscall.stack_payload) ||
-        normalizeTask(syscall.cmd) ||
-        normalizeTask(syscall.command);
-      if (task.length === 0) {
-        return null;
-      }
-      return { op: 'SYS_PUSH', task };
-    }
-
-    if (opcode === 'SYS_EDIT') {
-      allowOnly(['op', 'sys', 'syscall', 'task', 'stack_payload', 'cmd', 'command'], 'SYS_EDIT');
-      const normalizeTask = (candidate: unknown): string => {
-        if (typeof candidate === 'string') {
-          return candidate.trim();
-        }
-        if (candidate && typeof candidate === 'object') {
-          try {
-            return JSON.stringify(candidate);
-          } catch {
-            return '';
-          }
-        }
-        return '';
-      };
-      const task =
-        normalizeTask(syscall.task) ||
-        normalizeTask(syscall.stack_payload) ||
-        normalizeTask(syscall.cmd) ||
-        normalizeTask(syscall.command);
-      if (task.length === 0) {
-        return null;
-      }
-      return { op: 'SYS_EDIT', task };
-    }
-
-    if (opcode === 'SYS_MOVE') {
-      allowOnly(
-        ['op', 'sys', 'syscall', 'task_id', 'task', 'id', 'target_pos', 'target', 'position', 'status', 'state'],
-        'SYS_MOVE'
-      );
-
-      const normalizeMaybeString = (candidate: unknown): string | undefined => {
-        if (typeof candidate !== 'string') {
-          return undefined;
-        }
-        const trimmed = candidate.trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-      };
-
-      const taskId =
-        normalizeMaybeString(syscall.task_id) ||
-        normalizeMaybeString(syscall.task) ||
-        normalizeMaybeString(syscall.id);
-      const targetPosRaw =
-        normalizeMaybeString(syscall.target_pos) ||
-        normalizeMaybeString(syscall.target) ||
-        normalizeMaybeString(syscall.position);
-      const statusRaw =
-        normalizeMaybeString(syscall.status) ||
-        normalizeMaybeString(syscall.state);
-
-      const normalized: Extract<Syscall, { op: 'SYS_MOVE' }> = { op: 'SYS_MOVE' };
-      if (taskId) {
-        normalized.task_id = taskId;
-      }
-      if (targetPosRaw) {
-        const targetPos = targetPosRaw.toUpperCase();
-        if (targetPos !== 'TOP' && targetPos !== 'BOTTOM') {
-          return null;
-        }
-        normalized.target_pos = targetPos;
-      }
-      if (statusRaw) {
-        const status = statusRaw.toUpperCase();
-        if (status !== 'ACTIVE' && status !== 'SUSPENDED' && status !== 'BLOCKED') {
-          return null;
-        }
-        normalized.status = status;
-      }
-      return normalized;
-    }
-
-    if (opcode === 'SYS_POP') {
-      allowOnly(['op', 'sys', 'syscall'], 'SYS_POP');
-      return { op: 'SYS_POP' };
-    }
-
-    if (opcode === 'SYS_HALT') {
-      allowOnly(['op', 'sys', 'syscall'], 'SYS_HALT');
-      return { op: 'SYS_HALT' };
-    }
-
     return null;
   }
 }

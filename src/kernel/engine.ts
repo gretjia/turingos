@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { SYSCALL_OPCODE_SLASH, validateCanonicalSyscallEnvelope } from './syscall-schema.js';
 import {
   IChronos,
   IExecutionContract,
@@ -251,7 +252,7 @@ export class TuringEngine {
 
     try {
       const syscall = transition.a_t;
-      const strictViolation = this.validateSyscallEnvelope(syscall as unknown as Record<string, unknown>);
+      const strictViolation = validateCanonicalSyscallEnvelope(syscall);
       if (strictViolation) {
         throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${strictViolation}`);
       }
@@ -337,7 +338,7 @@ export class TuringEngine {
           q_t,
           '',
           `[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: ${message}`,
-          'Action: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_MOVE/SYS_POP/SYS_HALT).',
+          `Action: emit one valid opcode in a_t.op (${SYSCALL_OPCODE_SLASH}).`,
         ].join('\n'),
         q_t
       );
@@ -795,78 +796,6 @@ export class TuringEngine {
         return `UNKNOWN(${JSON.stringify(exhaustiveCheck)})`;
       }
     }
-  }
-
-  private validateSyscallEnvelope(syscall: Record<string, unknown>): string | null {
-    const op = typeof syscall.op === 'string' ? syscall.op : '';
-    if (op.length === 0) {
-      return 'Missing syscall op field.';
-    }
-
-    const keys = Object.keys(syscall);
-    const allowSet = (allowed: string[]): string | null => {
-      const disallowed = keys.filter((key) => !allowed.includes(key));
-      if (disallowed.length > 0) {
-        return `MUTEX_VIOLATION: ${op} carries extra fields: ${disallowed.join(', ')}`;
-      }
-      return null;
-    };
-
-    if (op === 'SYS_WRITE') {
-      return allowSet(['op', 'payload', 'semantic_cap']);
-    }
-    if (op === 'SYS_GOTO') {
-      return allowSet(['op', 'pointer']);
-    }
-    if (op === 'SYS_EXEC') {
-      return allowSet(['op', 'cmd']);
-    }
-    if (op === 'SYS_GIT_LOG') {
-      return allowSet(['op', 'query_params', 'path', 'limit', 'ref', 'grep', 'since']);
-    }
-    if (op === 'SYS_PUSH') {
-      return allowSet(['op', 'task']);
-    }
-    if (op === 'SYS_EDIT') {
-      return allowSet(['op', 'task']);
-    }
-    if (op === 'SYS_MOVE') {
-      const envelope = allowSet(['op', 'task_id', 'target_pos', 'status']);
-      if (envelope) {
-        return envelope;
-      }
-
-      if (syscall.task_id !== undefined && typeof syscall.task_id !== 'string') {
-        return 'SYS_MOVE.task_id must be a string when provided.';
-      }
-
-      if (syscall.target_pos !== undefined) {
-        if (typeof syscall.target_pos !== 'string') {
-          return 'SYS_MOVE.target_pos must be TOP or BOTTOM.';
-        }
-        const normalized = syscall.target_pos.trim().toUpperCase();
-        if (normalized !== 'TOP' && normalized !== 'BOTTOM') {
-          return `SYS_MOVE.target_pos invalid: ${syscall.target_pos}`;
-        }
-      }
-
-      if (syscall.status !== undefined) {
-        if (typeof syscall.status !== 'string') {
-          return 'SYS_MOVE.status must be ACTIVE, SUSPENDED, or BLOCKED.';
-        }
-        const normalized = syscall.status.trim().toUpperCase();
-        if (normalized !== 'ACTIVE' && normalized !== 'SUSPENDED' && normalized !== 'BLOCKED') {
-          return `SYS_MOVE.status invalid: ${syscall.status}`;
-        }
-      }
-
-      return null;
-    }
-    if (op === 'SYS_POP' || op === 'SYS_HALT') {
-      return allowSet(['op']);
-    }
-
-    return `Unknown syscall op: ${op}`;
   }
 
   private renderContractGuidance(

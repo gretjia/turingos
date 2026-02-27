@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FileChronos } from '../chronos/file-chronos.js';
 import { TuringEngine } from '../kernel/engine.js';
+import { SYSCALL_OPCODE_PIPE } from '../kernel/syscall-schema.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
 import { MockOracle } from '../oracle/mock-oracle.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
@@ -84,7 +85,7 @@ async function main(): Promise<void> {
 
   const disciplinePrompt = fs.existsSync(promptFile)
     ? fs.readFileSync(promptFile, 'utf-8')
-    : 'Output strict JSON with q_next and a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT.';
+    : `Output strict JSON with q_next and a_t.op in ${SYSCALL_OPCODE_PIPE}.`;
 
   const timeoutMs = Number.parseInt(process.env.TURINGOS_TIMEOUT_MS ?? '120000', 10);
   const maxOutputTokens = Number.parseInt(process.env.TURINGOS_MAX_OUTPUT_TOKENS ?? '1024', 10);
