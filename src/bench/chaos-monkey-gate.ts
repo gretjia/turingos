@@ -30,26 +30,6 @@ function timestamp(): string {
   return `${yyyy}${mm}${dd}_${hh}${mi}${ss}`;
 }
 
-function withChaosEnv(overrides: Record<string, string>, fn: () => Promise<void>): Promise<void> {
-  const keys = Object.keys(overrides);
-  const prev = new Map<string, string | undefined>();
-  for (const key of keys) {
-    prev.set(key, process.env[key]);
-    process.env[key] = overrides[key];
-  }
-
-  return fn().finally(() => {
-    for (const key of keys) {
-      const oldValue = prev.get(key);
-      if (oldValue === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = oldValue;
-      }
-    }
-  });
-}
-
 function toMarkdown(report: ChaosGateReport, jsonPath: string): string {
   return [
     '# Chaos Monkey Gate',
@@ -70,81 +50,86 @@ async function main(): Promise<void> {
   const stamp = timestamp();
   const checks: Check[] = [];
 
-  await withChaosEnv(
-    {
-      ENABLE_CHAOS: 'true',
-      CHAOS_EXEC_TIMEOUT_RATE: '1',
-      CHAOS_WRITE_DENY_RATE: '0',
-      CHAOS_LOG_FLOOD_RATE: '0',
-    },
-    async () => {
-      const ws = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-chaos-timeout-'));
-      const manifold = new LocalManifold(ws, { maxSliceChars: 4096, enableChaos: true });
-      const slice = await manifold.observe('$ echo chaos_timeout_probe');
-      const pass =
-        slice.includes('[EXIT_CODE] 124') && slice.includes('[FATAL] PROCESS_TIMEOUT: Execution hanging.');
-      checks.push({
-        id: 'chaos_exec_timeout',
-        pass,
-        details: pass ? 'timeout trap injected as expected' : slice.slice(0, 240).replace(/\n/g, ' | '),
-      });
-    }
-  );
+  {
+    const ws = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-chaos-timeout-'));
+    const manifold = new LocalManifold(ws, {
+      maxSliceChars: 4096,
+      enableChaos: true,
+      chaosExecTimeoutRate: 1,
+      chaosWriteDenyRate: 0,
+      chaosLogFloodRate: 0,
+    });
+    const slice = await manifold.observe('$ echo chaos_timeout_probe');
+    const pass =
+      slice.includes('[EXIT_CODE] 124') && slice.includes('[FATAL] PROCESS_TIMEOUT: Execution hanging.');
+    checks.push({
+      id: 'chaos_exec_timeout',
+      pass,
+      details: pass ? 'timeout trap injected as expected' : slice.slice(0, 240).replace(/\n/g, ' | '),
+    });
+  }
 
-  await withChaosEnv(
-    {
-      ENABLE_CHAOS: 'true',
-      CHAOS_EXEC_TIMEOUT_RATE: '0',
-      CHAOS_WRITE_DENY_RATE: '1',
-      CHAOS_LOG_FLOOD_RATE: '0',
-    },
-    async () => {
-      const ws = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-chaos-write-'));
-      const manifold = new LocalManifold(ws, { maxSliceChars: 4096, enableChaos: true });
-      let blocked = false;
-      let details = '';
-      try {
-        await manifold.interfere('src/out.txt', 'write_probe');
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        blocked = message.includes('EACCES');
-        details = message;
-      }
-      checks.push({
-        id: 'chaos_write_eacces',
-        pass: blocked,
-        details: blocked ? 'write blocked with EACCES as expected' : details || 'write unexpectedly succeeded',
-      });
+  {
+    const ws = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-chaos-write-'));
+    const manifold = new LocalManifold(ws, {
+      maxSliceChars: 4096,
+      enableChaos: true,
+      chaosExecTimeoutRate: 0,
+      chaosWriteDenyRate: 1,
+      chaosLogFloodRate: 0,
+    });
+    let blocked = false;
+    let details = '';
+    let residue = '';
+    let residuePass = false;
+    try {
+      await manifold.interfere('src/out.txt', 'write_probe');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      blocked = message.includes('EACCES');
+      details = message;
     }
-  );
+    try {
+      residue = await fs.readFile(path.join(ws, 'src', 'out.txt'), 'utf-8');
+      residuePass = residue.length > 0 && 'write_probe'.startsWith(residue);
+    } catch {
+      residuePass = false;
+    }
+    checks.push({
+      id: 'chaos_write_eacces',
+      pass: blocked && residuePass,
+      details:
+        blocked && residuePass
+          ? `write blocked with EACCES and partial residue="${residue}"`
+          : details || `write unexpectedly succeeded or residue check failed (residue="${residue}")`,
+    });
+  }
 
-  await withChaosEnv(
-    {
-      ENABLE_CHAOS: 'true',
-      CHAOS_EXEC_TIMEOUT_RATE: '0',
-      CHAOS_WRITE_DENY_RATE: '0',
-      CHAOS_LOG_FLOOD_RATE: '1',
-      CHAOS_LOG_FLOOD_CHARS: '50000',
-    },
-    async () => {
-      const ws = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-chaos-flood-'));
-      const manifold = new LocalManifold(ws, { maxSliceChars: 4096, enableChaos: true });
-      const summary = await manifold.observe('$ echo flood_probe');
-      const token = summary.match(/Token=([a-f0-9]+)/)?.[1];
-      const page2 = token ? await manifold.observe(`sys://page/${token}?p=2`) : '';
-      const pass =
-        summary.includes('[PAGE_TABLE_SUMMARY]') &&
-        summary.includes('Source=command:echo flood_probe') &&
-        page2.includes('[FOCUS_PAGE_CONTENT]');
-      checks.push({
-        id: 'chaos_log_flood_paged',
-        pass,
-        details: pass
-          ? `token=${token ?? '(missing)'}`
-          : `summary=${summary.slice(0, 180).replace(/\n/g, ' | ')}`,
-      });
-    }
-  );
+  {
+    const ws = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-chaos-flood-'));
+    const manifold = new LocalManifold(ws, {
+      maxSliceChars: 4096,
+      enableChaos: true,
+      chaosExecTimeoutRate: 0,
+      chaosWriteDenyRate: 0,
+      chaosLogFloodRate: 1,
+      chaosLogFloodChars: 50_000,
+    });
+    const summary = await manifold.observe('$ echo flood_probe');
+    const token = summary.match(/Token=([a-f0-9]+)/)?.[1];
+    const page2 = token ? await manifold.observe(`sys://page/${token}?p=2`) : '';
+    const pass =
+      summary.includes('[PAGE_TABLE_SUMMARY]') &&
+      summary.includes('Source=command:echo flood_probe') &&
+      page2.includes('[FOCUS_PAGE_CONTENT]');
+    checks.push({
+      id: 'chaos_log_flood_paged',
+      pass,
+      details: pass
+        ? `token=${token ?? '(missing)'}`
+        : `summary=${summary.slice(0, 180).replace(/\n/g, ' | ')}`,
+    });
+  }
 
   for (const check of checks) {
     assert.equal(check.pass, true, `${check.id} failed: ${check.details}`);
