@@ -1,0 +1,23 @@
+{
+  "stamp": "20260227_155854",
+  "host": "windows1-w1",
+  "remoteShell": "powershell",
+  "workspace": "(unknown)",
+  "port": 0,
+  "mttrOps": 999,
+  "checks": [
+    {
+      "id": "remote_script_output_present",
+      "pass": false,
+      "details": "No CHECK rows parsed. stderr=������̫����\r | "
+    },
+    {
+      "id": "ssh_exit_zero",
+      "pass": false,
+      "details": "exit_code=1"
+    }
+  ],
+  "pass": false,
+  "sshExitCode": 1,
+  "sshStderrPreview": "������̫����\r\n"
+}

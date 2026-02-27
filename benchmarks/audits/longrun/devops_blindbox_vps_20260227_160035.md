@@ -1,22 +1,22 @@
 # DevOps Blindbox VPS
 
-- stamp: 20260227_160556
+- stamp: 20260227_160035
 - host: windows1-w1
 - remote_shell: powershell
-- workspace: C:\Users\jiazi\AppData\Local\Temp\turingos-devops-vps-4cc2fb36
-- port: 18804
+- workspace: C:\Users\jiazi\AppData\Local\Temp\turingos-devops-vps-67ed0536
+- port: 18614
 - mttr_ops: 1
 - ssh_exit_code: 0
-- pass: true
-- report_json: /home/zephryj/projects/turingos/benchmarks/audits/longrun/devops_blindbox_vps_20260227_160556.json
+- pass: false
+- report_json: /home/zephryj/projects/turingos/benchmarks/audits/longrun/devops_blindbox_vps_20260227_160035.json
 
 | Check | Result | Details |
 |---|---|---|
 | python_runtime_present | PASS | python=C:\Python314\python.exe |
-| service_initial_health | PASS | startup_ok pid=22028 port=18804 |
-| service_down_after_kill | PASS | listener_before=22028 listener_after=0 port_down=True |
-| service_recovered_after_restart | PASS | recovered pid=21900 |
-| permission_denied_observed | PASS | append blocked deny_applied=True |
+| service_initial_health | PASS | startup_ok pid=10348 port=18614 |
+| service_down_after_kill | FAIL | service still alive after kill |
+| service_recovered_after_restart | PASS | recovered pid=15916 |
+| permission_denied_observed | FAIL | append unexpectedly succeeded deny_applied=False |
 | permission_recovered | PASS | readonly cleared + append recovered |
 | network_timeout_observed | PASS | blackhole probe failed as expected |
 | network_fallback_recovered | PASS | local fallback healthy |

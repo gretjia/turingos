@@ -1,9 +1,9 @@
 {
-  "stamp": "20260227_160556",
+  "stamp": "20260227_160035",
   "host": "windows1-w1",
   "remoteShell": "powershell",
-  "workspace": "C:\\Users\\jiazi\\AppData\\Local\\Temp\\turingos-devops-vps-4cc2fb36",
-  "port": 18804,
+  "workspace": "C:\\Users\\jiazi\\AppData\\Local\\Temp\\turingos-devops-vps-67ed0536",
+  "port": 18614,
   "mttrOps": 1,
   "checks": [
     {
@@ -14,22 +14,22 @@
     {
       "id": "service_initial_health",
       "pass": true,
-      "details": "startup_ok pid=22028 port=18804"
+      "details": "startup_ok pid=10348 port=18614"
     },
     {
       "id": "service_down_after_kill",
-      "pass": true,
-      "details": "listener_before=22028 listener_after=0 port_down=True"
+      "pass": false,
+      "details": "service still alive after kill"
     },
     {
       "id": "service_recovered_after_restart",
       "pass": true,
-      "details": "recovered pid=21900"
+      "details": "recovered pid=15916"
     },
     {
       "id": "permission_denied_observed",
-      "pass": true,
-      "details": "append blocked deny_applied=True"
+      "pass": false,
+      "details": "append unexpectedly succeeded deny_applied=False"
     },
     {
       "id": "permission_recovered",
@@ -57,7 +57,7 @@
       "details": "exit_code=0"
     }
   ],
-  "pass": true,
+  "pass": false,
   "sshExitCode": 0,
-  "sshStderrPreview": "����: û���ҵ����� \"22028\"��\r\n����: û���ҵ����� \"22028\"��\r\n"
+  "sshStderrPreview": "WORKGROUP\\jiazi: �ʻ����밲ȫ��ʶ�����κ�ӳ����ɡ�\r\n"
 }
