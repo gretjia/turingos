@@ -15,3 +15,4 @@ This folder mirrors selected benchmark audit outputs into `handover/` for GitHub
 ## Longrun Gates (latest)
 - `longrun/chaos_monkey_gate_latest.md`
 - `longrun/voyager_realworld_eval_latest.md`
+- `longrun/trace_evidence_compact_latest.md`
