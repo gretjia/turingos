@@ -238,3 +238,38 @@ Acceptance gates:
   - `npm run bench:ci-gates` PASS
 - Dual-pass audit:
   - Gemini audit: GO (new gate wiring and CI chain integration).
+
+### 2026-02-27 Phase-7.3 Model JSON Conformance Hardening + Profiled Gates
+- Parser hardening (`src/oracle/turing-bus-adapter.ts`):
+  - added balanced JSON-object candidate extraction for noisy model outputs
+  - added transition-shape alias mapping (`q_next/qNext/next_state/...`, `a_t/action/syscall`)
+  - added nested transition extraction (`result/output/data/frame/transition`) with bounded depth
+- Guard eval hardening (`src/bench/guard-mcu-eval.ts`):
+  - strengthened strict prompt with exact opcode/field contract (`SYSCALL_EXACT_FIELD_PROMPT_LINES`)
+  - added repair retry path (`--max-model-attempts`, default `2`) for parse-fault self-correction
+  - added threshold profiles:
+    - `prod`: `valid_json>=0.999`, `reflex_exact>=0.75`, `deadlock_escape>=0.95`
+    - `dev`: `valid_json>=0.1`, `reflex_exact>=0`, `deadlock_escape>=0.8`
+  - added oracle mode routing:
+    - `--oracle-mode auto|openai|kimi` (default `auto`)
+    - auto-detect Kimi endpoints/models and route to `UniversalOracle('kimi')`
+- Loop orchestration (`src/bench/guard-mcu-loop.ts`):
+  - added `--threshold-profile` passthrough to eval
+- Scripts (`package.json`):
+  - `bench:guard-mcu-loop:dev`
+  - `bench:guard-mcu-loop:prod`
+- Validation (VM):
+  - `npm run typecheck` PASS
+  - `npm run bench:turing-bus-conformance` PASS
+  - `npm run bench:guard-tiny-split-gate` PASS
+  - `npm run bench:ci-gates` PASS
+- Mac model matrix (`/Users/zephryj/work/turingos`):
+  - Local Ollama `qwen2.5:7b` (`oracle=openai`)
+    - `prod`: `valid_json=1`, `reflex_exact=0`, `pass=false`
+    - `dev`: `valid_json=1`, `reflex_exact=0`, `pass=true`
+  - Kimi API (`https://api.kimi.com/coding`, `kimi-for-coding`, `oracle=kimi`)
+    - `prod`: `valid_json=1`, `reflex_exact=1`, `pass=true`
+    - `dev`: `valid_json=1`, `reflex_exact=1`, `pass=true`
+- Key effect:
+  - JSON conformance bottleneck removed for both lanes (`valid_json_rate` rose to `1.0`).
+  - Remaining quality gap now isolated to `reflex_exact` behavior on local 7B lane.

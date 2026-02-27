@@ -167,3 +167,37 @@
 
 - Gemini audit:
   - GO (no blocking findings on gate implementation or CI integration).
+
+## Phase 7.3 Addendum (Model JSON Conformance + Oracle Routing)
+
+- Code changes:
+  - `src/oracle/turing-bus-adapter.ts`
+    - robust JSON extraction (balanced object slices)
+    - transition alias mapping + nested frame extraction
+  - `src/bench/guard-mcu-eval.ts`
+    - strict syscall discipline prompt using canonical field lines
+    - repair retry path (`max-model-attempts`, default 2)
+    - threshold profile layering (`prod` / `dev`)
+    - oracle routing (`--oracle-mode auto|openai|kimi`)
+  - `src/bench/guard-mcu-loop.ts`
+    - `--threshold-profile` passthrough
+  - `package.json`
+    - added `bench:guard-mcu-loop:dev` and `bench:guard-mcu-loop:prod`
+
+- VM verification:
+  - `npm run typecheck` PASS
+  - `npm run bench:turing-bus-conformance` PASS
+  - `npm run bench:guard-tiny-split-gate` PASS
+  - `npm run bench:ci-gates` PASS
+
+- Mac model matrix (post `87adf1d`):
+  - local ollama `qwen2.5:7b`:
+    - `guard-mcu-loop --mode model --threshold-profile prod` -> `valid_json_rate=1`, `reflex_exact=0`, `pass=false`
+    - `guard-mcu-loop --mode model --threshold-profile dev` -> `valid_json_rate=1`, `reflex_exact=0`, `pass=true`
+  - Kimi (`https://api.kimi.com/coding`, `kimi-for-coding`):
+    - `guard-mcu-loop --mode model --threshold-profile prod` -> `oracle=kimi`, `valid_json_rate=1`, `reflex_exact=1`, `pass=true`
+    - `guard-mcu-loop --mode model --threshold-profile dev` -> `oracle=kimi`, `valid_json_rate=1`, `reflex_exact=1`, `pass=true`
+
+- Interpretation:
+  - JSON conformance issue is resolved (all lanes at `valid_json_rate=1`).
+  - Remaining deficit is reflex policy quality on local 7B lane under production exact-match threshold.
