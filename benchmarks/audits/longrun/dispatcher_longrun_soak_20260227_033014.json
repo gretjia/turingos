@@ -1,0 +1,38 @@
+{
+  "stamp": "20260227_033014",
+  "workspace": "/tmp/turingos-longrun-dispatcher-gS9NQF",
+  "ticksRequested": 1200,
+  "ticksObserved": 640,
+  "route": {
+    "samples": 1200,
+    "pSamples": 560,
+    "eSamples": 640,
+    "failovers": 0,
+    "coverage": 1.875
+  },
+  "cpuFaultCount": 0,
+  "unrecoverableLoopCount": 0,
+  "pass": false,
+  "checks": [
+    {
+      "id": "ticks_observed_>=_1000",
+      "pass": false,
+      "details": "ticks_observed=640"
+    },
+    {
+      "id": "route_coverage_>=_0.99",
+      "pass": true,
+      "details": "coverage=1.875"
+    },
+    {
+      "id": "dual_lane_usage",
+      "pass": true,
+      "details": "p_samples=560, e_samples=640"
+    },
+    {
+      "id": "no_cpu_fault_or_unrecoverable_loop",
+      "pass": true,
+      "details": "cpu_fault=0, unrecoverable=0"
+    }
+  ]
+}

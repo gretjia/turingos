@@ -1,0 +1,35 @@
+{
+  "stamp": "20260227_042919",
+  "pass": false,
+  "results": [
+    {
+      "name": "Tiny split command",
+      "pass": true,
+      "details": "split command passed (exit=0)"
+    },
+    {
+      "name": "Tiny split counts",
+      "pass": true,
+      "details": "reflex counts train=1, val=1, test=0"
+    },
+    {
+      "name": "Tiny eval command",
+      "pass": false,
+      "details": "eval command failed (exit=2)"
+    }
+  ],
+  "steps": [
+    {
+      "id": "split_tiny_dataset",
+      "command": "npm run bench:guard-sft-split -- --policy-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_042919/policy_tiny.jsonl' --reflex-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_042919/reflex_tiny.jsonl' --out-dir '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_042919/splits' --train-pct 80 --val-pct 10",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "id": "eval_tiny_dataset",
+      "command": "npm run bench:guard-mcu-eval -- --mode gold --split-manifest '/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json' --policy-limit 50 --reflex-limit 50",
+      "exitCode": 2,
+      "ok": false
+    }
+  ]
+}

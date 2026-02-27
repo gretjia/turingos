@@ -1,0 +1,21 @@
+{
+  "stamp": "20260227_060611",
+  "pass": true,
+  "checks": [
+    {
+      "id": "chaos_exec_timeout",
+      "pass": true,
+      "details": "timeout trap injected as expected"
+    },
+    {
+      "id": "chaos_write_eacces",
+      "pass": true,
+      "details": "write blocked with EACCES as expected"
+    },
+    {
+      "id": "chaos_log_flood_paged",
+      "pass": true,
+      "details": "token=76323cf220061b3b"
+    }
+  ]
+}

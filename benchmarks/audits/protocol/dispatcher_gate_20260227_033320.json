@@ -1,0 +1,21 @@
+{
+  "stamp": "20260227_033320",
+  "pass": true,
+  "results": [
+    {
+      "name": "Routine route -> E lane",
+      "pass": true,
+      "details": "lane=E"
+    },
+    {
+      "name": "Trap escalation -> P lane",
+      "pass": true,
+      "details": "lane=P; reason=trap_context"
+    },
+    {
+      "name": "Runtime failover E->P",
+      "pass": true,
+      "details": "lane=P; failover=E"
+    }
+  ]
+}

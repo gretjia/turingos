@@ -1,0 +1,71 @@
+{
+  "stamp": "20260227_061040",
+  "pass": true,
+  "schemaChecks": [
+    {
+      "id": "bus_schema.version_present",
+      "pass": true,
+      "details": "version=2.0.0"
+    },
+    {
+      "id": "bus_schema.providers_include_openai_kimi_ollama",
+      "pass": true,
+      "details": "providers=openai,kimi,ollama"
+    },
+    {
+      "id": "bus_instruction_classes_match_syscall_schema",
+      "pass": true,
+      "details": "bus_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE"
+    }
+  ],
+  "caseResults": [
+    {
+      "id": "openai_valid_legacy",
+      "provider": "openai",
+      "expect": "accept",
+      "pass": true,
+      "details": "a_t=SYS_GOTO mind_ops=(none) world_op=SYS_GOTO"
+    },
+    {
+      "id": "kimi_valid_vliw",
+      "provider": "kimi",
+      "expect": "accept",
+      "pass": true,
+      "details": "a_t=SYS_EXEC mind_ops=SYS_EDIT|SYS_PUSH world_op=SYS_EXEC"
+    },
+    {
+      "id": "ollama_valid_mind_only",
+      "provider": "ollama",
+      "expect": "accept",
+      "pass": true,
+      "details": "a_t=SYS_MOVE mind_ops=SYS_MOVE world_op=(none)"
+    },
+    {
+      "id": "openai_reject_mutex_violation",
+      "provider": "openai",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|"
+    },
+    {
+      "id": "kimi_reject_invalid_mind_opcode",
+      "provider": "kimi",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|"
+    },
+    {
+      "id": "ollama_reject_unknown_world_opcode",
+      "provider": "ollama",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|"
+    }
+  ],
+  "totals": {
+    "acceptPass": 3,
+    "acceptTotal": 3,
+    "rejectPass": 3,
+    "rejectTotal": 3
+  }
+}

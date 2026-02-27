@@ -1,0 +1,46 @@
+{
+  "stamp": "20260227_060719",
+  "workspace": "/tmp/turingos-voyager-realworld-jthTpH",
+  "ticksRequested": 120,
+  "ticksObserved": 120,
+  "replayTuples": 120,
+  "contextStats": {
+    "min": 848,
+    "max": 4096,
+    "avg": 3928.46,
+    "p95": 4096
+  },
+  "vliwEvidence": {
+    "found": false,
+    "tickSeq": null,
+    "details": "(missing)"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": true,
+    "tickSeq": 3,
+    "followupAction": "SYS_GOTO"
+  },
+  "checks": [
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": true,
+      "details": "ticks=120"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": false,
+      "details": "missing tuple with [SYS_EDIT,SYS_PUSH] + SYS_EXEC"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": true,
+      "details": "flood_tick=3 followup=SYS_GOTO"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=848 max=4096 avg=3928.46 p95=4096"
+    }
+  ],
+  "pass": false
+}

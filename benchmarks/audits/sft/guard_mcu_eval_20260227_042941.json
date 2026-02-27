@@ -1,0 +1,35 @@
+{
+  "stamp": "20260227_042941",
+  "mode": "gold",
+  "splitManifest": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json",
+  "provider": {
+    "baseURL": "",
+    "model": ""
+  },
+  "selectedSplits": {
+    "policy": "val",
+    "reflex": "val"
+  },
+  "selectedFiles": {
+    "policy": "/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_042940/splits/policy/policy_val.jsonl",
+    "reflex": "/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_042940/splits/reflex/reflex_val.jsonl"
+  },
+  "counts": {
+    "policyTotal": 1,
+    "policyEvaluated": 1,
+    "reflexTotal": 1,
+    "reflexEvaluated": 1
+  },
+  "metrics": {
+    "validJsonRate": 1,
+    "mutexViolationRate": 0,
+    "reflexExactMatchRate": 1,
+    "deadlockEscapeRate": 1
+  },
+  "thresholds": {
+    "minValidJsonRate": 0.999,
+    "minReflexExactRate": 0.75,
+    "minDeadlockEscapeRate": 0.95
+  },
+  "pass": true
+}

@@ -1,0 +1,26 @@
+{
+  "stamp": "20260227_033257",
+  "roots": [
+    "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces",
+    "/home/zephryj/projects/turingos/benchmarks/os-longrun/workspaces"
+  ],
+  "scannedTraces": 59,
+  "policyRows": 537,
+  "reflexRows": 25,
+  "minPolicyRows": 100,
+  "minReflexRows": 20,
+  "pass": true,
+  "policyOutput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_policy_20260227_033256.jsonl",
+  "reflexOutput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_reflex_20260227_033256.jsonl",
+  "opcodeCounts": {
+    "SYS_GOTO": 184,
+    "SYS_EXEC": 209,
+    "SYS_WRITE": 79,
+    "SYS_HALT": 65
+  },
+  "trapBaseCounts": {
+    "sys://trap/illegal_halt": 26
+  },
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/sft/guard_sft_dataset_20260227_033257.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/sft/guard_sft_dataset_20260227_033257.md"
+}

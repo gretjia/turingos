@@ -1,0 +1,26 @@
+{
+  "stamp": "20260227_041109",
+  "mode": "gold",
+  "resolvedEvalMode": "gold",
+  "steps": [
+    {
+      "id": "build_dataset",
+      "command": "npm run bench:guard-sft-dataset",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "id": "split_dataset",
+      "command": "npm run bench:guard-sft-split -- --train-pct 80 --val-pct 10",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "id": "eval_guard_mcu",
+      "command": "npm run bench:guard-mcu-eval -- --mode gold",
+      "exitCode": 0,
+      "ok": true
+    }
+  ],
+  "pass": true
+}

@@ -1,0 +1,15 @@
+# Syscall Schema Consistency Gate
+
+- stamp: 20260227_040127
+- schema: /home/zephryj/projects/turingos/schemas/syscall-frame.v4.json
+- prompt: /home/zephryj/projects/turingos/turing_prompt.sh
+- pass: true
+- report_json: /home/zephryj/projects/turingos/benchmarks/audits/protocol/syscall_schema_consistency_20260227_040127.json
+
+| Check | Result | Details |
+|---|---|---|
+| schema.opcodes == canonical | PASS | schema=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT canonical=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT |
+| schema.exact_field_prompt_lines == canonical | PASS | schema_lines=9 canonical_lines=9 |
+| prompt opcode list == canonical | PASS | prompt=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT canonical=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT |
+| prompt includes SYS_MOVE fail-closed rule | PASS | expected explicit SYS_MOVE allowlist line in turing_prompt.sh |
+

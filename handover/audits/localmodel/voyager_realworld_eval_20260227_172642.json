@@ -1,0 +1,67 @@
+{
+  "stamp": "20260227_172642",
+  "workspace": "/var/folders/w3/17p860vj3174xqzb2z010qth0000gn/T/turingos-voyager-realworld-an4Nj1",
+  "oracle": {
+    "mode": "openai",
+    "model": "qwen2.5:7b",
+    "baseURL": "http://127.0.0.1:11434/v1",
+    "maxOutputTokens": 768
+  },
+  "chaos": {
+    "execTimeoutRate": 0.1,
+    "writeDenyRate": 0.05,
+    "logFloodRate": 0.1,
+    "logFloodChars": 50000
+  },
+  "traceJsonlPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_172642.jsonl",
+  "traceJsonlLatestPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/trace.jsonl",
+  "dirtyTraceJsonlPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/dirty_trace_20260227_172642.jsonl",
+  "dirtyTraceJsonlLatestPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl",
+  "ticksRequested": 120,
+  "ticksObserved": 76,
+  "replayTuples": 76,
+  "contextStats": {
+    "min": 743,
+    "max": 1215,
+    "avg": 891.75,
+    "p95": 1072
+  },
+  "vliwEvidence": {
+    "found": false,
+    "tickSeq": null,
+    "details": "(missing)"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": false,
+    "tickSeq": null,
+    "followupAction": ""
+  },
+  "checks": [
+    {
+      "id": "oracle_mode_is_real",
+      "pass": true,
+      "details": "mode=openai model=qwen2.5:7b"
+    },
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": false,
+      "details": "ticks=76"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": false,
+      "details": "missing tuple with [SYS_EDIT,SYS_PUSH] + SYS_EXEC"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": false,
+      "details": "no paged command flood detected"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=743 max=1215 avg=891.75 p95=1072"
+    }
+  ],
+  "pass": false
+}

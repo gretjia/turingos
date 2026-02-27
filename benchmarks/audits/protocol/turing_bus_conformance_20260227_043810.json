@@ -1,0 +1,71 @@
+{
+  "stamp": "20260227_043810",
+  "pass": true,
+  "schemaChecks": [
+    {
+      "id": "bus_schema.version_present",
+      "pass": true,
+      "details": "version=1.0.0"
+    },
+    {
+      "id": "bus_schema.providers_include_openai_kimi_ollama",
+      "pass": true,
+      "details": "providers=openai,kimi,ollama"
+    },
+    {
+      "id": "bus_instruction_classes_match_syscall_schema",
+      "pass": true,
+      "details": "bus_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE"
+    }
+  ],
+  "caseResults": [
+    {
+      "id": "openai_valid",
+      "provider": "openai",
+      "expect": "accept",
+      "pass": true,
+      "details": "op=SYS_GOTO"
+    },
+    {
+      "id": "kimi_valid",
+      "provider": "kimi",
+      "expect": "accept",
+      "pass": true,
+      "details": "op=SYS_MOVE"
+    },
+    {
+      "id": "ollama_valid",
+      "provider": "ollama",
+      "expect": "accept",
+      "pass": true,
+      "details": "op=SYS_WRITE"
+    },
+    {
+      "id": "openai_reject_mutex_violation",
+      "provider": "openai",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAUL"
+    },
+    {
+      "id": "kimi_reject_missing_op",
+      "provider": "kimi",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAUL"
+    },
+    {
+      "id": "ollama_reject_unknown_opcode",
+      "provider": "ollama",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAUL"
+    }
+  ],
+  "totals": {
+    "acceptPass": 3,
+    "acceptTotal": 3,
+    "rejectPass": 3,
+    "rejectTotal": 3
+  }
+}

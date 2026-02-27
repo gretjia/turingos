@@ -1,0 +1,28 @@
+{
+  "stamp": "20260227_033319",
+  "schemaPath": "/home/zephryj/projects/turingos/schemas/syscall-frame.v4.json",
+  "promptPath": "/home/zephryj/projects/turingos/turing_prompt.sh",
+  "checks": [
+    {
+      "id": "schema.opcodes == canonical",
+      "pass": true,
+      "details": "schema=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT canonical=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT"
+    },
+    {
+      "id": "schema.exact_field_prompt_lines == canonical",
+      "pass": true,
+      "details": "schema_lines=9 canonical_lines=9"
+    },
+    {
+      "id": "prompt opcode list == canonical",
+      "pass": true,
+      "details": "prompt=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT canonical=SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT"
+    },
+    {
+      "id": "prompt includes SYS_MOVE fail-closed rule",
+      "pass": true,
+      "details": "expected explicit SYS_MOVE allowlist line in turing_prompt.sh"
+    }
+  ],
+  "pass": true
+}

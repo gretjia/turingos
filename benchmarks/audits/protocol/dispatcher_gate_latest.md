@@ -1,0 +1,12 @@
+# Dispatcher Gate
+
+- stamp: 20260227_043823
+- pass: true
+- report_json: /home/zephryj/projects/turingos/benchmarks/audits/protocol/dispatcher_gate_20260227_043823.json
+
+| Check | Result | Details |
+|---|---|---|
+| Routine route -> E lane | PASS | lane=E |
+| Trap escalation -> P lane | PASS | lane=P; reason=trap_context |
+| Runtime failover E->P | PASS | lane=P; failover=E |
+

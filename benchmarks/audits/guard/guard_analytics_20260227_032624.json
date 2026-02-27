@@ -1,0 +1,189 @@
+{
+  "stamp": "20260227_032624",
+  "pass": false,
+  "checks": [
+    {
+      "id": "trap_frame_schema_valid",
+      "pass": true,
+      "details": "schema_valid_rate=1"
+    },
+    {
+      "id": "thrashing_trap_detected",
+      "pass": false,
+      "details": "thrashing_frames=0"
+    },
+    {
+      "id": "panic_reset_budget_enforced",
+      "pass": false,
+      "details": "panic_reset_frames=4, unrecoverable_frames=0"
+    },
+    {
+      "id": "panic_budget_halts_run",
+      "pass": false,
+      "details": "finalQ=[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.; finalD=sys://trap/panic_reset?details=Kernel%20panic%20reset%3A%20repeated%20trap%20pointer%20loop%20detected.%0ARepeated%20trap%3A%20sys%3A%2F%2Ftrap%2Fcpu_fault%0AReset%20attempt%3A%201%2F2%0AAction%3A%20abandon%20current%20approach%20and%20switch%20to%20a%20different%20diagnosis%20path%20immediately."
+    }
+  ],
+  "scenarios": {
+    "thrashing": {
+      "id": "thrashing",
+      "workspace": "/tmp/turingos-guard-thrashing-svqyMi",
+      "ticks": 5,
+      "finalQ": "[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.\nRepeated trap: sys://trap/cpu_fault\nAction: use a different pointer/command strategy and avoid the last failing function path.\n\n[RECOVERED STATE q]:\nq_thrashing_boot\n\n[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: EDIT requires non-empty runqueue.\nAction: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_MOVE/SYS_POP/SYS_HALT).\n\n[OS_TRAP_FRAME_JSON]\n{\"seq\":0,\"ts\":\"2026-02-27T03:26:24.837Z\",\"trap_base\":\"sys://trap/cpu_fault\",\"trap_pointer\":\"sys://trap/cpu_fault?details=Failed%20to%20dispatch%20syscall%3A%20EDIT%20requires%20non-empty%20runqueue.\",\"details\":\"Failed to dispatch syscall: EDIT requires non-empty runqueue.\",\"panic_reset_count\":0,\"metadata\":{\"source\":\"raise_managed_trap\"}}\n\n[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: MOVE requires non-empty runqueue.\nAction: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_MOVE/SYS_POP/SYS_HALT).\n\n[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: EDIT requires non-empty runqueue.\nAction: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_MOVE/SYS_POP/SYS_HALT).\n\n[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: EDIT requires non-empty runqueue.\nAction: emit one valid opcode in a_t.op (SYS_WRITE/SYS_GOTO/SYS_EXEC/SYS_GIT_LOG/SYS_PUSH/SYS_EDIT/SYS_MOVE/SYS_POP/SYS_HALT).",
+      "finalD": "sys://trap/cpu_fault?details=Failed%20to%20dispatch%20syscall%3A%20EDIT%20requires%20non-empty%20runqueue.",
+      "trapFrames": [
+        {
+          "seq": 0,
+          "ts": "2026-02-27T03:26:24.837Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Failed%20to%20dispatch%20syscall%3A%20EDIT%20requires%20non-empty%20runqueue.",
+          "details": "Failed to dispatch syscall: EDIT requires non-empty runqueue.",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 1,
+          "ts": "2026-02-27T03:26:24.850Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Failed%20to%20dispatch%20syscall%3A%20MOVE%20requires%20non-empty%20runqueue.",
+          "details": "Failed to dispatch syscall: MOVE requires non-empty runqueue.",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 2,
+          "ts": "2026-02-27T03:26:24.852Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Failed%20to%20dispatch%20syscall%3A%20EDIT%20requires%20non-empty%20runqueue.",
+          "details": "Failed to dispatch syscall: EDIT requires non-empty runqueue.",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 3,
+          "ts": "2026-02-27T03:26:24.854Z",
+          "trap_base": "sys://trap/panic_reset",
+          "trap_pointer": "sys://trap/panic_reset?details=Kernel%20panic%20reset%3A%20repeated%20trap%20pointer%20loop%20detected.%0ARepeated%20trap%3A%20sys%3A%2F%2Ftrap%2Fcpu_fault%0AReset%20attempt%3A%201%2F2%0AAction%3A%20abandon%20current%20approach%20and%20switch%20to%20a%20different%20diagnosis%20path%20immediately.",
+          "details": "Kernel panic reset: repeated trap pointer loop detected.\nRepeated trap: sys://trap/cpu_fault\nReset attempt: 1/2\nAction: abandon current approach and switch to a different diagnosis path immediately.",
+          "panic_reset_count": 1
+        },
+        {
+          "seq": 4,
+          "ts": "2026-02-27T03:26:24.855Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Failed%20to%20dispatch%20syscall%3A%20EDIT%20requires%20non-empty%20runqueue.",
+          "details": "Failed to dispatch syscall: EDIT requires non-empty runqueue.",
+          "panic_reset_count": 0
+        }
+      ]
+    },
+    "panicBudget": {
+      "id": "panic_budget",
+      "workspace": "/tmp/turingos-guard-panic_budget-qnjME5",
+      "ticks": 12,
+      "finalQ": "[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.\nRepeated trap: sys://trap/cpu_fault\nAction: use a different pointer/command strategy and avoid the last failing function path.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.\nRepeated trap: sys://trap/cpu_fault\nAction: use a different pointer/command strategy and avoid the last failing function path.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.\nRepeated trap: sys://trap/cpu_fault\nAction: use a different pointer/command strategy and avoid the last failing function path.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\n[OS_TRAP: CPU_FAULT] Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\nYou MUST output strict JSON with a_t.op and valid SYS_* opcode.\n\n[RECOVERED STATE q]:\nq_panic_boot\n\n[OS_TRAP_FRAME_JSON]\n{\"seq\":0,\"ts\":\"2026-02-27T03:26:24.858Z\",\"trap_base\":\"sys://trap/cpu_fault\",\"trap_pointer\":\"sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe\",\"details\":\"Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe\",\"panic_reset_count\":0,\"metadata\":{\"source\":\"raise_managed_trap\"}}",
+      "finalD": "sys://trap/panic_reset?details=Kernel%20panic%20reset%3A%20repeated%20trap%20pointer%20loop%20detected.%0ARepeated%20trap%3A%20sys%3A%2F%2Ftrap%2Fcpu_fault%0AReset%20attempt%3A%201%2F2%0AAction%3A%20abandon%20current%20approach%20and%20switch%20to%20a%20different%20diagnosis%20path%20immediately.",
+      "trapFrames": [
+        {
+          "seq": 0,
+          "ts": "2026-02-27T03:26:24.858Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 1,
+          "ts": "2026-02-27T03:26:24.859Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 2,
+          "ts": "2026-02-27T03:26:24.859Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 3,
+          "ts": "2026-02-27T03:26:24.860Z",
+          "trap_base": "sys://trap/panic_reset",
+          "trap_pointer": "sys://trap/panic_reset?details=Kernel%20panic%20reset%3A%20repeated%20trap%20pointer%20loop%20detected.%0ARepeated%20trap%3A%20sys%3A%2F%2Ftrap%2Fcpu_fault%0AReset%20attempt%3A%201%2F2%0AAction%3A%20abandon%20current%20approach%20and%20switch%20to%20a%20different%20diagnosis%20path%20immediately.",
+          "details": "Kernel panic reset: repeated trap pointer loop detected.\nRepeated trap: sys://trap/cpu_fault\nReset attempt: 1/2\nAction: abandon current approach and switch to a different diagnosis path immediately.",
+          "panic_reset_count": 1
+        },
+        {
+          "seq": 4,
+          "ts": "2026-02-27T03:26:24.860Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 5,
+          "ts": "2026-02-27T03:26:24.860Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 6,
+          "ts": "2026-02-27T03:26:24.861Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 7,
+          "ts": "2026-02-27T03:26:24.861Z",
+          "trap_base": "sys://trap/panic_reset",
+          "trap_pointer": "sys://trap/panic_reset?details=Kernel%20panic%20reset%3A%20repeated%20trap%20pointer%20loop%20detected.%0ARepeated%20trap%3A%20sys%3A%2F%2Ftrap%2Fcpu_fault%0AReset%20attempt%3A%201%2F2%0AAction%3A%20abandon%20current%20approach%20and%20switch%20to%20a%20different%20diagnosis%20path%20immediately.",
+          "details": "Kernel panic reset: repeated trap pointer loop detected.\nRepeated trap: sys://trap/cpu_fault\nReset attempt: 1/2\nAction: abandon current approach and switch to a different diagnosis path immediately.",
+          "panic_reset_count": 1
+        },
+        {
+          "seq": 8,
+          "ts": "2026-02-27T03:26:24.861Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 9,
+          "ts": "2026-02-27T03:26:24.862Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 10,
+          "ts": "2026-02-27T03:26:24.862Z",
+          "trap_base": "sys://trap/cpu_fault",
+          "trap_pointer": "sys://trap/cpu_fault?details=Invalid%20opcode%20or%20malformed%20syscall%20ABI%3A%20%5BCPU_FAULT%3A%20INVALID_OPCODE%5D%20synthetic%20panic%20budget%20probe",
+          "details": "Invalid opcode or malformed syscall ABI: [CPU_FAULT: INVALID_OPCODE] synthetic panic budget probe",
+          "panic_reset_count": 0
+        },
+        {
+          "seq": 11,
+          "ts": "2026-02-27T03:26:24.863Z",
+          "trap_base": "sys://trap/panic_reset",
+          "trap_pointer": "sys://trap/panic_reset?details=Kernel%20panic%20reset%3A%20repeated%20trap%20pointer%20loop%20detected.%0ARepeated%20trap%3A%20sys%3A%2F%2Ftrap%2Fcpu_fault%0AReset%20attempt%3A%201%2F2%0AAction%3A%20abandon%20current%20approach%20and%20switch%20to%20a%20different%20diagnosis%20path%20immediately.",
+          "details": "Kernel panic reset: repeated trap pointer loop detected.\nRepeated trap: sys://trap/cpu_fault\nReset attempt: 1/2\nAction: abandon current approach and switch to a different diagnosis path immediately.",
+          "panic_reset_count": 1
+        }
+      ]
+    }
+  },
+  "metrics": {
+    "totalTrapFrames": 17,
+    "schemaValidRate": 1,
+    "thrashingFrames": 0,
+    "panicResetFrames": 4,
+    "unrecoverableFrames": 0
+  }
+}

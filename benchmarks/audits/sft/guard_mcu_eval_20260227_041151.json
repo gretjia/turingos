@@ -1,0 +1,27 @@
+{
+  "stamp": "20260227_041151",
+  "mode": "gold",
+  "splitManifest": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json",
+  "provider": {
+    "baseURL": "https://api.groq.com/openai/v1",
+    "model": "llama-3.1-8b-instant"
+  },
+  "counts": {
+    "policyTotal": 56,
+    "policyEvaluated": 56,
+    "reflexTotal": 3,
+    "reflexEvaluated": 3
+  },
+  "metrics": {
+    "validJsonRate": 1,
+    "mutexViolationRate": 0,
+    "reflexExactMatchRate": 1,
+    "deadlockEscapeRate": 1
+  },
+  "thresholds": {
+    "minValidJsonRate": 0.999,
+    "minReflexExactRate": 0.75,
+    "minDeadlockEscapeRate": 0.95
+  },
+  "pass": true
+}
