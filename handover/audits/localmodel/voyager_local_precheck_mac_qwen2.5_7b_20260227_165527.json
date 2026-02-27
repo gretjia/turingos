@@ -1,0 +1,251 @@
+{
+  "stamp": "20260227_165527",
+  "oracle": {
+    "mode": "openai",
+    "model": "qwen2.5:7b",
+    "baseURL": "http://127.0.0.1:11434/v1",
+    "maxOutputTokens": 768
+  },
+  "samples": 24,
+  "minValidRate": 0.6,
+  "validCount": 19,
+  "failCount": 5,
+  "validRate": 0.7917,
+  "mindOpCount": 16,
+  "worldOpCount": 11,
+  "comboEditPushExecCount": 8,
+  "checks": [
+    {
+      "id": "valid_rate_threshold",
+      "pass": true,
+      "details": "valid=19/24 rate=0.7917"
+    },
+    {
+      "id": "mind_ops_observed",
+      "pass": true,
+      "details": "mind_cases=16"
+    },
+    {
+      "id": "world_op_observed",
+      "pass": true,
+      "details": "world_cases=11"
+    },
+    {
+      "id": "edit_push_exec_combo_observed",
+      "pass": true,
+      "details": "combo_cases=8"
+    }
+  ],
+  "cases": [
+    {
+      "id": "precheck_01",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "emit VLIW with dual mind scheduling and one world action",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_02",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_2",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_03",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "emit_world_navigation_frame",
+      "mindOps": [],
+      "worldOp": "SYS_GOTO"
+    },
+    {
+      "id": "precheck_04",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_5",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_05",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_6",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_06",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_7",
+      "mindOps": [],
+      "worldOp": "SYS_GOTO"
+    },
+    {
+      "id": "precheck_07",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_8",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_08",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "SYS_MOVE",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_09",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "emit_world_navigation_frame",
+      "mindOps": [],
+      "worldOp": "SYS_GOTO"
+    },
+    {
+      "id": "precheck_10",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_10",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_11",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "SYS_MOVE",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_12",
+      "pass": false,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op. Ra"
+    },
+    {
+      "id": "precheck_13",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_14",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_14",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_15",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_15",
+      "pass": false,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op. Ra"
+    },
+    {
+      "id": "precheck_16",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_17",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_17",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_18",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_18",
+      "pass": false,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op. Ra"
+    },
+    {
+      "id": "precheck_19",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_20",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_20",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_21",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_21",
+      "pass": false,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op. Ra"
+    },
+    {
+      "id": "precheck_22",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_23",
+      "mindOps": [
+        "SYS_EDIT",
+        "SYS_PUSH"
+      ],
+      "worldOp": "SYS_EXEC"
+    },
+    {
+      "id": "precheck_23",
+      "pass": true,
+      "details": "parse-ok",
+      "qNext": "q_precheck_23",
+      "mindOps": [
+        "SYS_MOVE"
+      ]
+    },
+    {
+      "id": "precheck_24",
+      "pass": false,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT. Details: [CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op. Ra"
+    }
+  ],
+  "pass": true
+}

@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import fsp from 'node:fs/promises';
 import { IOracle, Slice, State, Transition } from '../kernel/types.js';
-import { BusProvider, parseProviderBusTransition, ProviderUsage } from './turing-bus-adapter.js';
+import { BusProvider, extractProviderText, parseProviderBusTransition, ProviderUsage } from './turing-bus-adapter.js';
 
 type OracleMode = 'openai' | 'kimi';
 
@@ -39,6 +39,8 @@ export class UniversalOracle implements IOracle {
   private readonly retryBaseDelayMs: number;
   private readonly retryMaxDelayMs: number;
   private readonly telemetryPath: string | null;
+  private readonly localRepairEnabled: boolean;
+  private readonly localRepairMaxAttempts: number;
   private telemetrySeq = 0;
   private kimimart?: {
     endpoint: string;
@@ -55,6 +57,8 @@ export class UniversalOracle implements IOracle {
     this.retryMaxDelayMs = config.retryMaxDelayMs ?? 60000;
     const telemetryPath = (process.env.TURINGOS_TOKEN_TELEMETRY_PATH ?? '').trim();
     this.telemetryPath = telemetryPath.length > 0 ? telemetryPath : null;
+    this.localRepairEnabled = this.parseBoolEnv(process.env.TURINGOS_OLLAMA_REPAIR_ENABLED, true);
+    this.localRepairMaxAttempts = this.parseIntEnv(process.env.TURINGOS_OLLAMA_REPAIR_MAX_ATTEMPTS, 2, 0, 5);
     if (mode === 'openai') {
       const clientConfig: { apiKey: string; baseURL?: string } = { apiKey: config.apiKey };
       if (config.baseURL) {
@@ -87,9 +91,105 @@ export class UniversalOracle implements IOracle {
     ].join('\n');
 
     const rawPayload = await this.request(discipline, userFrame);
-    const parsed = parseProviderBusTransition(this.responseProvider, rawPayload);
+    const parsed = await this.parseWithLocalRepair(rawPayload, discipline, userFrame);
     await this.recordTelemetry(this.responseProvider, discipline, userFrame, parsed.text, parsed.usage);
     return parsed.transition;
+  }
+
+  private async parseWithLocalRepair(
+    payload: unknown,
+    discipline: string,
+    userFrame: string
+  ): Promise<{ transition: Transition; text: string; usage: ProviderUsage }> {
+    try {
+      return parseProviderBusTransition(this.responseProvider, payload);
+    } catch (error: unknown) {
+      if (!this.shouldAttemptLocalRepair()) {
+        throw error;
+      }
+
+      let lastError = this.normalizeError(error);
+      let candidatePayload: unknown = payload;
+      let candidateText = this.toRepairCandidateText(candidatePayload);
+
+      for (let attempt = 1; attempt <= this.localRepairMaxAttempts; attempt += 1) {
+        const repairSystemPrompt = [
+          'You returned an invalid TuringOS syscall frame.',
+          'Return exactly one strict JSON object with no markdown or extra commentary.',
+          'Schema: q_next(string), optional thought/thought_process(string), mind_ops(array), world_op(object|null).',
+          'mind_ops op must be one of SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE.',
+          'world_op op must be one of SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT.',
+          'mind_ops may contain 0..N entries; world_op may contain 0..1 entry.',
+          'Do not emit world_ops. Do not emit legacy a_t.',
+          'Field ABI is fail-closed: include only allowed fields per opcode.',
+        ].join('\n');
+
+        const repairUserFrame = [
+          '[PARSER_ERROR]',
+          lastError.message.slice(0, 1200),
+          '',
+          '[ORIGINAL_SYSTEM_PROMPT]',
+          discipline,
+          '',
+          '[ORIGINAL_USER_FRAME]',
+          userFrame,
+          '',
+          '[INVALID_MODEL_OUTPUT_TO_REPAIR]',
+          candidateText,
+        ].join('\n');
+
+        candidatePayload = await this.request(repairSystemPrompt, repairUserFrame);
+        try {
+          return parseProviderBusTransition(this.responseProvider, candidatePayload);
+        } catch (retryError: unknown) {
+          lastError = this.normalizeError(retryError);
+          candidateText = this.toRepairCandidateText(candidatePayload);
+          const status = lastError.status ?? 'n/a';
+          console.warn(
+            `[oracle:${this.responseProvider}] repair parse failed; attempt=${attempt}/${this.localRepairMaxAttempts}; status=${status}`
+          );
+        }
+      }
+
+      throw lastError;
+    }
+  }
+
+  private shouldAttemptLocalRepair(): boolean {
+    return this.responseProvider === 'ollama' && this.localRepairEnabled && this.localRepairMaxAttempts > 0;
+  }
+
+  private toRepairCandidateText(payload: unknown): string {
+    const extracted = extractProviderText(this.responseProvider, payload);
+    if (extracted.ok) {
+      return extracted.text.slice(0, 12_000);
+    }
+    if (typeof payload === 'string') {
+      return payload.slice(0, 12_000);
+    }
+    try {
+      return JSON.stringify(payload).slice(0, 12_000);
+    } catch {
+      return String(payload).slice(0, 12_000);
+    }
+  }
+
+  private parseBoolEnv(raw: string | undefined, fallback: boolean): boolean {
+    if (!raw || raw.trim().length === 0) {
+      return fallback;
+    }
+    return /^(1|true|yes|on)$/i.test(raw.trim());
+  }
+
+  private parseIntEnv(raw: string | undefined, fallback: number, min: number, max: number): number {
+    if (!raw || raw.trim().length === 0) {
+      return fallback;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed)) {
+      return fallback;
+    }
+    return Math.min(max, Math.max(min, parsed));
   }
 
   private async request(systemPrompt: string, userFrame: string): Promise<unknown> {
