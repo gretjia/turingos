@@ -39,6 +39,7 @@
     ],
     "optional_fields": [
       "thought",
+      "thought_process",
       "mind_ops",
       "world_op"
     ],
@@ -76,7 +77,7 @@
     "- SYS_HALT: {\"op\":\"SYS_HALT\"}"
   ],
   "vliw_example": {
-    "thought": "Short reflection for this tick.",
+    "thought_process": "Short reflection for this tick.",
     "q_next": "state_after_tick",
     "mind_ops": [
       {

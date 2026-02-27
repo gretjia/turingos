@@ -172,6 +172,18 @@ interface TransitionShape {
   world_ops?: unknown;
 }
 
+function readThoughtField(record: Record<string, unknown>): string | undefined {
+  const thought =
+    asString(record.thought) ??
+    asString(record.thought_process) ??
+    asString(record.thoughtProcess);
+  if (!thought) {
+    return undefined;
+  }
+  const trimmed = thought.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 function asTransitionShape(
   value: unknown,
   depth = 0
@@ -193,6 +205,7 @@ function asTransitionShape(
   const mind_ops = record.mind_ops;
   const world_op = record.world_op;
   const world_ops = record.world_ops;
+  const thought = readThoughtField(record);
   const hasVliwShape = mind_ops !== undefined || world_op !== undefined || world_ops !== undefined;
   if (qNext && (a_t || hasVliwShape)) {
     return {
@@ -201,7 +214,7 @@ function asTransitionShape(
       mind_ops,
       world_op,
       world_ops,
-      thought: typeof record.thought === 'string' ? record.thought : undefined,
+      thought,
     };
   }
 
@@ -213,8 +226,8 @@ function asTransitionShape(
     }
     const resolved = asTransitionShape(nested, depth + 1);
     if (resolved) {
-      if (!resolved.thought && typeof record.thought === 'string') {
-        resolved.thought = record.thought;
+      if (!resolved.thought && thought) {
+        resolved.thought = thought;
       }
       return resolved;
     }

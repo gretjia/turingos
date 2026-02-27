@@ -12,6 +12,7 @@
 - `src/kernel/types.ts` (Transition extended with `mind_ops/world_op/world_ops`)
 - `src/kernel/syscall-schema.ts` (world/mind/system opcode classifiers)
 - `turing_prompt.sh` (VLIW output contract)
+- `src/oracle/turing-bus-adapter.ts` now accepts both optional reflection keys: `thought` / `thought_process`
 - `schemas/turing-bus.frame.v2.json` (new VLIW bus frame contract)
 - `schemas/turing-bus.frame.v1.json` kept immutable for backward compatibility
 - `src/bench/syscall-schema-consistency.ts` (v5 schema checks)
@@ -40,7 +41,7 @@ Artifacts:
 ## Required Evidence (Architect Constraints)
 
 ### 1) VLIW Throughput Proof
-Source: `benchmarks/audits/longrun/voyager_realworld_eval_latest.json` + replay tuples in `/tmp/turingos-voyager-realworld-TPfHOu/.journal.log`
+Source: `benchmarks/audits/longrun/voyager_realworld_eval_latest.json` + `benchmarks/audits/longrun/trace.jsonl`
 
 Observed tuple:
 - `tick_seq=1`

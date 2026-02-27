@@ -25,6 +25,8 @@ interface Check {
 interface EvalReport {
   stamp: string;
   workspace: string;
+  traceJsonlPath: string;
+  traceJsonlLatestPath: string;
   ticksRequested: number;
   ticksObserved: number;
   replayTuples: number;
@@ -252,6 +254,8 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     `- workspace: ${report.workspace}`,
     `- pass: ${report.pass}`,
     `- report_json: ${jsonPath}`,
+    `- trace_jsonl: ${report.traceJsonlPath}`,
+    `- trace_jsonl_latest: ${report.traceJsonlLatestPath}`,
     '',
     '## Metrics',
     '',
@@ -364,6 +368,8 @@ async function main(): Promise<void> {
     const report: EvalReport = {
       stamp,
       workspace,
+      traceJsonlPath: '',
+      traceJsonlLatestPath: '',
       ticksRequested,
       ticksObserved: tuples.length,
       replayTuples: tuples.length,
@@ -400,6 +406,14 @@ async function main(): Promise<void> {
     const reportMdPath = path.join(AUDIT_DIR, `voyager_realworld_eval_${stamp}.md`);
     const latestJsonPath = path.join(AUDIT_DIR, 'voyager_realworld_eval_latest.json');
     const latestMdPath = path.join(AUDIT_DIR, 'voyager_realworld_eval_latest.md');
+    const traceJsonlPath = path.join(AUDIT_DIR, `voyager_realworld_trace_${stamp}.jsonl`);
+    const traceJsonlLatestPath = path.join(AUDIT_DIR, 'trace.jsonl');
+
+    await fs.writeFile(traceJsonlPath, `${tuples.map((tuple) => JSON.stringify(tuple)).join('\n')}\n`, 'utf-8');
+    await fs.writeFile(traceJsonlLatestPath, `${tuples.map((tuple) => JSON.stringify(tuple)).join('\n')}\n`, 'utf-8');
+
+    report.traceJsonlPath = traceJsonlPath;
+    report.traceJsonlLatestPath = traceJsonlLatestPath;
 
     await fs.writeFile(reportJsonPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
     await fs.writeFile(reportMdPath, `${toMarkdown(report, reportJsonPath)}\n`, 'utf-8');
