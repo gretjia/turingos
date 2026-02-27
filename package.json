@@ -32,6 +32,8 @@
     "bench:dispatcher-gate": "tsx src/bench/dispatcher-gate.ts",
     "bench:turing-bus-conformance": "tsx src/bench/turing-bus-conformance.ts",
     "bench:syscall-schema-consistency": "tsx src/bench/syscall-schema-consistency.ts",
+    "bench:chaos-monkey-gate": "tsx src/bench/chaos-monkey-gate.ts",
+    "bench:voyager-realworld-eval": "tsx src/bench/voyager_realworld_eval.ts",
     "bench:syscall-schema-gate": "tsx src/bench/syscall-schema-gate.ts",
     "bench:ci-gates": "npm run bench:syscall-schema-consistency && npm run bench:turing-bus-conformance && npm run bench:syscall-schema-gate && npm run bench:dispatcher-gate && npm run bench:guard-analytics && npm run bench:guard-tiny-split-gate && tsx src/bench/ci-gates.ts",
     "bench:replay-runner": "tsx src/bench/replay-runner.ts",

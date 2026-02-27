@@ -1,5 +1,11 @@
-import { normalizeModelSyscall, SYSCALL_OPCODE_PIPE } from '../kernel/syscall-schema.js';
-import { Transition } from '../kernel/types.js';
+import {
+  isMindOpcode,
+  isSystemControlOpcode,
+  isWorldOpcode,
+  normalizeModelSyscall,
+  SYSCALL_OPCODE_PIPE,
+} from '../kernel/syscall-schema.js';
+import { Syscall, Transition } from '../kernel/types.js';
 
 export type BusProvider = 'openai' | 'kimi' | 'ollama';
 
@@ -157,10 +163,19 @@ function extractThought(rawOutput: string): string | undefined {
   return thought.length > 0 ? thought : undefined;
 }
 
+interface TransitionShape {
+  q_next: string;
+  thought?: unknown;
+  a_t?: unknown;
+  mind_ops?: unknown;
+  world_op?: unknown;
+  world_ops?: unknown;
+}
+
 function asTransitionShape(
   value: unknown,
   depth = 0
-): { q_next: string; a_t: unknown; thought?: unknown } | null {
+): TransitionShape | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return null;
   }
@@ -174,11 +189,18 @@ function asTransitionShape(
     asString(record.next_state) ??
     asString(record.state_next) ??
     asString(record.nextState);
-  const a_t = asRecord(record.a_t) ?? asRecord(record.action) ?? asRecord(record.syscall);
-  if (qNext && a_t) {
+  const a_t = asRecord(record.a_t) ?? asRecord(record.action) ?? asRecord(record.syscall) ?? undefined;
+  const mind_ops = record.mind_ops;
+  const world_op = record.world_op;
+  const world_ops = record.world_ops;
+  const hasVliwShape = mind_ops !== undefined || world_op !== undefined || world_ops !== undefined;
+  if (qNext && (a_t || hasVliwShape)) {
     return {
       q_next: qNext.trim(),
       a_t,
+      mind_ops,
+      world_op,
+      world_ops,
       thought: typeof record.thought === 'string' ? record.thought : undefined,
     };
   }
@@ -200,7 +222,75 @@ function asTransitionShape(
   return null;
 }
 
-function normalizeTransitionShape(value: { q_next: string; a_t: unknown; thought?: unknown }): Transition {
+function normalizeSyscallOrThrow(value: unknown, label: string): Syscall {
+  const parsed = normalizeModelSyscall(value);
+  if (!parsed.ok) {
+    throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${label}: ${parsed.reason}`);
+  }
+  return parsed.syscall;
+}
+
+function normalizeMindOps(raw: unknown): Syscall[] {
+  if (raw === undefined || raw === null) {
+    return [];
+  }
+  const source = Array.isArray(raw) ? raw : [raw];
+  const out: Syscall[] = [];
+  for (let i = 0; i < source.length; i += 1) {
+    const syscall = normalizeSyscallOrThrow(source[i], `mind_ops[${i}]`);
+    if (!isMindOpcode(syscall.op)) {
+      throw new Error(
+        `[CPU_FAULT: INVALID_OPCODE] mind_ops[${i}] must be mind scheduling opcode (SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE), got ${syscall.op}`
+      );
+    }
+    out.push(syscall);
+  }
+  return out;
+}
+
+function normalizeWorldOps(rawWorldOp: unknown, rawWorldOps: unknown): Syscall[] {
+  const candidate = rawWorldOps !== undefined ? rawWorldOps : rawWorldOp;
+  if (candidate === undefined || candidate === null) {
+    return [];
+  }
+  const source = Array.isArray(candidate) ? candidate : [candidate];
+  const out: Syscall[] = [];
+  for (let i = 0; i < source.length; i += 1) {
+    const syscall = normalizeSyscallOrThrow(source[i], `world_op[${i}]`);
+    if (!isWorldOpcode(syscall.op) && !isSystemControlOpcode(syscall.op)) {
+      throw new Error(
+        `[CPU_FAULT: INVALID_OPCODE] world_op[${i}] must be world/system opcode (SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT), got ${syscall.op}`
+      );
+    }
+    out.push(syscall);
+  }
+  return out;
+}
+
+function normalizeTransitionShape(value: TransitionShape): Transition {
+  const hasVliwShape = value.mind_ops !== undefined || value.world_op !== undefined || value.world_ops !== undefined;
+  if (hasVliwShape) {
+    const mindOps = normalizeMindOps(value.mind_ops);
+    const worldOps = normalizeWorldOps(value.world_op, value.world_ops);
+    const primary = worldOps[0] ?? mindOps[mindOps.length - 1];
+    if (!primary) {
+      throw new Error('[CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op.');
+    }
+    const normalized: Transition = {
+      q_next: value.q_next,
+      a_t: primary,
+      mind_ops: mindOps,
+      world_op: worldOps[0] ?? null,
+    };
+    if (worldOps.length > 1) {
+      normalized.world_ops = worldOps;
+    }
+    if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
+      normalized.thought = value.thought.trim();
+    }
+    return normalized;
+  }
+
   const parsedSyscall = normalizeModelSyscall(value.a_t);
   if (!parsedSyscall.ok) {
     throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${parsedSyscall.reason}`);
@@ -209,6 +299,8 @@ function normalizeTransitionShape(value: { q_next: string; a_t: unknown; thought
   const normalized: Transition = {
     q_next: value.q_next,
     a_t: parsedSyscall.syscall,
+    mind_ops: isMindOpcode(parsedSyscall.syscall.op) ? [parsedSyscall.syscall] : [],
+    world_op: isMindOpcode(parsedSyscall.syscall.op) ? null : parsedSyscall.syscall,
   };
   if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
     normalized.thought = value.thought.trim();
@@ -301,7 +393,7 @@ export function parseBusTransitionFromText(rawOutput: string): Transition {
 
   const detail = parseError ? ` Details: ${parseError.message}` : '';
   throw new Error(
-    `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in ${SYSCALL_OPCODE_PIPE}.${detail} Raw: ${rawOutput}`
+    `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using ${SYSCALL_OPCODE_PIPE}.${detail} Raw: ${rawOutput}`
   );
 }
 

@@ -1,5 +1,11 @@
 import { createHash } from 'node:crypto';
-import { SYSCALL_OPCODE_SLASH, validateCanonicalSyscallEnvelope } from './syscall-schema.js';
+import {
+  isMindOpcode,
+  isSystemControlOpcode,
+  isWorldOpcode,
+  SYSCALL_OPCODE_SLASH,
+  validateCanonicalSyscallEnvelope,
+} from './syscall-schema.js';
 import {
   IChronos,
   IExecutionContract,
@@ -8,6 +14,7 @@ import {
   Pointer,
   Slice,
   State,
+  Syscall,
   Transition,
 } from './types.js';
 
@@ -249,7 +256,7 @@ export class TuringEngine {
         trapDetails,
         [
           `[OS_TRAP: CPU_FAULT] ${trapDetails}`,
-          'You MUST output strict JSON with a_t.op and valid SYS_* opcode.',
+          'You MUST output strict JSON with valid SYS_* opcode in either legacy a_t.op or VLIW mind_ops/world_op.',
           '',
           '[RECOVERED STATE q]:',
           q_t,
@@ -266,86 +273,128 @@ export class TuringEngine {
     let d_next: Pointer = d_t;
     let writePointer: Pointer = d_t;
     let s_prime = '👆🏻';
+    let executedSyscalls: Syscall[] = [];
 
     try {
-      const syscall = transition.a_t;
-      const strictViolation = validateCanonicalSyscallEnvelope(syscall);
-      if (strictViolation) {
-        throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${strictViolation}`);
+      const plan = this.materializeInstructionPlan(transition);
+      if (plan.worldOps.length > 1) {
+        const worldList = plan.worldOps.map((item) => item.op).join(',');
+        return this.raiseManagedTrap(
+          'sys://trap/causality_violation_multiple_world_ops',
+          `Multiple world ops in one tick are forbidden: ${worldList}`,
+          [
+            q_t,
+            '',
+            '[OS_TRAP: CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS] Multiple world actions detected in a single tick.',
+            `Detected world ops: ${worldList}`,
+            'Action: keep all mind_ops in array, but emit at most one world_op.',
+          ].join('\n'),
+          q_t
+        );
       }
-      switch (syscall.op) {
-        case 'SYS_WRITE':
-          d_next = d_t;
-          writePointer = typeof syscall.semantic_cap === 'string' && syscall.semantic_cap.trim().length > 0
-            ? syscall.semantic_cap.trim()
-            : d_t;
-          s_prime = syscall.payload;
-          break;
-        case 'SYS_GOTO':
-          d_next = syscall.pointer;
-          s_prime = '👆🏻';
-          break;
-        case 'SYS_EXEC': {
-          const cmd = syscall.cmd.trim();
-          d_next = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
-          s_prime = '👆🏻';
-          break;
-        }
-        case 'SYS_GIT_LOG':
-          d_next = this.composeGitLogPointer(syscall);
-          s_prime = '👆🏻';
-          break;
-        case 'SYS_PUSH': {
-          const task = syscall.task.trim();
-          if (task.length === 0) {
-            throw new Error('SYS_PUSH requires non-empty task.');
-          }
-          await this.manifold.interfere('sys://callstack', `PUSH: ${task}`);
-          d_next = d_t;
-          s_prime = '👆🏻';
-          break;
-        }
-        case 'SYS_EDIT': {
-          const task = syscall.task.trim();
-          if (task.length === 0) {
-            throw new Error('SYS_EDIT requires non-empty task.');
-          }
-          await this.manifold.interfere('sys://callstack', `EDIT: ${task}`);
-          d_next = d_t;
-          s_prime = '👆🏻';
-          break;
-        }
-        case 'SYS_MOVE': {
-          const parts: string[] = [];
-          if (typeof syscall.task_id === 'string' && syscall.task_id.trim().length > 0) {
-            parts.push(`task_id=${syscall.task_id.trim()}`);
-          }
-          const targetPosRaw = typeof syscall.target_pos === 'string' ? syscall.target_pos.trim().toUpperCase() : '';
-          const targetPos = targetPosRaw === 'TOP' || targetPosRaw === 'BOTTOM' ? targetPosRaw : 'BOTTOM';
-          parts.push(`target_pos=${targetPos}`);
-          const statusRaw = typeof syscall.status === 'string' ? syscall.status.trim().toUpperCase() : '';
-          if (statusRaw === 'ACTIVE' || statusRaw === 'SUSPENDED' || statusRaw === 'BLOCKED') {
-            parts.push(`status=${statusRaw}`);
-          }
-          await this.manifold.interfere('sys://callstack', `MOVE: ${parts.join('; ')}`);
-          d_next = d_t;
-          s_prime = '👆🏻';
-          break;
-        }
-        case 'SYS_POP':
-          await this.manifold.interfere('sys://callstack', 'POP');
-          d_next = d_t;
-          s_prime = '👆🏻';
-          break;
-        case 'SYS_HALT':
-          d_next = 'HALT';
-          s_prime = '👆🏻';
-          break;
-        default: {
-          const exhaustiveCheck: never = syscall;
-          throw new Error(`Unhandled syscall variant: ${JSON.stringify(exhaustiveCheck)}`);
-        }
+
+      const executionQueue: Syscall[] = [...plan.mindOps];
+      if (plan.worldOps.length === 1) {
+        executionQueue.push(plan.worldOps[0]);
       }
+      if (executionQueue.length === 0) {
+        throw new Error('[CPU_FAULT: INVALID_OPCODE] Empty instruction bundle: no mind_ops/world_op to execute.');
+      }
+
+      for (const syscall of executionQueue) {
+        const strictViolation = validateCanonicalSyscallEnvelope(syscall);
+        if (strictViolation) {
+          throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${strictViolation}`);
+        }
+        switch (syscall.op) {
+          case 'SYS_WRITE':
+            d_next = d_t;
+            writePointer = typeof syscall.semantic_cap === 'string' && syscall.semantic_cap.trim().length > 0
+              ? syscall.semantic_cap.trim()
+              : d_t;
+            s_prime = syscall.payload;
+            break;
+          case 'SYS_GOTO':
+            d_next = syscall.pointer;
+            s_prime = '👆🏻';
+            break;
+          case 'SYS_EXEC': {
+            const cmd = syscall.cmd.trim();
+            d_next = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
+            s_prime = '👆🏻';
+            break;
+          }
+          case 'SYS_GIT_LOG':
+            d_next = this.composeGitLogPointer(syscall);
+            s_prime = '👆🏻';
+            break;
+          case 'SYS_PUSH': {
+            const task = syscall.task.trim();
+            if (task.length === 0) {
+              throw new Error('SYS_PUSH requires non-empty task.');
+            }
+            await this.manifold.interfere('sys://callstack', `PUSH: ${task}`);
+            d_next = d_t;
+            s_prime = '👆🏻';
+            break;
+          }
+          case 'SYS_EDIT': {
+            const task = syscall.task.trim();
+            if (task.length === 0) {
+              throw new Error('SYS_EDIT requires non-empty task.');
+            }
+            await this.manifold.interfere('sys://callstack', `EDIT: ${task}`);
+            d_next = d_t;
+            s_prime = '👆🏻';
+            break;
+          }
+          case 'SYS_MOVE': {
+            const parts: string[] = [];
+            if (typeof syscall.task_id === 'string' && syscall.task_id.trim().length > 0) {
+              parts.push(`task_id=${syscall.task_id.trim()}`);
+            }
+            const targetPosRaw = typeof syscall.target_pos === 'string' ? syscall.target_pos.trim().toUpperCase() : '';
+            const targetPos = targetPosRaw === 'TOP' || targetPosRaw === 'BOTTOM' ? targetPosRaw : 'BOTTOM';
+            parts.push(`target_pos=${targetPos}`);
+            const statusRaw = typeof syscall.status === 'string' ? syscall.status.trim().toUpperCase() : '';
+            if (statusRaw === 'ACTIVE' || statusRaw === 'SUSPENDED' || statusRaw === 'BLOCKED') {
+              parts.push(`status=${statusRaw}`);
+            }
+            await this.manifold.interfere('sys://callstack', `MOVE: ${parts.join('; ')}`);
+            d_next = d_t;
+            s_prime = '👆🏻';
+            break;
+          }
+          case 'SYS_POP':
+            await this.manifold.interfere('sys://callstack', 'POP');
+            d_next = d_t;
+            s_prime = '👆🏻';
+            break;
+          case 'SYS_HALT':
+            d_next = 'HALT';
+            s_prime = '👆🏻';
+            break;
+          default: {
+            const exhaustiveCheck: never = syscall;
+            throw new Error(`Unhandled syscall variant: ${JSON.stringify(exhaustiveCheck)}`);
+          }
+        }
+        executedSyscalls.push(syscall);
+      }
+
+      const effective = executedSyscalls[executedSyscalls.length - 1];
+      transition = {
+        ...transition,
+        a_t: effective,
+        mind_ops: plan.mindOps,
+        world_op: plan.worldOps[0] ?? null,
+        world_ops: plan.worldOps.length > 1 ? plan.worldOps : undefined,
+      };
+      await this.chronos.engrave(
+        `[VLIW_BUNDLE] mind_ops=${plan.mindOps.map((op) => op.op).join('|') || '(none)'} world_op=${
+          plan.worldOps[0]?.op ?? '(none)'
+        } world_ops_count=${plan.worldOps.length}`
+      );
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return this.raiseManagedTrap(
@@ -355,7 +404,7 @@ export class TuringEngine {
           q_t,
           '',
           `[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: ${message}`,
-          `Action: emit one valid opcode in a_t.op (${SYSCALL_OPCODE_SLASH}).`,
+          `Action: emit valid opcode(s) from ${SYSCALL_OPCODE_SLASH} with VLIW nQ+1A semantics.`,
         ].join('\n'),
         q_t
       );
@@ -371,6 +420,9 @@ export class TuringEngine {
       s_t,
       h_s: createHash('sha256').update(s_t).digest('hex'),
       a_t: transition.a_t,
+      mind_ops: transition.mind_ops ?? [],
+      world_op: transition.world_op ?? null,
+      world_ops: transition.world_ops ?? (transition.world_op ? [transition.world_op] : []),
       q_next,
       d_next,
       write_target:
@@ -840,6 +892,49 @@ export class TuringEngine {
     } catch {
       return null;
     }
+  }
+
+  private materializeInstructionPlan(transition: Transition): {
+    mindOps: Syscall[];
+    worldOps: Syscall[];
+  } {
+    const classify = (syscall: Syscall, mindOps: Syscall[], worldOps: Syscall[]): void => {
+      if (isMindOpcode(syscall.op)) {
+        mindOps.push(syscall);
+        return;
+      }
+      if (isWorldOpcode(syscall.op) || isSystemControlOpcode(syscall.op)) {
+        worldOps.push(syscall);
+        return;
+      }
+      worldOps.push(syscall);
+    };
+
+    const mindOps: Syscall[] = [];
+    const worldOps: Syscall[] = [];
+
+    const mindCandidates = Array.isArray(transition.mind_ops) ? transition.mind_ops : [];
+    for (const syscall of mindCandidates) {
+      classify(syscall, mindOps, worldOps);
+    }
+
+    const worldCandidates = Array.isArray(transition.world_ops)
+      ? transition.world_ops
+      : transition.world_op
+        ? [transition.world_op]
+        : [];
+    for (const syscall of worldCandidates) {
+      if (!syscall) {
+        continue;
+      }
+      classify(syscall, mindOps, worldOps);
+    }
+
+    if (mindCandidates.length === 0 && worldCandidates.length === 0) {
+      classify(transition.a_t, mindOps, worldOps);
+    }
+
+    return { mindOps, worldOps };
   }
 
   private actionSignature(dNext: Pointer, sPrime: string): string {

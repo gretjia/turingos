@@ -192,7 +192,7 @@ async function main(): Promise<void> {
 
   const disciplinePrompt = fs.existsSync(promptFile)
     ? fs.readFileSync(promptFile, 'utf-8')
-    : `Output strict JSON with q_next and a_t.op in ${SYSCALL_OPCODE_PIPE}.`;
+    : `Output strict JSON with q_next plus VLIW fields (mind_ops and optional world_op), using SYS opcode set ${SYSCALL_OPCODE_PIPE}.`;
 
   const timeoutMs = Number.parseInt(process.env.TURINGOS_TIMEOUT_MS ?? '120000', 10);
   const maxOutputTokens = Number.parseInt(process.env.TURINGOS_MAX_OUTPUT_TOKENS ?? '1024', 10);

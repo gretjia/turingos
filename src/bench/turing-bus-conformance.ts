@@ -27,8 +27,8 @@ interface Report {
 }
 
 const ROOT = path.resolve(process.cwd());
-const BUS_SCHEMA_PATH = path.join(ROOT, 'schemas', 'turing-bus.frame.v1.json');
-const SYSCALL_SCHEMA_PATH = path.join(ROOT, 'schemas', 'syscall-frame.v4.json');
+const BUS_SCHEMA_PATH = path.join(ROOT, 'schemas', 'turing-bus.frame.v2.json');
+const SYSCALL_SCHEMA_PATH = path.join(ROOT, 'schemas', 'syscall-frame.v5.json');
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'protocol');
 const LATEST_JSON = path.join(AUDIT_DIR, 'turing_bus_conformance_latest.json');
 const LATEST_MD = path.join(AUDIT_DIR, 'turing_bus_conformance_latest.md');
@@ -129,7 +129,7 @@ async function main(): Promise<void> {
 
   const validCases: Array<{ id: string; provider: Provider; payload: unknown }> = [
     {
-      id: 'openai_valid',
+      id: 'openai_valid_legacy',
       provider: 'openai',
       payload: {
         choices: [
@@ -143,24 +143,26 @@ async function main(): Promise<void> {
       },
     },
     {
-      id: 'kimi_valid',
+      id: 'kimi_valid_vliw',
       provider: 'kimi',
       payload: {
         content: [
           {
             type: 'text',
-            text: '{"q_next":"state_kimi","a_t":{"op":"SYS_MOVE","target_pos":"BOTTOM","status":"SUSPENDED"}}',
+            text:
+              '{"q_next":"state_kimi","mind_ops":[{"op":"SYS_EDIT","task":"refine plan"},{"op":"SYS_PUSH","task":"run targeted test"}],"world_op":{"op":"SYS_EXEC","cmd":"npm test"}}',
           },
         ],
         usage: { input_tokens: 12, output_tokens: 6, total_tokens: 18 },
       },
     },
     {
-      id: 'ollama_valid',
+      id: 'ollama_valid_mind_only',
       provider: 'ollama',
       payload: {
         message: {
-          content: '{"q_next":"state_ollama","a_t":{"op":"SYS_WRITE","payload":"hello"}}',
+          content:
+            '{"q_next":"state_ollama","mind_ops":[{"op":"SYS_MOVE","target_pos":"BOTTOM","status":"SUSPENDED"}],"world_op":null}',
         },
         prompt_eval_count: 8,
         eval_count: 5,
@@ -183,17 +185,22 @@ async function main(): Promise<void> {
       },
     },
     {
-      id: 'kimi_reject_missing_op',
+      id: 'kimi_reject_invalid_mind_opcode',
       provider: 'kimi',
       payload: {
-        content: [{ type: 'text', text: '{"q_next":"bad","a_t":{"pointer":"MAIN_TAPE.md"}}' }],
+        content: [
+          {
+            type: 'text',
+            text: '{"q_next":"bad","mind_ops":[{"op":"SYS_EXEC","cmd":"npm test"}]}',
+          },
+        ],
       },
     },
     {
-      id: 'ollama_reject_unknown_opcode',
+      id: 'ollama_reject_unknown_world_opcode',
       provider: 'ollama',
       payload: {
-        response: '{"q_next":"bad","a_t":{"op":"SYS_TELEPORT","pointer":"MAIN_TAPE.md"}}',
+        response: '{"q_next":"bad","world_op":{"op":"SYS_TELEPORT","pointer":"MAIN_TAPE.md"}}',
       },
     },
   ];
@@ -204,12 +211,14 @@ async function main(): Promise<void> {
     try {
       const parsed = parseProviderBusTransition(item.provider, item.payload);
       assert.ok(parsed.transition.a_t.op.startsWith('SYS_'));
+      const mindOps = (parsed.transition.mind_ops ?? []).map((op) => op.op);
+      const worldOp = parsed.transition.world_op?.op ?? '(none)';
       caseResults.push({
         id: item.id,
         provider: item.provider,
         expect: 'accept',
         pass: true,
-        details: `op=${parsed.transition.a_t.op}`,
+        details: `a_t=${parsed.transition.a_t.op} mind_ops=${mindOps.join('|') || '(none)'} world_op=${worldOp}`,
       });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

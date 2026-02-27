@@ -7,6 +7,7 @@ import { IPhysicalManifold, Pointer, RunqueueStatus, RunqueueTargetPos, Slice } 
 export interface LocalManifoldOptions {
   timeoutMs?: number;
   maxSliceChars?: number;
+  enableChaos?: boolean;
 }
 
 type CapabilityAccess = 'r' | 'w' | 'rw';
@@ -39,6 +40,11 @@ export class LocalManifold implements IPhysicalManifold {
   private readonly capabilityStore = new Map<string, SemanticCapabilityEntry>();
   private readonly capabilityOrder: string[] = [];
   private readonly maxCapabilities = 2048;
+  private readonly chaosEnabled: boolean;
+  private readonly chaosExecTimeoutRate: number;
+  private readonly chaosWriteDenyRate: number;
+  private readonly chaosLogFloodRate: number;
+  private readonly chaosLogFloodChars: number;
 
   constructor(private workspaceDir: string, options: LocalManifoldOptions = {}) {
     this.timeoutMs = options.timeoutMs ?? 120_000;
@@ -47,6 +53,11 @@ export class LocalManifold implements IPhysicalManifold {
     fs.mkdirSync(this.workspaceDir, { recursive: true });
     this.callStackFile = path.join(this.workspaceDir, '.callstack.json');
     this.capabilityFile = path.join(this.workspaceDir, '.vfd_caps.json');
+    this.chaosEnabled = options.enableChaos ?? /^(1|true|yes)$/i.test(process.env.ENABLE_CHAOS ?? '');
+    this.chaosExecTimeoutRate = this.parseChaosRate(process.env.CHAOS_EXEC_TIMEOUT_RATE, 0.1);
+    this.chaosWriteDenyRate = this.parseChaosRate(process.env.CHAOS_WRITE_DENY_RATE, 0.05);
+    this.chaosLogFloodRate = this.parseChaosRate(process.env.CHAOS_LOG_FLOOD_RATE, 0.1);
+    this.chaosLogFloodChars = this.parseChaosLength(process.env.CHAOS_LOG_FLOOD_CHARS, 50_000);
     if (!fs.existsSync(this.callStackFile)) {
       fs.writeFileSync(this.callStackFile, '[]\n', 'utf-8');
     }
@@ -105,6 +116,7 @@ export class LocalManifold implements IPhysicalManifold {
       if (targetPointer.length === 0) {
         throw new Error('Append target is empty.');
       }
+      this.maybeInjectWritePermissionTrap(targetPointer);
 
       const filePath = this.resolveWorkspacePath(targetPointer);
       fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -141,6 +153,7 @@ export class LocalManifold implements IPhysicalManifold {
       if (targetPointer.length === 0) {
         throw new Error('Replace target is empty.');
       }
+      this.maybeInjectWritePermissionTrap(targetPointer);
 
       this.applyReplaceSyscall(targetPointer, payload);
       return;
@@ -161,6 +174,7 @@ export class LocalManifold implements IPhysicalManifold {
     }
 
     const filePath = this.resolveWorkspacePath(resolvedPointer);
+    this.maybeInjectWritePermissionTrap(resolvedPointer);
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, payload, 'utf-8');
   }
@@ -235,6 +249,9 @@ export class LocalManifold implements IPhysicalManifold {
     if (command.length === 0) {
       return ['[COMMAND] (empty)', '[EXIT_CODE] 1', '[STDOUT]', '', '[STDERR]', 'Command is empty.'].join('\n');
     }
+    if (this.shouldInjectChaos(this.chaosExecTimeoutRate)) {
+      return this.formatCommandSlice(command, 124, '', '[FATAL] PROCESS_TIMEOUT: Execution hanging.');
+    }
 
     return new Promise((resolve) => {
       exec(
@@ -261,10 +278,67 @@ export class LocalManifold implements IPhysicalManifold {
             return;
           }
 
-          resolve(this.formatCommandSlice(command, 0, cleanStdout, cleanStderr));
+          let stdoutForSlice = cleanStdout;
+          if (this.shouldInjectChaos(this.chaosLogFloodRate)) {
+            stdoutForSlice = `${stdoutForSlice}\n${this.buildChaosLogFlood(this.chaosLogFloodChars)}`;
+          }
+          resolve(this.formatCommandSlice(command, 0, stdoutForSlice, cleanStderr));
         }
       );
     });
+  }
+
+  private shouldInjectChaos(rate: number): boolean {
+    if (!this.chaosEnabled || !Number.isFinite(rate) || rate <= 0) {
+      return false;
+    }
+    return Math.random() < rate;
+  }
+
+  private parseChaosRate(raw: string | undefined, fallback: number): number {
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      return fallback;
+    }
+    const parsed = Number.parseFloat(raw);
+    if (!Number.isFinite(parsed)) {
+      return fallback;
+    }
+    if (parsed <= 0) {
+      return 0;
+    }
+    if (parsed >= 1) {
+      return 1;
+    }
+    return parsed;
+  }
+
+  private parseChaosLength(raw: string | undefined, fallback: number): number {
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      return fallback;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return fallback;
+    }
+    return parsed;
+  }
+
+  private maybeInjectWritePermissionTrap(pointer: string): void {
+    if (!this.shouldInjectChaos(this.chaosWriteDenyRate)) {
+      return;
+    }
+    throw new Error(`[OS_TRAP] EACCES: Permission denied. pointer=${pointer}`);
+  }
+
+  private buildChaosLogFlood(length: number): string {
+    const targetLength = Number.isFinite(length) && length > 0 ? Math.floor(length) : 50_000;
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/';
+    let out = '';
+    while (out.length < targetLength) {
+      const idx = Math.floor(Math.random() * alphabet.length);
+      out += alphabet[idx];
+    }
+    return out.slice(0, targetLength);
   }
 
   private formatCommandSlice(command: string, exitCode: number, stdout: string, stderr: string): string {

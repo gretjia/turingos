@@ -15,8 +15,17 @@ Output exactly one strict JSON object, with no markdown wrapper:
 {
   "thought": "string (optional but recommended, concise plan for this tick)",
   "q_next": "string",
-  "a_t": {
-    "op": "SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT",
+  "mind_ops": [
+    {
+      "op": "SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE",
+      "task": "string (required for SYS_PUSH and SYS_EDIT)",
+      "task_id": "string (optional for SYS_MOVE)",
+      "target_pos": "TOP|BOTTOM (optional for SYS_MOVE)",
+      "status": "ACTIVE|SUSPENDED|BLOCKED (optional for SYS_MOVE)"
+    }
+  ],
+  "world_op": {
+    "op": "SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_HALT",
     "payload": "string (required for SYS_WRITE)",
     "semantic_cap": "string (optional for SYS_WRITE, e.g. vfd://rw/... to write via capability handle)",
     "pointer": "string (required for SYS_GOTO)",
@@ -26,16 +35,14 @@ Output exactly one strict JSON object, with no markdown wrapper:
     "limit": "number (optional for SYS_GIT_LOG)",
     "ref": "string (optional for SYS_GIT_LOG)",
     "grep": "string (optional for SYS_GIT_LOG)",
-    "since": "string (optional for SYS_GIT_LOG)",
-    "task": "string (required for SYS_PUSH and SYS_EDIT)",
-    "task_id": "string (optional for SYS_MOVE)",
-    "target_pos": "TOP|BOTTOM (optional for SYS_MOVE)",
-    "status": "ACTIVE|SUSPENDED|BLOCKED (optional for SYS_MOVE)"
+    "since": "string (optional for SYS_GIT_LOG)"
   }
 }
 
+Allowed opcodes: SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_POP|SYS_HALT
+VLIW rule: mind_ops may contain 0..N mind instructions, world_op may contain 0..1 world/system instruction.
+Do not emit world_ops array. Do not emit legacy a_t unless explicitly requested by OS.
 Syscall JSON is strict. Missing required fields causes CPU fault.
-Exactly one syscall per tick.
 Field ABI is fail-closed:
 - SYS_WRITE allows only: op, payload, optional semantic_cap
 - SYS_GOTO allows only: op, pointer
@@ -46,6 +53,8 @@ Field ABI is fail-closed:
 - SYS_MOVE allows only: op, optional task_id, optional target_pos, optional status
 - SYS_POP and SYS_HALT allow only: op
 Do not include `pointer` in SYS_WRITE. Do not include `payload` in SYS_PUSH.
+mind_ops must include only mind scheduling opcodes. world_op must include only world/system opcodes.
+When world_op exists, it executes after all mind_ops in the same tick.
 
 ## LAWS
 1. Errors are physics, not failure.

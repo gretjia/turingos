@@ -32,6 +32,11 @@ export interface Transition {
   thought?: string;
   q_next: State;
   a_t: Syscall;
+  // VLIW-style optional channels: execute all mind_ops first, then at most one world_op.
+  mind_ops?: Syscall[];
+  world_op?: Syscall | null;
+  // Parser may preserve raw world-op candidates for causality assertions in kernel.
+  world_ops?: Syscall[];
 }
 
 export interface IOracle {

@@ -20,7 +20,7 @@ interface ConsistencyReport {
 }
 
 const ROOT = path.resolve(process.cwd());
-const SCHEMA_PATH = path.join(ROOT, 'schemas', 'syscall-frame.v4.json');
+const SCHEMA_PATH = path.join(ROOT, 'schemas', 'syscall-frame.v5.json');
 const PROMPT_PATH = path.join(ROOT, 'turing_prompt.sh');
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'protocol');
 const LATEST_JSON = path.join(AUDIT_DIR, 'syscall_schema_consistency_latest.json');
@@ -57,6 +57,20 @@ function equalStringArray(a: string[], b: string[]): boolean {
 }
 
 function parsePromptOpcodeList(promptRaw: string): string[] {
+  const explicitLine = promptRaw
+    .split('\n')
+    .map((raw) => raw.trim())
+    .find((raw) => raw.toLowerCase().startsWith('allowed opcodes:'));
+  if (explicitLine) {
+    const pipe = explicitLine.split(':').slice(1).join(':').trim();
+    if (pipe.length > 0) {
+      return pipe
+        .split('|')
+        .map((token) => token.trim())
+        .filter((token) => token.length > 0);
+    }
+  }
+
   const line = promptRaw
     .split('\n')
     .map((raw) => raw.trim())
@@ -126,6 +140,11 @@ async function main(): Promise<void> {
     id: 'prompt includes SYS_MOVE fail-closed rule',
     pass: /SYS_MOVE allows only:\s*op,\s*optional task_id,\s*optional target_pos,\s*optional status/i.test(promptRaw),
     details: 'expected explicit SYS_MOVE allowlist line in turing_prompt.sh',
+  });
+  checks.push({
+    id: 'prompt includes vliw nQ+1A rule',
+    pass: /mind_ops may contain 0\.\.N mind instructions,\s*world_op may contain 0\.\.1/i.test(promptRaw),
+    details: 'expected explicit VLIW asymmetry line in turing_prompt.sh',
   });
 
   const stamp = timestamp();

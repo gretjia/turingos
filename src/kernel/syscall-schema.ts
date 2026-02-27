@@ -17,6 +17,13 @@ export type SyscallOpcode = (typeof SYSCALL_OPCODES)[number];
 export const SYSCALL_OPCODE_PIPE = SYSCALL_OPCODES.join('|');
 export const SYSCALL_OPCODE_SLASH = SYSCALL_OPCODES.join('/');
 
+export const SYSCALL_WORLD_OPCODES = ['SYS_WRITE', 'SYS_EXEC', 'SYS_GOTO', 'SYS_GIT_LOG'] as const;
+export const SYSCALL_MIND_OPCODES = ['SYS_PUSH', 'SYS_POP', 'SYS_EDIT', 'SYS_MOVE'] as const;
+export const SYSCALL_SYSTEM_CONTROL_OPCODES = ['SYS_HALT'] as const;
+export type SyscallWorldOpcode = (typeof SYSCALL_WORLD_OPCODES)[number];
+export type SyscallMindOpcode = (typeof SYSCALL_MIND_OPCODES)[number];
+export type SyscallSystemControlOpcode = (typeof SYSCALL_SYSTEM_CONTROL_OPCODES)[number];
+
 export const SYSCALL_EXACT_FIELD_PROMPT_LINES: readonly string[] = [
   '- SYS_WRITE: {"op":"SYS_WRITE","payload":"...","semantic_cap":"optional"}',
   '- SYS_GOTO: {"op":"SYS_GOTO","pointer":"..."}',
@@ -80,6 +87,18 @@ function listDisallowedKeys(keys: string[], allowed: readonly string[]): string[
 
 export function isSyscallOpcode(value: string): value is SyscallOpcode {
   return (SYSCALL_OPCODES as readonly string[]).includes(value);
+}
+
+export function isWorldOpcode(value: string): value is SyscallWorldOpcode {
+  return (SYSCALL_WORLD_OPCODES as readonly string[]).includes(value);
+}
+
+export function isMindOpcode(value: string): value is SyscallMindOpcode {
+  return (SYSCALL_MIND_OPCODES as readonly string[]).includes(value);
+}
+
+export function isSystemControlOpcode(value: string): value is SyscallSystemControlOpcode {
+  return (SYSCALL_SYSTEM_CONTROL_OPCODES as readonly string[]).includes(value);
 }
 
 export function normalizeModelSyscall(value: unknown): SyscallNormalizationResult {
