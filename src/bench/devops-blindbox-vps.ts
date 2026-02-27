@@ -23,6 +23,33 @@ interface DevopsBlindboxVpsReport {
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'longrun');
 
+function parseApprovedHosts(raw: string | undefined): Set<string> {
+  const values =
+    raw
+      ?.split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0) ?? [];
+  return new Set(values);
+}
+
+function assertApprovedHost(host: string, approvedHosts: Set<string>): void {
+  if (host.length === 0) {
+    throw new Error(
+      'TURINGOS_VPS_HOST is required. Hardware usage requires explicit host approval from owner.'
+    );
+  }
+  if (approvedHosts.size === 0) {
+    throw new Error(
+      'TURINGOS_APPROVED_HOSTS is empty. Refusing to run on any remote host without explicit approval.'
+    );
+  }
+  if (!approvedHosts.has(host)) {
+    throw new Error(
+      `Host "${host}" is not approved. Allowed hosts: ${Array.from(approvedHosts).join(', ')}`
+    );
+  }
+}
+
 function timestamp(): string {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -37,6 +64,7 @@ function timestamp(): string {
 function remoteScript(host: string): string {
   return [
     'set -u -o pipefail',
+    'set +e',
     `host_alias=${JSON.stringify(host)}`,
     'workspace=$(mktemp -d /tmp/turingos-devops-vps-XXXXXX)',
     'port=$((18080 + RANDOM % 1000))',
@@ -82,14 +110,31 @@ function remoteScript(host: string): string {
     'start_service() {',
     '  local p="$1"',
     '  python3 -m http.server "$p" --bind 127.0.0.1 > "$service_log" 2>&1 &',
-    '  local pid=$!',
-    "  echo \"$pid\" > \"$pid_file\"",
-    "  printf '%s' \"$pid\"",
+    '  started_pid=$!',
+    "  echo \"$started_pid\" > \"$pid_file\"",
+    '  return 0',
+    '}',
+    '',
+    'append_cfg() {',
+    '  local f="$1"',
+    '  local line="$2"',
+    "  python3 - \"$f\" \"$line\" <<'PY'",
+    'import sys',
+    'f = sys.argv[1]',
+    'line = sys.argv[2]',
+    'try:',
+    '    with open(f, "a", encoding="utf-8") as h:',
+    '        h.write(line + "\\n")',
+    'except Exception:',
+    '    raise SystemExit(1)',
+    'raise SystemExit(0)',
+    'PY',
     '}',
     '',
     '# Start service',
     'ops=$((ops+1))',
-    'service_pid=$(start_service "$port")',
+    'start_service "$port"',
+    'service_pid="${started_pid:-}"',
     'sleep 2',
     'if kill -0 "$service_pid" >/dev/null 2>&1 && probe_http "$port" >/dev/null 2>&1; then',
     '  emit_check "service_initial_health" "PASS" "startup_ok pid=$service_pid port=$port"',
@@ -111,7 +156,8 @@ function remoteScript(host: string): string {
     '',
     '# Recovery: restart service',
     'ops=$((ops+1))',
-    'recover_pid=$(start_service "$port")',
+    'start_service "$port"',
+    'recover_pid="${started_pid:-}"',
     'sleep 2',
     'if kill -0 "$recover_pid" >/dev/null 2>&1 && probe_http "$port" >/dev/null 2>&1; then',
       '  recover_op=$ops',
@@ -124,9 +170,9 @@ function remoteScript(host: string): string {
     '# Attack: permission deny',
     'ops=$((ops+1))',
     'cfg="$workspace/deploy.env"',
-    "echo 'APP_MODE=prod' > \"$cfg\"",
+    "printf '%s\\n' 'APP_MODE=prod' > \"$cfg\"",
     'chmod 400 "$cfg"',
-    "if echo 'RECOVER=0' >> \"$cfg\" 2>/dev/null; then",
+    "if append_cfg \"$cfg\" 'RECOVER=0'; then",
     '  emit_check "permission_denied_observed" "FAIL" "append unexpectedly succeeded"',
     'else',
     '  emit_check "permission_denied_observed" "PASS" "append blocked by chmod 400"',
@@ -134,7 +180,7 @@ function remoteScript(host: string): string {
     '',
     '# Recovery: restore permission',
     'ops=$((ops+1))',
-    'if chmod 600 "$cfg" && echo "RECOVER=1" >> "$cfg"; then',
+    'if chmod 600 "$cfg" && append_cfg "$cfg" "RECOVER=1"; then',
     '  emit_check "permission_recovered" "PASS" "chmod+append recovered"',
     'else',
     '  emit_check "permission_recovered" "FAIL" "permission recovery failed"',
@@ -246,10 +292,9 @@ function toMarkdown(report: DevopsBlindboxVpsReport, jsonPath: string): string {
 async function main(): Promise<void> {
   await fs.mkdir(AUDIT_DIR, { recursive: true });
   const stamp = timestamp();
-  const host = (process.env.TURINGOS_VPS_HOST ?? 'linux1-lx').trim();
-  if (host.length === 0) {
-    throw new Error('TURINGOS_VPS_HOST is empty.');
-  }
+  const host = (process.env.TURINGOS_VPS_HOST ?? '').trim();
+  const approvedHosts = parseApprovedHosts(process.env.TURINGOS_APPROVED_HOSTS);
+  assertApprovedHost(host, approvedHosts);
 
   const script = remoteScript(host);
   const ssh = spawnSync(
