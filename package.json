@@ -23,6 +23,8 @@
     "bench:guard-sft-split": "tsx src/bench/guard-sft-split.ts",
     "bench:guard-mcu-eval": "tsx src/bench/guard-mcu-eval.ts",
     "bench:guard-mcu-loop": "tsx src/bench/guard-mcu-loop.ts",
+    "bench:guard-mcu-loop:dev": "tsx src/bench/guard-mcu-loop.ts --mode model --threshold-profile dev",
+    "bench:guard-mcu-loop:prod": "tsx src/bench/guard-mcu-loop.ts --mode model --threshold-profile prod",
     "bench:guard-sft-dataset": "tsx src/bench/guard-sft-dataset.ts",
     "bench:guard-tiny-split-gate": "tsx src/bench/guard-tiny-split-gate.ts",
     "bench:longrun-dispatcher-soak": "tsx src/bench/longrun-dispatcher-soak.ts",

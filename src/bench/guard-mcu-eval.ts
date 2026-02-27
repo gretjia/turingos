@@ -1,11 +1,16 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
-import { validateCanonicalSyscallEnvelope } from '../kernel/syscall-schema.js';
+import {
+  SYSCALL_EXACT_FIELD_PROMPT_LINES,
+  SYSCALL_OPCODE_PIPE,
+  validateCanonicalSyscallEnvelope,
+} from '../kernel/syscall-schema.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
 
 type EvalMode = 'gold' | 'model';
 type SplitName = 'train' | 'val' | 'test';
+type ThresholdProfile = 'prod' | 'dev';
 
 interface PolicyRow {
   task: 'syscall_policy';
@@ -40,11 +45,13 @@ interface ReflexRow {
 interface CliArgs {
   splitManifest: string;
   mode: EvalMode;
+  thresholdProfile: ThresholdProfile;
   baseURL: string;
   model: string;
   apiKey: string;
   policyLimit: number;
   reflexLimit: number;
+  maxModelAttempts: number;
   minValidJsonRate: number;
   minReflexExactRate: number;
   minDeadlockEscapeRate: number;
@@ -71,6 +78,8 @@ interface EvalReport {
     policyEvaluated: number;
     reflexTotal: number;
     reflexEvaluated: number;
+    modelRepairAttempts: number;
+    modelFailures: number;
   };
   metrics: {
     validJsonRate: number;
@@ -79,6 +88,8 @@ interface EvalReport {
     deadlockEscapeRate: number;
   };
   thresholds: {
+    profile: ThresholdProfile;
+    maxModelAttempts: number;
     minValidJsonRate: number;
     minReflexExactRate: number;
     minDeadlockEscapeRate: number;
@@ -90,6 +101,32 @@ const ROOT = path.resolve(process.cwd());
 const SFT_AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'sft');
 const LATEST_SPLIT_MANIFEST = path.join(ROOT, 'benchmarks', 'data', 'sft', 'splits', 'latest_manifest.json');
 const LATEST_EVAL = path.join(SFT_AUDIT_DIR, 'guard_mcu_eval_latest.json');
+
+function parseThresholdProfile(raw: string): ThresholdProfile {
+  const normalized = raw.trim().toLowerCase();
+  if (normalized === 'prod') return 'prod';
+  if (normalized === 'dev') return 'dev';
+  throw new Error(`Invalid --threshold-profile: ${raw}. Expected one of: prod, dev`);
+}
+
+function profileThresholds(profile: ThresholdProfile): {
+  minValidJsonRate: number;
+  minReflexExactRate: number;
+  minDeadlockEscapeRate: number;
+} {
+  if (profile === 'dev') {
+    return {
+      minValidJsonRate: 0.1,
+      minReflexExactRate: 0,
+      minDeadlockEscapeRate: 0.8,
+    };
+  }
+  return {
+    minValidJsonRate: 0.999,
+    minReflexExactRate: 0.75,
+    minDeadlockEscapeRate: 0.95,
+  };
+}
 
 function timestamp(): string {
   const now = new Date();
@@ -121,6 +158,9 @@ function parsePositive(raw: string, flag: string): number {
 function parseArgs(argv: string[]): CliArgs {
   let splitManifest = LATEST_SPLIT_MANIFEST;
   let mode: EvalMode = 'gold';
+  let thresholdProfile: ThresholdProfile = process.env.TURINGOS_GUARD_EVAL_PROFILE
+    ? parseThresholdProfile(process.env.TURINGOS_GUARD_EVAL_PROFILE)
+    : 'prod';
   let baseURL = process.env.TURINGOS_GUARD_MODEL_BASE_URL ?? process.env.TURINGOS_API_BASE_URL ?? '';
   let model = process.env.TURINGOS_GUARD_MODEL_NAME ?? process.env.TURINGOS_MODEL ?? '';
   let apiKey =
@@ -130,9 +170,23 @@ function parseArgs(argv: string[]): CliArgs {
     '';
   let policyLimit = 300;
   let reflexLimit = 200;
-  let minValidJsonRate = 0.999;
-  let minReflexExactRate = 0.75;
-  let minDeadlockEscapeRate = 0.95;
+  let maxModelAttempts = 2;
+  let { minValidJsonRate, minReflexExactRate, minDeadlockEscapeRate } = profileThresholds(thresholdProfile);
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const key = argv[i];
+    const value = argv[i + 1];
+    if (!key?.startsWith('--') || value === undefined) {
+      continue;
+    }
+    if (key === '--threshold-profile') {
+      thresholdProfile = parseThresholdProfile(value);
+      const thresholds = profileThresholds(thresholdProfile);
+      minValidJsonRate = thresholds.minValidJsonRate;
+      minReflexExactRate = thresholds.minReflexExactRate;
+      minDeadlockEscapeRate = thresholds.minDeadlockEscapeRate;
+    }
+  }
 
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
@@ -147,6 +201,7 @@ function parseArgs(argv: string[]): CliArgs {
     if (key === '--api-key') apiKey = value;
     if (key === '--policy-limit') policyLimit = parsePositive(value, '--policy-limit');
     if (key === '--reflex-limit') reflexLimit = parsePositive(value, '--reflex-limit');
+    if (key === '--max-model-attempts') maxModelAttempts = parsePositive(value, '--max-model-attempts');
     if (key === '--min-valid-json-rate') minValidJsonRate = parseRatio(value, '--min-valid-json-rate');
     if (key === '--min-reflex-exact-rate') minReflexExactRate = parseRatio(value, '--min-reflex-exact-rate');
     if (key === '--min-deadlock-escape-rate') minDeadlockEscapeRate = parseRatio(value, '--min-deadlock-escape-rate');
@@ -155,11 +210,13 @@ function parseArgs(argv: string[]): CliArgs {
   return {
     splitManifest,
     mode,
+    thresholdProfile,
     baseURL,
     model,
     apiKey,
     policyLimit,
     reflexLimit,
+    maxModelAttempts,
     minValidJsonRate,
     minReflexExactRate,
     minDeadlockEscapeRate,
@@ -214,6 +271,74 @@ function normalizeOp(value: unknown): string {
   return typeof op === 'string' ? op.trim().toUpperCase() : '';
 }
 
+function buildPolicyPrompt(): string {
+  return [
+    'You are TuringOS ALU in strict bus mode.',
+    'Return EXACTLY one JSON object with ONLY top-level keys: q_next and a_t.',
+    'q_next MUST be a short non-empty state label and MUST NOT be an opcode.',
+    'a_t MUST be a valid syscall object with op in:',
+    SYSCALL_OPCODE_PIPE,
+    'Allowed opcodes and exact fields:',
+    ...SYSCALL_EXACT_FIELD_PROMPT_LINES,
+    'Never include unsupported keys. Never include markdown or prose.',
+    'If uncertain, emit safe fallback: {"q_next":"tick_continue","a_t":{"op":"SYS_POP"}}.',
+  ].join(' ');
+}
+
+function buildReflexPrompt(): string {
+  return [
+    'You are Guard MCU for trap recovery.',
+    'Return EXACTLY one JSON object with ONLY top-level keys: q_next and a_t.',
+    'q_next MUST be a short non-empty state label and MUST NOT be an opcode.',
+    'a_t MUST be a valid recovery syscall object with op in:',
+    SYSCALL_OPCODE_PIPE,
+    'Allowed opcodes and exact fields:',
+    ...SYSCALL_EXACT_FIELD_PROMPT_LINES,
+    'Never include unsupported keys. Never include markdown or prose.',
+    'Prefer deterministic escape actions for trap contexts: SYS_POP or SYS_GOTO.',
+    'If uncertain, emit safe fallback: {"q_next":"guard_resume","a_t":{"op":"SYS_POP"}}.',
+  ].join(' ');
+}
+
+function summarizeError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.replace(/\s+/g, ' ').slice(0, 320);
+}
+
+function buildRepairPrompt(base: string, error: unknown): string {
+  const summary = summarizeError(error);
+  return [
+    base,
+    'REPAIR MODE: your previous output violated canonical parser constraints.',
+    `Last parser error: ${summary}`,
+    'Output JSON only; do not include code fences or explanations.',
+  ].join(' ');
+}
+
+async function collapseWithRepair(
+  oracle: UniversalOracle,
+  discipline: string,
+  q: string,
+  s: string,
+  maxAttempts: number
+): Promise<{ transition: { q_next: string; a_t: unknown; thought?: string }; repairAttempts: number }> {
+  let currentDiscipline = discipline;
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const transition = await oracle.collapse(currentDiscipline, q, s);
+      return { transition, repairAttempts: Math.max(0, attempt - 1) };
+    } catch (error: unknown) {
+      lastError = error;
+      if (attempt >= maxAttempts) {
+        throw error;
+      }
+      currentDiscipline = buildRepairPrompt(discipline, error);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Unexpected model collapse retry exhaustion');
+}
+
 function isDeadlockTrap(row: ReflexRow): boolean {
   const base = row.input.trap_frame.trap_base.toLowerCase().trim();
   const details = row.input.trap_frame.details.toLowerCase();
@@ -247,6 +372,8 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     `- reflex_split: ${report.selectedSplits.reflex}`,
     `- policy_file: ${report.selectedFiles.policy}`,
     `- reflex_file: ${report.selectedFiles.reflex}`,
+    `- threshold_profile: ${report.thresholds.profile}`,
+    `- max_model_attempts: ${report.thresholds.maxModelAttempts}`,
     `- base_url: ${report.provider.baseURL || '(none)'}`,
     `- model: ${report.provider.model || '(none)'}`,
     '',
@@ -301,11 +428,11 @@ async function main(): Promise<void> {
   let reflexExact = 0;
   let deadlockTotal = 0;
   let deadlockEscapes = 0;
+  let modelRepairAttempts = 0;
+  let modelFailures = 0;
 
-  const policyPrompt =
-    'Return strict JSON only {"q_next":"...","a_t":{"op":"SYS_*",...}}. Emit exactly one valid syscall frame.';
-  const reflexPrompt =
-    'You are Guard MCU. Given trap context, emit exactly one strict recovery syscall JSON frame.';
+  const policyPrompt = buildPolicyPrompt();
+  const reflexPrompt = buildReflexPrompt();
 
   for (const row of policyRows) {
     totalEval += 1;
@@ -313,10 +440,14 @@ async function main(): Promise<void> {
     let predictedEnvelope: Record<string, unknown> | null = null;
     if (useModel) {
       try {
-        const transition = await oracle!.collapse(policyPrompt, row.input.q_t, row.input.s_t);
+        const result = await collapseWithRepair(oracle!, policyPrompt, row.input.q_t, row.input.s_t, args.maxModelAttempts);
+        modelRepairAttempts += result.repairAttempts;
+        const transition = result.transition;
         predictedOp = normalizeOp(transition.a_t);
         predictedEnvelope = transition.a_t as Record<string, unknown>;
       } catch {
+        modelRepairAttempts += Math.max(0, args.maxModelAttempts - 1);
+        modelFailures += 1;
         continue;
       }
     } else {
@@ -346,10 +477,20 @@ async function main(): Promise<void> {
         `[TRAP_DETAILS] ${row.input.trap_frame.details}`,
       ].join('\n');
       try {
-        const transition = await oracle!.collapse(reflexPrompt, 'q_guard_reflex', trapSlice);
+        const result = await collapseWithRepair(
+          oracle!,
+          reflexPrompt,
+          'q_guard_reflex',
+          trapSlice,
+          args.maxModelAttempts
+        );
+        modelRepairAttempts += result.repairAttempts;
+        const transition = result.transition;
         predictedOp = normalizeOp(transition.a_t);
         predictedEnvelope = transition.a_t as Record<string, unknown>;
       } catch {
+        modelRepairAttempts += Math.max(0, args.maxModelAttempts - 1);
+        modelFailures += 1;
         continue;
       }
     } else {
@@ -408,6 +549,8 @@ async function main(): Promise<void> {
       policyEvaluated: Math.min(policyRows.length, args.policyLimit),
       reflexTotal: reflexRows.length,
       reflexEvaluated: Math.min(reflexRows.length, args.reflexLimit),
+      modelRepairAttempts,
+      modelFailures,
     },
     metrics: {
       validJsonRate,
@@ -416,6 +559,8 @@ async function main(): Promise<void> {
       deadlockEscapeRate,
     },
     thresholds: {
+      profile: args.thresholdProfile,
+      maxModelAttempts: args.maxModelAttempts,
       minValidJsonRate: args.minValidJsonRate,
       minReflexExactRate: args.minReflexExactRate,
       minDeadlockEscapeRate: args.minDeadlockEscapeRate,
@@ -434,7 +579,7 @@ async function main(): Promise<void> {
   await fsp.writeFile(LATEST_EVAL, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
 
   console.log(
-    `[guard-mcu-eval] mode=${report.mode} valid_json_rate=${validJsonRate} mutex_rate=${mutexViolationRate} reflex_exact=${reflexExactMatchRate} deadlock_escape=${deadlockEscapeRate} pass=${report.pass}`
+    `[guard-mcu-eval] mode=${report.mode} profile=${report.thresholds.profile} valid_json_rate=${validJsonRate} mutex_rate=${mutexViolationRate} reflex_exact=${reflexExactMatchRate} deadlock_escape=${deadlockEscapeRate} repair_attempts=${modelRepairAttempts} model_failures=${modelFailures} pass=${report.pass}`
   );
   console.log(`[guard-mcu-eval] report=${reportJsonPath}`);
   process.exit(report.pass ? 0 : 2);

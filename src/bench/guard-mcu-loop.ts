@@ -6,6 +6,7 @@ type LoopMode = 'auto' | 'gold' | 'model';
 
 interface CliArgs {
   mode: LoopMode;
+  thresholdProfile: '' | 'prod' | 'dev';
   datasetArgs: string;
   splitArgs: string;
   evalArgs: string;
@@ -43,6 +44,7 @@ function timestamp(): string {
 
 function parseArgs(argv: string[]): CliArgs {
   let mode: LoopMode = 'auto';
+  let thresholdProfile: '' | 'prod' | 'dev' = '';
   let datasetArgs = '';
   let splitArgs = '';
   let evalArgs = '';
@@ -55,11 +57,14 @@ function parseArgs(argv: string[]): CliArgs {
     if (key === '--mode' && (value === 'auto' || value === 'gold' || value === 'model')) {
       mode = value;
     }
+    if (key === '--threshold-profile' && (value === 'prod' || value === 'dev')) {
+      thresholdProfile = value;
+    }
     if (key === '--dataset-args') datasetArgs = value;
     if (key === '--split-args') splitArgs = value;
     if (key === '--eval-args') evalArgs = value;
   }
-  return { mode, datasetArgs, splitArgs, evalArgs };
+  return { mode, thresholdProfile, datasetArgs, splitArgs, evalArgs };
 }
 
 function resolveEvalMode(mode: LoopMode): 'gold' | 'model' {
@@ -121,7 +126,9 @@ async function main(): Promise<void> {
   const steps: StepResult[] = [];
   const datasetCmd = `npm run bench:guard-sft-dataset${args.datasetArgs ? ` -- ${args.datasetArgs}` : ''}`;
   const splitCmd = `npm run bench:guard-sft-split${args.splitArgs ? ` -- ${args.splitArgs}` : ''}`;
-  const evalCmd = `npm run bench:guard-mcu-eval -- --mode ${evalMode}${args.evalArgs ? ` ${args.evalArgs}` : ''}`;
+  const evalCmd = `npm run bench:guard-mcu-eval -- --mode ${evalMode}${
+    args.thresholdProfile ? ` --threshold-profile ${args.thresholdProfile}` : ''
+  }${args.evalArgs ? ` ${args.evalArgs}` : ''}`;
 
   steps.push(await runStep('build_dataset', datasetCmd));
   if (!steps[steps.length - 1].ok) {

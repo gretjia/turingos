@@ -157,12 +157,47 @@ function extractThought(rawOutput: string): string | undefined {
   return thought.length > 0 ? thought : undefined;
 }
 
-function isTransitionShape(value: unknown): value is { q_next: string; a_t: unknown; thought?: unknown } {
-  if (!value || typeof value !== 'object') {
-    return false;
+function asTransitionShape(
+  value: unknown,
+  depth = 0
+): { q_next: string; a_t: unknown; thought?: unknown } | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+  if (depth > 3) {
+    return null;
   }
   const record = value as Record<string, unknown>;
-  return typeof record.q_next === 'string' && !!record.a_t && typeof record.a_t === 'object';
+  const qNext =
+    asString(record.q_next) ??
+    asString(record.qNext) ??
+    asString(record.next_state) ??
+    asString(record.state_next) ??
+    asString(record.nextState);
+  const a_t = asRecord(record.a_t) ?? asRecord(record.action) ?? asRecord(record.syscall);
+  if (qNext && a_t) {
+    return {
+      q_next: qNext.trim(),
+      a_t,
+      thought: typeof record.thought === 'string' ? record.thought : undefined,
+    };
+  }
+
+  const nestedKeys = ['result', 'output', 'data', 'frame', 'transition'];
+  for (const key of nestedKeys) {
+    const nested = asRecord(record[key]);
+    if (!nested) {
+      continue;
+    }
+    const resolved = asTransitionShape(nested, depth + 1);
+    if (resolved) {
+      if (!resolved.thought && typeof record.thought === 'string') {
+        resolved.thought = record.thought;
+      }
+      return resolved;
+    }
+  }
+  return null;
 }
 
 function normalizeTransitionShape(value: { q_next: string; a_t: unknown; thought?: unknown }): Transition {
@@ -181,6 +216,53 @@ function normalizeTransitionShape(value: { q_next: string; a_t: unknown; thought
   return normalized;
 }
 
+function collectBalancedObjectCandidates(rawOutput: string): string[] {
+  const out: string[] = [];
+  const stack: number[] = [];
+  let inString = false;
+  let escaping = false;
+  for (let i = 0; i < rawOutput.length; i += 1) {
+    const ch = rawOutput[i];
+    if (inString) {
+      if (escaping) {
+        escaping = false;
+        continue;
+      }
+      if (ch === '\\') {
+        escaping = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === '{') {
+      stack.push(i);
+      continue;
+    }
+    if (ch !== '}') {
+      continue;
+    }
+    const start = stack.pop();
+    if (start === undefined) {
+      continue;
+    }
+    if (stack.length === 0) {
+      const candidate = rawOutput.slice(start, i + 1).trim();
+      if (candidate.length > 0) {
+        out.push(candidate);
+      }
+    }
+  }
+  return out;
+}
+
 export function parseBusTransitionFromText(rawOutput: string): Transition {
   const extractedThought = extractThought(rawOutput);
   const candidates: string[] = [rawOutput];
@@ -195,15 +277,19 @@ export function parseBusTransitionFromText(rawOutput: string): Transition {
   if (firstBrace >= 0 && lastBrace > firstBrace) {
     candidates.push(rawOutput.slice(firstBrace, lastBrace + 1));
   }
+  candidates.push(...collectBalancedObjectCandidates(rawOutput));
+
+  const deduped = [...new Set(candidates.map((item) => item.trim()).filter((item) => item.length > 0))];
 
   let parseError: Error | null = null;
-  for (const candidate of candidates) {
+  for (const candidate of deduped) {
     try {
       const parsed = JSON.parse(candidate);
-      if (!isTransitionShape(parsed)) {
+      const transitionShape = asTransitionShape(parsed);
+      if (!transitionShape) {
         continue;
       }
-      const normalized = normalizeTransitionShape(parsed);
+      const normalized = normalizeTransitionShape(transitionShape);
       if (!normalized.thought && extractedThought) {
         normalized.thought = extractedThought;
       }
