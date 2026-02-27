@@ -26,6 +26,18 @@ Compatibility placeholders:
 - `longrun/taskA_taskB_trace_bundle_20260227/taskA_realworld_eval_20260227_133652.md`
 - `longrun/taskA_taskB_trace_bundle_20260227/devops_blindbox_local_20260227_113517.md`
 
+### Longrun - Phase B (Approved Real VPS)
+- `longrun/phaseB_vps_blindbox_20260227/manifest.json`
+- `longrun/phaseB_vps_blindbox_20260227/devops_blindbox_vps_20260227_160556.json`
+- `longrun/phaseB_vps_blindbox_20260227/devops_blindbox_vps_20260227_160556.md`
+
+### SFT - Phase C (Rebalance + DPO)
+- `sft/phaseC_sft_dpo_20260227/manifest.json`
+- `sft/phaseC_sft_dpo_20260227/guard_sft_dataset_latest.json`
+- `sft/phaseC_sft_dpo_20260227/failure_recovery_dataset_stats_latest.json`
+- `sft/phaseC_sft_dpo_20260227/sft_dpo_grit_recipe_dataset.json`
+- `sft/phaseC_sft_dpo_20260227/model_matrix_latest.json`
+
 ## Archived Legacy Gate Files
 These files are preserved but intentionally moved out of active review scope:
 

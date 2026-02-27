@@ -59,6 +59,34 @@ const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'sft');
 const SUMMARY_PATH = path.join(AUDIT_DIR, 'guard_sft_dataset_latest.json');
 
+function parseRatioEnv(name: string, fallback: number): number {
+  const raw = (process.env[name] ?? '').trim();
+  if (raw.length === 0) {
+    return fallback;
+  }
+  const parsed = Number.parseFloat(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0 || parsed >= 1) {
+    throw new Error(`Invalid ${name}: ${raw}. Expected a float in (0,1).`);
+  }
+  return parsed;
+}
+
+function normalizeRatios(golden: number, failure: number, rejected: number): {
+  golden: number;
+  failure: number;
+  rejected: number;
+} {
+  const sum = golden + failure + rejected;
+  if (!Number.isFinite(sum) || sum <= 0) {
+    throw new Error(`Invalid ratio sum: ${sum}`);
+  }
+  return {
+    golden: golden / sum,
+    failure: failure / sum,
+    rejected: rejected / sum,
+  };
+}
+
 function stampDate(now = new Date()): string {
   const yyyy = now.getUTCFullYear();
   const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
@@ -87,18 +115,29 @@ function includesAny(haystack: string, needles: string[]): boolean {
 function computeProposedTotal(
   golden: number,
   failureRecovery: number,
-  rejected: number
+  rejected: number,
+  targetMix: {
+    golden: number;
+    failure: number;
+    rejected: number;
+  }
 ): number {
   if (golden <= 0 || failureRecovery <= 0 || rejected <= 0) {
     return 0;
   }
-  const byGolden = Math.floor(golden / 0.4);
-  const byFailure = Math.floor(failureRecovery / 0.4);
-  const byRejected = Math.floor(rejected / 0.2);
+  const byGolden = Math.floor(golden / targetMix.golden);
+  const byFailure = Math.floor(failureRecovery / targetMix.failure);
+  const byRejected = Math.floor(rejected / targetMix.rejected);
   return Math.max(0, Math.min(byGolden, byFailure, byRejected));
 }
 
 async function main(): Promise<void> {
+  const targetMix = normalizeRatios(
+    parseRatioEnv('TURINGOS_SFT_RATIO_GOLDEN', 0.15),
+    parseRatioEnv('TURINGOS_SFT_RATIO_FAILURE', 0.65),
+    parseRatioEnv('TURINGOS_SFT_RATIO_REJECTED', 0.2)
+  );
+
   const summary = await readJson<DatasetSummary>(SUMMARY_PATH);
   const policyRows = await readJsonl<PolicyRow>(summary.policyOutput);
   const reflexRows = await readJsonl<ReflexRow>(summary.reflexOutput);
@@ -126,18 +165,21 @@ async function main(): Promise<void> {
     return inTrapContext && op === 'SYS_HALT';
   }).length;
 
-  const proposedTotal = computeProposedTotal(goldenRows, failureRecoveryRows, rejectedRows);
-  const proposedGolden = Math.floor(proposedTotal * 0.4);
-  const proposedFailure = Math.floor(proposedTotal * 0.4);
+  const proposedTotal = computeProposedTotal(goldenRows, failureRecoveryRows, rejectedRows, targetMix);
+  const proposedGolden = Math.floor(proposedTotal * targetMix.golden);
+  const proposedFailure = Math.floor(proposedTotal * targetMix.failure);
   const proposedRejected = proposedTotal - proposedGolden - proposedFailure;
 
   const notes: string[] = [];
   if (proposedTotal === 0) {
     notes.push('Cannot satisfy 40/40/20 mix with current rejected candidate pool.');
   }
-  if (rejectedRows < Math.ceil((policyRows.length + reflexRows.length) * 0.2)) {
+  if (rejectedRows < Math.ceil((policyRows.length + reflexRows.length) * targetMix.rejected)) {
     notes.push('Rejected candidates are relatively scarce; consider mining more trap-halt or invalid-output traces.');
   }
+  notes.push(
+    `Target mix ratios (golden/failure/rejected) = ${targetMix.golden.toFixed(4)}/${targetMix.failure.toFixed(4)}/${targetMix.rejected.toFixed(4)}`
+  );
 
   const report: StatsReport = {
     generatedAt: new Date().toISOString(),
@@ -154,9 +196,9 @@ async function main(): Promise<void> {
       rejectedRows,
     },
     targetMix: {
-      golden: 0.4,
-      failureRecovery: 0.4,
-      rejected: 0.2,
+      golden: targetMix.golden,
+      failureRecovery: targetMix.failure,
+      rejected: targetMix.rejected,
     },
     proposedSample: {
       totalRows: proposedTotal,
@@ -178,7 +220,7 @@ async function main(): Promise<void> {
     `[failure-recovery-dataset-stats] policy=${policyRows.length} reflex=${reflexRows.length} golden=${goldenRows} failure_recovery=${failureRecoveryRows} rejected=${rejectedRows}`
   );
   console.log(
-    `[failure-recovery-dataset-stats] proposed_total=${proposedTotal} mix=${proposedGolden}/${proposedFailure}/${proposedRejected}`
+    `[failure-recovery-dataset-stats] proposed_total=${proposedTotal} mix=${proposedGolden}/${proposedFailure}/${proposedRejected} ratios=${targetMix.golden.toFixed(4)}/${targetMix.failure.toFixed(4)}/${targetMix.rejected.toFixed(4)}`
   );
 }
 

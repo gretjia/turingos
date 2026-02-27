@@ -1,0 +1,38 @@
+{
+  "stamp": "20260227_161032",
+  "policyInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_policy_20260227_161029.jsonl",
+  "reflexInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_reflex_20260227_161029.jsonl",
+  "outDir": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032",
+  "ratios": {
+    "train": 80,
+    "val": 10,
+    "test": 10
+  },
+  "policy": {
+    "rows": 615,
+    "counts": {
+      "train": 492,
+      "val": 61,
+      "test": 62
+    },
+    "files": {
+      "train": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032/policy/policy_train.jsonl",
+      "val": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032/policy/policy_val.jsonl",
+      "test": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032/policy/policy_test.jsonl"
+    }
+  },
+  "reflex": {
+    "rows": 51,
+    "counts": {
+      "train": 40,
+      "val": 5,
+      "test": 6
+    },
+    "files": {
+      "train": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032/reflex/reflex_train.jsonl",
+      "val": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032/reflex/reflex_val.jsonl",
+      "test": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_161032/reflex/reflex_test.jsonl"
+    }
+  },
+  "pass": true
+}

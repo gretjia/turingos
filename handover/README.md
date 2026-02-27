@@ -3,17 +3,17 @@
 This directory is the review entrypoint for the current audit cycle.
 
 ## Read Order
-1. `artitecture_response/dual_llm_bloody_delivery_action_plan_20260227.md`
-2. `artitecture_response/phase1_chaos_sweep_report_20260227.md`
-3. `artitecture_response/phase2_realworld_ab_report_20260227.md`
-4. `artitecture_response/phase3_sft_dpo_dataset_report_20260227.md`
-5. `artitecture_response/phase4_model_matrix_report_20260227.md`
-6. `artitecture_response/phase5_context_degradation_report_20260227.md`
-7. `artitecture_response/gemini_recursive_audit_phase5_20260227.md`
+1. `artiteture_response/chief_architect_independent_audit_reply_20260227.md`
+2. `artiteture_response/final_complete_action_plan_20260227.md`
+3. `artiteture_response/phaseA_io_hardening_report_20260227.md`
+4. `artiteture_response/gemini_recursive_audit_phaseA_20260227.md`
+5. `artiteture_response/phaseB_vps_blindbox_report_20260227.md`
+6. `artiteture_response/gemini_recursive_audit_phaseB_20260227.md`
+7. `artiteture_response/phaseC_sft_dpo_rebalance_report_20260227.md`
 8. `audits/README.md`
 
 ## Directory Map
-- `artitecture_response/`
+- `artiteture_response/`
   - Human-readable phase reports and recursive-audit conclusions for this submission.
 - `audits/`
   - Active evidence bundle used for current review (death traces, task A/B bundle, local model eval).
@@ -27,6 +27,10 @@ This directory is the review entrypoint for the current audit cycle.
   - `audits/longrun/taskA_taskB_trace_bundle_20260227/manifest.json`
 - Local model guard eval summary:
   - `audits/localmodel/guard_mcu_eval_latest.md`
+- Phase B (approved real VPS on windows1-w1):
+  - `audits/longrun/phaseB_vps_blindbox_20260227/manifest.json`
+- Phase C (SFT/DPO rebalance):
+  - `audits/sft/phaseC_sft_dpo_20260227/manifest.json`
 
 ## Compatibility Notes
 - If an agent expects a singular `audit/` entry, use:

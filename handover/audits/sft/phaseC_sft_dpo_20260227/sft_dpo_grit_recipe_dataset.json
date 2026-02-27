@@ -1,0 +1,461 @@
+{
+  "generatedAt": "2026-02-27T16:11:54.807Z",
+  "source": {
+    "datasetSummary": "/home/zephryj/projects/turingos/benchmarks/audits/sft/guard_sft_dataset_latest.json",
+    "policyInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_policy_20260227_161152.jsonl",
+    "reflexInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_reflex_20260227_161152.jsonl"
+  },
+  "targetMix": {
+    "golden": 0.15,
+    "failureRecovery": 0.65,
+    "rejected": 0.2
+  },
+  "available": {
+    "golden": 509,
+    "failureRecovery": 292,
+    "rejected": 24
+  },
+  "selected": {
+    "total": 120,
+    "golden": 18,
+    "failureRecovery": 78,
+    "rejected": 24
+  },
+  "dpoPairs": [
+    {
+      "id": "dpo_001",
+      "chosen": {
+        "id": "p_0",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095137_ac31_lazarus/ac31.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_0",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_002",
+      "chosen": {
+        "id": "p_1",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095216_ac31_lazarus/ac31.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_1",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_003",
+      "chosen": {
+        "id": "p_2",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095216_ac32_replay/ac32.dirty.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_2",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_004",
+      "chosen": {
+        "id": "p_3",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095216_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 0,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_3",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_005",
+      "chosen": {
+        "id": "p_4",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095216_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 2,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_4",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114449_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_006",
+      "chosen": {
+        "id": "p_5",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095854_ac31_lazarus/ac31.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_5",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114449_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_007",
+      "chosen": {
+        "id": "p_6",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095854_ac32_replay/ac32.dirty.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_6",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_008",
+      "chosen": {
+        "id": "p_7",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095854_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 0,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_7",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_114850_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_009",
+      "chosen": {
+        "id": "p_8",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_095854_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 2,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_8",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115359_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_010",
+      "chosen": {
+        "id": "p_9",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac31_lazarus/ac31.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_9",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115359_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_011",
+      "chosen": {
+        "id": "p_10",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac31_lazarus/ac31.journal.log",
+        "tick": 5,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_10",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115441_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_012",
+      "chosen": {
+        "id": "p_11",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_11",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115441_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_013",
+      "chosen": {
+        "id": "p_12",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac32_replay/ac32.dirty.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_12",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115926_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_014",
+      "chosen": {
+        "id": "p_13",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac32_replay/ac32.dirty.journal.log",
+        "tick": 5,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_13",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115926_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_015",
+      "chosen": {
+        "id": "p_14",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_14",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115949_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_016",
+      "chosen": {
+        "id": "p_15",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 0,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_15",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_115949_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_017",
+      "chosen": {
+        "id": "p_16",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103432_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 2,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_16",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120731_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_018",
+      "chosen": {
+        "id": "p_17",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac31_lazarus/ac31.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_17",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120731_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_019",
+      "chosen": {
+        "id": "p_18",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac31_lazarus/ac31.journal.log",
+        "tick": 5,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_18",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_020",
+      "chosen": {
+        "id": "p_19",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_19",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_120824_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_021",
+      "chosen": {
+        "id": "p_20",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac32_replay/ac32.dirty.journal.log",
+        "tick": 3,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_20",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_125034_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_022",
+      "chosen": {
+        "id": "p_21",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac32_replay/ac32.dirty.journal.log",
+        "tick": 5,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_21",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_125034_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_023",
+      "chosen": {
+        "id": "p_22",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_22",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_125116_ac31_lazarus/ac31.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    },
+    {
+      "id": "dpo_024",
+      "chosen": {
+        "id": "p_23",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_103526_ac32_replay/ac32.synthetic.journal.log",
+        "tick": 0,
+        "kind": "failure_recovery",
+        "reason": "policy_failure_recovery"
+      },
+      "rejected": {
+        "id": "p_23",
+        "sourceTrace": "/home/zephryj/projects/turingos/benchmarks/audits/evidence/golden_traces/20260226_125116_ac32_replay/ac32.dirty.journal.log",
+        "tick": 11,
+        "kind": "rejected",
+        "reason": "trap_context_halt_rejected"
+      },
+      "rationale": "Prefer recovery action in trap context; reject blind halt/abort behavior."
+    }
+  ],
+  "notes": [
+    "Target ratios golden/failure/rejected=0.1500/0.6500/0.2000"
+  ]
+}

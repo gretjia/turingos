@@ -1,0 +1,14 @@
+{
+  "phase": "Phase C",
+  "stamp": "20260227_161154",
+  "artifacts": [
+    "guard_sft_dataset_latest.json",
+    "guard_sft_split_latest.json",
+    "failure_recovery_dataset_stats_latest.json",
+    "sft_dpo_grit_recipe_dataset.json",
+    "model_matrix_latest.json",
+    "model_matrix_latest.md"
+  ],
+  "target_mix": "15/65/20",
+  "status": "completed"
+}

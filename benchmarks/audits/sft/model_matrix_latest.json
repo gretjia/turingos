@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-27T13:03:53.704Z",
+  "generatedAt": "2026-02-27T16:11:55.426Z",
   "rows": [
     {
       "name": "api_groq_base",
@@ -44,7 +44,7 @@
       "sourcePath": "/home/zephryj/projects/turingos/handover/audits/localmodel/guard_mcu_eval_mac_qwen3_coder30b_20260227.json"
     },
     {
-      "name": "local_qwen3_coder30b_finetuned_mlx_mac",
+      "name": "local_qwen3_finetuned_mac",
       "stamp": "20260227_205805",
       "provider": "openai",
       "model": "/Users/zephryj/work/turingos/models/qwen3-coder-30b-a3b-instruct-4bit",

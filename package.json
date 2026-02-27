@@ -27,6 +27,7 @@
     "bench:guard-mcu-loop:prod": "tsx src/bench/guard-mcu-loop.ts --mode model --threshold-profile prod",
     "bench:guard-sft-dataset": "tsx src/bench/guard-sft-dataset.ts",
     "bench:failure-recovery-dataset-stats": "tsx src/bench/failure-recovery-dataset-stats.ts",
+    "bench:sft-dpo-grit-recipe": "tsx src/bench/sft-dpo-grit-recipe.ts",
     "bench:prepare-mlx-sft-data": "tsx src/bench/prepare-mlx-sft-data.ts",
     "bench:guard-tiny-split-gate": "tsx src/bench/guard-tiny-split-gate.ts",
     "bench:longrun-dispatcher-soak": "tsx src/bench/longrun-dispatcher-soak.ts",

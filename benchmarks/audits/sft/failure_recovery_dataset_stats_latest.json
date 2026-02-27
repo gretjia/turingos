@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-02-27T12:13:01.667Z",
+  "generatedAt": "2026-02-27T16:11:53.335Z",
   "source": {
     "datasetSummary": "/home/zephryj/projects/turingos/benchmarks/audits/sft/guard_sft_dataset_latest.json",
-    "policyInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_policy_20260227_121202.jsonl",
-    "reflexInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_reflex_20260227_121202.jsonl"
+    "policyInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_policy_20260227_161152.jsonl",
+    "reflexInput": "/home/zephryj/projects/turingos/benchmarks/data/sft/guard_reflex_20260227_161152.jsonl"
   },
   "available": {
     "policyRows": 615,
@@ -13,17 +13,18 @@
     "rejectedRows": 24
   },
   "targetMix": {
-    "golden": 0.4,
-    "failureRecovery": 0.4,
+    "golden": 0.15,
+    "failureRecovery": 0.65,
     "rejected": 0.2
   },
   "proposedSample": {
     "totalRows": 120,
-    "goldenRows": 48,
-    "failureRecoveryRows": 48,
+    "goldenRows": 18,
+    "failureRecoveryRows": 78,
     "rejectedRows": 24
   },
   "notes": [
-    "Rejected candidates are relatively scarce; consider mining more trap-halt or invalid-output traces."
+    "Rejected candidates are relatively scarce; consider mining more trap-halt or invalid-output traces.",
+    "Target mix ratios (golden/failure/rejected) = 0.1500/0.6500/0.2000"
   ]
 }
