@@ -37,6 +37,7 @@
     "bench:context-degradation-heatmap": "tsx src/bench/context-degradation-heatmap.ts",
     "bench:model-matrix-report": "tsx src/bench/model-matrix-report.ts",
     "bench:devops-blindbox-local": "tsx src/bench/devops-blindbox-local.ts",
+    "bench:devops-blindbox-vps": "tsx src/bench/devops-blindbox-vps.ts",
     "bench:syscall-schema-consistency": "tsx src/bench/syscall-schema-consistency.ts",
     "bench:chaos-monkey-gate": "tsx src/bench/chaos-monkey-gate.ts",
     "bench:voyager-local-precheck": "tsx src/bench/voyager-local-precheck.ts",

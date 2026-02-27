@@ -512,8 +512,8 @@ async function main(): Promise<void> {
   const pagedFloodTupleIndex = tuples.findIndex(
     (tuple) =>
       typeof tuple.s_t === 'string' &&
-      tuple.s_t.includes('[PAGE_TABLE_SUMMARY]') &&
-      tuple.s_t.includes('Source=command:')
+      ((tuple.s_t.includes('[PAGE_TABLE_SUMMARY]') && tuple.s_t.includes('Source=command:')) ||
+        tuple.s_t.includes('[OS_TRAP: LOG_FLOOD]'))
   );
   const pagedFloodTuple = pagedFloodTupleIndex >= 0 ? tuples[pagedFloodTupleIndex] : undefined;
   const followupTuple =

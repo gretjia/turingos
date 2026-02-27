@@ -43,6 +43,7 @@ export class TuringEngine {
   private watchdogHistory: string[] = [];
   private l1TraceCache: string[] = [];
   private mindSchedulingHistory: Array<'SYS_EDIT' | 'SYS_MOVE'> = [];
+  private logFloodFollowupRequired = false;
   private readonly l1TraceDepth = 3;
   private readonly watchdogDepth = 5;
   private readonly thrashingDepth = 3;
@@ -238,6 +239,9 @@ export class TuringEngine {
 
     // 1.8) Inject managed context channels for short-horizon anti-looping.
     const observedSliceForReplay = s_t;
+    if (this.detectLogFloodSignal(observedSliceForReplay)) {
+      this.logFloodFollowupRequired = true;
+    }
     const callStackSlice = await this.observeCallStackSnapshot();
     const l1TraceSlice = this.renderL1Trace();
     const contractSlice = this.renderContractGuidance(
@@ -307,6 +311,25 @@ export class TuringEngine {
           ].join('\n'),
           q_t
         );
+      }
+
+      if (this.logFloodFollowupRequired) {
+        const worldCandidate = plan.worldOps[0] ?? null;
+        const followupSatisfied = worldCandidate ? this.isLogFloodFollowup(worldCandidate) : false;
+        if (!followupSatisfied) {
+          return this.raiseManagedTrap(
+            'sys://trap/log_flood_followup_required',
+            'LOG_FLOOD follow-up required before proceeding.',
+            [
+              q_t,
+              '',
+              '[OS_TRAP: LOG_FLOOD_FOLLOWUP_REQUIRED] High-entropy command output was throttled by kernel backpressure.',
+              'Action: issue SYS_EXEC with grep/tail/head/wc (or equivalent local inspection command), or SYS_GOTO to sys://page/* before any other action.',
+              'HALT is forbidden until one follow-up world action is observed.',
+            ].join('\n'),
+            q_t
+          );
+        }
       }
 
       const executionQueue: Syscall[] = [...plan.mindOps];
@@ -406,6 +429,9 @@ export class TuringEngine {
         world_op: plan.worldOps[0] ?? null,
         world_ops: plan.worldOps.length > 1 ? plan.worldOps : undefined,
       };
+      if (plan.worldOps[0] && this.isLogFloodFollowup(plan.worldOps[0])) {
+        this.logFloodFollowupRequired = false;
+      }
       await this.chronos.engrave(
         `[VLIW_BUNDLE] mind_ops=${plan.mindOps.map((op) => op.op).join('|') || '(none)'} world_op=${
           plan.worldOps[0]?.op ?? '(none)'
@@ -463,6 +489,20 @@ export class TuringEngine {
     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
     const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT' || transition.a_t.op === 'SYS_HALT';
     if (haltRequested) {
+      if (this.logFloodFollowupRequired) {
+        const trapDetails = [
+          'HALT rejected: LOG_FLOOD follow-up is still pending.',
+          'Action: run SYS_EXEC with grep/tail/head/wc or SYS_GOTO sys://page/* to inspect throttled evidence first.',
+        ].join('\n');
+        this.lastTrapDetails.set('sys://trap/illegal_halt', trapDetails);
+        return this.trapReturn(
+          'sys://trap/illegal_halt',
+          trapDetails,
+          q_t,
+          this.systemTrapPointer('sys://trap/illegal_halt', trapDetails),
+          { source: 'halt_guard', guard: 'log_flood_followup' }
+        );
+      }
       if (this.replayTupleSeq < this.minTicksBeforeHalt) {
         const trapDetails = [
           'HALT rejected: minimum runtime ticks not reached.',
@@ -1348,6 +1388,25 @@ export class TuringEngine {
       /\btest\b/,
     ];
     return patterns.some((pattern) => pattern.test(normalized));
+  }
+
+  private detectLogFloodSignal(observedSlice: Slice): boolean {
+    return (
+      observedSlice.includes('[OS_TRAP: LOG_FLOOD]') ||
+      observedSlice.includes('[LOG_BACKPRESSURE]') ||
+      (observedSlice.includes('[PAGE_TABLE_SUMMARY]') && observedSlice.includes('Source=command:'))
+    );
+  }
+
+  private isLogFloodFollowup(syscall: Syscall): boolean {
+    if (syscall.op === 'SYS_GOTO') {
+      return syscall.pointer.trim().startsWith('sys://page/');
+    }
+    if (syscall.op === 'SYS_EXEC') {
+      const cmd = syscall.cmd.trim().toLowerCase();
+      return /\b(grep|tail|head|sed|awk|wc|less|more)\b/.test(cmd);
+    }
+    return false;
   }
 
   private checkRecentVerificationEvidence(): { ok: true } | { ok: false; reason: string } {

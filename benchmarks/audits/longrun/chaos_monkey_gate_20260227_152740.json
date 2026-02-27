@@ -1,5 +1,5 @@
 {
-  "stamp": "20260227_153205",
+  "stamp": "20260227_152740",
   "pass": true,
   "checks": [
     {
@@ -15,22 +15,12 @@
     {
       "id": "chaos_log_flood_paged",
       "pass": true,
-      "details": "mode=paged token=ff125502bf499114 flood_chars=10000000"
+      "details": "mode=paged token=0b051bcc459b9bac flood_chars=10000000"
     },
     {
       "id": "halt_blocked_until_log_flood_followup",
       "pass": true,
       "details": "pointer=sys://trap/log_flood_followup_required?details=LOG_FLOOD%20follow-up%20required%20before%20proceeding."
-    },
-    {
-      "id": "log_flood_recovery_mttr_lte_5",
-      "pass": true,
-      "details": "trigger_idx=0 observed_idx=1 followup_idx=1 mttr_ticks=1"
-    },
-    {
-      "id": "tick_duration_under_30s",
-      "pass": true,
-      "details": "max_tick_ms=1803"
     }
   ]
 }

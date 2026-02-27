@@ -1,0 +1,11 @@
+{
+  "phase": "PhaseA_io_hardening",
+  "stamp": "20260227_153205",
+  "primary_report_json": "chaos_monkey_gate_20260227_153205.json",
+  "latest_report_json": "chaos_monkey_gate_latest.json",
+  "notes": [
+    "Includes 10MB flood injection check",
+    "Includes halt_blocked_until_log_flood_followup gate",
+    "Includes log_flood_recovery_mttr_lte_5 and tick_duration_under_30s"
+  ]
+}

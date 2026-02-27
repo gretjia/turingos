@@ -12,6 +12,9 @@ export interface LocalManifoldOptions {
   chaosWriteDenyRate?: number;
   chaosLogFloodRate?: number;
   chaosLogFloodChars?: number;
+  logBackpressureBytes?: number | string;
+  logMaxTailLines?: number | string;
+  logFloodSummaryMode?: 'tail' | 'grep' | 'hash' | string;
 }
 
 type CapabilityAccess = 'r' | 'w' | 'rw';
@@ -49,6 +52,9 @@ export class LocalManifold implements IPhysicalManifold {
   private readonly chaosWriteDenyRate: number;
   private readonly chaosLogFloodRate: number;
   private readonly chaosLogFloodChars: number;
+  private readonly logBackpressureBytes: number;
+  private readonly logMaxTailLines: number;
+  private readonly logFloodSummaryMode: 'tail' | 'grep' | 'hash';
 
   constructor(private workspaceDir: string, options: LocalManifoldOptions = {}) {
     this.timeoutMs = options.timeoutMs ?? 120_000;
@@ -62,6 +68,18 @@ export class LocalManifold implements IPhysicalManifold {
     this.chaosWriteDenyRate = this.parseChaosRate(options.chaosWriteDenyRate, 0.05);
     this.chaosLogFloodRate = this.parseChaosRate(options.chaosLogFloodRate, 0.1);
     this.chaosLogFloodChars = this.parseChaosLength(options.chaosLogFloodChars, 50_000);
+    this.logBackpressureBytes = this.parsePositiveInt(
+      options.logBackpressureBytes ?? process.env.TURINGOS_LOG_BACKPRESSURE_BYTES,
+      32_768
+    );
+    this.logMaxTailLines = this.parsePositiveInt(
+      options.logMaxTailLines ?? process.env.TURINGOS_LOG_MAX_TAIL_LINES,
+      120
+    );
+    this.logFloodSummaryMode = this.parseLogFloodSummaryMode(
+      options.logFloodSummaryMode ?? process.env.TURINGOS_LOG_FLOOD_SUMMARY_MODE,
+      'tail'
+    );
     if (!fs.existsSync(this.callStackFile)) {
       fs.writeFileSync(this.callStackFile, '[]\n', 'utf-8');
     }
@@ -275,9 +293,20 @@ export class LocalManifold implements IPhysicalManifold {
             const exitCode = typeof anyErr.code === 'number' ? anyErr.code : 1;
             const timeoutNotice = anyErr.killed ? '[TIMEOUT] Command was killed due to timeout.' : '';
             const stderrPayload = cleanStderr || anyErr.message;
+            const backpressured = this.applyCommandBackpressure(
+              command,
+              cleanStdout,
+              [timeoutNotice, stderrPayload].filter(Boolean).join('\n')
+            );
 
             resolve(
-              this.formatCommandSlice(command, exitCode, cleanStdout, [timeoutNotice, stderrPayload].filter(Boolean).join('\n'))
+              this.formatCommandSlice(
+                command,
+                exitCode,
+                backpressured.stdout,
+                backpressured.stderr,
+                backpressured.metaLines
+              )
             );
             return;
           }
@@ -286,7 +315,16 @@ export class LocalManifold implements IPhysicalManifold {
           if (this.shouldInjectChaos(this.chaosLogFloodRate)) {
             stdoutForSlice = `${stdoutForSlice}\n${this.buildChaosLogFlood(this.chaosLogFloodChars)}`;
           }
-          resolve(this.formatCommandSlice(command, 0, stdoutForSlice, cleanStderr));
+          const backpressured = this.applyCommandBackpressure(command, stdoutForSlice, cleanStderr);
+          resolve(
+            this.formatCommandSlice(
+              command,
+              0,
+              backpressured.stdout,
+              backpressured.stderr,
+              backpressured.metaLines
+            )
+          );
         }
       );
     });
@@ -345,6 +383,37 @@ export class LocalManifold implements IPhysicalManifold {
     return parsed;
   }
 
+  private parsePositiveInt(raw: number | string | undefined, fallback: number): number {
+    if (typeof raw === 'number') {
+      if (!Number.isFinite(raw) || raw <= 0) {
+        return fallback;
+      }
+      return Math.floor(raw);
+    }
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      return fallback;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return fallback;
+    }
+    return parsed;
+  }
+
+  private parseLogFloodSummaryMode(
+    raw: string | undefined,
+    fallback: 'tail' | 'grep' | 'hash'
+  ): 'tail' | 'grep' | 'hash' {
+    if (typeof raw !== 'string') {
+      return fallback;
+    }
+    const normalized = raw.trim().toLowerCase();
+    if (normalized === 'tail' || normalized === 'grep' || normalized === 'hash') {
+      return normalized;
+    }
+    return fallback;
+  }
+
   private maybeInjectWritePermissionTrap(
     pointer: string,
     payload?: string,
@@ -385,10 +454,77 @@ export class LocalManifold implements IPhysicalManifold {
     return out.slice(0, targetLength);
   }
 
-  private formatCommandSlice(command: string, exitCode: number, stdout: string, stderr: string): string {
+  private applyCommandBackpressure(
+    command: string,
+    stdout: string,
+    stderr: string
+  ): { stdout: string; stderr: string; metaLines: string[] } {
+    const originalBytes = Buffer.byteLength(stdout, 'utf-8') + Buffer.byteLength(stderr, 'utf-8');
+    if (originalBytes <= this.logBackpressureBytes) {
+      return { stdout, stderr, metaLines: [] };
+    }
+
+    let throttledStdout = stdout;
+    let throttledStderr = stderr;
+    if (this.logFloodSummaryMode === 'grep') {
+      throttledStdout = this.grepSuspiciousLines(stdout, this.logMaxTailLines);
+      throttledStderr = this.grepSuspiciousLines(stderr, this.logMaxTailLines);
+    } else {
+      throttledStdout = this.takeTailLines(stdout, this.logMaxTailLines);
+      throttledStderr = this.takeTailLines(stderr, this.logMaxTailLines);
+    }
+
+    if (this.logFloodSummaryMode === 'hash') {
+      const stdoutHash = createHash('sha256').update(stdout).digest('hex').slice(0, 16);
+      const stderrHash = createHash('sha256').update(stderr).digest('hex').slice(0, 16);
+      throttledStdout = `[HASH] sha256:${stdoutHash}\n${this.takeTailLines(stdout, Math.max(16, Math.floor(this.logMaxTailLines / 2)))}`;
+      throttledStderr = `[HASH] sha256:${stderrHash}\n${this.takeTailLines(stderr, Math.max(16, Math.floor(this.logMaxTailLines / 2)))}`;
+    }
+
+    const keptBytes = Buffer.byteLength(throttledStdout, 'utf-8') + Buffer.byteLength(throttledStderr, 'utf-8');
+    const commandHint = command.trim().length > 0 ? command.trim() : '(unknown)';
+    const metaLines = [
+      '[OS_TRAP: LOG_FLOOD]',
+      `[LOG_BACKPRESSURE] original_bytes=${originalBytes} kept_bytes=${keptBytes} threshold=${this.logBackpressureBytes} mode=${this.logFloodSummaryMode}`,
+      `[LOG_THROTTLE] tail_lines=${this.logMaxTailLines}`,
+      `[ACTION_HINT] Prefer SYS_EXEC(\"tail -n ${Math.max(20, Math.floor(this.logMaxTailLines / 2))} <log>\") or SYS_EXEC(\"grep -nE 'error|fail|panic' <log>\") before SYS_HALT. source_command=${commandHint}`,
+    ];
+    return { stdout: throttledStdout, stderr: throttledStderr, metaLines };
+  }
+
+  private takeTailLines(text: string, maxLines: number): string {
+    if (text.length === 0) {
+      return text;
+    }
+    const lines = text.split('\n');
+    if (lines.length > 1) {
+      return lines.slice(-maxLines).join('\n');
+    }
+    const charBudget = Math.max(1024, Math.floor(this.logBackpressureBytes / 3));
+    return text.slice(-charBudget);
+  }
+
+  private grepSuspiciousLines(text: string, maxLines: number): string {
+    if (text.length === 0) {
+      return text;
+    }
+    const lines = text.split('\n');
+    const suspicious = lines.filter((line) => /error|fail|panic|exception|denied|timeout|trace|fatal/i.test(line));
+    const merged = suspicious.length > 0 ? suspicious : lines;
+    return merged.slice(-maxLines).join('\n');
+  }
+
+  private formatCommandSlice(
+    command: string,
+    exitCode: number,
+    stdout: string,
+    stderr: string,
+    metaLines: string[] = []
+  ): string {
     const rawSlice = [
       `[COMMAND] ${command}`,
       `[EXIT_CODE] ${exitCode}`,
+      ...metaLines,
       '[STDOUT]',
       stdout,
       '[STDERR]',

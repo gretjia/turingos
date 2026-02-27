@@ -1,0 +1,47 @@
+{
+  "stamp": "20260227_154405",
+  "host": "linux1-lx",
+  "workspace": "(unknown)",
+  "port": 0,
+  "mttrOps": 999,
+  "checks": [
+    {
+      "id": "service_initial_health",
+      "pass": false,
+      "details": "startup_failed pid=366418 port=18706 log="
+    },
+    {
+      "id": "service_down_after_kill",
+      "pass": true,
+      "details": "service down confirmed"
+    },
+    {
+      "id": "service_recovered_after_restart",
+      "pass": true,
+      "details": "recovered pid=366452"
+    },
+    {
+      "id": "permission_denied_observed",
+      "pass": true,
+      "details": "append blocked by chmod 400"
+    },
+    {
+      "id": "permission_recovered",
+      "pass": true,
+      "details": "chmod+append recovered"
+    },
+    {
+      "id": "network_timeout_observed",
+      "pass": true,
+      "details": "blackhole probe failed as expected"
+    },
+    {
+      "id": "ssh_exit_zero",
+      "pass": false,
+      "details": "exit_code=255"
+    }
+  ],
+  "pass": false,
+  "sshExitCode": 255,
+  "sshStderrPreview": "bash: line 91: /tmp/turingos-devops-vps-KifSAj/deploy.env: Permission denied\n"
+}

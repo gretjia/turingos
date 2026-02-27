@@ -1,0 +1,42 @@
+{
+  "stamp": "20260227_154059",
+  "host": "linux1-lx",
+  "workspace": "(unknown)",
+  "port": 0,
+  "mttrOps": 999,
+  "checks": [
+    {
+      "id": "service_initial_health",
+      "pass": false,
+      "details": "startup_failed pid=366285 port=18804"
+    },
+    {
+      "id": "service_down_after_kill",
+      "pass": true,
+      "details": "service down confirmed"
+    },
+    {
+      "id": "service_recovered_after_restart",
+      "pass": false,
+      "details": "restart failed pid=366318"
+    },
+    {
+      "id": "permission_denied_observed",
+      "pass": true,
+      "details": "append blocked by chmod 400"
+    },
+    {
+      "id": "permission_recovered",
+      "pass": true,
+      "details": "chmod+append recovered"
+    },
+    {
+      "id": "ssh_exit_zero",
+      "pass": false,
+      "details": "exit_code=1"
+    }
+  ],
+  "pass": false,
+  "sshExitCode": 1,
+  "sshStderrPreview": "bash: line 60: 366285 Killed                  python3 -m http.server \"$port\" > \"$service_log\" 2>&1\nbash: line 84: /tmp/turingos-devops-vps-ht0evF/deploy.env: Permission denied\n"
+}
