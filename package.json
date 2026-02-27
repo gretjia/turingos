@@ -24,9 +24,10 @@
     "bench:longrun-dispatcher-soak": "tsx src/bench/longrun-dispatcher-soak.ts",
     "bench:staged-acceptance-joint": "bash scripts/run_joint_recursive_audit.sh",
     "bench:dispatcher-gate": "tsx src/bench/dispatcher-gate.ts",
+    "bench:turing-bus-conformance": "tsx src/bench/turing-bus-conformance.ts",
     "bench:syscall-schema-consistency": "tsx src/bench/syscall-schema-consistency.ts",
     "bench:syscall-schema-gate": "tsx src/bench/syscall-schema-gate.ts",
-    "bench:ci-gates": "npm run bench:syscall-schema-consistency && npm run bench:syscall-schema-gate && npm run bench:dispatcher-gate && npm run bench:guard-analytics && tsx src/bench/ci-gates.ts",
+    "bench:ci-gates": "npm run bench:syscall-schema-consistency && npm run bench:turing-bus-conformance && npm run bench:syscall-schema-gate && npm run bench:dispatcher-gate && npm run bench:guard-analytics && tsx src/bench/ci-gates.ts",
     "bench:replay-runner": "tsx src/bench/replay-runner.ts",
     "bench:ac31-worker": "tsx src/bench/ac31-kill9-worker.ts"
   },

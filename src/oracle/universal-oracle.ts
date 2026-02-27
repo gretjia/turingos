@@ -1,18 +1,9 @@
 import OpenAI from 'openai';
 import fsp from 'node:fs/promises';
-import { normalizeModelSyscall, SYSCALL_OPCODE_PIPE } from '../kernel/syscall-schema.js';
 import { IOracle, Slice, State, Transition } from '../kernel/types.js';
+import { BusProvider, parseProviderBusTransition, ProviderUsage } from './turing-bus-adapter.js';
 
 type OracleMode = 'openai' | 'kimi';
-
-interface KimiMessageBlock {
-  type?: string;
-  text?: string;
-}
-
-interface KimiMessageResponse {
-  content?: KimiMessageBlock[];
-}
 
 interface UniversalOracleConfig {
   apiKey: string;
@@ -29,9 +20,21 @@ interface ErrorWithMetadata extends Error {
   code?: string | number;
 }
 
+function inferOpenAIProvider(baseURL?: string): BusProvider {
+  if (!baseURL) {
+    return 'openai';
+  }
+  const normalized = baseURL.toLowerCase();
+  if (normalized.includes('11434') || normalized.includes('ollama')) {
+    return 'ollama';
+  }
+  return 'openai';
+}
+
 export class UniversalOracle implements IOracle {
   private openai?: OpenAI;
   private model: string;
+  private readonly responseProvider: BusProvider;
   private readonly maxRetries: number;
   private readonly retryBaseDelayMs: number;
   private readonly retryMaxDelayMs: number;
@@ -46,6 +49,7 @@ export class UniversalOracle implements IOracle {
 
   constructor(private mode: OracleMode, config: UniversalOracleConfig) {
     this.model = config.model;
+    this.responseProvider = mode === 'openai' ? inferOpenAIProvider(config.baseURL) : 'kimi';
     this.maxRetries = config.maxRetries ?? 6;
     this.retryBaseDelayMs = config.retryBaseDelayMs ?? 2000;
     this.retryMaxDelayMs = config.retryMaxDelayMs ?? 60000;
@@ -82,11 +86,13 @@ export class UniversalOracle implements IOracle {
       s,
     ].join('\n');
 
-    const rawOutput = await this.request(discipline, userFrame);
-    return this.parseTransition(rawOutput);
+    const rawPayload = await this.request(discipline, userFrame);
+    const parsed = parseProviderBusTransition(this.responseProvider, rawPayload);
+    await this.recordTelemetry(this.responseProvider, discipline, userFrame, parsed.text, parsed.usage);
+    return parsed.transition;
   }
 
-  private async request(systemPrompt: string, userFrame: string): Promise<string> {
+  private async request(systemPrompt: string, userFrame: string): Promise<unknown> {
     const openAIMessages = [
       { role: 'system' as const, content: systemPrompt.trim() },
       { role: 'user' as const, content: userFrame.trim() },
@@ -100,13 +106,7 @@ export class UniversalOracle implements IOracle {
           temperature: 0,
           response_format: { type: 'json_object' },
         });
-        const output = response.choices[0]?.message?.content ?? '{}';
-        await this.recordTelemetry('openai', systemPrompt, userFrame, output, {
-          promptTokens: this.readTokenValue(response.usage?.prompt_tokens),
-          completionTokens: this.readTokenValue(response.usage?.completion_tokens),
-          totalTokens: this.readTokenValue(response.usage?.total_tokens),
-        });
-        return output;
+        return response as unknown;
       });
     }
 
@@ -136,47 +136,21 @@ export class UniversalOracle implements IOracle {
           throw error;
         }
 
-        let parsed: KimiMessageResponse;
         let parsedRaw: Record<string, unknown>;
         try {
           parsedRaw = JSON.parse(raw) as Record<string, unknown>;
-          parsed = parsedRaw as KimiMessageResponse;
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : String(error);
           throw new Error(`Invalid Kimi response JSON: ${message}. Raw: ${raw.slice(0, 500)}`);
         }
-
-        const text = (parsed.content ?? [])
-          .filter((block) => block.type === 'text' && typeof block.text === 'string')
-          .map((block) => block.text?.trim() ?? '')
-          .filter((line) => line.length > 0)
-          .join('\n');
-
-        if (text.length === 0) {
-          throw new Error(`Empty model output. Raw: ${raw.slice(0, 500)}`);
-        }
-
-        const usageRaw =
-          parsedRaw.usage && typeof parsedRaw.usage === 'object'
-            ? (parsedRaw.usage as Record<string, unknown>)
-            : parsedRaw;
-        const promptTokens = this.readTokenValue(usageRaw.input_tokens ?? usageRaw.prompt_tokens);
-        const completionTokens = this.readTokenValue(usageRaw.output_tokens ?? usageRaw.completion_tokens);
-        const totalTokens = this.readTokenValue(usageRaw.total_tokens);
-        await this.recordTelemetry('kimi', systemPrompt, userFrame, text, {
-          promptTokens,
-          completionTokens,
-          totalTokens,
-        });
-
-        return text;
+        return parsedRaw;
       });
     }
 
     throw new Error('Oracle not configured');
   }
 
-  private async withRetry(provider: 'openai' | 'kimi', operation: () => Promise<string>): Promise<string> {
+  private async withRetry<T>(provider: 'openai' | 'kimi', operation: () => Promise<T>): Promise<T> {
     for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
       try {
         return await operation();
@@ -243,13 +217,6 @@ export class UniversalOracle implements IOracle {
     await new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private readTokenValue(value: unknown): number | undefined {
-    if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
-      return value;
-    }
-    return undefined;
-  }
-
   private estimateTokens(text: string): number {
     if (!text || text.length === 0) {
       return 0;
@@ -258,11 +225,11 @@ export class UniversalOracle implements IOracle {
   }
 
   private async recordTelemetry(
-    provider: OracleMode,
+    provider: BusProvider,
     systemPrompt: string,
     userFrame: string,
     output: string,
-    usage: { promptTokens?: number; completionTokens?: number; totalTokens?: number }
+    usage: ProviderUsage
   ): Promise<void> {
     if (!this.telemetryPath) {
       return;
@@ -294,89 +261,5 @@ export class UniversalOracle implements IOracle {
       const message = error instanceof Error ? error.message : String(error);
       console.warn(`[oracle:telemetry] append failed path=${this.telemetryPath}: ${message}`);
     }
-  }
-
-  private parseTransition(rawOutput: string): Transition {
-    const extractedThought = this.extractThought(rawOutput);
-    const candidates: string[] = [rawOutput];
-
-    // Some models wrap JSON in markdown fences, so we try fenced body too.
-    const fencedMatch = rawOutput.match(/```(?:json)?\s*([\s\S]*?)```/i);
-    if (fencedMatch?.[1]) {
-      candidates.push(fencedMatch[1].trim());
-    }
-
-    const firstBrace = rawOutput.indexOf('{');
-    const lastBrace = rawOutput.lastIndexOf('}');
-    if (firstBrace >= 0 && lastBrace > firstBrace) {
-      candidates.push(rawOutput.slice(firstBrace, lastBrace + 1));
-    }
-
-    let parseError: Error | null = null;
-    for (const candidate of candidates) {
-      try {
-        const parsed = JSON.parse(candidate);
-        const normalized = this.tryNormalizeTransition(parsed);
-        if (!normalized) {
-          continue;
-        }
-        if (!normalized.thought && extractedThought) {
-          normalized.thought = extractedThought;
-        }
-        return normalized;
-      } catch (error: unknown) {
-        parseError = error instanceof Error ? error : new Error(String(error));
-      }
-    }
-
-    const detail = parseError ? ` Details: ${parseError.message}` : '';
-    throw new Error(
-      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with a_t.op in ${SYSCALL_OPCODE_PIPE}.${detail} Raw: ${rawOutput}`
-    );
-  }
-
-  private isTransition(value: unknown): value is { q_next: string; a_t: unknown; thought?: unknown } {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-
-    const asRecord = value as Record<string, unknown>;
-    if (typeof asRecord.q_next !== 'string') return false;
-    return !!asRecord.a_t && typeof asRecord.a_t === 'object';
-  }
-
-  private extractThought(rawOutput: string): string | undefined {
-    const thoughtMatch = rawOutput.match(/<thought>([\s\S]*?)<\/thought>/i);
-    if (!thoughtMatch?.[1]) {
-      return undefined;
-    }
-
-    const thought = thoughtMatch[1].trim();
-    return thought.length > 0 ? thought : undefined;
-  }
-
-  private normalizeTransition(value: { q_next: string; a_t: unknown; thought?: unknown }): Transition {
-    const parsedSyscall = normalizeModelSyscall(value.a_t);
-    if (!parsedSyscall.ok) {
-      throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${parsedSyscall.reason}`);
-    }
-
-    const normalized: Transition = {
-      q_next: value.q_next,
-      a_t: parsedSyscall.syscall,
-    };
-
-    if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
-      normalized.thought = value.thought.trim();
-    }
-
-    return normalized;
-  }
-
-  private tryNormalizeTransition(value: unknown): Transition | null {
-    if (this.isTransition(value)) {
-      return this.normalizeTransition(value);
-    }
-    return null;
   }
 }

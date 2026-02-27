@@ -150,3 +150,23 @@ Acceptance gates:
   - `npm run bench:guard-sft-dataset` PASS (`policy_rows=537`, `reflex_rows=25`, `scanned_traces=59`)
 - Dual-pass audit:
   - Gemini audit: GO (policy extraction + trap-to-recovery mapping + reproducible latest pointer).
+
+### 2026-02-27 Phase-6 Bus Protocol Formalization Completed
+- Added versioned Turing Bus contract schema:
+  - `schemas/turing-bus.frame.v1.json`
+- Added provider adapter layer for bus-frame normalization:
+  - `src/oracle/turing-bus-adapter.ts`
+  - OpenAI/Kimi/Ollama response extraction to canonical `QxS -> AxQ` transition.
+- Refactored universal oracle to use bus adapter:
+  - `src/oracle/universal-oracle.ts`
+  - provider inference for OpenAI-compatible local Ollama endpoints.
+- Added bus conformance gate:
+  - `src/bench/turing-bus-conformance.ts`
+  - `npm run bench:turing-bus-conformance`
+  - wired into `bench:ci-gates`
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:turing-bus-conformance` PASS
+  - `npm run bench:ci-gates` PASS
+- Dual-pass audit:
+  - Gemini audit: GO (schema versioning + multi-provider adapter + CI conformance coverage).

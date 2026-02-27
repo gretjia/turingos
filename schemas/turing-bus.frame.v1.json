@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_id": "turingos.turing_bus.frame.v1",
+  "version": "1.0.0",
+  "description": "Provider-agnostic QxS->AxQ frame contract for Turing Bus.",
+  "frame_contract": {
+    "input": {
+      "q_t": {
+        "type": "string"
+      },
+      "s_t": {
+        "type": "string"
+      }
+    },
+    "output": {
+      "q_next": {
+        "type": "string"
+      },
+      "a_t": {
+        "type": "object",
+        "required": [
+          "op"
+        ]
+      },
+      "thought": {
+        "type": "string",
+        "optional": true
+      }
+    },
+    "constraints": [
+      "exactly_one_instruction_per_tick",
+      "fail_closed_syscall_fields",
+      "mutually_exclusive_instruction_classes"
+    ]
+  },
+  "instruction_classes": {
+    "WORLD_MUTATION": [
+      "SYS_WRITE",
+      "SYS_EXEC"
+    ],
+    "WORLD_NAVIGATION": [
+      "SYS_GOTO",
+      "SYS_GIT_LOG"
+    ],
+    "MIND_SCHEDULING": [
+      "SYS_PUSH",
+      "SYS_POP",
+      "SYS_EDIT",
+      "SYS_MOVE"
+    ],
+    "SYSTEM_CONTROL": [
+      "SYS_HALT"
+    ]
+  },
+  "providers": {
+    "openai": {
+      "response_paths": [
+        "choices[0].message.content"
+      ]
+    },
+    "kimi": {
+      "response_paths": [
+        "content[].text"
+      ]
+    },
+    "ollama": {
+      "response_paths": [
+        "message.content",
+        "response",
+        "choices[0].message.content"
+      ]
+    }
+  }
+}

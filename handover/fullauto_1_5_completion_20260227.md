@@ -62,6 +62,22 @@
 - Step 4: GO
 - Step 5: GO
 
+## Phase 6 Extension (Post 1-5)
+
+- Added Turing Bus protocol schema and adapter:
+  - `schemas/turing-bus.frame.v1.json`
+  - `src/oracle/turing-bus-adapter.ts`
+- Refactored runtime parser path:
+  - `src/oracle/universal-oracle.ts`
+- Added conformance gate and CI integration:
+  - `src/bench/turing-bus-conformance.ts`
+  - `bench:ci-gates` now includes `bench:turing-bus-conformance`
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:turing-bus-conformance` PASS
+  - `npm run bench:ci-gates` PASS
+- Gemini Phase-6 audit: GO
+
 ## Multi-host Sync
 
 - VM (`/home/zephryj/projects/turingos`): pushed to `origin/main` at `180ce26`.
