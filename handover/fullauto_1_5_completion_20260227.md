@@ -126,3 +126,17 @@
   - `npm run bench:guard-mcu-eval -- --mode gold` PASS
   - `npm run bench:guard-mcu-loop -- --mode gold` PASS
   - `npm run bench:ci-gates` PASS
+
+## Git State Snapshot (Post Phase 7.1)
+
+- Commit:
+  - `96d68c7 fix(guard): harden tiny-split eval fallback across hosts`
+- GitHub:
+  - `origin/main` at `96d68c7`
+- VM (`/home/zephryj/projects/turingos`):
+  - `main` synced to `96d68c7`
+- Mac (`/Users/zephryj/work/turingos`):
+  - fast-forward synced to `96d68c7`
+  - verification:
+    - `npm run typecheck` PASS
+    - `npm run bench:guard-mcu-loop -- --mode gold` PASS (`policy_rows=413`, `reflex_rows=2`, split `reflex train=1 val=1 test=0`)
