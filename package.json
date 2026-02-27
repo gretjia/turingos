@@ -31,6 +31,7 @@
     "bench:staged-acceptance-joint": "bash scripts/run_joint_recursive_audit.sh",
     "bench:dispatcher-gate": "tsx src/bench/dispatcher-gate.ts",
     "bench:turing-bus-conformance": "tsx src/bench/turing-bus-conformance.ts",
+    "bench:extract-thrashing-journal": "tsx src/bench/extract-thrashing-journal.ts",
     "bench:syscall-schema-consistency": "tsx src/bench/syscall-schema-consistency.ts",
     "bench:chaos-monkey-gate": "tsx src/bench/chaos-monkey-gate.ts",
     "bench:voyager-local-precheck": "tsx src/bench/voyager-local-precheck.ts",

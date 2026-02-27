@@ -1,7 +1,9 @@
 import 'dotenv/config';
+import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { FileChronos } from '../chronos/file-chronos.js';
 import { TuringEngine } from '../kernel/engine.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
@@ -28,6 +30,15 @@ interface Check {
 interface EvalReport {
   stamp: string;
   workspace: string;
+  scenario: {
+    type: 'real_repo';
+    repoUrl: string;
+    repoRef: string;
+    repoIssueUrl: string;
+    repoDir: string;
+    repoCommit: string;
+    entryPointer: string;
+  };
   oracle: {
     mode: VoyagerOracleMode;
     model: string;
@@ -72,6 +83,10 @@ interface RuntimeConfig {
   model: string;
   baseURL: string;
   apiKey: string;
+  realRepoUrl: string;
+  realRepoRef: string;
+  realRepoIssueUrl: string;
+  realRepoDirName: string;
   maxOutputTokens: number;
   ticksRequested: number;
   chaosExecTimeoutRate: number;
@@ -80,8 +95,15 @@ interface RuntimeConfig {
   chaosLogFloodChars: number;
 }
 
+interface RealRepoWorkspace {
+  entryPointer: string;
+  repoDir: string;
+  repoCommit: string;
+}
+
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'longrun');
+const execFileAsync = promisify(execFile);
 
 function timestamp(): string {
   const now = new Date();
@@ -123,43 +145,81 @@ function percentile(values: number[], p: number): number {
   return sorted[idx];
 }
 
-async function createSyntheticProject(workspace: string): Promise<void> {
-  const srcDir = path.join(workspace, 'src');
-  await fs.mkdir(srcDir, { recursive: true });
-  const totalFiles = 20;
-  for (let i = 0; i < totalFiles; i += 1) {
-    const next = (i + 1) % totalFiles;
-    const prev = (i + totalFiles - 1) % totalFiles;
-    const fileName = `mod_${String(i).padStart(2, '0')}.ts`;
-    const content = [
-      `import { f_${next} } from './mod_${String(next).padStart(2, '0')}';`,
-      `import { f_${prev} } from './mod_${String(prev).padStart(2, '0')}';`,
-      '',
-      `export function f_${i}(v_${i}: number): number {`,
-      `  const __z_${i} = (v_${i} + ${i}) ^ 0x${(4096 + i).toString(16)};`,
-      `  if ((__z_${i} & 1) === 0) {`,
-      `    return f_${next}((__z_${i} >>> 1) + 1);`,
-      '  }',
-      `  return (f_${prev}(1) + __z_${i}) & 0xffff;`,
-      '}',
-      '',
-    ].join('\n');
-    await fs.writeFile(path.join(srcDir, fileName), content, 'utf-8');
+function sanitizeRepoDirName(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) {
+    return 'target_repo';
+  }
+  return trimmed
+    .replace(/\.git$/i, '')
+    .replace(/[^a-zA-Z0-9._-]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 80) || 'target_repo';
+}
+
+async function runGit(args: string[], cwd: string): Promise<{ stdout: string; stderr: string }> {
+  try {
+    const { stdout, stderr } = await execFileAsync('git', args, {
+      cwd,
+      maxBuffer: 32 * 1024 * 1024,
+      encoding: 'utf-8',
+    });
+    return { stdout, stderr };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`git ${args.join(' ')} failed in ${cwd}: ${message}`);
+  }
+}
+
+async function prepareRealRepoWorkspace(workspace: string, config: RuntimeConfig): Promise<RealRepoWorkspace> {
+  const repoDir = path.join(workspace, config.realRepoDirName);
+  await runGit(['clone', '--depth', '1', config.realRepoUrl, config.realRepoDirName], workspace);
+
+  const ref = config.realRepoRef.trim();
+  if (ref.length > 0 && ref !== 'HEAD') {
+    try {
+      await runGit(['fetch', '--depth', '1', 'origin', ref], repoDir);
+      await runGit(['checkout', '--detach', 'FETCH_HEAD'], repoDir);
+    } catch {
+      await runGit(['checkout', '--detach', ref], repoDir);
+    }
   }
 
+  const repoCommit = (await runGit(['rev-parse', 'HEAD'], repoDir)).stdout.trim();
+  const issueUrl =
+    config.realRepoIssueUrl.trim().length > 0 ? config.realRepoIssueUrl.trim() : `${config.realRepoUrl.replace(/\.git$/i, '')}/issues`;
+
+  const entryPointer = 'VOYAGER_TASK.md';
   await fs.writeFile(
-    path.join(workspace, 'MAIN_TAPE.md'),
+    path.join(workspace, entryPointer),
     [
-      '# Kobayashi Maru Synthetic Workspace',
+      '# Voyager Real Repo Task',
       '',
-      '- Objective: survive chaos and preserve O(1) context.',
-      '- Agent must run under true oracle (no synthetic transition generator).',
-      '- Verify VLIW mind_ops + world_op execution under noisy physical manifold.',
-      '- Navigate paged log floods via SYS_GOTO on sys://page tokens.',
+      `- Repo URL: ${config.realRepoUrl}`,
+      `- Repo Ref: ${config.realRepoRef}`,
+      `- Repo Commit: ${repoCommit}`,
+      `- Repo Path: ${config.realRepoDirName}`,
+      `- Issue URL: ${issueUrl}`,
+      '',
+      'Execution Objectives:',
+      '1. Read repository files and issue context from real source tree.',
+      '2. Reproduce, diagnose, and patch candidate bug paths under chaos.',
+      '3. Produce verifiable physical actions (SYS_EXEC/SYS_WRITE), not synthetic shortcuts.',
+      '',
+      'Constraints:',
+      '- No synthetic project generation.',
+      '- Use paged navigation for large outputs (SYS_GOTO to sys://page/*).',
+      '- Keep VLIW nQ+1A discipline.',
       '',
     ].join('\n'),
     'utf-8'
   );
+
+  return {
+    entryPointer,
+    repoDir: config.realRepoDirName,
+    repoCommit,
+  };
 }
 
 function parseOracleMode(raw: string | undefined): VoyagerOracleMode | null {
@@ -249,6 +309,24 @@ function resolveRuntimeConfig(): RuntimeConfig {
     );
   }
 
+  const realRepoUrl = (process.env.VOYAGER_REAL_REPO_URL ?? 'https://github.com/sindresorhus/ky.git').trim();
+  if (realRepoUrl.length === 0) {
+    throw new Error('VOYAGER_REAL_REPO_URL is empty. Realworld eval requires a real git repository.');
+  }
+  const realRepoRef = (process.env.VOYAGER_REAL_REPO_REF ?? 'main').trim() || 'main';
+  const realRepoIssueUrl = (process.env.VOYAGER_REAL_ISSUE_URL ?? '').trim();
+  const repoDirFromUrl = (() => {
+    try {
+      const parsed = new URL(realRepoUrl);
+      const leaf = parsed.pathname.split('/').filter((part) => part.length > 0).at(-1) ?? '';
+      return sanitizeRepoDirName(leaf);
+    } catch {
+      const leaf = realRepoUrl.split('/').filter((part) => part.length > 0).at(-1) ?? '';
+      return sanitizeRepoDirName(leaf);
+    }
+  })();
+  const realRepoDirName = sanitizeRepoDirName(process.env.VOYAGER_REAL_REPO_DIR ?? repoDirFromUrl);
+
   const maxOutputTokens = parseInteger(
     process.env.VOYAGER_MAX_OUTPUT_TOKENS ?? process.env.TURINGOS_MAX_OUTPUT_TOKENS,
     1024
@@ -277,6 +355,10 @@ function resolveRuntimeConfig(): RuntimeConfig {
     model,
     baseURL,
     apiKey,
+    realRepoUrl,
+    realRepoRef,
+    realRepoIssueUrl,
+    realRepoDirName,
     maxOutputTokens,
     ticksRequested,
     chaosExecTimeoutRate,
@@ -313,6 +395,13 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     '',
     '## Runtime',
     '',
+    `- scenario_type: ${report.scenario.type}`,
+    `- repo_url: ${report.scenario.repoUrl}`,
+    `- repo_ref: ${report.scenario.repoRef}`,
+    `- repo_commit: ${report.scenario.repoCommit}`,
+    `- repo_dir: ${report.scenario.repoDir}`,
+    `- repo_issue_url: ${report.scenario.repoIssueUrl || '(not set)'}`,
+    `- entry_pointer: ${report.scenario.entryPointer}`,
     `- oracle_mode: ${report.oracle.mode}`,
     `- model: ${report.oracle.model}`,
     `- base_url: ${report.oracle.baseURL || '(default)'}`,
@@ -353,7 +442,7 @@ async function main(): Promise<void> {
 
   const stamp = timestamp();
   const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'turingos-voyager-realworld-'));
-  await createSyntheticProject(workspace);
+  const realRepoWorkspace = await prepareRealRepoWorkspace(workspace, config);
 
   const chronosPath = path.join(workspace, '.journal.log');
   const manifold = new LocalManifold(workspace, {
@@ -375,7 +464,7 @@ async function main(): Promise<void> {
   });
   const engine = new TuringEngine(manifold, oracle, chronos, disciplinePrompt);
 
-  await engine.ignite('q_voyager_boot', 'MAIN_TAPE.md', { maxTicks: config.ticksRequested });
+  await engine.ignite('q_voyager_boot', realRepoWorkspace.entryPointer, { maxTicks: config.ticksRequested });
 
   const journalRaw = await fs.readFile(chronosPath, 'utf-8');
   const tuples = parseReplayTuples(journalRaw);
@@ -443,6 +532,15 @@ async function main(): Promise<void> {
   const report: EvalReport = {
     stamp,
     workspace,
+    scenario: {
+      type: 'real_repo',
+      repoUrl: config.realRepoUrl,
+      repoRef: config.realRepoRef,
+      repoIssueUrl: config.realRepoIssueUrl,
+      repoDir: realRepoWorkspace.repoDir,
+      repoCommit: realRepoWorkspace.repoCommit,
+      entryPointer: realRepoWorkspace.entryPointer,
+    },
     oracle: {
       mode: config.oracleMode,
       model: config.model,

@@ -1,0 +1,738 @@
+{
+  "inputPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_061917.jsonl",
+  "generatedAt": "2026-02-27T10:24:50.223Z",
+  "ticks": 120,
+  "context": {
+    "min": 848,
+    "max": 4096,
+    "avg": 3977.33,
+    "p95": 4096,
+    "slopePerTick": 27.2941
+  },
+  "traps": {
+    "totalEvents": 0,
+    "byMarker": {}
+  },
+  "points": [
+    {
+      "tick": 0,
+      "length": 848,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 1,
+      "length": 991,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 2,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 3,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 4,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 5,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 6,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 7,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 8,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 9,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 10,
+      "length": 1574,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 11,
+      "length": 2061,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 12,
+      "length": 2542,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 13,
+      "length": 3023,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 14,
+      "length": 3504,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 15,
+      "length": 3985,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 16,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 17,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 18,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 19,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 20,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 21,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 22,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 23,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 24,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 25,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 26,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 27,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 28,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 29,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 30,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 31,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 32,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 33,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 34,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 35,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 36,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 37,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 38,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 39,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 40,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 41,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 42,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 43,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 44,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 45,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 46,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 47,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 48,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 49,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 50,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 51,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 52,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 53,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 54,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 55,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 56,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 57,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 58,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 59,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 60,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 61,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 62,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 63,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 64,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 65,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 66,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 67,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 68,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 69,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 70,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 71,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 72,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 73,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 74,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 75,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 76,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 77,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 78,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 79,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 80,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 81,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 82,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 83,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 84,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 85,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 86,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 87,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 88,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 89,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 90,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 91,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 92,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 93,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 94,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 95,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 96,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 97,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 98,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 99,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 100,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 101,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 102,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 103,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 104,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 105,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 106,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 107,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 108,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 109,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 110,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 111,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 112,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 113,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 114,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 115,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 116,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 117,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 118,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 119,
+      "length": 4096,
+      "mindOps": 2,
+      "hasWorldOp": true
+    }
+  ]
+}

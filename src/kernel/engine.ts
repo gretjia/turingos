@@ -53,6 +53,9 @@ export class TuringEngine {
   private readonly oracleFrameSafetyMarginChars = 512;
   private readonly oracleObservedMinChars = 512;
   private readonly maxPanicResets = 2;
+  private readonly autoRepairEnabled = /^(1|true|yes|on)$/i.test(
+    (process.env.TURINGOS_AUTO_REPAIR_ENABLED ?? '').trim()
+  );
   private readonly oracleRequestCharBudget = Number.parseInt(process.env.TURINGOS_ALU_REQUEST_CHAR_BUDGET ?? '8192', 10);
   private replayTupleSeq = 0;
   private replayMerkleRoot = 'GENESIS';
@@ -112,8 +115,8 @@ export class TuringEngine {
         nextRequiredReady = readiness.ok;
         nextRequiredReason = readiness.ok ? null : readiness.reason ?? 'Next required step is not ready.';
 
-        // Auto-heal exact-text mismatch before ALU step to reduce repair loops.
-        if (!nextRequiredReady) {
+        // Disabled by default for realworld tasks; opt-in only via TURINGOS_AUTO_REPAIR_ENABLED.
+        if (this.autoRepairEnabled && !nextRequiredReady) {
           const expectedExact = this.extractExpectedExact(nextRequiredReason);
           if (expectedExact && nextRequiredFileHint) {
             try {
@@ -642,6 +645,7 @@ export class TuringEngine {
       const writeTarget = this.resolveWriteTargetPointer(writePointerTrimmed);
       const expectedExact = this.extractExpectedExact(nextRequiredReason);
       if (
+        this.autoRepairEnabled &&
         writeTarget &&
         nextRequiredFileHint &&
         expectedExact &&
