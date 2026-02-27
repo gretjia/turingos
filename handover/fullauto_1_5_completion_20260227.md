@@ -78,6 +78,26 @@
   - `npm run bench:ci-gates` PASS
 - Gemini Phase-6 audit: GO
 
+## Phase 7 Extension (Guard MCU Loop Baseline)
+
+- Added deterministic split pipeline:
+  - `src/bench/guard-sft-split.ts`
+- Added MCU eval gate:
+  - `src/bench/guard-mcu-eval.ts`
+  - metrics: JSON/mutex/reflex/deadlock
+- Added closed-loop runner:
+  - `src/bench/guard-mcu-loop.ts`
+- Added scripts:
+  - `bench:guard-sft-split`
+  - `bench:guard-mcu-eval`
+  - `bench:guard-mcu-loop`
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:guard-sft-split` PASS
+  - `npm run bench:guard-mcu-eval -- --mode gold` PASS
+  - `npm run bench:guard-mcu-loop -- --mode gold --split-args "--train-pct 80 --val-pct 10"` PASS
+- Gemini Phase-7 re-audit: GO
+
 ## Multi-host Sync
 
 - VM (`/home/zephryj/projects/turingos`): pushed to `origin/main` at `180ce26`.

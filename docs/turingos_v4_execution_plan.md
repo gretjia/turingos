@@ -170,3 +170,29 @@ Acceptance gates:
   - `npm run bench:ci-gates` PASS
 - Dual-pass audit:
   - Gemini audit: GO (schema versioning + multi-provider adapter + CI conformance coverage).
+
+### 2026-02-27 Phase-7 Guard MCU Loop Baseline Completed
+- Added deterministic SFT split pipeline:
+  - `src/bench/guard-sft-split.ts`
+  - deterministic hash-sort partition to `train/val/test`
+  - outputs `benchmarks/data/sft/splits/latest_manifest.json`
+- Added Guard MCU eval gate:
+  - `src/bench/guard-mcu-eval.ts`
+  - metrics: `valid_json_rate`, `mutex_violation_rate`, `reflex_exact_match_rate`, `deadlock_escape_rate`
+  - supports `--mode gold|model`
+- Added end-to-end loop runner:
+  - `src/bench/guard-mcu-loop.ts`
+  - orchestrates `guard-sft-dataset -> guard-sft-split -> guard-mcu-eval`
+  - supports CLI forwarding: `--dataset-args`, `--split-args`, `--eval-args`
+- Scripts added:
+  - `bench:guard-sft-split`
+  - `bench:guard-mcu-eval`
+  - `bench:guard-mcu-loop`
+- Validation:
+  - `npm run typecheck` PASS
+  - `npm run bench:guard-sft-split` PASS
+  - `npm run bench:guard-mcu-eval -- --mode gold` PASS
+  - `npm run bench:guard-mcu-loop -- --mode gold --split-args \"--train-pct 80 --val-pct 10\"` PASS
+  - `npm run bench:ci-gates` PASS
+- Dual-pass audit:
+  - Gemini re-audit: GO (deterministic split, stronger deadlock detection, loop arg forwarding).
