@@ -113,7 +113,7 @@ function parseArgs(argv: string[]): CliArgs {
   let policyOutput = '';
   let reflexOutput = '';
   let minPolicyRows = 100;
-  let minReflexRows = 20;
+  let minReflexRows = 1;
 
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
