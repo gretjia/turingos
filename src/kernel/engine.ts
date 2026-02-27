@@ -52,7 +52,20 @@ export class TuringEngine {
   private readonly oracleFrameMinChars = 1024;
   private readonly oracleFrameSafetyMarginChars = 512;
   private readonly oracleObservedMinChars = 512;
-  private readonly maxPanicResets = 2;
+  private readonly maxPanicResets = (() => {
+    const parsed = Number.parseInt(process.env.TURINGOS_MAX_PANIC_RESETS ?? '2', 10);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 2;
+    }
+    return parsed;
+  })();
+  private readonly minTicksBeforeHalt = (() => {
+    const parsed = Number.parseInt(process.env.TURINGOS_MIN_TICKS_BEFORE_HALT ?? '0', 10);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 0;
+    }
+    return parsed;
+  })();
   private readonly autoRepairEnabled = /^(1|true|yes|on)$/i.test(
     (process.env.TURINGOS_AUTO_REPAIR_ENABLED ?? '').trim()
   );
@@ -272,7 +285,7 @@ export class TuringEngine {
       await this.chronos.engrave(`[BUS_ROUTE] ${routeTrace}`);
     }
 
-    const q_next = transition.q_next;
+    const q_next = transition.q_next.trim().length > 0 ? transition.q_next : q_t;
     let d_next: Pointer = d_t;
     let writePointer: Pointer = d_t;
     let s_prime = '👆🏻';
@@ -450,6 +463,22 @@ export class TuringEngine {
     // 2.5) HALT guard: block HALT unless acceptance contract is satisfied.
     const haltRequested = q_next.trim() === 'HALT' || d_next.trim() === 'HALT' || transition.a_t.op === 'SYS_HALT';
     if (haltRequested) {
+      if (this.replayTupleSeq < this.minTicksBeforeHalt) {
+        const trapDetails = [
+          'HALT rejected: minimum runtime ticks not reached.',
+          `Details: current_ticks=${this.replayTupleSeq}, required_ticks=${this.minTicksBeforeHalt}.`,
+          'Action: continue execution and emit non-HALT syscall(s) until minimum ticks are met.',
+        ].join('\n');
+        this.lastTrapDetails.set('sys://trap/illegal_halt', trapDetails);
+        return this.trapReturn(
+          'sys://trap/illegal_halt',
+          trapDetails,
+          q_t,
+          this.systemTrapPointer('sys://trap/illegal_halt', trapDetails),
+          { source: 'halt_guard', guard: 'min_ticks' }
+        );
+      }
+
       const verification = this.checkRecentVerificationEvidence();
       if (!verification.ok) {
         const trapDetails = [

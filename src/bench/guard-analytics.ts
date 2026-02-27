@@ -192,8 +192,11 @@ async function main(): Promise<void> {
   await fs.mkdir(AUDIT_DIR, { recursive: true });
   await fs.mkdir(EVIDENCE_ROOT, { recursive: true });
   const stamp = timestamp();
+  const panicTicks = Number.parseInt(process.env.TURINGOS_GUARD_PANIC_TICKS ?? '12', 10);
+  const panicMaxTicks = Number.isFinite(panicTicks) && panicTicks > 0 ? panicTicks : 12;
+  const allowedPanicResets = Math.max(4, Math.ceil(panicMaxTicks / 3));
   const thrashing = await runScenario('thrashing', new ThrashingScenarioOracle(), 'q_thrashing_boot', 7);
-  const panicBudget = await runScenario('panic_budget', new PanicBudgetOracle(), 'q_panic_boot', 12);
+  const panicBudget = await runScenario('panic_budget', new PanicBudgetOracle(), 'q_panic_boot', panicMaxTicks);
   const evidenceDir = path.join(EVIDENCE_ROOT, stamp);
   await fs.mkdir(evidenceDir, { recursive: true });
   await fs.copyFile(
@@ -233,8 +236,8 @@ async function main(): Promise<void> {
     },
     {
       id: 'panic_reset_rate_bounded',
-      pass: panicResetFrames <= 4,
-      details: `panic_reset_frames=${panicResetFrames} (expected <= 4 within 12 ticks)`,
+      pass: panicResetFrames <= allowedPanicResets,
+      details: `panic_reset_frames=${panicResetFrames} (expected <= ${allowedPanicResets} within ${panicMaxTicks} ticks)`,
     },
   ];
 

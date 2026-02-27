@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-02-27T13:58:30Z",
+  "taskA": {
+    "initial_partial": {
+      "report": "voyager_realworld_eval_20260227_113000.json",
+      "journal": "taskA_realworld_workspace.journal.log",
+      "trace": "voyager_realworld_trace_20260227_113000.jsonl",
+      "extracted_traps": "taskA_thrashing_extract.journal"
+    },
+    "remediation_100tick": {
+      "report": "taskA_realworld_eval_20260227_115404.json",
+      "report_md": "taskA_realworld_eval_20260227_115404.md",
+      "trace": "taskA_realworld_trace_20260227_115404.jsonl",
+      "dirty_trace": "taskA_realworld_dirty_trace_20260227_115404.jsonl",
+      "journal": "taskA_realworld_workspace_20260227_115404.journal.log",
+      "merkle": "taskA_realworld_workspace_20260227_115404.journal.merkle.jsonl",
+      "extracted_traps": "taskA_thrashing_extract_20260227_115404.journal",
+      "context_profile": "taskA_context_decay_profile_20260227_115404.json"
+    },
+    "longrun_124tick": {
+      "report": "taskA_realworld_eval_20260227_133652.json",
+      "report_md": "taskA_realworld_eval_20260227_133652.md",
+      "trace": "taskA_realworld_trace_20260227_133652.jsonl",
+      "dirty_trace": "taskA_realworld_dirty_trace_20260227_133652.jsonl",
+      "journal": "taskA_realworld_workspace_20260227_133652.journal.log",
+      "merkle": "taskA_realworld_workspace_20260227_133652.journal.merkle.jsonl",
+      "extracted_traps": "taskA_thrashing_extract_20260227_133652.journal",
+      "context_profile": "taskA_context_decay_profile_20260227_133652.json",
+      "context_heatmap_json": "taskA_context_degradation_heatmap_20260227_133652.json",
+      "context_heatmap_md": "taskA_context_degradation_heatmap_20260227_133652.md"
+    }
+  },
+  "taskB": {
+    "report": "devops_blindbox_local_20260227_113517.json",
+    "journal": "taskB_devops_local.journal.log"
+  }
+}

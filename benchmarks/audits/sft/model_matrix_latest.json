@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-02-27T13:03:53.704Z",
+  "rows": [
+    {
+      "name": "api_groq_base",
+      "stamp": "20260227_112725",
+      "provider": "openai",
+      "model": "llama-3.1-8b-instant",
+      "validJsonRate": 1,
+      "schemaViolationRate": 0,
+      "mutexViolationRate": 0,
+      "reflexExactMatchRate": 1,
+      "deadlockEscapeRate": 1,
+      "avgPerEvalMs": 219.5,
+      "pass": true,
+      "sourcePath": "/home/zephryj/projects/turingos/benchmarks/audits/sft/guard_mcu_eval_20260227_112725.json"
+    },
+    {
+      "name": "api_kimi",
+      "stamp": "20260227_112733",
+      "provider": "kimi",
+      "model": "kimi-for-coding",
+      "validJsonRate": 1,
+      "schemaViolationRate": 0,
+      "mutexViolationRate": 0,
+      "reflexExactMatchRate": 0,
+      "deadlockEscapeRate": 0,
+      "avgPerEvalMs": 1320.5,
+      "pass": false,
+      "sourcePath": "/home/zephryj/projects/turingos/benchmarks/audits/sft/guard_mcu_eval_20260227_112733.json"
+    },
+    {
+      "name": "local_qwen3_coder30b_mac",
+      "stamp": "20260227_192842",
+      "provider": "openai",
+      "model": "qwen3-coder:30b",
+      "validJsonRate": 1,
+      "schemaViolationRate": 0,
+      "mutexViolationRate": 0,
+      "reflexExactMatchRate": 1,
+      "deadlockEscapeRate": 1,
+      "avgPerEvalMs": 433.08,
+      "pass": true,
+      "sourcePath": "/home/zephryj/projects/turingos/handover/audits/localmodel/guard_mcu_eval_mac_qwen3_coder30b_20260227.json"
+    },
+    {
+      "name": "local_qwen3_coder30b_finetuned_mlx_mac",
+      "stamp": "20260227_205805",
+      "provider": "openai",
+      "model": "/Users/zephryj/work/turingos/models/qwen3-coder-30b-a3b-instruct-4bit",
+      "validJsonRate": 1,
+      "schemaViolationRate": 0,
+      "mutexViolationRate": 0,
+      "reflexExactMatchRate": 1,
+      "deadlockEscapeRate": 1,
+      "avgPerEvalMs": 954.62,
+      "pass": true,
+      "sourcePath": "/home/zephryj/projects/turingos/handover/audits/localmodel/guard_mcu_eval_mac_qwen3_finetuned_latest.json"
+    }
+  ],
+  "notes": [
+    "Schema violation uses explicit report field when available; falls back to (1 - valid_json_rate)."
+  ]
+}

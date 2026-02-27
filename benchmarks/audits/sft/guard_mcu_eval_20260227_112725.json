@@ -1,0 +1,45 @@
+{
+  "stamp": "20260227_112725",
+  "mode": "model",
+  "splitManifest": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json",
+  "provider": {
+    "oracleMode": "openai",
+    "baseURL": "https://api.groq.com/openai/v1",
+    "model": "llama-3.1-8b-instant"
+  },
+  "selectedSplits": {
+    "policy": "val",
+    "reflex": "val"
+  },
+  "selectedFiles": {
+    "policy": "/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/splits/policy/policy_val.jsonl",
+    "reflex": "/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/splits/reflex/reflex_val.jsonl"
+  },
+  "counts": {
+    "policyTotal": 1,
+    "policyEvaluated": 1,
+    "reflexTotal": 1,
+    "reflexEvaluated": 1,
+    "modelRepairAttempts": 0,
+    "modelFailures": 0
+  },
+  "metrics": {
+    "validJsonRate": 1,
+    "schemaViolationRate": 0,
+    "mutexViolationRate": 0,
+    "reflexExactMatchRate": 1,
+    "deadlockEscapeRate": 1
+  },
+  "latency": {
+    "totalDurationMs": 439,
+    "avgPerEvalMs": 219.5
+  },
+  "thresholds": {
+    "profile": "dev",
+    "maxModelAttempts": 1,
+    "minValidJsonRate": 0.1,
+    "minReflexExactRate": 0,
+    "minDeadlockEscapeRate": 0.8
+  },
+  "pass": true
+}

@@ -85,9 +85,14 @@ interface EvalReport {
   };
   metrics: {
     validJsonRate: number;
+    schemaViolationRate: number;
     mutexViolationRate: number;
     reflexExactMatchRate: number;
     deadlockEscapeRate: number;
+  };
+  latency: {
+    totalDurationMs: number;
+    avgPerEvalMs: number;
   };
   thresholds: {
     profile: ThresholdProfile;
@@ -406,14 +411,18 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     '## Metrics',
     '',
     `- valid_json_rate: ${report.metrics.validJsonRate}`,
+    `- schema_violation_rate: ${report.metrics.schemaViolationRate}`,
     `- mutex_violation_rate: ${report.metrics.mutexViolationRate}`,
     `- reflex_exact_match_rate: ${report.metrics.reflexExactMatchRate}`,
     `- deadlock_escape_rate: ${report.metrics.deadlockEscapeRate}`,
+    `- total_duration_ms: ${report.latency.totalDurationMs}`,
+    `- avg_per_eval_ms: ${report.latency.avgPerEvalMs}`,
     '',
   ].join('\n');
 }
 
 async function main(): Promise<void> {
+  const startedAt = Date.now();
   const args = parseArgs(process.argv.slice(2));
   await fsp.mkdir(SFT_AUDIT_DIR, { recursive: true });
 
@@ -451,6 +460,7 @@ async function main(): Promise<void> {
 
   let totalEval = 0;
   let validJson = 0;
+  let schemaViolations = 0;
   let mutexViolations = 0;
   let reflexExact = 0;
   let deadlockTotal = 0;
@@ -486,10 +496,11 @@ async function main(): Promise<void> {
       validJson += 1;
     }
     const violation = validateCanonicalSyscallEnvelope(predictedEnvelope);
-    if (!violation) {
-      // valid envelope
-    } else if (violation.includes('MUTEX_VIOLATION')) {
-      mutexViolations += 1;
+    if (violation) {
+      schemaViolations += 1;
+      if (violation.includes('MUTEX_VIOLATION')) {
+        mutexViolations += 1;
+      }
     }
   }
 
@@ -529,8 +540,11 @@ async function main(): Promise<void> {
       validJson += 1;
     }
     const violation = validateCanonicalSyscallEnvelope(predictedEnvelope);
-    if (violation && violation.includes('MUTEX_VIOLATION')) {
-      mutexViolations += 1;
+    if (violation) {
+      schemaViolations += 1;
+      if (violation.includes('MUTEX_VIOLATION')) {
+        mutexViolations += 1;
+      }
     }
 
     const expectedOp = normalizeOp(row.output.a_t);
@@ -549,6 +563,7 @@ async function main(): Promise<void> {
   const reflexDenom = reflexRows.length === 0 ? 1 : reflexRows.length;
   const deadlockDenom = deadlockTotal === 0 ? 1 : deadlockTotal;
   const validJsonRate = Number((validJson / denom).toFixed(4));
+  const schemaViolationRate = Number((schemaViolations / denom).toFixed(4));
   const mutexViolationRate = Number((mutexViolations / denom).toFixed(4));
   const reflexExactMatchRate = Number((reflexExact / reflexDenom).toFixed(4));
   const deadlockEscapeRate = Number(
@@ -582,9 +597,14 @@ async function main(): Promise<void> {
     },
     metrics: {
       validJsonRate,
+      schemaViolationRate,
       mutexViolationRate,
       reflexExactMatchRate,
       deadlockEscapeRate,
+    },
+    latency: {
+      totalDurationMs: Date.now() - startedAt,
+      avgPerEvalMs: Number(((Date.now() - startedAt) / denom).toFixed(2)),
     },
     thresholds: {
       profile: args.thresholdProfile,

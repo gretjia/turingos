@@ -1,0 +1,45 @@
+{
+  "stamp": "20260227_192842",
+  "mode": "model",
+  "splitManifest": "/Users/zephryj/work/turingos/benchmarks/data/sft/splits/latest_manifest.json",
+  "provider": {
+    "oracleMode": "openai",
+    "baseURL": "http://127.0.0.1:11434/v1",
+    "model": "qwen3-coder:30b"
+  },
+  "selectedSplits": {
+    "policy": "val",
+    "reflex": "val"
+  },
+  "selectedFiles": {
+    "policy": "/Users/zephryj/work/turingos/benchmarks/data/sft/splits/20260227_124652/policy/policy_val.jsonl",
+    "reflex": "/Users/zephryj/work/turingos/benchmarks/data/sft/splits/20260227_124652/reflex/reflex_val.jsonl"
+  },
+  "counts": {
+    "policyTotal": 41,
+    "policyEvaluated": 41,
+    "reflexTotal": 1,
+    "reflexEvaluated": 1,
+    "modelRepairAttempts": 0,
+    "modelFailures": 0
+  },
+  "metrics": {
+    "validJsonRate": 1,
+    "mutexViolationRate": 0,
+    "reflexExactMatchRate": 1,
+    "deadlockEscapeRate": 1
+  },
+  "thresholds": {
+    "profile": "dev",
+    "maxModelAttempts": 1,
+    "minValidJsonRate": 0.1,
+    "minReflexExactRate": 0,
+    "minDeadlockEscapeRate": 0.8
+  },
+  "pass": true,
+  "latency": {
+    "totalDurationMs": 43308,
+    "avgPerEvalMs": 433.08
+  },
+  "source": "mac-ollama-qwen3-coder-30b"
+}

@@ -27,6 +27,13 @@ interface TrapEvent {
   snippet: string;
 }
 
+interface TrapFrameRow {
+  seq?: number;
+  trap_base?: string;
+  trap_pointer?: string;
+  details?: string;
+}
+
 interface ContextPoint {
   tick: number;
   length: number;
@@ -37,8 +44,8 @@ interface ContextPoint {
 const ROOT = path.resolve(process.cwd());
 const AUDIT_DIR = path.join(ROOT, 'benchmarks', 'audits', 'longrun');
 
-function parseArgs(argv: string[]): { input?: string; output?: string; contextOutput?: string } {
-  const out: { input?: string; output?: string; contextOutput?: string } = {};
+function parseArgs(argv: string[]): { input?: string; journalInput?: string; output?: string; contextOutput?: string } {
+  const out: { input?: string; journalInput?: string; output?: string; contextOutput?: string } = {};
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (token === '--input' && i + 1 < argv.length) {
@@ -51,6 +58,11 @@ function parseArgs(argv: string[]): { input?: string; output?: string; contextOu
       i += 1;
       continue;
     }
+    if (token === '--journal-input' && i + 1 < argv.length) {
+      out.journalInput = argv[i + 1];
+      i += 1;
+      continue;
+    }
     if (token === '--context-output' && i + 1 < argv.length) {
       out.contextOutput = argv[i + 1];
       i += 1;
@@ -58,6 +70,13 @@ function parseArgs(argv: string[]): { input?: string; output?: string; contextOu
     }
   }
   return out;
+}
+
+function resolveOptionalPath(raw: string | undefined): string | null {
+  if (!raw || raw.trim().length === 0) {
+    return null;
+  }
+  return path.isAbsolute(raw) ? raw : path.join(ROOT, raw);
 }
 
 function percentile(values: number[], p: number): number {
@@ -132,6 +151,7 @@ async function main(): Promise<void> {
       ? args.contextOutput
       : path.join(ROOT, args.contextOutput)
     : path.join(AUDIT_DIR, 'context_decay_profile.json');
+  const journalInputPath = resolveOptionalPath(args.journalInput);
 
   const raw = await fs.readFile(inputPath, 'utf-8');
   const lines = raw
@@ -193,6 +213,40 @@ async function main(): Promise<void> {
     }
   }
 
+  if (journalInputPath) {
+    const journalRaw = await fs.readFile(journalInputPath, 'utf-8');
+    const journalLines = journalRaw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    for (const line of journalLines) {
+      const match = line.match(/\[TRAP_FRAME\]\s*(\{.*\})$/);
+      if (!match?.[1]) {
+        continue;
+      }
+      let frame: TrapFrameRow;
+      try {
+        frame = JSON.parse(match[1]) as TrapFrameRow;
+      } catch {
+        continue;
+      }
+      const marker = typeof frame.trap_base === 'string' && frame.trap_base.length > 0 ? frame.trap_base : 'sys://trap/unknown';
+      const detail = typeof frame.details === 'string' ? frame.details : '';
+      const trapPointer = typeof frame.trap_pointer === 'string' ? frame.trap_pointer : '';
+      events.push({
+        tick: typeof frame.seq === 'number' ? frame.seq : -1,
+        marker,
+        d_t: trapPointer,
+        d_next: trapPointer,
+        a_t: 'TRAP_FRAME',
+        mind_ops: [],
+        world_op: null,
+        snippet: detail.replace(/\s+/g, ' ').slice(0, 320),
+      });
+    }
+  }
+
   const lengths = contextPoints.map((point) => point.length);
   const minLen = lengths.length > 0 ? Math.min(...lengths) : 0;
   const maxLen = lengths.length > 0 ? Math.max(...lengths) : 0;
@@ -230,6 +284,9 @@ async function main(): Promise<void> {
   await fs.writeFile(contextOutputPath, `${JSON.stringify(profile, null, 2)}\n`, 'utf-8');
 
   console.log(`[extract-thrashing-journal] input=${inputPath}`);
+  if (journalInputPath) {
+    console.log(`[extract-thrashing-journal] journal_input=${journalInputPath}`);
+  }
   console.log(`[extract-thrashing-journal] events=${events.length} output=${outputPath}`);
   console.log(`[extract-thrashing-journal] context_output=${contextOutputPath}`);
 }

@@ -1,0 +1,80 @@
+{
+  "stamp": "20260227_113000",
+  "workspace": "/tmp/turingos-voyager-realworld-4G9iq7",
+  "scenario": {
+    "type": "real_repo",
+    "repoUrl": "https://github.com/sindresorhus/ky.git",
+    "repoRef": "main",
+    "repoIssueUrl": "https://github.com/sindresorhus/ky/issues",
+    "repoDir": "ky",
+    "repoCommit": "6f3d1bdb9ee928b88bb2901fd2e84c190542f583",
+    "entryPointer": "VOYAGER_TASK.md"
+  },
+  "oracle": {
+    "mode": "openai",
+    "model": "llama-3.1-8b-instant",
+    "baseURL": "https://api.groq.com/openai/v1",
+    "maxOutputTokens": 512,
+    "maxRetries": 1,
+    "retryBaseDelayMs": 300,
+    "retryMaxDelayMs": 1200,
+    "requestTimeoutMs": 8000
+  },
+  "chaos": {
+    "execTimeoutRate": 0.7,
+    "writeDenyRate": 0.5,
+    "logFloodRate": 0.8,
+    "logFloodChars": 70000
+  },
+  "traceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_113000.jsonl",
+  "traceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/trace.jsonl",
+  "dirtyTraceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_20260227_113000.jsonl",
+  "dirtyTraceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl",
+  "ticksRequested": 12,
+  "ticksObserved": 6,
+  "replayTuples": 6,
+  "contextStats": {
+    "min": 745,
+    "max": 1259,
+    "avg": 896.83,
+    "p95": 1259
+  },
+  "vliwEvidence": {
+    "found": false,
+    "tickSeq": null,
+    "details": "(missing)"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": false,
+    "tickSeq": null,
+    "followupAction": ""
+  },
+  "checks": [
+    {
+      "id": "oracle_mode_is_real",
+      "pass": true,
+      "details": "mode=openai model=llama-3.1-8b-instant"
+    },
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": false,
+      "details": "ticks=6"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": false,
+      "details": "missing tuple with [SYS_EDIT,SYS_PUSH] + SYS_EXEC"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": false,
+      "details": "no paged command flood detected"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=745 max=1259 avg=896.83 p95=1259"
+    }
+  ],
+  "pass": false
+}

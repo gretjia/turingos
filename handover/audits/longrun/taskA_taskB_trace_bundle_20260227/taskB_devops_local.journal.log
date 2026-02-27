@@ -1,0 +1,8 @@
+[2026-02-27T11:35:17.257Z] [DEVOPS] boot local blindbox scenario
+[2026-02-27T11:35:17.507Z] [DEVOPS] service started at http://127.0.0.1:18652
+[2026-02-27T11:35:17.558Z] [ATTACK] kill -9 service pid=895915 exit=0
+[2026-02-27T11:35:17.822Z] [RECOVERY] service restarted after kill -9
+[2026-02-27T11:35:17.861Z] [ATTACK] chmod 400 + append attempt exit=1
+[2026-02-27T11:35:17.871Z] [RECOVERY] permission restored exit=0
+[2026-02-27T11:35:19.893Z] [ATTACK] network blackhole probe exit=28
+[2026-02-27T11:35:19.919Z] [RECOVERY] fallback to local endpoint exit=0

@@ -44,6 +44,10 @@ interface EvalReport {
     model: string;
     baseURL: string;
     maxOutputTokens: number;
+    maxRetries: number;
+    retryBaseDelayMs: number;
+    retryMaxDelayMs: number;
+    requestTimeoutMs: number;
   };
   chaos: {
     execTimeoutRate: number;
@@ -88,6 +92,10 @@ interface RuntimeConfig {
   realRepoIssueUrl: string;
   realRepoDirName: string;
   maxOutputTokens: number;
+  maxRetries: number;
+  retryBaseDelayMs: number;
+  retryMaxDelayMs: number;
+  requestTimeoutMs: number;
   ticksRequested: number;
   chaosExecTimeoutRate: number;
   chaosWriteDenyRate: number;
@@ -331,6 +339,10 @@ function resolveRuntimeConfig(): RuntimeConfig {
     process.env.VOYAGER_MAX_OUTPUT_TOKENS ?? process.env.TURINGOS_MAX_OUTPUT_TOKENS,
     1024
   );
+  const maxRetries = parseInteger(process.env.VOYAGER_ORACLE_MAX_RETRIES, 1);
+  const retryBaseDelayMs = parseInteger(process.env.VOYAGER_ORACLE_RETRY_BASE_DELAY_MS, 500);
+  const retryMaxDelayMs = parseInteger(process.env.VOYAGER_ORACLE_RETRY_MAX_DELAY_MS, 2_000);
+  const requestTimeoutMs = parseInteger(process.env.VOYAGER_ORACLE_REQUEST_TIMEOUT_MS, 15_000);
   const ticksRequested = parseInteger(process.env.VOYAGER_TICKS, 120);
 
   const chaosExecTimeoutRate = parseRate(
@@ -360,6 +372,10 @@ function resolveRuntimeConfig(): RuntimeConfig {
     realRepoIssueUrl,
     realRepoDirName,
     maxOutputTokens,
+    maxRetries,
+    retryBaseDelayMs,
+    retryMaxDelayMs,
+    requestTimeoutMs,
     ticksRequested,
     chaosExecTimeoutRate,
     chaosWriteDenyRate,
@@ -406,6 +422,10 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     `- model: ${report.oracle.model}`,
     `- base_url: ${report.oracle.baseURL || '(default)'}`,
     `- max_output_tokens: ${report.oracle.maxOutputTokens}`,
+    `- max_retries: ${report.oracle.maxRetries}`,
+    `- retry_base_delay_ms: ${report.oracle.retryBaseDelayMs}`,
+    `- retry_max_delay_ms: ${report.oracle.retryMaxDelayMs}`,
+    `- request_timeout_ms: ${report.oracle.requestTimeoutMs}`,
     '',
     '## Chaos Config',
     '',
@@ -461,6 +481,10 @@ async function main(): Promise<void> {
     model: config.model,
     baseURL: config.baseURL || undefined,
     maxOutputTokens: config.maxOutputTokens,
+    maxRetries: config.maxRetries,
+    retryBaseDelayMs: config.retryBaseDelayMs,
+    retryMaxDelayMs: config.retryMaxDelayMs,
+    requestTimeoutMs: config.requestTimeoutMs,
   });
   const engine = new TuringEngine(manifold, oracle, chronos, disciplinePrompt);
 
@@ -546,6 +570,10 @@ async function main(): Promise<void> {
       model: config.model,
       baseURL: config.baseURL,
       maxOutputTokens: config.maxOutputTokens,
+      maxRetries: config.maxRetries,
+      retryBaseDelayMs: config.retryBaseDelayMs,
+      retryMaxDelayMs: config.retryMaxDelayMs,
+      requestTimeoutMs: config.requestTimeoutMs,
     },
     chaos: {
       execTimeoutRate: config.chaosExecTimeoutRate,

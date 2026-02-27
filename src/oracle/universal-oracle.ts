@@ -13,6 +13,7 @@ interface UniversalOracleConfig {
   maxRetries?: number;
   retryBaseDelayMs?: number;
   retryMaxDelayMs?: number;
+  requestTimeoutMs?: number;
 }
 
 interface ErrorWithMetadata extends Error {
@@ -41,6 +42,7 @@ export class UniversalOracle implements IOracle {
   private readonly telemetryPath: string | null;
   private readonly localRepairEnabled: boolean;
   private readonly localRepairMaxAttempts: number;
+  private readonly requestTimeoutMs: number;
   private telemetrySeq = 0;
   private kimimart?: {
     endpoint: string;
@@ -59,8 +61,12 @@ export class UniversalOracle implements IOracle {
     this.telemetryPath = telemetryPath.length > 0 ? telemetryPath : null;
     this.localRepairEnabled = this.parseBoolEnv(process.env.TURINGOS_OLLAMA_REPAIR_ENABLED, true);
     this.localRepairMaxAttempts = this.parseIntEnv(process.env.TURINGOS_OLLAMA_REPAIR_MAX_ATTEMPTS, 2, 0, 5);
+    this.requestTimeoutMs = config.requestTimeoutMs ?? this.parseIntEnv(process.env.TURINGOS_ORACLE_REQUEST_TIMEOUT_MS, 20_000, 1_000, 600_000);
     if (mode === 'openai') {
-      const clientConfig: { apiKey: string; baseURL?: string } = { apiKey: config.apiKey };
+      const clientConfig: { apiKey: string; baseURL?: string; timeout?: number } = {
+        apiKey: config.apiKey,
+        timeout: this.requestTimeoutMs,
+      };
       if (config.baseURL) {
         clientConfig.baseURL = config.baseURL;
       }
@@ -215,6 +221,7 @@ export class UniversalOracle implements IOracle {
         const kimiMessages = [{ role: 'user' as const, content: userFrame.trim() }];
         const response = await fetch(this.kimimart!.endpoint, {
           method: 'POST',
+          signal: AbortSignal.timeout(this.requestTimeoutMs),
           headers: {
             'content-type': 'application/json',
             'anthropic-version': '2023-06-01',

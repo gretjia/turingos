@@ -1,0 +1,80 @@
+{
+  "stamp": "20260227_114423",
+  "workspace": "/tmp/turingos-voyager-realworld-2nkrSZ",
+  "scenario": {
+    "type": "real_repo",
+    "repoUrl": "https://github.com/sindresorhus/ky.git",
+    "repoRef": "main",
+    "repoIssueUrl": "",
+    "repoDir": "ky",
+    "repoCommit": "6f3d1bdb9ee928b88bb2901fd2e84c190542f583",
+    "entryPointer": "VOYAGER_TASK.md"
+  },
+  "oracle": {
+    "mode": "kimi",
+    "model": "kimi-for-coding",
+    "baseURL": "https://api.kimi.com/coding",
+    "maxOutputTokens": 1024,
+    "maxRetries": 2,
+    "retryBaseDelayMs": 600,
+    "retryMaxDelayMs": 2500,
+    "requestTimeoutMs": 25000
+  },
+  "chaos": {
+    "execTimeoutRate": 0.15,
+    "writeDenyRate": 0.05,
+    "logFloodRate": 0.15,
+    "logFloodChars": 50000
+  },
+  "traceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_114423.jsonl",
+  "traceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/trace.jsonl",
+  "dirtyTraceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_20260227_114423.jsonl",
+  "dirtyTraceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl",
+  "ticksRequested": 100,
+  "ticksObserved": 13,
+  "replayTuples": 13,
+  "contextStats": {
+    "min": 748,
+    "max": 1259,
+    "avg": 946,
+    "p95": 1259
+  },
+  "vliwEvidence": {
+    "found": true,
+    "tickSeq": 9,
+    "details": "{\"mind_ops\":[\"SYS_PUSH\",\"SYS_EDIT\"],\"world_op\":\"SYS_EXEC\"}"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": false,
+    "tickSeq": null,
+    "followupAction": ""
+  },
+  "checks": [
+    {
+      "id": "oracle_mode_is_real",
+      "pass": true,
+      "details": "mode=kimi model=kimi-for-coding"
+    },
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": false,
+      "details": "ticks=13"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": true,
+      "details": "tick_seq=9 mind_ops=SYS_PUSH|SYS_EDIT"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": false,
+      "details": "no paged command flood detected"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=748 max=1259 avg=946 p95=1259"
+    }
+  ],
+  "pass": false
+}

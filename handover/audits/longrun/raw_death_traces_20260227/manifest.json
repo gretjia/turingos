@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-02-27T11:09:23Z",
+  "notes": "Raw death traces for architect handover. Includes realworld trap loop sample and panic budget exhaustion sample.",
+  "sources": [
+    "realworld_interrupt_run_cpufault_panicreset.journal.log",
+    "panic_budget_longrun_80ticks.journal.log",
+    "panic_budget_exhaustion_budget0.journal.log",
+    "guard_analytics_20260227_110738.json",
+    "guard_analytics_20260227_110803.json"
+  ]
+}

@@ -1,0 +1,1277 @@
+{
+  "generatedAt": "2026-02-27T13:54:23.413Z",
+  "inputPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_133652.jsonl",
+  "ticks": 124,
+  "context": {
+    "min": 730,
+    "max": 3972,
+    "avg": 1273.91,
+    "p95": 3350,
+    "slopePerTick": -2.3496
+  },
+  "clipping": {
+    "clippedTicks": 119,
+    "clippedRate": 0.9597
+  },
+  "traps": {
+    "trapLikeTicks": 60,
+    "trapLikeRate": 0.4839
+  },
+  "pagination": {
+    "pageLikeTicks": 89,
+    "pageLikeRate": 0.7177
+  },
+  "runqueue": {
+    "avgMindOpsPerTick": 0.863,
+    "worldOpRate": 0.9919
+  },
+  "heatmap": {
+    "bins": [
+      {
+        "fromTick": 0,
+        "toTick": 5,
+        "avgLength": 1233,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 6,
+        "toTick": 11,
+        "avgLength": 2778,
+        "intensity": "*"
+      },
+      {
+        "fromTick": 12,
+        "toTick": 17,
+        "avgLength": 2254,
+        "intensity": "+"
+      },
+      {
+        "fromTick": 18,
+        "toTick": 23,
+        "avgLength": 1818,
+        "intensity": "="
+      },
+      {
+        "fromTick": 24,
+        "toTick": 29,
+        "avgLength": 1121,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 30,
+        "toTick": 35,
+        "avgLength": 1011,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 36,
+        "toTick": 41,
+        "avgLength": 1008,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 42,
+        "toTick": 47,
+        "avgLength": 1031,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 48,
+        "toTick": 53,
+        "avgLength": 995,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 54,
+        "toTick": 59,
+        "avgLength": 985,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 60,
+        "toTick": 65,
+        "avgLength": 1471,
+        "intensity": "-"
+      },
+      {
+        "fromTick": 66,
+        "toTick": 71,
+        "avgLength": 1354,
+        "intensity": "-"
+      },
+      {
+        "fromTick": 72,
+        "toTick": 77,
+        "avgLength": 1130,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 78,
+        "toTick": 83,
+        "avgLength": 878,
+        "intensity": "."
+      },
+      {
+        "fromTick": 84,
+        "toTick": 89,
+        "avgLength": 980,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 90,
+        "toTick": 95,
+        "avgLength": 1089,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 96,
+        "toTick": 101,
+        "avgLength": 1372,
+        "intensity": "-"
+      },
+      {
+        "fromTick": 102,
+        "toTick": 107,
+        "avgLength": 1056,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 108,
+        "toTick": 113,
+        "avgLength": 1088,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 114,
+        "toTick": 119,
+        "avgLength": 1029,
+        "intensity": ":"
+      },
+      {
+        "fromTick": 120,
+        "toTick": 123,
+        "avgLength": 975,
+        "intensity": ":"
+      }
+    ],
+    "sparkline": ":*+=::::::--:.::-::::"
+  },
+  "points": [
+    {
+      "tick": 0,
+      "contextLength": 1259,
+      "clipped": false,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 1,
+      "contextLength": 1114,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 2,
+      "contextLength": 1110,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 3,
+      "contextLength": 1719,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 4,
+      "contextLength": 1028,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 5,
+      "contextLength": 1165,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 6,
+      "contextLength": 1088,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 7,
+      "contextLength": 3195,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 8,
+      "contextLength": 3350,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 9,
+      "contextLength": 3195,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 10,
+      "contextLength": 3971,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 11,
+      "contextLength": 1869,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 12,
+      "contextLength": 969,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 13,
+      "contextLength": 3331,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 14,
+      "contextLength": 912,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 15,
+      "contextLength": 3373,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 16,
+      "contextLength": 968,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 17,
+      "contextLength": 3972,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 18,
+      "contextLength": 968,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 19,
+      "contextLength": 3972,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 20,
+      "contextLength": 2748,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 21,
+      "contextLength": 1037,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 22,
+      "contextLength": 1061,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 23,
+      "contextLength": 1120,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 24,
+      "contextLength": 1488,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 25,
+      "contextLength": 1109,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 26,
+      "contextLength": 968,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 27,
+      "contextLength": 1118,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 28,
+      "contextLength": 1034,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 29,
+      "contextLength": 1007,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 30,
+      "contextLength": 945,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 31,
+      "contextLength": 957,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 32,
+      "contextLength": 1068,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 33,
+      "contextLength": 1068,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 34,
+      "contextLength": 1008,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 35,
+      "contextLength": 1017,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 36,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 37,
+      "contextLength": 1118,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 38,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 39,
+      "contextLength": 860,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 40,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 41,
+      "contextLength": 1162,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 42,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 43,
+      "contextLength": 1132,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 44,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 45,
+      "contextLength": 1122,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 46,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 47,
+      "contextLength": 1024,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": false
+    },
+    {
+      "tick": 48,
+      "contextLength": 936,
+      "clipped": false,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 49,
+      "contextLength": 1045,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 50,
+      "contextLength": 920,
+      "clipped": false,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 51,
+      "contextLength": 1024,
+      "clipped": false,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 52,
+      "contextLength": 920,
+      "clipped": false,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 53,
+      "contextLength": 1122,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 54,
+      "contextLength": 968,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 55,
+      "contextLength": 1135,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 56,
+      "contextLength": 968,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 57,
+      "contextLength": 848,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 58,
+      "contextLength": 942,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 59,
+      "contextLength": 1046,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 60,
+      "contextLength": 1047,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": false,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 61,
+      "contextLength": 1028,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 62,
+      "contextLength": 1002,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 63,
+      "contextLength": 1028,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 64,
+      "contextLength": 877,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 65,
+      "contextLength": 3841,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 66,
+      "contextLength": 874,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 67,
+      "contextLength": 3841,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 68,
+      "contextLength": 885,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 69,
+      "contextLength": 885,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 70,
+      "contextLength": 730,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 71,
+      "contextLength": 911,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 72,
+      "contextLength": 917,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 73,
+      "contextLength": 855,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 74,
+      "contextLength": 1030,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 75,
+      "contextLength": 1060,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 76,
+      "contextLength": 962,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 77,
+      "contextLength": 1956,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 78,
+      "contextLength": 961,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 79,
+      "contextLength": 835,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 80,
+      "contextLength": 958,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 81,
+      "contextLength": 837,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 82,
+      "contextLength": 837,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 83,
+      "contextLength": 837,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 84,
+      "contextLength": 837,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 85,
+      "contextLength": 842,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 86,
+      "contextLength": 841,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 87,
+      "contextLength": 746,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 88,
+      "contextLength": 1101,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 89,
+      "contextLength": 1514,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 90,
+      "contextLength": 1116,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 91,
+      "contextLength": 1115,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 92,
+      "contextLength": 1115,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 93,
+      "contextLength": 1115,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 94,
+      "contextLength": 1113,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 95,
+      "contextLength": 959,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 96,
+      "contextLength": 1129,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 97,
+      "contextLength": 1128,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 98,
+      "contextLength": 958,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 99,
+      "contextLength": 1137,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 100,
+      "contextLength": 2920,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 101,
+      "contextLength": 957,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 102,
+      "contextLength": 1108,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 103,
+      "contextLength": 1108,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 104,
+      "contextLength": 955,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 105,
+      "contextLength": 1108,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 106,
+      "contextLength": 955,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 107,
+      "contextLength": 1101,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 108,
+      "contextLength": 835,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 109,
+      "contextLength": 1485,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 110,
+      "contextLength": 949,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 111,
+      "contextLength": 823,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 112,
+      "contextLength": 1485,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 113,
+      "contextLength": 949,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 114,
+      "contextLength": 1097,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 115,
+      "contextLength": 1485,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 116,
+      "contextLength": 949,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 117,
+      "contextLength": 826,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 118,
+      "contextLength": 847,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 119,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 120,
+      "contextLength": 1117,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 121,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 122,
+      "contextLength": 843,
+      "clipped": true,
+      "trapLike": false,
+      "pageLike": true,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 123,
+      "contextLength": 970,
+      "clipped": true,
+      "trapLike": true,
+      "pageLike": true,
+      "mindOps": 0,
+      "hasWorldOp": true
+    }
+  ]
+}

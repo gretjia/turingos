@@ -207,7 +207,7 @@ function asTransitionShape(
   const world_ops = record.world_ops;
   const thought = readThoughtField(record);
   const hasVliwShape = mind_ops !== undefined || world_op !== undefined || world_ops !== undefined;
-  if (qNext && (a_t || hasVliwShape)) {
+  if (qNext !== undefined && (a_t || hasVliwShape)) {
     return {
       q_next: qNext.trim(),
       a_t,

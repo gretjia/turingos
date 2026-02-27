@@ -1,0 +1,47 @@
+{
+  "stamp": "20260227_113450",
+  "workspace": "/tmp/turingos-devops-local-3hMJcv",
+  "journalPath": "/tmp/turingos-devops-local-3hMJcv/.journal.log",
+  "service": {
+    "port": 18080,
+    "pidFile": "/tmp/turingos-devops-local-3hMJcv/service.pid"
+  },
+  "checks": [
+    {
+      "id": "service_initial_health",
+      "pass": true,
+      "details": "startup_ok=true curl_exit=0"
+    },
+    {
+      "id": "service_down_after_kill",
+      "pass": false,
+      "details": "curl_exit=0"
+    },
+    {
+      "id": "service_recovered_after_restart",
+      "pass": true,
+      "details": "recovered_ok=true curl_exit=0"
+    },
+    {
+      "id": "permission_denied_observed",
+      "pass": true,
+      "details": "append_exit=1"
+    },
+    {
+      "id": "permission_recovered",
+      "pass": true,
+      "details": "fix_exit=0"
+    },
+    {
+      "id": "network_timeout_observed",
+      "pass": true,
+      "details": "blackhole_exit=28"
+    },
+    {
+      "id": "network_fallback_recovered",
+      "pass": true,
+      "details": "fallback_exit=0"
+    }
+  ],
+  "pass": false
+}

@@ -1,0 +1,59 @@
+{
+  "inputPath": "/home/zephryj/projects/turingos/handover/audits/longrun/taskA_taskB_trace_bundle_20260227/voyager_realworld_trace_20260227_113000.jsonl",
+  "generatedAt": "2026-02-27T11:35:36.802Z",
+  "ticks": 6,
+  "context": {
+    "min": 745,
+    "max": 1259,
+    "avg": 896.83,
+    "p95": 1259,
+    "slopePerTick": -87.4
+  },
+  "traps": {
+    "totalEvents": 8,
+    "byMarker": {
+      "OS_TRAP: L1_CACHE_HIT": 1,
+      "sys://trap/l1_cache_hit": 1,
+      "sys://trap/cpu_fault": 5,
+      "sys://trap/panic_reset": 1
+    }
+  },
+  "points": [
+    {
+      "tick": 0,
+      "length": 1259,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 1,
+      "length": 882,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 2,
+      "length": 826,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 3,
+      "length": 847,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 4,
+      "length": 745,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 5,
+      "length": 822,
+      "mindOps": 1,
+      "hasWorldOp": true
+    }
+  ]
+}

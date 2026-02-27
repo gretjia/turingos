@@ -1,0 +1,80 @@
+{
+  "stamp": "20260227_131857",
+  "workspace": "/tmp/turingos-voyager-realworld-Um5zbZ",
+  "scenario": {
+    "type": "real_repo",
+    "repoUrl": "https://github.com/sindresorhus/ky.git",
+    "repoRef": "main",
+    "repoIssueUrl": "",
+    "repoDir": "ky",
+    "repoCommit": "6f3d1bdb9ee928b88bb2901fd2e84c190542f583",
+    "entryPointer": "VOYAGER_TASK.md"
+  },
+  "oracle": {
+    "mode": "kimi",
+    "model": "kimi-for-coding",
+    "baseURL": "https://api.kimi.com/coding",
+    "maxOutputTokens": 1024,
+    "maxRetries": 2,
+    "retryBaseDelayMs": 500,
+    "retryMaxDelayMs": 2000,
+    "requestTimeoutMs": 25000
+  },
+  "chaos": {
+    "execTimeoutRate": 0.1,
+    "writeDenyRate": 0.05,
+    "logFloodRate": 0.1,
+    "logFloodChars": 50000
+  },
+  "traceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_131857.jsonl",
+  "traceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/trace.jsonl",
+  "dirtyTraceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_20260227_131857.jsonl",
+  "dirtyTraceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl",
+  "ticksRequested": 120,
+  "ticksObserved": 116,
+  "replayTuples": 116,
+  "contextStats": {
+    "min": 762,
+    "max": 3974,
+    "avg": 1273.65,
+    "p95": 3241
+  },
+  "vliwEvidence": {
+    "found": true,
+    "tickSeq": 8,
+    "details": "{\"mind_ops\":[\"SYS_PUSH\",\"SYS_EDIT\"],\"world_op\":\"SYS_EXEC\"}"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": true,
+    "tickSeq": 13,
+    "followupAction": "SYS_EXEC"
+  },
+  "checks": [
+    {
+      "id": "oracle_mode_is_real",
+      "pass": true,
+      "details": "mode=kimi model=kimi-for-coding"
+    },
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": true,
+      "details": "ticks=116"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": true,
+      "details": "tick_seq=8 mind_ops=SYS_PUSH|SYS_EDIT"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": true,
+      "details": "flood_tick=13 followup=SYS_EXEC"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=762 max=3974 avg=1273.65 p95=3241"
+    }
+  ],
+  "pass": true
+}
