@@ -3,17 +3,17 @@
 - stamp: 20260227_205805
 - mode: model
 - pass: true
-- report_json: /Users/zephryj/work/turingos/benchmarks/audits/sft/guard_mcu_eval_20260227_205805.json
-- split_manifest: /Users/zephryj/work/turingos/benchmarks/data/sft/splits/latest_manifest.json
+- report_json: ../../../benchmarks/audits/sft/guard_mcu_eval_20260227_205805.json
+- split_manifest: ../../../benchmarks/data/sft/splits/latest_manifest.json
 - policy_split: val
 - reflex_split: val
-- policy_file: /Users/zephryj/work/turingos/benchmarks/data/sft/splits/20260227_124652/policy/policy_val.jsonl
-- reflex_file: /Users/zephryj/work/turingos/benchmarks/data/sft/splits/20260227_124652/reflex/reflex_val.jsonl
+- policy_file: ../../../benchmarks/data/sft/splits/20260227_124652/policy/policy_val.jsonl
+- reflex_file: ../../../benchmarks/data/sft/splits/20260227_124652/reflex/reflex_val.jsonl
 - threshold_profile: dev
 - max_model_attempts: 2
 - oracle_mode: openai
 - base_url: http://127.0.0.1:8080/v1
-- model: /Users/zephryj/work/turingos/models/qwen3-coder-30b-a3b-instruct-4bit
+- model: /Users/zephryj/work/turingos/models/qwen3-coder-30b-a3b-instruct-4bit (local absolute path on Mac)
 
 ## Metrics
 

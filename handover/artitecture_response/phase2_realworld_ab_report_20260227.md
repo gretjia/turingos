@@ -21,10 +21,10 @@
 
 ### Evidence
 
-- Eval report: `benchmarks/audits/longrun/voyager_realworld_eval_20260227_113000.json`
-- Raw workspace journal: `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/taskA_realworld_workspace.journal.log`
-- Merkle chain: `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/taskA_realworld_workspace.journal.merkle.jsonl`
-- Extracted trap journal: `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/taskA_thrashing_extract.journal`
+- Eval report: `../../benchmarks/audits/longrun/voyager_realworld_eval_20260227_113000.json`
+- Raw workspace journal: `../audits/longrun/taskA_taskB_trace_bundle_20260227/taskA_realworld_workspace.journal.log`
+- Merkle chain: `../audits/longrun/taskA_taskB_trace_bundle_20260227/taskA_realworld_workspace.journal.merkle.jsonl`
+- Extracted trap journal: `../audits/longrun/taskA_taskB_trace_bundle_20260227/taskA_thrashing_extract.journal`
 
 ### Observed
 
@@ -48,9 +48,9 @@
 
 ### Evidence
 
-- Report: `benchmarks/audits/longrun/devops_blindbox_local_20260227_113517.json`
-- Raw journal: `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/taskB_devops_local.journal.log`
-- Merkle chain: `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/taskB_devops_local.journal.merkle.jsonl`
+- Report: `../../benchmarks/audits/longrun/devops_blindbox_local_20260227_113517.json`
+- Raw journal: `../audits/longrun/taskA_taskB_trace_bundle_20260227/taskB_devops_local.journal.log`
+- Merkle chain: `../audits/longrun/taskA_taskB_trace_bundle_20260227/taskB_devops_local.journal.merkle.jsonl`
 
 ### Observed
 
@@ -59,7 +59,7 @@
 
 ## Bundle Manifest
 
-- `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/manifest.json`
+- `../audits/longrun/taskA_taskB_trace_bundle_20260227/manifest.json`
 
 ## Phase2 Status
 
@@ -85,9 +85,9 @@
   1) 任务在短链路内触发 `SYS_HALT`；
   2) 部分回包 `q_next=\"\"` 导致 `CPU_FAULT INVALID_OPCODE` 风暴，阻断长程推进。
 - 已落地修复：
-  - `src/kernel/engine.ts`: 新增 `TURINGOS_MIN_TICKS_BEFORE_HALT`，评测时拦截早停。
-  - `src/oracle/turing-bus-adapter.ts`: 允许空 `q_next` 过解析；
-  - `src/kernel/engine.ts`: 空 `q_next` 回退为当前 `q_t`。
+  - `../../src/kernel/engine.ts`: 新增 `TURINGOS_MIN_TICKS_BEFORE_HALT`，评测时拦截早停。
+  - `../../src/oracle/turing-bus-adapter.ts`: 允许空 `q_next` 过解析；
+  - `../../src/kernel/engine.ts`: 空 `q_next` 回退为当前 `q_t`。
 
 ### Current run in progress
 
@@ -96,14 +96,14 @@
 
 ### Remediation result (closed)
 
-- 成功产物：`benchmarks/audits/longrun/voyager_realworld_eval_20260227_115404.json`
+- 成功产物：`../../benchmarks/audits/longrun/voyager_realworld_eval_20260227_115404.json`
 - 关键门控全通过：
   - `ticks_observed_>=_100`: PASS (`ticks=100`)
   - `vliw_combo_edit_push_then_exec`: PASS (`tick_seq=17`)
   - `chaos_log_flood_detected_and_followed`: PASS (`flood_tick=12`, followup=`SYS_EXEC`)
   - `context_o1_bound_under_4k_mmu`: PASS (`max=3972`, `p95=3900`)
 - 证据已并入 bundle：
-  - `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/manifest.json`
+  - `../audits/longrun/taskA_taskB_trace_bundle_20260227/manifest.json`
   - 含 journal/merkle/trace/dirty_trace/trap_extract/context_profile
 
 ## Updated Phase2 Status

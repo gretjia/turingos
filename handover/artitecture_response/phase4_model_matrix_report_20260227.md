@@ -11,12 +11,12 @@
 
 ## Source Artifacts
 
-- `benchmarks/audits/sft/model_matrix_20260227.json`
-- `benchmarks/audits/sft/model_matrix_latest.md`
-- `benchmarks/audits/sft/guard_mcu_eval_20260227_112725.json` (API/Groq)
-- `benchmarks/audits/sft/guard_mcu_eval_20260227_112733.json` (API/Kimi)
-- `handover/audits/localmodel/guard_mcu_eval_mac_qwen3_coder30b_20260227.json` (Local Base)
-- `handover/audits/localmodel/guard_mcu_eval_mac_qwen3_finetuned_latest.json` (Local Fine-tuned, MLX+LoRA)
+- `../../benchmarks/audits/sft/model_matrix_20260227.json`
+- `../../benchmarks/audits/sft/model_matrix_latest.md`
+- `../../benchmarks/audits/sft/guard_mcu_eval_20260227_112725.json` (API/Groq)
+- `../../benchmarks/audits/sft/guard_mcu_eval_20260227_112733.json` (API/Kimi)
+- `../audits/localmodel/guard_mcu_eval_mac_qwen3_coder30b_20260227.json` (Local Base)
+- `../audits/localmodel/guard_mcu_eval_mac_qwen3_finetuned_latest.json` (Local Fine-tuned, MLX+LoRA)
 
 ## Current Matrix Snapshot
 

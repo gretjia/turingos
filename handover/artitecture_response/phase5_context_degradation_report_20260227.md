@@ -10,9 +10,9 @@
 
 ## Source Artifacts
 
-- `benchmarks/audits/longrun/context_degradation_heatmap_latest.json`
-- `benchmarks/audits/longrun/context_degradation_heatmap_latest.md`
-- `src/chronos/file-chronos.ts`（状态快照来源）
+- `../../benchmarks/audits/longrun/context_degradation_heatmap_latest.json`
+- `../../benchmarks/audits/longrun/context_degradation_heatmap_latest.md`
+- `../../src/chronos/file-chronos.ts`（状态快照来源）
 
 ## Observations
 

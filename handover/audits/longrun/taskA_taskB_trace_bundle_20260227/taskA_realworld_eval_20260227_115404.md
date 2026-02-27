@@ -3,11 +3,11 @@
 - stamp: 20260227_115404
 - workspace: /tmp/turingos-voyager-realworld-7VpsDX
 - pass: true
-- report_json: /home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_eval_20260227_115404.json
-- trace_jsonl: /home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_115404.jsonl
-- trace_jsonl_latest: /home/zephryj/projects/turingos/benchmarks/audits/longrun/trace.jsonl
-- dirty_trace_jsonl: /home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_20260227_115404.jsonl
-- dirty_trace_jsonl_latest: /home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl
+- report_json: ../../../../benchmarks/audits/longrun/voyager_realworld_eval_20260227_115404.json
+- trace_jsonl: ../../../../benchmarks/audits/longrun/voyager_realworld_trace_20260227_115404.jsonl
+- trace_jsonl_latest: ../../../../benchmarks/audits/longrun/trace.jsonl
+- dirty_trace_jsonl: ../../../../benchmarks/audits/longrun/dirty_trace_20260227_115404.jsonl
+- dirty_trace_jsonl_latest: ../../../../benchmarks/audits/longrun/dirty_trace_latest.jsonl
 
 ## Runtime
 

@@ -11,7 +11,7 @@
 2. SFT Model vs API Model Matrix  
    至少包含基座模型 / 微调模型 / Gemini(API) 的 `Latency` 与 `Schema Violation Rate` 对比。
 3. Context Degradation Profile (120+ ticks)  
-   从 `src/chronos/file-chronos.ts` 相关快照导出的上下文衰退画像，明确后期遗忘与 eviction 生效性。
+   从 `../../src/chronos/file-chronos.ts` 相关快照导出的上下文衰退画像，明确后期遗忘与 eviction 生效性。
 
 ## Dual-LLM Work Mode
 
@@ -28,12 +28,12 @@
 - 记录当前基线状态，避免“跑偏后不可回溯”。
 
 执行：
-- 固化本文件到 `handover/artitecture_response/`
+- 固化本文件到 `./`
 - 记录基线 commit / bench latest / env profile（不含密钥）
 
 产物：
-- `handover/artitecture_response/dual_llm_bloody_delivery_action_plan_20260227.md`
-- `handover/artitecture_response/phase0_baseline_freeze_20260227.md`
+- `./dual_llm_bloody_delivery_action_plan_20260227.md`
+- `../archive/20260227_audit_trim/artitecture_response/phase0_baseline_freeze_20260227.md`
 
 ### Phase 1 - Chaos Sweep + Raw Death Data (P0)
 
@@ -52,8 +52,8 @@
 - 至少 1 个 death run 显示 `panic_budget` 耗尽或等价不可恢复中断
 
 产物：
-- `handover/artitecture_response/phase1_chaos_sweep_report_20260227.md`
-- `handover/audits/longrun/raw_death_traces_20260227/`（原始日志包）
+- `./phase1_chaos_sweep_report_20260227.md`
+- `../audits/longrun/raw_death_traces_20260227/`（原始日志包）
 
 ### Phase 2 - Realworld Task A/B (P0)
 
@@ -69,8 +69,8 @@
 - 至少一条“几十步挣扎后失败”链路完整可复盘
 
 产物：
-- `handover/artitecture_response/phase2_realworld_ab_report_20260227.md`
-- `handover/audits/longrun/taskA_taskB_trace_bundle_20260227/`
+- `./phase2_realworld_ab_report_20260227.md`
+- `../audits/longrun/taskA_taskB_trace_bundle_20260227/`
 
 ### Phase 3 - SFT/DPO Data Pipeline (P1)
 
@@ -86,8 +86,8 @@
 - 生成可训练数据包（含统计与样本计数）
 
 产物：
-- `handover/artitecture_response/phase3_sft_dpo_dataset_report_20260227.md`
-- `benchmarks/audits/sft/failure_recovery_dataset_stats_20260227.json`
+- `./phase3_sft_dpo_dataset_report_20260227.md`
+- `../../benchmarks/audits/sft/failure_recovery_dataset_stats_20260227.json`
 
 ### Phase 4 - Model Matrix (P1)
 
@@ -103,8 +103,8 @@
 - 报告中不允许只给 pass/fail，必须给原始指标
 
 产物：
-- `handover/artitecture_response/phase4_model_matrix_report_20260227.md`
-- `benchmarks/audits/sft/model_matrix_20260227.json`
+- `./phase4_model_matrix_report_20260227.md`
+- `../../benchmarks/audits/sft/model_matrix_20260227.json`
 
 ### Phase 5 - 120+ Tick Degradation Heatmap (P1)
 
@@ -119,8 +119,8 @@
 - 提供 heatmap/profile 与关键结论（是否出现后期目标遗忘）
 
 产物：
-- `handover/artitecture_response/phase5_context_degradation_report_20260227.md`
-- `benchmarks/audits/longrun/context_degradation_heatmap_20260227.json`
+- `./phase5_context_degradation_report_20260227.md`
+- `../../benchmarks/audits/longrun/context_degradation_heatmap_latest.json`
 
 ## Gemini Recursive Audit Schedule
 
@@ -129,7 +129,7 @@
 - Audit #3: Phase 3-5 完成后（终审）
 
 每次审计产物路径：
-- `handover/artitecture_response/gemini_recursive_audit_phase{N}_20260227.md`
+- `./gemini_recursive_audit_phase{N}_20260227.md`
 
 ## Non-Negotiables
 
@@ -155,6 +155,6 @@ Status note (2026-02-27 12:08 UTC):
 - Phase2 remediation complete: Task A reached 100 ticks and passed all eval checks (`voyager_realworld_eval_20260227_115404.json`).
 - Phase4 matrix已闭环：新增 `local_qwen3_coder30b_finetuned_mlx_mac` 行，含 `Latency + Schema Violation` 硬指标。
 - Phase5 已补齐 `120+`：`voyager_realworld_eval_20260227_133652.json` 达到 `ticksObserved=124`，热力图已重算。
-- Gemini remediation audit (`gemini_recursive_audit_phase2_remediation_20260227.md`): `Phase2 Gate=PASS`, overall `NO-GO`, delivery readiness `85%`.
+- Gemini remediation audit (`../archive/20260227_audit_trim/artitecture_response/gemini_recursive_audit_phase2_remediation_20260227.md`): `Phase2 Gate=PASS`, overall `NO-GO`, delivery readiness `85%`.
 - Phase3 dataset stats landed (`failure_recovery_dataset_stats_20260227.json`), 40/40/20 sample mix feasible at total 120 rows.
 - Gemini 终审 (`gemini_recursive_audit_phase5_20260227.md`): `GO (Conditional)`，delivery readiness `100%`。

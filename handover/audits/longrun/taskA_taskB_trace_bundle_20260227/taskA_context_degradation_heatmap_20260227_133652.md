@@ -1,8 +1,8 @@
 # Context Degradation Heatmap
 
 - generated_at: 2026-02-27T13:54:23.413Z
-- input: /home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_133652.jsonl
-- report_json: /home/zephryj/projects/turingos/benchmarks/audits/longrun/context_degradation_heatmap_latest.json
+- input: ../../../../benchmarks/audits/longrun/voyager_realworld_trace_20260227_133652.jsonl
+- report_json: ../../../../benchmarks/audits/longrun/context_degradation_heatmap_latest.json
 - ticks: 124
 
 ## Context

@@ -33,8 +33,8 @@ The architect's non-negotiable hard deliverables have all been demonstrably met.
 3. **Provision Ops Environment (Next Cycle):** Prepare a proper Docker/VPS environment for full real-world Task B (Ops Domain) chaos testing.
 
 ## Evidence Paths
-* **Longrun Trace (124 ticks):** `benchmarks/audits/longrun/voyager_realworld_eval_20260227_133652.json`
-* **Context Heatmap (124 ticks):** `benchmarks/audits/longrun/context_degradation_heatmap_latest.json`
-* **Complete Model Matrix:** `benchmarks/audits/sft/model_matrix_20260227.json`
-* **Fine-Tuned SFT Evaluation:** `handover/audits/localmodel/guard_mcu_eval_mac_qwen3_finetuned_latest.json`
-* **Raw Death Traces:** `handover/audits/longrun/raw_death_traces_20260227/manifest.json`
+* **Longrun Trace (124 ticks):** `../../benchmarks/audits/longrun/voyager_realworld_eval_20260227_133652.json`
+* **Context Heatmap (124 ticks):** `../../benchmarks/audits/longrun/context_degradation_heatmap_latest.json`
+* **Complete Model Matrix:** `../../benchmarks/audits/sft/model_matrix_20260227.json`
+* **Fine-Tuned SFT Evaluation:** `../audits/localmodel/guard_mcu_eval_mac_qwen3_finetuned_latest.json`
+* **Raw Death Traces:** `../audits/longrun/raw_death_traces_20260227/manifest.json`
