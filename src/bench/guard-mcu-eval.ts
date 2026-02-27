@@ -46,6 +46,7 @@ interface CliArgs {
   splitManifest: string;
   mode: EvalMode;
   thresholdProfile: ThresholdProfile;
+  oracleMode: 'auto' | 'openai' | 'kimi';
   baseURL: string;
   model: string;
   apiKey: string;
@@ -62,6 +63,7 @@ interface EvalReport {
   mode: EvalMode;
   splitManifest: string;
   provider: {
+    oracleMode: 'openai' | 'kimi';
     baseURL: string;
     model: string;
   };
@@ -128,6 +130,14 @@ function profileThresholds(profile: ThresholdProfile): {
   };
 }
 
+function normalizeOracleMode(raw: string | undefined): 'auto' | 'openai' | 'kimi' {
+  const normalized = (raw ?? '').trim().toLowerCase();
+  if (normalized === 'openai' || normalized === 'kimi' || normalized === 'auto') {
+    return normalized;
+  }
+  return 'auto';
+}
+
 function timestamp(): string {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -161,6 +171,7 @@ function parseArgs(argv: string[]): CliArgs {
   let thresholdProfile: ThresholdProfile = process.env.TURINGOS_GUARD_EVAL_PROFILE
     ? parseThresholdProfile(process.env.TURINGOS_GUARD_EVAL_PROFILE)
     : 'prod';
+  let oracleMode: 'auto' | 'openai' | 'kimi' = normalizeOracleMode(process.env.TURINGOS_GUARD_MODEL_ORACLE);
   let baseURL = process.env.TURINGOS_GUARD_MODEL_BASE_URL ?? process.env.TURINGOS_API_BASE_URL ?? '';
   let model = process.env.TURINGOS_GUARD_MODEL_NAME ?? process.env.TURINGOS_MODEL ?? '';
   let apiKey =
@@ -196,6 +207,7 @@ function parseArgs(argv: string[]): CliArgs {
     }
     if (key === '--split-manifest') splitManifest = path.resolve(value);
     if (key === '--mode' && (value === 'gold' || value === 'model')) mode = value;
+    if (key === '--oracle-mode' && (value === 'auto' || value === 'openai' || value === 'kimi')) oracleMode = value;
     if (key === '--base-url') baseURL = value;
     if (key === '--model') model = value;
     if (key === '--api-key') apiKey = value;
@@ -211,6 +223,7 @@ function parseArgs(argv: string[]): CliArgs {
     splitManifest,
     mode,
     thresholdProfile,
+    oracleMode,
     baseURL,
     model,
     apiKey,
@@ -339,6 +352,18 @@ async function collapseWithRepair(
   throw lastError instanceof Error ? lastError : new Error('Unexpected model collapse retry exhaustion');
 }
 
+function resolveOracleMode(args: CliArgs): 'openai' | 'kimi' {
+  if (args.oracleMode === 'openai' || args.oracleMode === 'kimi') {
+    return args.oracleMode;
+  }
+  const base = args.baseURL.toLowerCase();
+  const model = args.model.toLowerCase();
+  if (base.includes('api.kimi.com') || model.includes('kimi') || model.includes('moonshot')) {
+    return 'kimi';
+  }
+  return 'openai';
+}
+
 function isDeadlockTrap(row: ReflexRow): boolean {
   const base = row.input.trap_frame.trap_base.toLowerCase().trim();
   const details = row.input.trap_frame.details.toLowerCase();
@@ -374,6 +399,7 @@ function toMarkdown(report: EvalReport, jsonPath: string): string {
     `- reflex_file: ${report.selectedFiles.reflex}`,
     `- threshold_profile: ${report.thresholds.profile}`,
     `- max_model_attempts: ${report.thresholds.maxModelAttempts}`,
+    `- oracle_mode: ${report.provider.oracleMode}`,
     `- base_url: ${report.provider.baseURL || '(none)'}`,
     `- model: ${report.provider.model || '(none)'}`,
     '',
@@ -409,13 +435,14 @@ async function main(): Promise<void> {
 
   const useModel = args.mode === 'model';
   let oracle: UniversalOracle | null = null;
+  const resolvedOracleMode = resolveOracleMode(args);
   if (useModel) {
     if (!args.baseURL || !args.model || !args.apiKey) {
       throw new Error(
         'Model mode requires --base-url --model --api-key (or TURINGOS_GUARD_MODEL_* env vars).'
       );
     }
-    oracle = new UniversalOracle('openai', {
+    oracle = new UniversalOracle(resolvedOracleMode, {
       apiKey: args.apiKey,
       model: args.model,
       baseURL: args.baseURL,
@@ -533,6 +560,7 @@ async function main(): Promise<void> {
     mode: args.mode,
     splitManifest: args.splitManifest,
     provider: {
+      oracleMode: resolvedOracleMode,
       baseURL: args.baseURL,
       model: args.model,
     },
@@ -579,7 +607,7 @@ async function main(): Promise<void> {
   await fsp.writeFile(LATEST_EVAL, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
 
   console.log(
-    `[guard-mcu-eval] mode=${report.mode} profile=${report.thresholds.profile} valid_json_rate=${validJsonRate} mutex_rate=${mutexViolationRate} reflex_exact=${reflexExactMatchRate} deadlock_escape=${deadlockEscapeRate} repair_attempts=${modelRepairAttempts} model_failures=${modelFailures} pass=${report.pass}`
+    `[guard-mcu-eval] mode=${report.mode} profile=${report.thresholds.profile} oracle=${report.provider.oracleMode} valid_json_rate=${validJsonRate} mutex_rate=${mutexViolationRate} reflex_exact=${reflexExactMatchRate} deadlock_escape=${deadlockEscapeRate} repair_attempts=${modelRepairAttempts} model_failures=${modelFailures} pass=${report.pass}`
   );
   console.log(`[guard-mcu-eval] report=${reportJsonPath}`);
   process.exit(report.pass ? 0 : 2);
