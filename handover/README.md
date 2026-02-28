@@ -8,7 +8,7 @@
 
 ## Single Entry for Architect Questions
 If you are the Chief Architect (or an audit agent acting as architect), open this file first:
-- `artiteture_response/phaseF_questions_for_chief_architect_20260227.md`
+- `artiteture_response/cycle_questions_for_chief_architect_phaseA_to_phaseF_20260227.md`
 
 This is the canonical question set for this round. It contains decision options and thresholds.
 
@@ -30,7 +30,7 @@ This is the canonical question set for this round. It contains decision options 
 10. `artiteture_response/phaseF_posttrain_wildoss_longrun_report_20260227.md`
 11. `artiteture_response/gemini_recursive_audit_phaseF_final_20260227.md`
 12. `artiteture_response/phaseF_final_no_go_report_20260227.md`
-13. `artiteture_response/phaseF_questions_for_chief_architect_20260227.md`
+13. `artiteture_response/cycle_questions_for_chief_architect_phaseA_to_phaseF_20260227.md`
 14. `audits/README.md`
 
 ## Phase A-F Path Map
@@ -44,7 +44,7 @@ This is the canonical question set for this round. It contains decision options 
 - `Phase F (same-host compare)`: `artiteture_response/phaseF_samehost_mac_base_vs_finetuned_compare_20260227.md`
 - `Phase F (post-train longrun)`: `artiteture_response/phaseF_posttrain_wildoss_longrun_report_20260227.md`
 - `Phase F (final gate)`: `artiteture_response/phaseF_final_no_go_report_20260227.md`
-- `Phase F (architect questions)`: `artiteture_response/phaseF_questions_for_chief_architect_20260227.md`
+- `Cross-phase architect questions (Phase A->F)`: `artiteture_response/cycle_questions_for_chief_architect_phaseA_to_phaseF_20260227.md`
 
 ## Directory Taxonomy
 - **`artiteture_response/`**: active phase reports, recursive audits, and architect Q&A for this cycle.
