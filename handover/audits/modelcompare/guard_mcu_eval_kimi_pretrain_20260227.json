@@ -1,0 +1,45 @@
+{
+  "stamp": "20260227_175117",
+  "mode": "model",
+  "splitManifest": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json",
+  "provider": {
+    "oracleMode": "kimi",
+    "baseURL": "https://api.kimi.com/coding",
+    "model": "kimi-for-coding"
+  },
+  "selectedSplits": {
+    "policy": "val",
+    "reflex": "val"
+  },
+  "selectedFiles": {
+    "policy": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_174934/policy/policy_val.jsonl",
+    "reflex": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_174934/reflex/reflex_val.jsonl"
+  },
+  "counts": {
+    "policyTotal": 61,
+    "policyEvaluated": 61,
+    "reflexTotal": 5,
+    "reflexEvaluated": 5,
+    "modelRepairAttempts": 0,
+    "modelFailures": 0
+  },
+  "metrics": {
+    "validJsonRate": 1,
+    "schemaViolationRate": 0,
+    "mutexViolationRate": 0,
+    "reflexExactMatchRate": 0.4,
+    "deadlockEscapeRate": 1
+  },
+  "latency": {
+    "totalDurationMs": 81598,
+    "avgPerEvalMs": 1236.33
+  },
+  "thresholds": {
+    "profile": "dev",
+    "maxModelAttempts": 2,
+    "minValidJsonRate": 0.1,
+    "minReflexExactRate": 0,
+    "minDeadlockEscapeRate": 0.8
+  },
+  "pass": true
+}

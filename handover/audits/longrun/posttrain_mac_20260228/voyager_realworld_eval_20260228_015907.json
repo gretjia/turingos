@@ -1,0 +1,80 @@
+{
+  "stamp": "20260228_015907",
+  "workspace": "/var/folders/w3/17p860vj3174xqzb2z010qth0000gn/T/turingos-voyager-realworld-hEwaty",
+  "scenario": {
+    "type": "real_repo",
+    "repoUrl": "https://github.com/keploy/keploy.git",
+    "repoRef": "main",
+    "repoIssueUrl": "https://github.com/keploy/keploy/issues/3843",
+    "repoDir": "keploy",
+    "repoCommit": "75bd8751fe162c3adf2b58af58b1bafa3213ce1d",
+    "entryPointer": "VOYAGER_TASK.md"
+  },
+  "oracle": {
+    "mode": "openai",
+    "model": "/Users/zephryj/work/turingos/models/qwen3-coder-30b-a3b-instruct-4bit",
+    "baseURL": "http://127.0.0.1:8080/v1",
+    "maxOutputTokens": 1024,
+    "maxRetries": 1,
+    "retryBaseDelayMs": 500,
+    "retryMaxDelayMs": 2000,
+    "requestTimeoutMs": 15000
+  },
+  "chaos": {
+    "execTimeoutRate": 0.1,
+    "writeDenyRate": 0.05,
+    "logFloodRate": 0.1,
+    "logFloodChars": 50000
+  },
+  "traceJsonlPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260228_015907.jsonl",
+  "traceJsonlLatestPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/trace.jsonl",
+  "dirtyTraceJsonlPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/dirty_trace_20260228_015907.jsonl",
+  "dirtyTraceJsonlLatestPath": "/Users/zephryj/work/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl",
+  "ticksRequested": 120,
+  "ticksObserved": 67,
+  "replayTuples": 67,
+  "contextStats": {
+    "min": 416,
+    "max": 1838,
+    "avg": 1009.39,
+    "p95": 1767
+  },
+  "vliwEvidence": {
+    "found": false,
+    "tickSeq": null,
+    "details": "(missing)"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": false,
+    "tickSeq": null,
+    "followupAction": ""
+  },
+  "checks": [
+    {
+      "id": "oracle_mode_is_real",
+      "pass": true,
+      "details": "mode=openai model=/Users/zephryj/work/turingos/models/qwen3-coder-30b-a3b-instruct-4bit"
+    },
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": false,
+      "details": "ticks=67"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": false,
+      "details": "missing tuple with [SYS_EDIT,SYS_PUSH] + SYS_EXEC"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": false,
+      "details": "no paged command flood detected"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=416 max=1838 avg=1009.39 p95=1767"
+    }
+  ],
+  "pass": false
+}
