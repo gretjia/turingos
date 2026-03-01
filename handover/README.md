@@ -2,6 +2,11 @@
 
 This index is for agents joining the current TuringOS cycle.
 
+## Git-Tracked Mirrors
+
+- Workspace root guide mirror: `./AGENTS_WORKSPACE_ROOT_GUIDE.md`
+- Home handover guide mirror: `./AGENTS_HOME_HANDOVER_GUIDE.md`
+
 ## Priority Reading Order
 
 1. Current blocker and architecture-review summary:
