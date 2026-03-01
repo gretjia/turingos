@@ -10,9 +10,27 @@ TuringOS is a minimal long-horizon agent kernel based on deterministic transitio
 
 This project is built from lessons learned in `gretjia/turingclaw`, with stricter modular boundaries and trap-oriented execution.
 
+## AI Agent Quick Index (Current Cycle)
+
+Read in this order:
+
+1. Total design (this file): `./README.md`
+2. Topology blueprint/spec: `./topology.md`
+3. Handover index: `./handover/README.md`
+4. Latest architect core design: `./handover/artitecture_response/core_architect_opinion_anti_oreo_v2_20260228.md`
+5. Latest architect action plan: `./handover/artitecture_response/dual_llm_joint_action_plan_from_core_opinion_20260228.md`
+6. Latest blocker handover: `../../handover/turingos_arch_review_handover_20260301_035950.md`
+
+Current main issues:
+
+- Stale report reuse after timeout can corrupt progress accounting.
+- Planner may keep routing after consensus, causing thrashing before HALT.
+- Worker scaling is not adaptive enough for long-horizon cost/reliability balance.
+- Recovery orchestration is improved but not yet fully robust under long unattended runs.
+
 ## Topology
 
-- [TuringOS System Topology Blueprint (v4.0)](./topology.md)
+- [TuringOS System Topology Blueprint (v2.0 Anti-Oreo)](./topology.md)
 
 ## Core modules
 
