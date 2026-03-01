@@ -1,0 +1,7 @@
+[overnight][2026-02-28 17:31:27] start hours=1 frontier=40 window=2 active_profile=balanced
+[overnight][2026-02-28 17:31:27] run tag=cycle1_try1 profile=balanced range=41-42 window=2 frontier=40
+[million-baseline] start_test=41 target_tests=1000000 max_tests=42
+[million-baseline] mode=turingos_dualbrain consecutive=2 delta_to_1m=999998 status=PASS
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260228_173144.json
+[overnight][2026-02-28 17:31:44] cycle=1 done best_profile=balanced passed=2 failed=0 frontier=42 next_window=2
+[overnight][2026-02-28 17:31:44] run tag=cycle2_try1 profile=balanced range=43-44 window=2 frontier=42

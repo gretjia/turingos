@@ -1,0 +1,503 @@
+OpenAI Codex v0.106.0 (research preview)
+--------
+workdir: /home/zephryj/projects/turingos
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019ca77b-9bb5-7031-9d70-0ef908c9589e
+--------
+user
+You are in relentless recovery mode. Inspect and fix the failure, then validate.
+Failure context:
+- fail_case: 11
+- failure_artifact: unexpected_report_range:1-5
+- mode: turingos_dualbrain
+
+Required actions:
+1) Inspect the latest failure artifact/journal and root-cause the regression.
+2) Apply a minimal code fix in this repo.
+3) Run validation:
+   - npm run -s typecheck
+   - npm run -s bench:hypercore-v2-gate
+   - npm run -s bench:anti-oreo-v2-gate
+4) Run targeted replay:
+   - npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 8 --max-tests 14 --continue-after-fail
+5) Stop after commands complete.
+mcp startup: no servers
+
+thinking
+**Starting inspection with parallel commands**
+codex
+I’m going to locate the latest failure journal/artifact for `fail_case 11` in `turingos_dualbrain`, trace where `unexpected_report_range:1-5` is produced, then patch the smallest possible fix and run the exact validation commands you listed.
+exec
+/bin/bash -lc 'pwd; ls -la' in /home/zephryj/projects/turingos succeeded in 51ms:
+/home/zephryj/projects/turingos
+total 308
+drwxr-xr-x 15 zephryj zephryj   4096 Feb 28 12:37 .
+drwxr-xr-x  5 zephryj zephryj   4096 Feb 26 03:32 ..
+-rw-------  1 zephryj zephryj    452 Feb 26 12:32 .env
+-rw-r--r--  1 zephryj zephryj    313 Feb 25 06:17 .env.example
+drwxr-xr-x  8 zephryj zephryj   4096 Mar  1 01:34 .git
+-rw-r--r--  1 zephryj zephryj 101229 Feb 27 07:36 .git_diff_audit.txt
+drwxr-xr-x  3 zephryj zephryj   4096 Feb 26 07:31 .github
+-rw-r--r--  1 zephryj zephryj    172 Feb 25 09:13 .gitignore
+-rw-r--r--  1 zephryj zephryj     54 Feb 25 13:52 .last_cycle10_dir
+-rw-r--r--  1 zephryj zephryj     48 Feb 25 10:39 .last_cycle2_dir
+-rw-r--r--  1 zephryj zephryj     48 Feb 25 10:53 .last_cycle3_dir
+-rw-r--r--  1 zephryj zephryj     62 Feb 25 12:10 .last_cycle4_dir
+-rw-r--r--  1 zephryj zephryj     62 Feb 25 13:03 .last_cycle5_dir
+-rw-r--r--  1 zephryj zephryj     63 Feb 25 13:13 .last_cycle6_dir
+-rw-r--r--  1 zephryj zephryj     67 Feb 25 13:21 .last_cycle7_dir
+-rw-r--r--  1 zephryj zephryj     65 Feb 25 13:29 .last_cycle8_dir
+-rw-r--r--  1 zephryj zephryj     67 Feb 25 13:36 .last_cycle9_dir
+-rw-r--r--  1 zephryj zephryj     48 Feb 25 09:59 .last_cycle_dir
+exec
+/bin/bash -lc 'rg -n "unexpected_report_range|fail_case|turingos_dualbrain|bench:million-baseline-compare|anti-oreo|hypercore" -S .' in /home/zephryj/projects/turingos succeeded in 52ms:
+Total output lines: 769
+
+./src/kernel/types.ts:52:  // Compatibility field for legacy analytics/tests; anti-oreo v2 runtime does not rely on a_t-only frames.
+./configs/dual_llm_profiles/mac_planner_linux_workers.env:1:# TuringOS Anti-Oreo runtime profile
+./configs/dual_llm_profiles/mac_planner_linux_workers.env:11:TURINGOS_HYPERCORE_V2=1
+./configs/dual_llm_profiles/mac_planner_linux_workers.env:33:# HyperCore temperatures (Anti-Oreo)
+./configs/dual_llm_profiles/mac_planner_linux_workers.env:34:TURINGOS_HYPERCORE_PLANNER_TEMPERATURE=0.7
+./configs/dual_llm_profiles/mac_planner_linux_workers.env:35:TURINGOS_HYPERCORE_WORKER_TEMPERATURE=0.0
+./src/kernel/scheduler.ts:7:export interface HyperCoreRunOptions {
+./src/kernel/scheduler.ts:12:export interface HyperCoreRunResult {
+./src/kernel/scheduler.ts:20:interface HyperCoreConfig {
+./src/kernel/scheduler.ts:34:export class TuringHyperCore {
+./src/kernel/scheduler.ts:54:  constructor(config: HyperCoreConfig) {
+./src/kernel/scheduler.ts:60:    this.plannerTemperature = this.resolveTemperatureEnv('TURINGOS_HYPERCORE_PLANNER_TEMPERATURE', 0.7);
+./src/kernel/scheduler.ts:61:    this.workerTemperature = this.resolveTemperatureEnv('TURINGOS_HYPERCORE_WORKER_TEMPERATURE', 0.0);
+./src/kernel/scheduler.ts:63:      'TURINGOS_HYPERCORE_MAX_REPEAT_WRITE_STREAK',
+./src/kernel/scheduler.ts:66:    this.mapReduceAheadByK = this.resolvePositiveIntEnv('TURINGOS_HYPERCORE_AHEAD_BY_K', 1);
+./src/kernel/scheduler.ts:67:    this.mapReduceMinVotes = this.resolvePositiveIntEnv('TURINGOS_HYPERCORE_REDUCE_MIN_VOTES', 2);
+./src/kernel/scheduler.ts:68:    this.filterFailedWorkerOutputs = this.resolveBoolEnv('TURINGOS_HYPERCORE_FILTER_FAILED_WORKERS', true);
+./src/kernel/scheduler.ts:69:    this.forceMapTaskCount = this.resolvePositiveIntEnv('TURINGOS_HYPERCORE_FORCE_MAP_TASK_COUNT', 0);
+
+thinking
+**Planning failure artifact inspection**
+codex
+I found where `unexpected_report_range` is generated (`scripts/codex_relentless_push.sh`), so next I’m checking the newest baseline failure artifact and replay logs to confirm why it reported `1-5` for `fail_case 11`.
+exec
+/bin/bash -lc 'ls -lt benchmarks/audits/baseline/failure_artifacts | head -n 30' in /home/zephryj/projects/turingosexec
+/bin/bash -lc 'ls -lt benchmarks/audits/baseline | head -n 40' in /home/zephryj/projects/turingosexec
+/bin/bash -lc 'rg -n "unexpected_report_range|fail_case|startTest|maxTests|turingos_dualbrain_case_000011|000011" benchmarks/audits/baseline -S' in /home/zephryj/projects/turingos succeeded in 51ms:
+total 204
+-rw-r--r-- 1 zephryj zephryj  9856 Mar  1 01:22 turingos_dualbrain_case_000143_20260301_012212.json
+-rw-r--r-- 1 zephryj zephryj 11543 Mar  1 01:16 turingos_dualbrain_case_000143_20260301_011632.json
+-rw-r--r-- 1 zephryj zephryj  9469 Mar  1 01:12 turingos_dualbrain_case_000143_20260301_011251.json
+-rw-r--r-- 1 zephryj zephryj  4703 Mar  1 01:06 turingos_dualbrain_case_000143_20260301_010651.json
+-rw-r--r-- 1 zephryj zephryj  4968 Feb 28 16:48 turingos_dualbrain_case_000016_20260228_164819.json
+-rw-r--r-- 1 zephryj zephryj  6978 Feb 28 16:37 turingos_dualbrain_case_000001_20260228_163741.json
+-rw-r--r-- 1 zephryj zephryj 11425 Feb 28 16:35 turingos_dualbrain_case_000044_20260228_163543.json
+-rw-r--r-- 1 zephryj zephryj  2808 Feb 28 16:17 turingos_dualbrain_case_000006_20260228_161708.json
+-rw-r--r-- 1 zephryj zephryj  2511 Feb 28 16:02 turingos_dualbrain_case_000001_20260228_160239.json
+-rw-r--r-- 1 zephryj zephryj  7038 Feb 28 15:59 turingos_dualbrain_case_000001_20260228_155919.json
+-rw-r--r-- 1 zephryj zephryj  6678 Feb 28 15:57 turingos_dualbrain_case_000001_20260228_155728.json
+-rw-r--r-- 1 zephryj zephryj   373 Feb 28 15:20 qwen_direct_case_000020_20260228_152021.json
+-rw-r--r-- 1 zephryj zephryj  6678 Feb 28 15:19 turingos_dualbrain_case_000001_20260228_151924.json
+-rw-r--r-- 1 zephryj zephryj  3006 Feb 28 15:14 turingos_dualbrain_case_000001_20260228_151426.json
+-rw-r--r-- 1 zephryj zephryj  2841 Feb 28 14:44 turingos_dualbrain_case_000001_20260228_144457.json
+-rw-r--r-- 1 zephryj zephryj  3048 Feb 28 14:41 turingos_dualbrain_case_000001_20260228_144110.json
+-rw-r--r-- 1 zephryj zephryj  2541 Feb 28 14:39 turingos_dualbrain_case_000001_20260228_143905.json
+-rw-r--r-- 1 zephryj zephryj  3883 Feb 28 09:19 turingos_dualbrain_case_000005_20260228_091929.json
+-rw-r--r-- 1 zephryj zephryj  2704 Feb 28 09:13 turingos_dualbrain_case_000002_20260228_091318.json
+ succeeded in 51ms:
+total 324
+drwxr-xr-x 2 zephryj zephryj 4096 Mar  1 03:40 relentless
+drwxr-xr-x 2 zephryj zephryj 4096 Mar  1 03:09 continuous
+-rw-r--r-- 1 zephryj zephryj  678 Mar  1 02:16 million_baseline_compare_20260301_021644.json
+-rw-r--r-- 1 zephryj zephryj  678 Mar  1 02:16 million_baseline_compare_latest.json
+drwxr-xr-x 2 zephryj zephryj 4096 Mar  1 01:22 failure_artifacts
+-rw-r--r-- 1 zephryj zephryj  681 Mar  1 01:18 million_baseline_compare_20260301_011832.json
+-rw-r--r-- 1 zephryj zephryj 1105 Mar  1 01:16 million_baseline_compare_20260301_011632.json
+-rw-r--r-- 1 zephryj zephryj 1105 Mar  1 01:12 million_baseline_compare_20260301_011251.json
+-rw-r--r-- 1 zephryj zephryj 1105 Mar  1 01:06 million_baseline_compare_20260301_010651.json
+-rw-r--r-- 1 zephryj zephryj  688 Mar  1 00:23 million_baseline_compare_20260301_002317.json
+drwxr-xr-x 2 zephryj zephryj 4096 Mar  1 00:23 overnight
+-rw-r--r-- 1 zephryj zephryj  688 Feb 28 23:14 million_baseline_compare_20260228_231455.json
+-rw-r--r-- 1 zephryj zephryj  687 Feb 28 23:10 million_baseline_compare_20260228_231052.json
+-rw-r--r-- 1 zephryj zephryj  686 Feb 28 17:46 million_baseline_compare_20260228_174632.json
+-rw-r--r-- 1 zephryj zephryj  686 Feb 28 17:42 million_baseline_compare_20260228_174215.json
+-rw-r--r-- 1 zephryj zephryj  680 Feb 28 17:31 million_baseline_compare_20260228_173144.json
+-rw-r--r-- 1 zephryj zephryj  685 Feb 28 17:30 million_baseline_compare_20260228_173010.json
+-rw-r--r-- 1 zephryj zephryj  686 Feb 28 17:24 million_baseline_compare_20260228_172424.json
+-rw-r--r-- 1 zephryj zephryj 1106 Feb 28 16:55 million_baseline_compare_20260228_165511.json
+ succeeded in 51ms:
+benchmarks/audits/baseline/million_baseline_compare_20260228_075003.json:4:  "maxTests": 2,
+benchmarks/audits/baseline/million_baseline_compare_20260228_060714.json:4:  "maxTests": 1,
+benchmarks/audits/baseline/million_baseline_compare_20260228_061106.json:4:  "maxTests": 1,
+benchmarks/audits/baseline/relentless/relentless_push_20260301_031021.log:5:[relentless-push][2026-03-01 03:40:21] cycle=1 debug_attempt=1 fail_case=11 replay=8-14
+benchmarks/audits/baseline/relentless/relentless_summary_latest.jsonl:1:{"ts":"2026-03-01T03:40:21.438Z","kind":"bench","cycle":1,"attempt":0,"mode":"turingos_dualbrain","startTest":6,"endTest":25,"status":"ERROR","attempted":5,"passed":5,"failed":1,"firstFailAt":null,"reason":"unexpected_report_range:1-5","firstFailArtifact":null,"reportPath":"/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_021644.json"}
+benchmarks/audits/baseline/relentless/launcher_latest.log:5:[relentless-push][2026-03-01 03:40:21] cycle=1 debug_attempt=1 fail_case=11 replay=8-14
+benchmarks/audits/baseline/relentless/relentless_summary_20260301_031021.jsonl:1:{"ts":"2026-03-01T03:40:21.438Z","kind":"bench","cycle":1,"attempt":0,"mode":"turingos_dualbrain","startTest":6,"endTest":25,"status":"ERROR","attempted":5,"passed":5,"failed":1,"firstFailAt":null,"reason":"unexpected_report_range:1-5","firstFailArtifact":null,"reportPath":"/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_021644.json"}
+benchmarks/audits/baseline/million_baseline_compare_20260228_142635.json:4:  "maxTests": 1,
+benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_debug1.trace.log:15:- fail_case: 11
+benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_debug1.trace.log:16:- failure_artifact: unexpected_report_range:1-5
+benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_debug1.trace.log:34:I’m going to locate the latest failure journal/artifact for `fail_case 11` in `turingos_dualbrain`, trace where `unexpected_report_range:1-5` is produced, then patch the smallest possible fix and run the exact validation commands you listed.
+benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_debug1.trace.log:58:/bin/bash -lc 'rg -n "unexpected_report_range|fail_case|turingos_dualbrain|bench:million-baseline-compare|anti-oreo|hypercore" -S .' in /home/zephryj/projects/turingos succeeded in 52ms:
+benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_debug1.trace.log:83:I found where `unexpected_report_range` is generated (`scripts/codex_relentless_push.sh`), so next I’m checking the newest baseline failure artifact and replay logs to confirm why it reported `1-5` for `fail_case 11`.
+benchmarks/audits/baseline/million_baseline_compare_20260301_010651.json:3:  "startTest": 143,
+benchmarks/audits/baseline/million_baseline_compare_20260301_010651.json:5:  "maxTests": 143,
+benchmarks/audits/baseline/million_baseline_compare_20260228_161708.json:4:  "maxTests": 100,
+benchmarks/audits/baseline/million_baseline_compare_latest.json:3:  "startTest": 1,
+benchmarks/audits/baseline/million_baseline_compare_latest.json:5:  "maxTests": 5,
+benchmarks/audits/baseline/million_baseline_compare_20260228_172424.json:3:  "startTest": 16,
+benchmarks/audits/baseline/million_baseline_compare_20260228_172424.json:5:  "maxTests": 40,
+
+thinking
+**Investigating stale report selection**
+codex
+The failure is now reproducibly tied to stale report selection: the run expected range `6-25` but consumed an old report (`startTest=1`, `maxTests=5`). I’m reading the run scripts next to patch that stale-report detection with minimal scope.
+exec
+/bin/bash -lc "nl -ba scripts/codex_relentless_push.sh | sed -n '1,240p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba scripts/codex_continuous_until_fail.sh | sed -n '1,280p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba scripts/codex_relentless_push.sh | sed -n '240,520p'" in /home/zephryj/projects/turingos succeeded in 50ms:
+     1	#!/usr/bin/env bash
+     2	set -euo pipefail
+     3	
+     4	ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+     5	cd "$ROOT_DIR"
+     6	
+     7	MODE="${MODE:-turingos_dualbrain}"
+     8	INITIAL_FRONTIER="${INITIAL_FRONTIER:-}"
+     9	WINDOW_MIN="${WINDOW_MIN:-20}"
+    10	WINDOW_MAX="${WINDOW_MAX:-320}"
+    11	WINDOW="${WINDOW:-20}"
+    12	BACKTRACK="${BACKTRACK:-3}"
+    13	MAX_DEBUG_ATTEMPTS_PER_FAIL="${MAX_DEBUG_ATTEMPTS_PER_FAIL:-3}"
+    14	MAX_BLOCKER_REPEATS="${MAX_BLOCKER_REPEATS:-3}"
+    15	CODEX_BENCH_TIMEOUT_SEC="${CODEX_BENCH_TIMEOUT_SEC:-1800}"
+    16	CODEX_DEBUG_TIMEOUT_SEC="${CODEX_DEBUG_TIMEOUT_SEC:-2400}"
+    17	SLEEP_BETWEEN_CYCLES_SEC="${SLEEP_BETWEEN_CYCLES_SEC:-2}"
+    18	STOP_FILE_SUFFIX="${STOP_FILE_SUFFIX:-}"
+    19	
+    20	LOG_DIR="$ROOT_DIR/benchmarks/audits/baseline/relentless"
+ succeeded in 51ms:
+     1	#!/usr/bin/env bash
+     2	set -euo pipefail
+     3	
+     4	ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+     5	cd "$ROOT_DIR"
+     6	
+     7	MODE="${MODE:-turingos_dualbrain}"
+     8	WINDOW="${WINDOW:-20}"
+     9	CODEX_STEP_TIMEOUT_SEC="${CODEX_STEP_TIMEOUT_SEC:-1800}"
+    10	INITIAL_FRONTIER="${INITIAL_FRONTIER:-}"
+    11	STOP_FILE_SUFFIX="${STOP_FILE_SUFFIX:-}"
+    12	
+    13	LOG_DIR="$ROOT_DIR/benchmarks/audits/baseline/continuous"
+    14	STAMP="$(date +%Y%m%d_%H%M%S)"
+    15	RUN_LOG="$LOG_DIR/continuous_until_fail_${STAMP}.log"
+    16	SUMMARY_JSONL="$LOG_DIR/continuous_until_fail_${STAMP}.jsonl"
+    17	SUMMARY_LATEST="$LOG_DIR/continuous_until_fail_latest.jsonl"
+    18	STATE_LATEST="$LOG_DIR/continuous_until_fail_state_latest.json"
+    19	STOP_FILE="$LOG_DIR/continuous_until_fail${STOP_FILE_SUFFIX}.stop"
+    20	
+ succeeded in 51ms:
+   240	  `- stop_reason: ${reason}`,
+   241	  `- summary_jsonl: ${summaryPath}`,
+   242	  `- run_log: ${runLog}`,
+   243	  `- state_json: ${statePath}`,
+   244	  '',
+   245	  '## Recent Cycles',
+   246	  ...tail,
+   247	  '',
+   248	].join('\n');
+   249	fs.writeFileSync(outPath, `${body}\n`, 'utf8');
+   250	NODE
+   251	}
+   252	
+   253	if ! [[ "$WINDOW" =~ ^[0-9]+$ ]] || (( WINDOW <= 0 )); then
+   254	  WINDOW=20
+   255	fi
+   256	if ! [[ "$WINDOW_MIN" =~ ^[0-9]+$ ]] || (( WINDOW_MIN <= 0 )); then
+   257	  WINDOW_MIN=20
+   258	fi
+   259	if ! [[ "$WINDOW_MAX" =~ ^[0-9]+$ ]] || (( WINDOW_MAX < WINDOW_MIN )); then
+
+thinking
+**Inspecting argument parsing and reporting**
+codex
+I’ve confirmed both orchestrator scripts parse only `million_baseline_compare_latest.json`; if that file is stale, they force `unexpected_report_range`. I’m now checking `src/bench/million-baseline-compare.ts` argument parsing/output timing to see why latest wasn’t updated for the `6-25` run.
+exec
+/bin/bash -lc "nl -ba src/bench/million-baseline-compare.ts | sed -n '1,260p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba src/bench/million-baseline-compare.ts | sed -n '260,560p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba src/bench/million-baseline-compare.ts | sed -n '560,860p'" in /home/zephryj/projects/turingos succeeded in 50ms:
+     1	import 'dotenv/config';
+     2	import fs from 'node:fs';
+     3	import path from 'node:path';
+     4	import OpenAI from 'openai';
+     5	import { fileURLToPath } from 'node:url';
+     6	import { FileChronos } from '../chronos/file-chronos.js';
+     7	import { HaltVerifier } from '../kernel/halt-verifier.js';
+     8	import { TuringHyperCore } from '../kernel/scheduler.js';
+     9	import { LocalManifold } from '../manifold/local-manifold.js';
+    10	import { DualBrainOracle } from '../oracle/dual-brain-oracle.js';
+    11	import { UniversalOracle } from '../oracle/universal-oracle.js';
+    12	
+    13	type BaselineMode = 'qwen_direct' | 'kimi_direct' | 'turingos_dualbrain';
+    14	
+    15	interface CliArgs {
+    16	  modes: BaselineMode[];
+    17	  startTest: number;
+    18	  maxTests: number;
+    19	  targetTests: number;
+    20	  stopOnFirstFail: boolean;
+ succeeded in 50ms:
+   260	    risk += 1;
+   261	  }
+   262	  if (state.workerFanout > 1 && !metrics.mapReduceUsed) {
+   263	    risk += 1;
+   264	  }
+   265	
+   266	  if (risk >= state.upshiftRiskThreshold) {
+   267	    state.workerFanout = Math.min(state.maxWorkers, state.workerFanout + 1);
+   268	    state.stableCases = 0;
+   269	    return;
+   270	  }
+   271	  if (risk === 0) {
+   272	    state.stableCases += 1;
+   273	    if (state.stableCases >= state.downshiftStableCases) {
+   274	      state.workerFanout = Math.max(state.minWorkers, state.workerFanout - 1);
+   275	      state.stableCases = 0;
+   276	    }
+   277	    return;
+   278	  }
+   279	  state.stableCases = 0;
+ succeeded in 51ms:
+   560	  passed: number;
+   561	  failed: number;
+   562	}): string {
+   563	  const stamp = stampNow();
+   564	  const artifactPath = path.join(
+   565	    FAIL_ARTIFACT_DIR,
+   566	    `${input.mode}_case_${String(input.testCase.index).padStart(6, '0')}_${stamp}.json`
+   567	  );
+   568	  const base: Record<string, unknown> = {
+   569	    stamp,
+   570	    mode: input.mode,
+   571	    testCase: input.testCase,
+   572	    observed: input.observed,
+   573	    reason: input.reason,
+   574	    attempted: input.attempted,
+   575	    passed: input.passed,
+   576	    failed: input.failed,
+   577	    firstFailAt: input.testCase.index,
+   578	  };
+   579	  if (input.errorStack) {
+
+thinking
+**Inspecting failure trace logs**
+codex
+I’ve verified the benchmark itself writes correct ranges when invoked directly, so the regression is in orchestration/report selection. I’m inspecting the failing `relentless` and `continuous` trace logs now to confirm whether the benchmark step failed and left `latest` stale.
+exec
+/bin/bash -lc "nl -ba benchmarks/audits/baseline/relentless/relentless_push_20260301_031021.log | sed -n '1,220p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_bench.trace.log | sed -n '1,260p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba benchmarks/audits/baseline/continuous/continuous_cycle_20260301_030351_c1.trace.log | sed -n '1,260p'" in /home/zephryj/projects/turingos succeeded in 50ms:
+     1	[relentless-push][2026-03-01 03:10:21] start mode=turingos_dualbrain frontier=5 window=20 backtrack=3 max_debug_attempts=3 max_blocker_repeats=3 stop_file=/home/zephryj/projects/turingos/benchmarks/audits/baseline/relentless/relentless_push.stop
+     2	[relentless-push][2026-03-01 03:10:21] cycle=1 bench range=6-25 frontier=5 window=20
+     3	[relentless-push][2026-03-01 03:40:21] cycle=1 bench codex exec timeout/non-zero trace=/home/zephryj/projects/turingos/benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_bench.trace.log
+     4	[relentless-push][2026-03-01 03:40:21] cycle=1 bench status=ERROR passed=5 failed=1 first_fail=0 report=none
+     5	[relentless-push][2026-03-01 03:40:21] cycle=1 debug_attempt=1 fail_case=11 replay=8-14
+ succeeded in 50ms:
+     1	OpenAI Codex v0.106.0 (research preview)
+     2	--------
+     3	workdir: /home/zephryj/projects/turingos
+     4	model: gpt-5.3-codex
+     5	provider: openai
+     6	approval: never
+     7	sandbox: danger-full-access
+     8	reasoning effort: xhigh
+     9	reasoning summaries: none
+    10	session id: 019ca760-23d9-7833-9bc3-6af7b74a7fbc
+    11	--------
+    12	user
+    13	You are executing one baseline benchmark cycle. Do not edit any files.
+    14	Run exactly this command:
+    15	npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 6 --max-tests 25 --continue-after-fail
+    16	After command completion, stop.
+    17	mcp startup: no servers
+    18	
+    19	thinking
+    20	**Preparing to run command**
+ succeeded in 51ms:
+     1	OpenAI Codex v0.106.0 (research preview)
+     2	--------
+     3	workdir: /home/zephryj/projects/turingos
+     4	model: gpt-5.3-codex
+     5	provider: openai
+     6	approval: never
+     7	sandbox: danger-full-access
+     8	reasoning effort: xhigh
+     9	reasoning summaries: none
+    10	session id: 019ca75a-304e-7dd0-9410-d40dcf9c69dc
+    11	--------
+    12	user
+    13	You are executing one baseline benchmark cycle. Do not edit any files.
+    14	Run exactly this command:
+    15	npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 6 --max-tests 25 --continue-after-fail
+    16	After command completion, stop.
+    17	mcp startup: no servers
+    18	
+    19	thinking
+    20	**Acknowledging and running command**
+
+thinking
+**Planning stale report detection fix**
+codex
+I confirmed the immediate root cause: the benchmark subprocess timed out (`exit -1`), and the orchestrator then misread a stale `latest` report as a new failure (`unexpected_report_range:1-5`). I’m going to apply a minimal guard so stale `latest` reports are classified as orchestration errors instead of fake case failures.
+exec
+/bin/bash -lc "nl -ba scripts/overnight_codex_exec_supervisor.sh | sed -n '120,260p'" in /home/zephryj/projects/turingosexec
+/bin/bash -lc 'rg -n "stale_report_or_codex_failed|stale_report|unexpected_report_range|reportPath" scripts/overnight_codex_exec_supervisor.sh scripts/overnight_baseline_push.sh -S' in /home/zephryj/projects/turingosexec
+/bin/bash -lc "nl -ba scripts/overnight_baseline_push.sh | sed -n '110,230p'" in /home/zephryj/projects/turingos succeeded in 51ms:
+   120	load_previous_state() {
+   121	  if [[ ! -f "$STATE_LATEST" ]]; then
+   122	    return
+   123	  fi
+   124	  local loaded
+   125	  loaded="$(node - "$STATE_LATEST" <<'NODE'
+   126	const fs = require('fs');
+   127	const p = process.argv[2];
+   128	try {
+   129	  const raw = JSON.parse(fs.readFileSync(p, 'utf8'));
+   130	  const frontier = Number(raw.frontier || 0);
+   131	  const window = Number(raw.window || 0);
+   132	  const profile = typeof raw.activeProfile === 'string' ? raw.activeProfile : '';
+   133	  console.log(`${frontier}\t${window}\t${profile}`);
+   134	} catch {
+   135	  process.exit(1);
+   136	}
+   137	NODE
+   138	)" || return
+   139	  IFS=$'\t' read -r loaded_frontier loaded_window loaded_profile <<<"$loaded"
+ succeeded in 51ms:
+scripts/overnight_baseline_push.sh:78:const reportPath = process.argv[2];
+scripts/overnight_baseline_push.sh:81:  const raw = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+scripts/overnight_baseline_push.sh:162:const reportPath = process.argv[2];
+scripts/overnight_baseline_push.sh:178:  reportPath,
+scripts/overnight_baseline_push.sh:190:  const raw = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+scripts/overnight_baseline_push.sh:197:    ? reportPath.replace('million_baseline_compare_latest.json', `million_baseline_compare_${raw.stamp}.json`)
+scripts/overnight_baseline_push.sh:198:    : reportPath;
+scripts/overnight_baseline_push.sh:208:    reportPath: stampedPath,
+scripts/overnight_codex_exec_supervisor.sh:204:const out = { status: 'ERROR', passed: 0, failed: 1, firstFailAt: null, reportPath: '', reason: 'missing_report' };
+scripts/overnight_codex_exec_supervisor.sh:218:const reportPath = process.argv[2];
+scripts/overnight_codex_exec_supervisor.sh:225:    reportPath,
+scripts/overnight_codex_exec_supervisor.sh:226:    reason: 'stale_report_or_codex_failed',
+scripts/overnight_codex_exec_supervisor.sh:235:const reportPath = process.argv[2];
+scripts/overnight_codex_exec_supervisor.sh:240:  const raw = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+scripts/overnight_codex_exec_supervisor.sh:244:    process.stdout.write(JSON.stringify({ status: 'ERROR', passed: 0, failed: 1, firstFailAt: null, reportPath, reason: 'report_row_missing' }));
+scripts/overnight_codex_exec_supervisor.sh:253:      reportPath,
+scripts/overnight_codex_exec_supervisor.sh:254:      reason: `unexpected_report_range:${raw.startTest}-${raw.maxTests}`,
+scripts/overnight_codex_exec_supervisor.sh:263:    reportPath,
+scripts/overnight_codex_exec_supervisor.sh:267:  process.stdout.write(JSON.stringify({ status: 'ERROR', passed: 0, failed: 1, firstFailAt: null, reportPath, reason: 'report_parse_failed' }));
+scripts/overnight_codex_exec_supervisor.sh:339:    SUMMARY_BASE='{"status":"ERROR","passed":0,"failed":1,"firstFailAt":null,"reportPath":"","reason":"summary_base_invalid_json"}'
+ succeeded in 50ms:
+   110	    return
+   111	  fi
+   112	
+   113	  local loaded
+   114	  loaded="$(node - "$STATE_LATEST" <<'NODE'
+   115	const fs = require('fs');
+   116	const path = process.argv[2];
+   117	try {
+   118	  const raw = JSON.parse(fs.readFileSync(path, 'utf8'));
+   119	  const frontier = Number(raw.frontier || 0);
+   120	  const window = Number(raw.window || 0);
+   121	  const profile = typeof raw.activeProfile === 'string' ? raw.activeProfile : '';
+   122	  console.log(`${frontier}\t${window}\t${profile}`);
+   123	} catch {
+   124	  process.exit(1);
+   125	}
+   126	NODE
+   127	)" || return
+   128	
+   129	  IFS=$'\t' read -r loaded_frontier loaded_window loaded_profile <<<"$loaded"
+
+thinking
+**Designing stale-report detection logic**
+codex
+I found an existing pattern in `scripts/overnight_codex_exec_supervisor.sh` that already handles stale reports safely. I’ll apply that same minimal stamp-before/stamp-after guard to the relentless path (and the continuous companion for consistency), then run your validation and replay commands.
+exec
+/bin/bash -lc 'git status --short' in /home/zephryj/projects/turingos succeeded in 51ms:
+ M benchmarks/audits/longrun/context_decay_profile.json
+ M benchmarks/audits/longrun/dirty_trace_latest.jsonl
+ M benchmarks/audits/longrun/thrashing.journal
+ M benchmarks/audits/longrun/trace.jsonl
+ M benchmarks/audits/longrun/voyager_realworld_eval_latest.json
+ M benchmarks/audits/longrun/voyager_realworld_eval_latest.md
+ M benchmarks/audits/protocol/syscall_schema_consistency_latest.json
+ M benchmarks/audits/protocol/syscall_schema_consistency_latest.md
+ M benchmarks/audits/protocol/syscall_schema_gate_latest.json
+ M benchmarks/audits/protocol/syscall_schema_gate_latest.md
+ M benchmarks/audits/protocol/turing_bus_conformance_latest.json
+ M benchmarks/audits/protocol/turing_bus_conformance_latest.md
+ M benchmarks/audits/sft/failure_recovery_dataset_stats_20260227.json
+ M benchmarks/audits/sft/failure_recovery_dataset_stats_latest.json
+ M benchmarks/audits/sft/guard_mcu_eval_latest.json
+ M benchmarks/audits/sft/guard_sft_dataset_latest.json
+ M benchmarks/audits/sft/guard_sft_split_latest.json
+ M benchmarks/audits/sft/model_matrix_20260227.json
+ M benchmarks/audits/sft/model_matrix_latest.json
+ M benchmarks/audits/sft/model_matrix_latest.md
+
+thinking
+**Planning stale report detection**
+codex
+I’m about to edit `scripts/codex_relentless_push.sh` and `scripts/codex_continuous_until_fail.sh` to add a stamp-before/stamp-after stale-report guard, so failed/timeout runs no longer get misclassified as `unexpected_report_range` with bogus fail-case offsets.
+
+thinking
+**Inspecting code around parse function**
+exec
+/bin/bash -lc "nl -ba scripts/codex_relentless_push.sh | sed -n '90,200p'" in /home/zephryj/projects/turingos succeeded in 51ms:
+    90	    echo "$2"
+    91	  fi
+    92	}
+    93	
+    94	min_int() {
+    95	  if (( $1 < $2 )); then
+    96	    echo "$1"
+    97	  else
+    98	    echo "$2"
+    99	  fi
+   100	}
+   101	
+   102	run_codex_prompt() {
+   103	  local timeout_sec="$1"
+   104	  local trace_file="$2"
+   105	  local prompt="$3"
+   106	  if ! timeout "$timeout_sec" codex exec \
+   107	    --dangerously-bypass-approvals-and-sandbox \
+   108	    --skip-git-repo-check \
+   109	    -C "$ROOT_DIR" \
+
+thinking
+**Reviewing existing range mismatch handling**
+exec
+/bin/bash -lc "nl -ba scripts/codex_relentless_push.sh | sed -n '286,415p'" in /home/zephryj/projects/turingos succeeded in 51ms:
+   286	CYCLE=1
+   287	BLOCKER_FAIL_AT=0
+   288	BLOCKER_REPEATS=0
+   289	GREEN_STREAK=0
+   290	log "start mode=$MODE frontier=$FRONTIER window=$WINDOW backtrack=$BACKTRACK max_debug_attempts=$MAX_DEBUG_ATTEMPTS_PER_FAIL max_blocker_repeats=$MAX_BLOCKER_REPEATS stop_file=$STOP_FILE"
+   291	
+   292	while true; do
+   293	  if [[ -f "$STOP_FILE" ]]; then
+   294	    log "stop file detected: $STOP_FILE"
+   295	    break
+   296	  fi
+   297	
+   298	  START_TEST="$(( FRONTIER + 1 ))"
+   299	  END_TEST="$(( START_TEST + WINDOW - 1 ))"
+   300	  BENCH_TRACE="$LOG_DIR/relentless_cycle_${STAMP}_c${CYCLE}_bench.trace.log"
+   301	  BENCH_PROMPT=$(cat <<PROMPT
+   302	You are executing one baseline benchmark cycle. Do not edit any files.
+   303	Run exactly this command:
+   304	npm run -s bench:million-baseline-compare -- --modes ${MODE} --start-test ${START_TEST} --max-tests ${END_TEST} --continue-after-fail
+   305	After command completion, stop.
+
+thinking
+**Planning incremental patch steps**

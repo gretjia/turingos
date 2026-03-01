@@ -154,13 +154,30 @@ export function extractProviderText(provider: BusProvider, payload: unknown): Pr
   };
 }
 
-function extractThought(rawOutput: string): string | undefined {
-  const thoughtMatch = rawOutput.match(/<thought>([\s\S]*?)<\/thought>/i);
-  if (!thoughtMatch?.[1]) {
-    return undefined;
+function stripLeadingReasoningBlocks(rawOutput: string): { body: string; thought?: string } {
+  const thoughts: string[] = [];
+  let remainder = rawOutput.trim();
+  const blockPattern = /^<\s*(think|thought)\b[^>]*>([\s\S]*?)<\/\s*\1\s*>/i;
+
+  while (true) {
+    const match = remainder.match(blockPattern);
+    if (!match) {
+      break;
+    }
+    const inner = (match[2] ?? '').trim();
+    if (inner.length > 0) {
+      thoughts.push(inner);
+    }
+    remainder = remainder.slice(match[0].length).trimStart();
   }
-  const thought = thoughtMatch[1].trim();
-  return thought.length > 0 ? thought : undefined;
+
+  if (thoughts.length === 0) {
+    return { body: rawOutput.trim() };
+  }
+  return {
+    body: remainder.trim(),
+    thought: thoughts.join('\n\n'),
+  };
 }
 
 interface TransitionShape {
@@ -170,6 +187,36 @@ interface TransitionShape {
   mind_ops?: unknown;
   world_op?: unknown;
   world_ops?: unknown;
+}
+
+interface GuardrailAccumulator {
+  notes: string[];
+}
+
+function isFrameGuardrailEnabled(): boolean {
+  const raw = process.env.TURINGOS_FRAME_GUARDRAIL_ENABLED;
+  if (!raw || raw.trim().length === 0) {
+    return true;
+  }
+  return /^(1|true|yes|on)$/i.test(raw.trim());
+}
+
+function isDroppableMalformedEntry(reason: string): boolean {
+  return (
+    reason.includes('a_t must be an object') ||
+    reason.includes('Missing syscall op field.')
+  );
+}
+
+function mergeThoughts(base: string | undefined, notes: string[]): string | undefined {
+  if (notes.length === 0) {
+    return base;
+  }
+  const prefix = `[GUARDRAIL] ${notes.join(' ; ')}`;
+  if (!base || base.trim().length === 0) {
+    return prefix;
+  }
+  return `${base.trim()}\n${prefix}`;
 }
 
 function readThoughtField(record: Record<string, unknown>): string | undefined {
@@ -218,6 +265,27 @@ function asTransitionShape(
     };
   }
 
+  if (a_t || hasVliwShape) {
+    return {
+      q_next: '',
+      a_t,
+      mind_ops,
+      world_op,
+      world_ops,
+      thought,
+    };
+  }
+
+  // Compatibility path: some providers output a bare syscall object rather than a full transition frame.
+  const directSyscall = normalizeModelSyscall(record);
+  if (directSyscall.ok) {
+    return {
+      q_next: '',
+      a_t: record,
+      thought,
+    };
+  }
+
   const nestedKeys = ['result', 'output', 'data', 'frame', 'transition'];
   for (const key of nestedKeys) {
     const nested = asRecord(record[key]);
@@ -243,17 +311,36 @@ function normalizeSyscallOrThrow(value: unknown, label: string): Syscall {
   return parsed.syscall;
 }
 
-function normalizeMindOps(raw: unknown): Syscall[] {
+function normalizeMindOps(
+  raw: unknown,
+  spillWorldOps?: Syscall[],
+  guardrail?: GuardrailAccumulator
+): Syscall[] {
   if (raw === undefined || raw === null) {
     return [];
   }
   const source = Array.isArray(raw) ? raw : [raw];
   const out: Syscall[] = [];
   for (let i = 0; i < source.length; i += 1) {
-    const syscall = normalizeSyscallOrThrow(source[i], `mind_ops[${i}]`);
+    const parsed = normalizeModelSyscall(source[i]);
+    if (!parsed.ok) {
+      if (guardrail && isDroppableMalformedEntry(parsed.reason)) {
+        guardrail.notes.push(`drop mind_ops[${i}] (${parsed.reason})`);
+        continue;
+      }
+      throw new Error(`[CPU_FAULT: INVALID_OPCODE] mind_ops[${i}]: ${parsed.reason}`);
+    }
+    const syscall = parsed.syscall;
     if (!isMindOpcode(syscall.op)) {
+      if ((isWorldOpcode(syscall.op) || isSystemControlOpcode(syscall.op)) && spillWorldOps) {
+        spillWorldOps.push(syscall);
+        if (guardrail) {
+          guardrail.notes.push(`reclassify mind_ops[${i}] -> world_op (${syscall.op})`);
+        }
+        continue;
+      }
       throw new Error(
-        `[CPU_FAULT: INVALID_OPCODE] mind_ops[${i}] must be mind scheduling opcode (SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE), got ${syscall.op}`
+        `[CPU_FAULT: INVALID_OPCODE] mind_ops[${i}] must be mind scheduling opcode (SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE|SYS_MAP_REDUCE), got ${syscall.op}`
       );
     }
     out.push(syscall);
@@ -261,7 +348,12 @@ function normalizeMindOps(raw: unknown): Syscall[] {
   return out;
 }
 
-function normalizeWorldOps(rawWorldOp: unknown, rawWorldOps: unknown): Syscall[] {
+function normalizeWorldOps(
+  rawWorldOp: unknown,
+  rawWorldOps: unknown,
+  spillMindOps?: Syscall[],
+  guardrail?: GuardrailAccumulator
+): Syscall[] {
   const candidate = rawWorldOps !== undefined ? rawWorldOps : rawWorldOp;
   if (candidate === undefined || candidate === null) {
     return [];
@@ -269,8 +361,23 @@ function normalizeWorldOps(rawWorldOp: unknown, rawWorldOps: unknown): Syscall[]
   const source = Array.isArray(candidate) ? candidate : [candidate];
   const out: Syscall[] = [];
   for (let i = 0; i < source.length; i += 1) {
-    const syscall = normalizeSyscallOrThrow(source[i], `world_op[${i}]`);
+    const parsed = normalizeModelSyscall(source[i]);
+    if (!parsed.ok) {
+      if (guardrail && isDroppableMalformedEntry(parsed.reason)) {
+        guardrail.notes.push(`drop world_op[${i}] (${parsed.reason})`);
+        continue;
+      }
+      throw new Error(`[CPU_FAULT: INVALID_OPCODE] world_op[${i}]: ${parsed.reason}`);
+    }
+    const syscall = parsed.syscall;
     if (!isWorldOpcode(syscall.op) && !isSystemControlOpcode(syscall.op)) {
+      if (isMindOpcode(syscall.op) && spillMindOps) {
+        spillMindOps.push(syscall);
+        if (guardrail) {
+          guardrail.notes.push(`reclassify world_op[${i}] -> mind_ops (${syscall.op})`);
+        }
+        continue;
+      }
       throw new Error(
         `[CPU_FAULT: INVALID_OPCODE] world_op[${i}] must be world/system opcode (SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT), got ${syscall.op}`
       );
@@ -283,23 +390,44 @@ function normalizeWorldOps(rawWorldOp: unknown, rawWorldOps: unknown): Syscall[]
 function normalizeTransitionShape(value: TransitionShape): Transition {
   const hasVliwShape = value.mind_ops !== undefined || value.world_op !== undefined || value.world_ops !== undefined;
   if (hasVliwShape) {
-    const mindOps = normalizeMindOps(value.mind_ops);
-    const worldOps = normalizeWorldOps(value.world_op, value.world_ops);
-    const primary = worldOps[0] ?? mindOps[mindOps.length - 1];
+    const guardrailEnabled = isFrameGuardrailEnabled();
+    const guardrail: GuardrailAccumulator | undefined = guardrailEnabled ? { notes: [] } : undefined;
+    const worldSpill: Syscall[] = [];
+    const mindSpill: Syscall[] = [];
+    const mindOps = normalizeMindOps(value.mind_ops, worldSpill, guardrail);
+    const worldOps = normalizeWorldOps(value.world_op, value.world_ops, mindSpill, guardrail);
+    const finalMindOps = [...mindOps, ...mindSpill];
+    const finalWorldOps = [...worldSpill, ...worldOps];
+    let selectedWorldOp: Syscall | null = finalWorldOps[0] ?? null;
+    if (finalWorldOps.length > 1) {
+      if (!guardrailEnabled) {
+        throw new Error(
+          `[CPU_FAULT: INVALID_OPCODE] CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS:${finalWorldOps.map((op) => op.op).join(',')}`
+        );
+      }
+      const preferredIdx = finalWorldOps.findIndex((op) => op.op !== 'SYS_HALT');
+      const keepIdx = preferredIdx >= 0 ? preferredIdx : 0;
+      selectedWorldOp = finalWorldOps[keepIdx] ?? finalWorldOps[0];
+      const dropped = finalWorldOps.flatMap((op, idx) => (idx === keepIdx ? [] : [String(op.op)]));
+      if (dropped.length > 0) {
+        guardrail?.notes.push(`collapse world_ops keep=${selectedWorldOp?.op ?? 'none'} drop=${dropped.join('|')}`);
+      }
+    }
+    const primary = selectedWorldOp ?? finalMindOps[finalMindOps.length - 1];
     if (!primary) {
       throw new Error('[CPU_FAULT: INVALID_OPCODE] VLIW frame requires at least one syscall in mind_ops/world_op.');
     }
+    const existingThought =
+      typeof value.thought === 'string' && value.thought.trim().length > 0 ? value.thought.trim() : undefined;
     const normalized: Transition = {
       q_next: value.q_next,
       a_t: primary,
-      mind_ops: mindOps,
-      world_op: worldOps[0] ?? null,
+      mind_ops: finalMindOps,
+      world_op: selectedWorldOp,
     };
-    if (worldOps.length > 1) {
-      normalized.world_ops = worldOps;
-    }
-    if (typeof value.thought === 'string' && value.thought.trim().length > 0) {
-      normalized.thought = value.thought.trim();
+    const mergedThought = mergeThoughts(existingThought, guardrail?.notes ?? []);
+    if (mergedThought) {
+      normalized.thought = mergedThought;
     }
     return normalized;
   }
@@ -321,93 +449,55 @@ function normalizeTransitionShape(value: TransitionShape): Transition {
   return normalized;
 }
 
-function collectBalancedObjectCandidates(rawOutput: string): string[] {
-  const out: string[] = [];
-  const stack: number[] = [];
-  let inString = false;
-  let escaping = false;
-  for (let i = 0; i < rawOutput.length; i += 1) {
-    const ch = rawOutput[i];
-    if (inString) {
-      if (escaping) {
-        escaping = false;
-        continue;
-      }
-      if (ch === '\\') {
-        escaping = true;
-        continue;
-      }
-      if (ch === '"') {
-        inString = false;
-      }
-      continue;
-    }
-
-    if (ch === '"') {
-      inString = true;
-      continue;
-    }
-    if (ch === '{') {
-      stack.push(i);
-      continue;
-    }
-    if (ch !== '}') {
-      continue;
-    }
-    const start = stack.pop();
-    if (start === undefined) {
-      continue;
-    }
-    if (stack.length === 0) {
-      const candidate = rawOutput.slice(start, i + 1).trim();
-      if (candidate.length > 0) {
-        out.push(candidate);
-      }
-    }
-  }
-  return out;
+function isStrictSingleJsonEnabled(): boolean {
+  // Anti-Oreo v2 parser is permanently strict in runtime.
+  return true;
 }
 
 export function parseBusTransitionFromText(rawOutput: string): Transition {
-  const extractedThought = extractThought(rawOutput);
-  const candidates: string[] = [rawOutput];
-
-  const fencedMatch = rawOutput.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (fencedMatch?.[1]) {
-    candidates.push(fencedMatch[1].trim());
+  const stripped = stripLeadingReasoningBlocks(rawOutput);
+  const extractedThought = stripped.thought;
+  const trimmed = stripped.body;
+  let strictCandidate = trimmed;
+  const singleFence = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (singleFence?.[1]) {
+    strictCandidate = singleFence[1].trim();
+  } else if (trimmed.includes('```')) {
+    throw new Error(
+      `[CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: output must contain exactly one JSON frame and no extra markdown blocks. Raw: ${rawOutput}`
+    );
   }
 
-  const firstBrace = rawOutput.indexOf('{');
-  const lastBrace = rawOutput.lastIndexOf('}');
-  if (firstBrace >= 0 && lastBrace > firstBrace) {
-    candidates.push(rawOutput.slice(firstBrace, lastBrace + 1));
-  }
-  candidates.push(...collectBalancedObjectCandidates(rawOutput));
-
-  const deduped = [...new Set(candidates.map((item) => item.trim()).filter((item) => item.length > 0))];
-
-  let parseError: Error | null = null;
-  for (const candidate of deduped) {
-    try {
-      const parsed = JSON.parse(candidate);
-      const transitionShape = asTransitionShape(parsed);
-      if (!transitionShape) {
-        continue;
-      }
-      const normalized = normalizeTransitionShape(transitionShape);
-      if (!normalized.thought && extractedThought) {
-        normalized.thought = extractedThought;
-      }
-      return normalized;
-    } catch (error: unknown) {
-      parseError = error instanceof Error ? error : new Error(String(error));
-    }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(strictCandidate);
+  } catch (error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with VLIW mind_ops/world_op using ${SYSCALL_OPCODE_PIPE}. Details: ${detail} Raw: ${rawOutput}`
+    );
   }
 
-  const detail = parseError ? ` Details: ${parseError.message}` : '';
-  throw new Error(
-    `[CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using ${SYSCALL_OPCODE_PIPE}.${detail} Raw: ${rawOutput}`
-  );
+  const transitionShape = asTransitionShape(parsed);
+  if (!transitionShape) {
+    throw new Error(
+      `[CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: JSON does not match Transition schema. Raw: ${rawOutput}`
+    );
+  }
+  const hasVliwShape =
+    transitionShape.mind_ops !== undefined ||
+    transitionShape.world_op !== undefined ||
+    transitionShape.world_ops !== undefined;
+  if (!hasVliwShape) {
+    throw new Error(
+      '[CPU_FAULT: INVALID_OPCODE] Strict single-frame mode requires VLIW fields mind_ops/world_op; legacy a_t-only frame is forbidden.'
+    );
+  }
+  const normalized = normalizeTransitionShape(transitionShape);
+  if (!normalized.thought && extractedThought) {
+    normalized.thought = extractedThought;
+  }
+  return normalized;
 }
 
 export function parseProviderBusTransition(

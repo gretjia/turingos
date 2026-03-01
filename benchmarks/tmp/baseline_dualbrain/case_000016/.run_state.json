@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_4fd2b067",
+  "rootState": "TERMINATED",
+  "ticks": 3,
+  "q": "compute_and_write",
+  "d": "MAIN_TAPE.md"
+}

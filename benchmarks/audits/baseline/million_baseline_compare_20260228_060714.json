@@ -1,0 +1,77 @@
+{
+  "stamp": "20260228_060714",
+  "targetTests": 1000000,
+  "maxTests": 1,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error."
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "mismatch expected=358146 got=1"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "mismatch expected=358146 got=(null)"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error."
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "mismatch expected=358146 got=1"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "mismatch expected=358146 got=(null)"
+    }
+  ],
+  "bestMode": "qwen_direct"
+}

@@ -129,13 +129,28 @@ async function main(): Promise<void> {
 
   const validCases: Array<{ id: string; provider: Provider; payload: unknown }> = [
     {
-      id: 'openai_valid_legacy',
+      id: 'openai_valid_with_think_prefix',
       provider: 'openai',
       payload: {
         choices: [
           {
             message: {
-              content: '{"q_next":"state_openai","a_t":{"op":"SYS_GOTO","pointer":"MAIN_TAPE.md"}}',
+              content:
+                '<think>quick planner scratchpad</think>\n{"q_next":"state_openai_think","mind_ops":[{"op":"SYS_EDIT","task":"sync plan"}],"world_op":{"op":"SYS_GOTO","pointer":"MAIN_TAPE.md"}}',
+            },
+          },
+        ],
+        usage: { prompt_tokens: 11, completion_tokens: 9, total_tokens: 20 },
+      },
+    },
+    {
+      id: 'openai_valid_vliw_world_only',
+      provider: 'openai',
+      payload: {
+        choices: [
+          {
+            message: {
+              content: '{"q_next":"state_openai","mind_ops":[],"world_op":{"op":"SYS_GOTO","pointer":"MAIN_TAPE.md"}}',
             },
           },
         ],
@@ -168,6 +183,20 @@ async function main(): Promise<void> {
         eval_count: 5,
       },
     },
+    {
+      id: 'openai_guardrail_multiple_world_ops',
+      provider: 'openai',
+      payload: {
+        choices: [
+          {
+            message: {
+              content:
+                '{"q_next":"guardrail","mind_ops":[{"op":"SYS_EDIT","task":"x"}],"world_ops":[{"op":"SYS_WRITE","payload":"x"},{"op":"SYS_HALT"}]}',
+            },
+          },
+        ],
+      },
+    },
   ];
 
   const invalidCases: Array<{ id: string; provider: Provider; payload: unknown }> = [
@@ -185,13 +214,13 @@ async function main(): Promise<void> {
       },
     },
     {
-      id: 'kimi_reject_invalid_mind_opcode',
+      id: 'kimi_reject_invalid_opcode',
       provider: 'kimi',
       payload: {
         content: [
           {
             type: 'text',
-            text: '{"q_next":"bad","mind_ops":[{"op":"SYS_EXEC","cmd":"npm test"}]}',
+            text: '{"q_next":"bad","mind_ops":[{"op":"SYS_TELEPORT","pointer":"MAIN_TAPE.md"}]}',
           },
         ],
       },

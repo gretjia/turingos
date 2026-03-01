@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "command": "bash .turingos_verify_answer.sh",
+  "createdAt": "2026-02-28T17:29:30.033Z"
+}

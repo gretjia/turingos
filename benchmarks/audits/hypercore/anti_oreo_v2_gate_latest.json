@@ -1,0 +1,72 @@
+{
+  "stamp": "20260301_015814",
+  "pass": true,
+  "topologyProfile": "turingos.anti_oreo.v2",
+  "scenarios": {
+    "pricing_map_reduce_flow": {
+      "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/anti_oreo_v2_gate_s1_20260301_015814",
+      "pass": true,
+      "result": {
+        "ticks": 7,
+        "rootState": "TERMINATED"
+      },
+      "checks": [
+        {
+          "name": "root_terminated",
+          "pass": true,
+          "detail": "TERMINATED"
+        },
+        {
+          "name": "map_logged",
+          "pass": true,
+          "detail": "journal contains HYPERCORE_MAP"
+        },
+        {
+          "name": "reduce_logged",
+          "pass": true,
+          "detail": "journal contains HYPERCORE_REDUCE"
+        },
+        {
+          "name": "pricing_fail_logged",
+          "pass": true,
+          "detail": "journal contains verdict=FAIL"
+        },
+        {
+          "name": "pricing_pass_logged",
+          "pass": true,
+          "detail": "journal contains verdict=PASS"
+        },
+        {
+          "name": "result_file_exists",
+          "pass": true,
+          "detail": "result.txt"
+        },
+        {
+          "name": "proof_file_exists",
+          "pass": true,
+          "detail": "proof.txt"
+        }
+      ]
+    },
+    "red_flag_kill_flow": {
+      "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/anti_oreo_v2_gate_s2_20260301_015814",
+      "pass": true,
+      "result": {
+        "ticks": 3,
+        "rootState": "KILLED"
+      },
+      "checks": [
+        {
+          "name": "root_killed",
+          "pass": true,
+          "detail": "KILLED"
+        },
+        {
+          "name": "red_flag_threshold_reached",
+          "pass": true,
+          "detail": "journal contains red_flags=3/3"
+        }
+      ]
+    }
+  }
+}

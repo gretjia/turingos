@@ -1,0 +1,17 @@
+[2026-03-01T01:02:59.717Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.716Z","pid":"planner_8d5d811a","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-03-01T01:02:59.719Z] [HYPERCORE_HALT_REQUEST] pid=planner_8d5d811a
+[2026-03-01T01:02:59.726Z] [HYPERCORE_PRICE] pid=planner_8d5d811a verdict=FAIL price=-1
+[2026-03-01T01:02:59.726Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.726Z","pid":"planner_8d5d811a","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-03-01T01:02:59.727Z] [HYPERCORE_MAP] pid=planner_8d5d811a children=worker_25b2dff3,worker_ca16fb11 task_count=2
+[2026-03-01T01:02:59.727Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.727Z","pid":"worker_25b2dff3","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:02:59.728Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.728Z","pid":"worker_ca16fb11","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:02:59.728Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.728Z","pid":"worker_25b2dff3","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:02:59.728Z] [HYPERCORE_HALT_REQUEST] pid=worker_25b2dff3
+[2026-03-01T01:02:59.734Z] [HYPERCORE_PRICE] pid=worker_25b2dff3 verdict=PASS price=1
+[2026-03-01T01:02:59.735Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.735Z","pid":"worker_ca16fb11","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:02:59.735Z] [HYPERCORE_HALT_REQUEST] pid=worker_ca16fb11
+[2026-03-01T01:02:59.740Z] [HYPERCORE_PRICE] pid=worker_ca16fb11 verdict=PASS price=1
+[2026-03-01T01:02:59.740Z] [HYPERCORE_REDUCE] pid=planner_8d5d811a resumed=1 early_stop=0 consensus=worker_result_written worker_halt_ready votes=1/1
+[2026-03-01T01:02:59.741Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:02:59.740Z","pid":"planner_8d5d811a","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-03-01T01:02:59.741Z] [HYPERCORE_HALT_REQUEST] pid=planner_8d5d811a
+[2026-03-01T01:02:59.745Z] [HYPERCORE_PRICE] pid=planner_8d5d811a verdict=PASS price=0

@@ -1,0 +1,254 @@
+{
+  "stamp": "20260227_162610",
+  "generatedAt": "2026-02-27T16:26:10.418Z",
+  "policy": {
+    "recencyDays": 30,
+    "minStars": 500,
+    "maxStars": 50000,
+    "maxSizeKb": 600000,
+    "topK": 10,
+    "weights": {
+      "reproducibility": 0.3,
+      "ciVerifiability": 0.25,
+      "systemEntropy": 0.2,
+      "activityHealth": 0.15,
+      "toolchainFriction": 0.1
+    },
+    "queries": [
+      "language:TypeScript archived:false fork:false stars:>=500 pushed:>=2026-01-28",
+      "language:Python archived:false fork:false stars:>=500 pushed:>=2026-01-28",
+      "language:Go archived:false fork:false stars:>=500 pushed:>=2026-01-28"
+    ]
+  },
+  "summary": {
+    "fetchedRepos": 8,
+    "scoredRepos": 6,
+    "shortlisted": 6
+  },
+  "rows": [
+    {
+      "fullName": "mudler/LocalAI",
+      "htmlUrl": "https://github.com/mudler/LocalAI",
+      "language": "Go",
+      "stars": 43114,
+      "pushedAt": "2026-02-27T11:15:02Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 154,
+      "sizeKb": 44844,
+      "workflowCount": 34,
+      "selectedIssue": {
+        "number": 8392,
+        "title": "Please help me, unable to communicate with the model through dialogue and generate images normally",
+        "htmlUrl": "https://github.com/mudler/LocalAI/issues/8392",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "unconfirmed"
+        ],
+        "bodyPreview": "<!-- Thanks for helping us to improve LocalAI! We welcome all bug reports. Please fill out each area of the template so we can better help you. Comments like this will be hidden when you post but you can delete them if you wish. --> **Local",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.899714227381436,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9499,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "hashicorp/terraform",
+      "htmlUrl": "https://github.com/hashicorp/terraform",
+      "language": "Go",
+      "stars": 47837,
+      "pushedAt": "2026-02-27T15:30:11Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1913,
+      "sizeKb": 353566,
+      "workflowCount": 21,
+      "selectedIssue": {
+        "number": 38131,
+        "title": "apt repository missing questing Release file",
+        "htmlUrl": "https://github.com/hashicorp/terraform/issues/38131",
+        "comments": 3,
+        "labels": [
+          "bug",
+          "new"
+        ],
+        "bodyPreview": "### Terraform Version ```shell N/A ``` ### Terraform Configuration Files N/A ### Debug Output N/A ### Expected Behavior ``` https://apt.releases.hashicorp.com questing main ``` Should contain a Release file. ### Actual Behavior ``` Error: T",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7499090833947009,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9125,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "cli/cli",
+      "htmlUrl": "https://github.com/cli/cli",
+      "language": "Go",
+      "stars": 42795,
+      "pushedAt": "2026-02-27T14:02:52Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 968,
+      "sizeKb": 74561,
+      "workflowCount": 17,
+      "selectedIssue": {
+        "number": 12726,
+        "title": "`gh project item-edit` Can't Edit Only Draft Issue Title or Body",
+        "htmlUrl": "https://github.com/cli/cli/issues/12726",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "needs-triage"
+        ],
+        "bodyPreview": "### Describe the bug If you're using `gh project item-edit` to edit the title or body of a draft issue, `--title` without `--body` will clear the body, and `--body` without `--title` causes an error. ### Affected version gh version 2.68.1 (",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6947726750741192,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.65
+      },
+      "weightedTotal": 0.8887,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "coreybutler/nvm-windows",
+      "htmlUrl": "https://github.com/coreybutler/nvm-windows",
+      "language": "Go",
+      "stars": 45097,
+      "pushedAt": "2026-02-26T18:00:10Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 99,
+      "sizeKb": 33313,
+      "workflowCount": 7,
+      "selectedIssue": {
+        "number": 546,
+        "title": "Install.cmd Deletes PATH environment data",
+        "htmlUrl": "https://github.com/coreybutler/nvm-windows/issues/546",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "investigating"
+        ],
+        "bodyPreview": "Make sure you have reviewed the [common issues](https://github.com/coreybutler/nvm-windows/wiki/Common-Issues) and existing issues before submitting a new issue. If this is a question about how to use NVM4W, please use [stackoverflow](http:",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.5174901573277508,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8544,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "charmbracelet/bubbletea",
+      "htmlUrl": "https://github.com/charmbracelet/bubbletea",
+      "language": "Go",
+      "stars": 39963,
+      "pushedAt": "2026-02-26T13:48:32Z",
+      "daysSincePush": 1,
+      "openIssuesCount": 151,
+      "sizeKb": 5827,
+      "workflowCount": 12,
+      "selectedIssue": {
+        "number": 874,
+        "title": "IME input in wrong position",
+        "htmlUrl": "https://github.com/charmbracelet/bubbletea/issues/874",
+        "comments": 7,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "**Describe the bug** Candidate window of input method is at wrong position on Linux. The window is **always at the left bottom side** of the application. **Setup** Please complete the following information along with version numbers, if app",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.8,
+        "ciVerifiability": 0.6156921938165305,
+        "systemEntropy": 1,
+        "activityHealth": 0.9777777777777777,
+        "toolchainFriction": 0.65
+      },
+      "weightedTotal": 0.8056,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "AlistGo/alist",
+      "htmlUrl": "https://github.com/AlistGo/alist",
+      "language": "Go",
+      "stars": 49071,
+      "pushedAt": "2026-02-10T08:30:19Z",
+      "daysSincePush": 17,
+      "openIssuesCount": 580,
+      "sizeKb": 6072,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 9374,
+        "title": "夸克网盘【复制】到百度网盘，内存溢出",
+        "htmlUrl": "https://github.com/AlistGo/alist/issues/9374",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Please make sure of the following things - [x] I have read the [documentation](https://alistgo.com). 我已经阅读了[文档](https://alistgo.com)。 - [x] I'm sure there are no duplicate issues or discussions. 我确定没有重复的issue或讨论。 - [x] I'm sure it's due",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.8,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 0.6222222222222222,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.7925,
+      "rejectReasons": []
+    }
+  ]
+}

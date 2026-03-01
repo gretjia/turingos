@@ -1,0 +1,311 @@
+{
+  "stamp": "20260227_164626",
+  "generatedAt": "2026-02-27T16:46:26.965Z",
+  "sourcePoolGeneratedAt": "2026-02-27T16:44:37.684Z",
+  "policy": {
+    "maxRepos": 3,
+    "maxScan": 12,
+    "timeoutMs": {
+      "clone": 180000,
+      "install": 300000,
+      "testProbe": 180000
+    }
+  },
+  "toolchains": {
+    "node": true,
+    "python": true,
+    "npm": true,
+    "pip": false,
+    "pnpm": false,
+    "yarn": false
+  },
+  "summary": {
+    "selected": 8,
+    "pass": 0,
+    "fail": 0,
+    "skip": 8
+  },
+  "rows": [
+    {
+      "fullName": "langfuse/langfuse",
+      "language": "TypeScript",
+      "weightedTotal": 0.9023,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/langfuse__langfuse",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2393,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/langfuse__langfuse'...\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "scalar/scalar",
+      "language": "TypeScript",
+      "weightedTotal": 0.895,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/scalar__scalar",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 4581,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/scalar__scalar'...\nUpdating files:  75% (4671/6214)\rUpdating files:  76% (4723/6214)\rUpdating files:  77% (4785/6214)\rUpdating files:  78% (4847/6214)\rUpdating files:  79% (4910/6214)\rUpdating files:  80% (4972/6214)\rUpdating files:  81% (5034/6214)\rUpdating files:  82% (5096/6214)\rUpdating files:  83% (5158/6214)\rUpdating files:  84% (5220/6214)\rUpdating files:  85% (5282/6214)\rUpdating files:  86% (5345/6214)\rUpdating files:  87% (5407/6214)\rUpdating files:  88% (5469/6214)\rUpdating files:  89% (5531/6214)\rUpdating files:  90% (5593/6214)\rUpdating files:  91% (5655/6214)\rUpdating files:  92% (5717/6214)\rUpdating files:  93% (5780/6214)\rUpdating files:  94% (5842/6214)\rUpdating files:  95% (5904/6214)\rUpdating files:  96% (5966/6214)\rUpdating files:  97% (6028/6214)\rUpdating files:  98% (6090/6214)\rUpdating files:  99% (6152/6214)\rUpdating files: 100% (6214/6214)\rUpdating files: 100% (6214/6214), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "monkeytypegame/monkeytype",
+      "language": "TypeScript",
+      "weightedTotal": 0.8872,
+      "selectedIssue": {
+        "number": 7518,
+        "title": "AFK Detected Bug",
+        "htmlUrl": "https://github.com/monkeytypegame/monkeytype/issues/7518",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Did you clear cache before opening an issue? - [x] I have cleared my cache ### Is there an existing issue for this? - [x] I have [searched](https://github.com/monkeytypegame/monkeytype/issues?q=is%3Aissue) the existing open and closed i",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/monkeytypegame__monkeytype",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 14637,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/monkeytypegame__monkeytype'...\nUpdating files:  56% (1007/1779)\rUpdating files:  57% (1015/1779)\rUpdating files:  58% (1032/1779)\rUpdating files:  59% (1050/1779)\rUpdating files:  60% (1068/1779)\rUpdating files:  61% (1086/1779)\rUpdating files:  62% (1103/1779)\rUpdating files:  63% (1121/1779)\rUpdating files:  64% (1139/1779)\rUpdating files:  65% (1157/1779)\rUpdating files:  66% (1175/1779)\rUpdating files:  67% (1192/1779)\rUpdating files:  68% (1210/1779)\rUpdating files:  69% (1228/1779)\rUpdating files:  70% (1246/1779)\rUpdating files:  71% (1264/1779)\rUpdating files:  72% (1281/1779)\rUpdating files:  73% (1299/1779)\rUpdating files:  74% (1317/1779)\rUpdating files:  75% (1335/1779)\rUpdating files:  76% (1353/1779)\rUpdating files:  77% (1370/1779)\rUpdating files:  78% (1388/1779)\rUpdating files:  79% (1406/1779)\rUpdating files:  80% (1424/1779)\rUpdating files:  80% (1430/1779)\rUpdating files:  81% (1441/1779)\rUpdating files:  82% (1459/1779)\rUpdating files:  83% (1477/1779)\rUpdating files:  84% (1495/1779)\rUpdating files:  85% (1513/1779)\rUpdating files:  86% (1530/1779)\rUpdating files:  87% (1548/1779)\rUpdating files:  88% (1566/1779)\rUpdating files:  89% (1584/1779)\rUpdating files:  90% (1602/1779)\rUpdating files:  91% (1619/1779)\rUpdating files:  92% (1637/1779)\rUpdating files:  93% (1655/1779)\rUpdating files:  94% (1673/1779)\rUpdating files:  95% (1691/1779)\rUpdating files:  96% (1708/1779)\rUpdating files:  97% (1726/1779)\rUpdating files:  98% (1744/1779)\rUpdating files:  99% (1762/1779)\rUpdating files: 100% (1779/1779)\rUpdating files: 100% (1779/1779), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "apify/crawlee",
+      "language": "TypeScript",
+      "weightedTotal": 0.8789,
+      "selectedIssue": {
+        "number": 3427,
+        "title": "RequestQueue marks requests as handled without firing requestHandler under high concurrency/load",
+        "htmlUrl": "https://github.com/apify/crawlee/issues/3427",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Which package is this bug report for? If unsure which one to select, leave blank @crawlee/playwright (PlaywrightCrawler) ### Issue description I am experiencing a race condition where the RequestQueue transitions requests to the \"Handle",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "yarn.lock found but yarn/pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/apify__crawlee",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 8900,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/apify__crawlee'...\nUpdating files:  52% (1330/2545)\rUpdating files:  53% (1349/2545)\rUpdating files:  54% (1375/2545)\rUpdating files:  55% (1400/2545)\rUpdating files:  56% (1426/2545)\rUpdating files:  57% (1451/2545)\rUpdating files:  58% (1477/2545)\rUpdating files:  59% (1502/2545)\rUpdating files:  60% (1527/2545)\rUpdating files:  61% (1553/2545)\rUpdating files:  62% (1578/2545)\rUpdating files:  63% (1604/2545)\rUpdating files:  64% (1629/2545)\rUpdating files:  65% (1655/2545)\rUpdating files:  66% (1680/2545)\rUpdating files:  67% (1706/2545)\rUpdating files:  68% (1731/2545)\rUpdating files:  69% (1757/2545)\rUpdating files:  70% (1782/2545)\rUpdating files:  71% (1807/2545)\rUpdating files:  72% (1833/2545)\rUpdating files:  73% (1858/2545)\rUpdating files:  74% (1884/2545)\rUpdating files:  75% (1909/2545)\rUpdating files:  76% (1935/2545)\rUpdating files:  77% (1960/2545)\rUpdating files:  78% (1986/2545)\rUpdating files:  79% (2011/2545)\rUpdating files:  80% (2036/2545)\rUpdating files:  81% (2062/2545)\rUpdating files:  82% (2087/2545)\rUpdating files:  83% (2113/2545)\rUpdating files:  84% (2138/2545)\rUpdating files:  85% (2164/2545)\rUpdating files:  86% (2189/2545)\rUpdating files:  87% (2215/2545)\rUpdating files:  88% (2240/2545)\rUpdating files:  89% (2266/2545)\rUpdating files:  90% (2291/2545)\rUpdating files:  91% (2316/2545)\rUpdating files:  92% (2342/2545)\rUpdating files:  93% (2367/2545)\rUpdating files:  94% (2393/2545)\rUpdating files:  95% (2418/2545)\rUpdating files:  96% (2444/2545)\rUpdating files:  97% (2469/2545)\rUpdating files:  98% (2495/2545)\rUpdating files:  99% (2520/2545)\rUpdating files: 100% (2545/2545)\rUpdating files: 100% (2545/2545), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "vercel/ai",
+      "language": "TypeScript",
+      "weightedTotal": 0.8707,
+      "selectedIssue": {
+        "number": 12878,
+        "title": "generateText() silently swallows AbortError in multi-step tool loop",
+        "htmlUrl": "https://github.com/vercel/ai/issues/12878",
+        "comments": 0,
+        "labels": [
+          "bug",
+          "ai/core",
+          "support",
+          "reproduction provided"
+        ],
+        "bodyPreview": "### Description `generateText()` (and by extension Mastra's `agent.generate()`) silently swallows `AbortError` when an `AbortSignal` fires mid-generation in a multi-step tool-use loop. Instead of throwing, it returns normally, the caller ha",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/vercel__ai",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 6395,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/vercel__ai'...\nUpdating files:  60% (2915/4854)\rUpdating files:  61% (2961/4854)\rUpdating files:  62% (3010/4854)\rUpdating files:  63% (3059/4854)\rUpdating files:  64% (3107/4854)\rUpdating files:  65% (3156/4854)\rUpdating files:  66% (3204/4854)\rUpdating files:  67% (3253/4854)\rUpdating files:  68% (3301/4854)\rUpdating files:  69% (3350/4854)\rUpdating files:  70% (3398/4854)\rUpdating files:  71% (3447/4854)\rUpdating files:  72% (3495/4854)\rUpdating files:  73% (3544/4854)\rUpdating files:  74% (3592/4854)\rUpdating files:  75% (3641/4854)\rUpdating files:  76% (3690/4854)\rUpdating files:  77% (3738/4854)\rUpdating files:  78% (3787/4854)\rUpdating files:  79% (3835/4854)\rUpdating files:  80% (3884/4854)\rUpdating files:  81% (3932/4854)\rUpdating files:  82% (3981/4854)\rUpdating files:  83% (4029/4854)\rUpdating files:  84% (4078/4854)\rUpdating files:  85% (4126/4854)\rUpdating files:  86% (4175/4854)\rUpdating files:  87% (4223/4854)\rUpdating files:  88% (4272/4854)\rUpdating files:  89% (4321/4854)\rUpdating files:  90% (4369/4854)\rUpdating files:  91% (4418/4854)\rUpdating files:  92% (4466/4854)\rUpdating files:  93% (4515/4854)\rUpdating files:  94% (4563/4854)\rUpdating files:  95% (4612/4854)\rUpdating files:  96% (4660/4854)\rUpdating files:  97% (4709/4854)\rUpdating files:  98% (4757/4854)\rUpdating files:  99% (4806/4854)\rUpdating files: 100% (4854/4854)\rUpdating files: 100% (4854/4854), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "bluesky-social/social-app",
+      "language": "TypeScript",
+      "weightedTotal": 0.8537,
+      "selectedIssue": {
+        "number": 9944,
+        "title": "Meatball menu popup jumps to top-left corner when pressing Enter without a focused menu item",
+        "htmlUrl": "https://github.com/bluesky-social/social-app/issues/9944",
+        "comments": 0,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Steps to Reproduce 1. Navigate to any post on Bluesky (web app, Chrome browser) 2. Click the meatball menu icon (⋯) at the bottom-right of the post 3. When the menu popup appears, do not focus/select any menu item 4. Press the Enter key",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "yarn.lock found but yarn/pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/bluesky-social__social-app",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 4524,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/bluesky-social__social-app'...\nUpdating files:  82% (2102/2536)\rUpdating files:  83% (2105/2536)\rUpdating files:  84% (2131/2536)\rUpdating files:  85% (2156/2536)\rUpdating files:  86% (2181/2536)\rUpdating files:  87% (2207/2536)\rUpdating files:  88% (2232/2536)\rUpdating files:  89% (2258/2536)\rUpdating files:  90% (2283/2536)\rUpdating files:  91% (2308/2536)\rUpdating files:  92% (2334/2536)\rUpdating files:  93% (2359/2536)\rUpdating files:  94% (2384/2536)\rUpdating files:  95% (2410/2536)\rUpdating files:  96% (2435/2536)\rUpdating files:  97% (2460/2536)\rUpdating files:  98% (2486/2536)\rUpdating files:  99% (2511/2536)\rUpdating files: 100% (2536/2536)\rUpdating files: 100% (2536/2536), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "fuma-nama/fumadocs",
+      "language": "TypeScript",
+      "weightedTotal": 0.8321,
+      "selectedIssue": {
+        "number": 3046,
+        "title": "Failed to generate typescript schema: RangeError: Maximum call stack size exceeded",
+        "htmlUrl": "https://github.com/fuma-nama/fumadocs/issues/3046",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### To Reproduce **OpenAPI spec:** ```yaml # Minimal repro for fumadocs TypeScript stack overflow. Recursive AggregationBucket. openapi: 3.0.0 info: title: Records API (Generic Repro) version: '1.0' servers: - url: https://api.example.com c",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/fuma-nama__fumadocs",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 4785,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/fuma-nama__fumadocs'...\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "triggerdotdev/trigger.dev",
+      "language": "TypeScript",
+      "weightedTotal": 0.795,
+      "selectedIssue": {
+        "number": 1384,
+        "title": "Localhost magic link redirect on Safari (MacOS)",
+        "htmlUrl": "https://github.com/triggerdotdev/trigger.dev/issues/1384",
+        "comments": 12,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Provide environment information System: OS: macOS 14.4.1 CPU: (8) arm64 Apple M2 Memory: 77.13 MB / 16.00 GB Shell: 5.9 - /bin/zsh Binaries: Node: 22.2.0 - /opt/homebrew/bin/node Yarn: 1.22.19 - /opt/homebrew/bin/yarn npm: 10.7.0 - /opt",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-pR1UUD/triggerdotdev__trigger.dev",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 3949,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-pR1UUD/triggerdotdev__trigger.dev'...\nUpdating files:  96% (3718/3863)\rUpdating files:  97% (3748/3863)\rUpdating files:  98% (3786/3863)\rUpdating files:  99% (3825/3863)\rUpdating files: 100% (3863/3863)\rUpdating files: 100% (3863/3863), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    }
+  ]
+}

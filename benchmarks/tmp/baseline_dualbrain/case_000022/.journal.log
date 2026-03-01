@@ -1,0 +1,12 @@
+[2026-02-28T17:27:12.460Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:10.984Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:13.856Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:12.460Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:15.132Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:13.856Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:16.487Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:15.132Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:18.234Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:16.488Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:21.924Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:18.235Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:23.248Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:21.924Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:25.903Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:23.249Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:29.561Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:25.903Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:31.200Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:27:29.562Z","pid":"planner_e35b13fc","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-02-28T17:27:31.211Z] [HYPERCORE_HALT_ASSIST] pid=planner_e35b13fc reason=write_thrashing_ready_to_halt streak=3
+[2026-02-28T17:27:31.222Z] [HYPERCORE_PRICE] pid=planner_e35b13fc verdict=PASS price=1

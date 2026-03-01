@@ -1,0 +1,85 @@
+{
+  "stamp": "20260228_074342",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": "DONE:CREATE_ANSWER_FILE_168",
+  "reason": "mismatch expected=168 got=DONE:CREATE_ANSWER_FILE_168",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000001",
+  "workspaceExists": true,
+  "answerFile": "DONE:CREATE_ANSWER_FILE_168",
+  "journalTail": "[2026-02-28T07:42:22.137Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:42:11.178Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:42:28.527Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:42:22.143Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:42:37.149Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:42:28.528Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:42:50.593Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:42:37.150Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:43:00.309Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:42:50.593Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:43:09.484Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:43:00.310Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:43:16.748Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:43:09.484Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:43:16.749Z] [HYPERCORE_HALT_REQUEST] pid=planner_6a8477d9\n[2026-02-28T07:43:16.757Z] [HYPERCORE_PRICE] pid=planner_6a8477d9 verdict=FAIL price=-1\n[2026-02-28T07:43:25.080Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:43:16.757Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:43:33.792Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:43:25.081Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:43:42.004Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:43:33.793Z\",\"pid\":\"planner_6a8477d9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n",
+  "callstack": [
+    {
+      "task_id": "task_c34613a68c30",
+      "status": "SUSPENDED",
+      "objective": "Read MAIN_TAPE.md contents",
+      "scratchpad": "Read MAIN_TAPE.md contents",
+      "created_at": "2026-02-28T07:42:22.140Z",
+      "updated_at": "2026-02-28T07:42:22.140Z"
+    },
+    {
+      "task_id": "task_2fc56a59258d",
+      "status": "SUSPENDED",
+      "objective": "Parse problem and compute exact integer answer",
+      "scratchpad": "Parse problem and compute exact integer answer",
+      "created_at": "2026-02-28T07:42:22.140Z",
+      "updated_at": "2026-02-28T07:42:22.141Z"
+    },
+    {
+      "task_id": "task_997044f45c39",
+      "status": "SUSPENDED",
+      "objective": "Write answer to ANSWER.txt with newline",
+      "scratchpad": "Write answer to ANSWER.txt with newline",
+      "created_at": "2026-02-28T07:42:22.141Z",
+      "updated_at": "2026-02-28T07:42:22.142Z"
+    },
+    {
+      "task_id": "task_b8089b7d904d",
+      "status": "SUSPENDED",
+      "objective": "Verify ANSWER.txt and HALT",
+      "scratchpad": "Verify ANSWER.txt and HALT",
+      "created_at": "2026-02-28T07:42:22.142Z",
+      "updated_at": "2026-02-28T07:42:28.528Z"
+    },
+    {
+      "task_id": "task_d779f4ab3829",
+      "status": "SUSPENDED",
+      "objective": "read MAIN_TAPE.md baseline test 1",
+      "scratchpad": "read MAIN_TAPE.md baseline test 1",
+      "created_at": "2026-02-28T07:42:28.528Z",
+      "updated_at": "2026-02-28T07:43:25.081Z"
+    },
+    {
+      "task_id": "task_f89e0a6f923b",
+      "status": "SUSPENDED",
+      "objective": "Write '168' to ANSWER.txt for physical verifier",
+      "scratchpad": "Write '168' to ANSWER.txt for physical verifier",
+      "created_at": "2026-02-28T07:43:25.081Z",
+      "updated_at": "2026-02-28T07:43:33.793Z"
+    },
+    {
+      "task_id": "task_9ffbfffd519a",
+      "status": "SUSPENDED",
+      "objective": "Verify answer file 168 was created correctly",
+      "scratchpad": "Verify answer file 168 was created correctly",
+      "created_at": "2026-02-28T07:43:33.793Z",
+      "updated_at": "2026-02-28T07:43:42.004Z"
+    },
+    {
+      "task_id": "task_11ba614f192a",
+      "status": "ACTIVE",
+      "objective": "VERIFY_ANSWER_FILE_168: check file exists and validate content",
+      "scratchpad": "VERIFY_ANSWER_FILE_168: check file exists and validate content",
+      "created_at": "2026-02-28T07:43:42.004Z",
+      "updated_at": "2026-02-28T07:43:42.004Z"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+OpenAI Codex v0.106.0 (research preview)
+--------
+workdir: /home/zephryj/projects/turingos
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019ca684-f706-7310-b2d5-5d8f68223512
+--------
+user
+You are executing one baseline benchmark cycle. Do not edit any files.
+Run exactly this command:
+npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 103 --max-tests 122 --continue-after-fail
+
+After command completion, stop. Do not edit files.
+mcp startup: no servers
+
+thinking
+**Running benchmark command**
+codex
+Running the exact benchmark command now in `/home/zephryj/projects/turingos` and I’ll stop immediately after it completes.
+exec
+/bin/bash -lc 'npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 103 --max-tests 122 --continue-after-fail' in /home/zephryj/projects/turingos
+thinking
+**Implementing process polling loop**
+
+thinking
+**Scheduling next poll attempt**
+
+thinking
+**Scheduling periodic user updates**
+codex
+Benchmark is still running with no output yet; I’m continuing to wait for completion.
+
+thinking
+**Sending progress update**
+codex
+Still in progress; the process remains active and I’m waiting for it to finish.
+
+thinking
+**Continuing polling process**
+codex
+Process is still running and hasn’t emitted output yet; continuing to wait.
+codex
+Benchmark is still executing; I’m keeping the session open until it exits.
+codex
+No change yet: command is still active with no stdout/stderr so far.
+
+thinking
+**Extending benchmark duration**
+
+thinking
+**Waiting for update progress**
+codex
+It’s still running; I’m continuing to monitor for completion.
+codex
+Command remains in progress with no emitted output yet; waiting for it to finish.
+
+thinking
+
+codex
+Still active; no stdout/stderr has appeared yet. I’ll report once it exits.
+ succeeded in 3m 52s:
+[million-baseline] start_test=103 target_tests=1000000 max_tests=122
+[million-baseline] mode=turingos_dualbrain consecutive=20 delta_to_1m=999980 status=PASS
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260228_231455.json
+
+thinking
+**Completing with concise result**
+codex
+Command completed successfully (exit code `0`).
+
+Output:
+```text
+[million-baseline] start_test=103 target_tests=1000000 max_tests=122
+[million-baseline] mode=turingos_dualbrain consecutive=20 delta_to_1m=999980 status=PASS
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260228_231455.json
+```
+tokens used
+16,766
+Command completed successfully (exit code `0`).
+
+Output:
+```text
+[million-baseline] start_test=103 target_tests=1000000 max_tests=122
+[million-baseline] mode=turingos_dualbrain consecutive=20 delta_to_1m=999980 status=PASS
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260228_231455.json
+```

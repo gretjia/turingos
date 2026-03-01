@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2026-03-01T03:09:57.541Z",
+  "cycle": 1,
+  "frontier": 5,
+  "window": 20,
+  "mode": "turingos_dualbrain",
+  "summary": {
+    "ts": "2026-03-01T03:09:57.428Z",
+    "status": "ERROR",
+    "attempted": 5,
+    "passed": 5,
+    "failed": 1,
+    "firstFailAt": null,
+    "reason": "unexpected_report_range:1-5",
+    "reportPath": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_021644.json"
+  }
+}

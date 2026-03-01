@@ -1,0 +1,20 @@
+{
+  "stamp": "20260228_075003",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 2,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 85 + 211",
+    "expected": "296"
+  },
+  "observed": null,
+  "reason": "mismatch expected=296 got=(null)",
+  "attempted": 2,
+  "passed": 1,
+  "failed": 1,
+  "firstFailAt": 2,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000002",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T07:50:00.769Z] [HYPERCORE_RED_FLAG] pid=planner_fd216f2b red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_MAP_REDUCE|SYS_POP|SYS_HALT. Details: Unexpected token 'S', \"SYS_WRITE \"... is not valid JSON Raw: I'll solve this step by step.\n\n1) Reading MAIN_TAPE.md: The expression is **85 + 211**\n\n2) Computing: 85 + 211 = **296**\n\n3) Writing to ANSWER.txt:\n\n```\nSYS_WRITE semantic_cap=ANSWER.txt\n296\n```\n\n4) Verifying: ANSWER.txt contains \"296\\n\" ✓\n\n```\nSYS_HALT\n```\n[2026-02-28T07:50:02.239Z] [HYPERCORE_RED_FLAG] pid=planner_fd216f2b red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_MAP_REDUCE|SYS_POP|SYS_HALT. Details: Unexpected token '`', \"```json\n{\"\"... is not valid JSON Raw: ```json\n{\"answer\":\"296\"}\n```\n[2026-02-28T07:50:03.775Z] [HYPERCORE_RED_FLAG] pid=planner_fd216f2b red_flags=3/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Invalid ALU output. Expected JSON with either a_t.op or VLIW mind_ops/world_op using SYS_WRITE|SYS_GOTO|SYS_EXEC|SYS_GIT_LOG|SYS_PUSH|SYS_EDIT|SYS_MOVE|SYS_MAP_REDUCE|SYS_POP|SYS_HALT. Details: Unexpected token '`', \"```json\n{\"\"... is not valid JSON Raw: ```json\n{\"answer\":\"296\"}\n```\n",
+  "callstack": []
+}

@@ -1,0 +1,2 @@
+[codex-supervisor][2026-02-28 17:43:15] start hours=8 frontier=62 window=20 active_profile=balanced codex_timeout_sec=1200
+[codex-supervisor][2026-02-28 17:43:15] cycle=1 profile=balanced range=63-82 (codex exec)

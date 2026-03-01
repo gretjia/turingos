@@ -1,0 +1,35 @@
+{
+  "stamp": "20260228_064532",
+  "targetTests": 1000000,
+  "maxTests": 200,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 20,
+      "passed": 19,
+      "failed": 1,
+      "firstFailAt": 20,
+      "consecutivePassBeforeFirstFail": 19,
+      "closestToMillionDelta": 999981,
+      "status": "FAIL",
+      "reason": "mismatch expected=2600 got=2590",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000020_20260228_064532.json"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 20,
+      "passed": 19,
+      "failed": 1,
+      "firstFailAt": 20,
+      "consecutivePassBeforeFirstFail": 19,
+      "closestToMillionDelta": 999981,
+      "status": "FAIL",
+      "reason": "mismatch expected=2600 got=2590",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000020_20260228_064532.json"
+    }
+  ],
+  "bestMode": "qwen_direct"
+}

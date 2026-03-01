@@ -1,105 +1,94 @@
-# 🌌 TuringOS System Topology Blueprint (v4.0)
+# 🌌 TuringOS System Topology Blueprint (v2.0 Anti-Oreo)
 
-> **[META INSTRUCTION FOR AI AGENTS & PARSERS]**  
-> This document defines the strictly layered architecture of TuringOS. When operating within this codebase, AI Agents MUST parse the `Mermaid Graph` and `<SEMANTIC_SCHEMA>` blocks to understand the rigid boundaries of the system. Do NOT violate the $\mathcal{O}(1)$ state constraints or the mutually exclusive nature of the Instruction Set Architecture (ISA).
+> Meta rule for AI agents: obey the ⚪-⚫-⚪ layered boundaries. Never use one LLM as a judge for another LLM. All final acceptance must come from deterministic white-box verification.
 
-## 1. 🏗️ SYSTEM TOPOLOGY GRAPH (Mermaid & ASCII)
+## 1) Topology (⚪ Top White-Box / ⚫ Middle Black-Box / ⚪ Bottom White-Box)
 
-```mermaid
-graph TD
-    %% Layer 4: The Infinite Tape
-    subgraph L4 ["Layer 4: 💽 The Infinite Tape 𝓕 (Analog World & Time Arrow)"]
-        direction TB
-        DOM["🌐 Web/DOM Oracle"]
-        FS["🗄️ Git File System (Merkle Logged)"]
-        TTY["💻 Unix TTY Host"]
-        ADC["⚙️ Device Drivers (ADC/DAC Bridge)"]
-        DOM --> ADC
-        FS --> ADC
-        TTY --> ADC
-    end
+```text
+=========================================================================================================================
+[ ⚪ TOP WHITE-BOX ] HyperCore Scheduler + Trap + Pricing (deterministic only)
+=========================================================================================================================
+- Trap & Pricing Verifier:
+  - Intercept SYS_HALT, verify with objective tools (test/compile/formal checks)
+  - PASS  => price +1, process TERMINATED
+  - FAIL  => price -1, feed stderr back, force READY retry
+  - Red-Flagging: malformed output / privilege violation reaches threshold => KILLED
+- Time-Slicing + PCB Isolation:
+  - Isolated PCB per micro-agent (chronos/registers/waitPids/mailbox)
+  - Planner/Worker contexts are physically separated
+- Map-Reduce Controller:
+  - Only Planner can emit SYS_MAP_REDUCE
+  - Planner BLOCKED after dispatch, workers are forked and reduced by join
 
-    %% Layer 3: Microkernel
-    subgraph L3 ["Layer 3: 🧠 Microkernel Ring 0 (O(1) Enforcer & OS Schedulers)"]
-        direction TB
-        Pager{"🗂️ Typed Pager (MMU)\nForces 4K Truncation"}
-        Trap{"🚨 Hardware Trap Controller\n(Deadlock/Thrashing Panic)"}
-        Reg_Q[("🗃️ Task Runqueue (q_t)\n[Active, Suspended, Blocked]")]
-        
-        Pager ~~~ Trap ~~~ Reg_Q
-    end
+=========================================================================================================================
+[ ⚫ MIDDLE BLACK-BOX ] Heterogeneous Dual-Brain (mutation + trial-and-error)
+=========================================================================================================================
+- Dual-Brain Router (role-based hard routing):
+  - Planner (P-Core): high-reasoning model, Temperature=0.7, does decomposition and orchestration
+  - Workers (E-Core cluster): fast small/local models, Temperature=0.0, atomic execution only
+- Planner sleeps in BLOCKED after map dispatch to avoid worker noise contamination
 
-    %% Layer 2: System Bus
-    subgraph L2 ["Layer 2: 🚌 Turing System Bus (ISA & ABI)"]
-        direction LR
-        Bus(("Syscall Router\n(Fail-Closed Parser)"))
-        ISA_W["[WORLD]\nSYS_WRITE, SYS_EXEC\nSYS_GOTO, SYS_GIT_LOG"]
-        ISA_M["[MIND]\nSYS_PUSH, SYS_POP\nSYS_EDIT, SYS_MOVE"]
-        Bus --> ISA_W
-        Bus --> ISA_M
-    end
-
-    %% Layer 1: ALU Sockets
-    subgraph L1 ["Layer 1: 🔌 Commodity ALU Sockets (User Space)"]
-        direction LR
-        ALU["Stateless LLM (Temperature = 0.0)"]
-    end
-
-    %% Connections & Data Flow
-    ADC -- "1. Analog -> Typed Page (s_t)" --> Pager
-    Reg_Q -- "2. Current Task Context (q_t)" --> Bus
-    Pager -- "2. Focus Page" --> Bus
-    
-    Bus -- "3. Load Frame ⟨q_t, s_t⟩" --> ALU
-    ALU -- "4. Return Syscall ⟨a_t, q_{t+1}⟩" --> Bus
-    
-    ISA_W -- "5a. Physical/Viewport Mutation" --> ADC
-    ISA_M -- "5b. Queue Mutation (Context Switch)" --> Reg_Q
-    
-    Trap -. "Intercept Deadlocks / Thrashing" .-> Bus
-
+=========================================================================================================================
+[ ⚪ BOTTOM WHITE-BOX ] Turing Bus ABI + Infinite Tape (deterministic reality)
+=========================================================================================================================
+- Turing Syscall ABI:
+  - Strict parser + fail-closed normalization
+  - Compile model output to deterministic syscalls only
+- Infinite Tape / Physical Manifold:
+  - Filesystem, TTY, tests, git logs, and system channels
+  - Returns objective stdout/stderr facts only
 ```
 
-## 2. 🤖 MACHINE-READABLE SCHEMA (Semantic Rules)
-
-**AI Agents MUST map the LLM's output strictly to the following `Syscall_Frame` definition.**
+## 2) Machine-Readable Constraints
 
 ```yaml
-turingos_architecture:
-  layer_3_kernel:
-    state_register_qt:
-      type: "TaskRunqueue"
-      description: "A Dynamic Priority Deque replacing the strict LIFO stack. Acts as the Kolmogorov Minimal Sufficient Statistic of the entity's mind."
-      elements:
-        - task_id: { type: string, immutable: true }
-        - status: { enum: [ACTIVE, SUSPENDED, BLOCKED] }
-        - objective: { type: string }
-        - scratchpad: { type: string, mutable_via: "SYS_EDIT" }
+topology_profile: turingos.anti_oreo.v2
 
-  layer_2_isa:
-    constraint: "ALU MUST output EXACTLY ONE instruction per tick. Operations are mutually exclusive."
-    instruction_classes:
-      - class: "WORLD_MUTATION"
-        instructions: ["SYS_WRITE", "SYS_EXEC"]
-        effect: "Alters Layer 4 state. OS freezes MMU pointer to force read-after-write verification."
-      
-      - class: "WORLD_NAVIGATION"
-        instructions: ["SYS_GOTO", "SYS_GIT_LOG"]
-        effect: "Shifts attention viewport or travels through time. No physical side effects."
-      
-      - class: "MIND_SCHEDULING"
-        instructions: ["SYS_PUSH", "SYS_POP", "SYS_EDIT", "SYS_MOVE"]
-        effect: "Mutates internal runqueue (q_t). Allows yielding, context-switching, and in-place thought mutation."
-        
-      - class: "SYSTEM_CONTROL"
-        instructions: ["SYS_HALT"]
+layers:
+  top_white_box:
+    deterministic_only: true
+    llm_as_judge_forbidden: true
+    scheduler:
+      mode: "time_slicing"
+      pcb_isolation: true
+    traps:
+      red_flag_threshold: 3
+      halt_trap: true
+      thrashing_trap: true
+    pricing:
+      verifier: "objective_tools_only"
+      pass_effect: ["price+1", "TERMINATED"]
+      fail_effect: ["price-1", "READY_retry_with_stderr"]
 
-  hardware_traps:
-    - trap: "TRAP_ILLEGAL_HALT"
-      trigger: "SYS_HALT called without recent execution of tests/verification."
-    - trap: "TRAP_DEADLOCK"
-      trigger: "A->B->A cyclic physical actions detected."
-    - trap: "TRAP_THRASHING"
-      trigger: "Excessive consecutive calls to MIND_SCHEDULING (EDIT/MOVE) without physical I/O output."
+  middle_black_box:
+    router: "role_based"
+    roles:
+      planner:
+        temperature: 0.7
+        allowed_extra_opcode: ["SYS_MAP_REDUCE"]
+      worker:
+        temperature: 0.0
+    map_reduce:
+      planner_state_after_dispatch: "BLOCKED"
+      join_required: true
 
+  bottom_white_box:
+    syscall_bus:
+      parser: "fail_closed"
+      deterministic_execution: true
+    manifold:
+      truth_source: ["stdout", "stderr", "filesystem_state"]
+
+isa:
+  world_ops: ["SYS_WRITE", "SYS_EXEC", "SYS_GOTO", "SYS_GIT_LOG", "SYS_HALT"]
+  mind_ops: ["SYS_PUSH", "SYS_POP", "SYS_EDIT", "SYS_MOVE", "SYS_MAP_REDUCE"]
+  per_tick_constraint: "nQ + 1A"
+  map_reduce_role_constraint: "planner_only"
 ```
+
+## 3) Architecture Manifesto (Short)
+
+- Top white-box does not think; it schedules, filters, and prices.
+- Middle black-box mutates proposals under strict isolation and role constraints.
+- Bottom white-box is the physical law boundary; it returns only objective facts.
+- Long-run reliability comes from repeated white-box filtering, not from trusting any single black-box output.

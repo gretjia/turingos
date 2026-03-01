@@ -1,0 +1,31 @@
+{
+  "stamp": "20260228_065028",
+  "targetTests": 1000000,
+  "maxTests": 40,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "kimi_direct",
+      "attempted": 40,
+      "passed": 40,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 40,
+      "closestToMillionDelta": 999960,
+      "status": "PASS"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "kimi_direct",
+      "attempted": 40,
+      "passed": 40,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 40,
+      "closestToMillionDelta": 999960,
+      "status": "PASS"
+    }
+  ],
+  "bestMode": "kimi_direct"
+}

@@ -1,0 +1,617 @@
+{
+  "stamp": "20260227_170653",
+  "generatedAt": "2026-02-27T17:06:53.385Z",
+  "sourcePoolGeneratedAt": "2026-02-27T16:44:37.684Z",
+  "policy": {
+    "maxRepos": 3,
+    "maxScan": 12,
+    "timeoutMs": {
+      "clone": 180000,
+      "install": 300000,
+      "testProbe": 180000
+    }
+  },
+  "toolchains": {
+    "node": true,
+    "python": true,
+    "npm": true,
+    "pip": false,
+    "pnpm": true,
+    "yarn": false,
+    "uv": true
+  },
+  "summary": {
+    "selected": 12,
+    "pass": 4,
+    "fail": 8,
+    "skip": 0
+  },
+  "rows": [
+    {
+      "fullName": "PrefectHQ/fastmcp",
+      "language": "Python",
+      "weightedTotal": 0.9189,
+      "selectedIssue": {
+        "number": 2867,
+        "title": "GoogleProvider: jwt_signing_key parameter appears to be ignored, causing InvalidSignatureError on /sse",
+        "htmlUrl": "https://github.com/PrefectHQ/fastmcp/issues/2867",
+        "comments": 4,
+        "labels": [
+          "bug",
+          "server",
+          "auth"
+        ],
+        "bodyPreview": "### Description ## Environment - **FastMCP version:** 2.14.2 - **Python version:** 3.12 - **Deployment:** Google Cloud Run (single instance, single process confirmed via PID logging) ## Description When using `GoogleProvider` in OAuth proxy",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/PrefectHQ__fastmcp",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1545,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/PrefectHQ__fastmcp'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 98,
+        "stdoutPreview": "",
+        "stderrPreview": "Using Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --system -e .\nUsing Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "huggingface/lerobot",
+      "language": "Python",
+      "weightedTotal": 0.9092,
+      "selectedIssue": {
+        "number": 2954,
+        "title": "X-VLA LIBERO: Inconsistent config.json",
+        "htmlUrl": "https://github.com/huggingface/lerobot/issues/2954",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "policies",
+          "dataset",
+          "configuration",
+          "processor"
+        ],
+        "bodyPreview": "### Ticket Type 🐛 Bug Report (Something isn't working) ### Environment & System Info ```Shell ``` ### Description ### **Summary** I encountered an issue when loading the pretrained `libero-xvla` policy using `lerobot`. There is a mismatch ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/huggingface__lerobot",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 800,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/huggingface__lerobot'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 101,
+        "stdoutPreview": "",
+        "stderrPreview": "Using Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --system -e .\nUsing Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "ag-ui-protocol/ag-ui",
+      "language": "Python",
+      "weightedTotal": 0.9092,
+      "selectedIssue": {
+        "number": 1128,
+        "title": "[Bug]: Multiple deprecation warnings in ag-ui-langgraph package",
+        "htmlUrl": "https://github.com/ag-ui-protocol/ag-ui/issues/1128",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Pre-flight Checklist - [x] I have searched [existing issues](https://github.com/ag-ui-protocol/ag-ui/issues) and this hasn't been reported yet. - [x] I am using the **latest** version AG-UI. ### Describe the Bug There are a number of de",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/ag-ui-protocol__ag-ui",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1841,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/ag-ui-protocol__ag-ui'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "no requirements/pyproject, install probe skipped",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": false,
+        "code": 1,
+        "durationMs": 0,
+        "stdoutPreview": "",
+        "stderrPreview": "no python test signal found"
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "language": "TypeScript",
+      "weightedTotal": 0.9023,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/langfuse__langfuse",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1690,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/langfuse__langfuse'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1773,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "scalar/scalar",
+      "language": "TypeScript",
+      "weightedTotal": 0.895,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/scalar__scalar",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2408,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/scalar__scalar'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2038,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "PrefectHQ/prefect",
+      "language": "Python",
+      "weightedTotal": 0.89,
+      "selectedIssue": {
+        "number": 20388,
+        "title": "Suspend does not pause running flow in 3.6.13; tasks continue executing after suspend is requested",
+        "htmlUrl": "https://github.com/PrefectHQ/prefect/issues/20388",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Bug summary ## Basics - Prefect version: 3.6.13 - Backend: OSS (version: 3.6.13) - Python version: 3.13.5 - OS/arch: arch btw / x86_64 - How run: `flow.from_source(...).serve('simple-deployment')` - Description: Pressing “Suspend” durin",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/PrefectHQ__prefect",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 3128,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/PrefectHQ__prefect'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 87,
+        "stdoutPreview": "",
+        "stderrPreview": "Using Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --system -e .\nUsing Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "monkeytypegame/monkeytype",
+      "language": "TypeScript",
+      "weightedTotal": 0.8872,
+      "selectedIssue": {
+        "number": 7518,
+        "title": "AFK Detected Bug",
+        "htmlUrl": "https://github.com/monkeytypegame/monkeytype/issues/7518",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Did you clear cache before opening an issue? - [x] I have cleared my cache ### Is there an existing issue for this? - [x] I have [searched](https://github.com/monkeytypegame/monkeytype/issues?q=is%3Aissue) the existing open and closed i",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/monkeytypegame__monkeytype",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 11046,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/monkeytypegame__monkeytype'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 1,
+        "durationMs": 1772,
+        "stdoutPreview": "",
+        "stderrPreview": "",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s pnpm install --frozen-lockfile --ignore-scripts --lockfile-only\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "AstrBotDevs/AstrBot",
+      "language": "Python",
+      "weightedTotal": 0.8832,
+      "selectedIssue": {
+        "number": 5275,
+        "title": "[Bug] 在 QQ 使用 Sandbox 生成图片不显示",
+        "htmlUrl": "https://github.com/AstrBotDevs/AstrBot/issues/5275",
+        "comments": 3,
+        "labels": [
+          "bug",
+          "priority: p0",
+          "area:platform"
+        ],
+        "bodyPreview": "### What happened / 发生了什么 在配置好 SandBox 沙箱环境后，我试图让 Bot 运行一段 python plt 图像生成代码并发送图像给我。通过下面的日志分析可以得知：脚本生成、下载到容器的步骤均正确，且日志无报错并使用了send_message_to_user的tool，但是 QQ 侧却接收不到图像。而如果使用同样的环境和提示词在AstrBot仪表盘的chatui中测试，便可以返回图像。 ### Reproduce / 如何复现？ 1. 配置好s",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/AstrBotDevs__AstrBot",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 928,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/AstrBotDevs__AstrBot'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 43,
+        "stdoutPreview": "",
+        "stderrPreview": "Using Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --system -r requirements.txt\nUsing Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "apify/crawlee",
+      "language": "TypeScript",
+      "weightedTotal": 0.8789,
+      "selectedIssue": {
+        "number": 3427,
+        "title": "RequestQueue marks requests as handled without firing requestHandler under high concurrency/load",
+        "htmlUrl": "https://github.com/apify/crawlee/issues/3427",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Which package is this bug report for? If unsure which one to select, leave blank @crawlee/playwright (PlaywrightCrawler) ### Issue description I am experiencing a race condition where the RequestQueue transitions requests to the \"Handle",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/apify__crawlee",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 5875,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/apify__crawlee'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 25437,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "pydantic/pydantic-ai",
+      "language": "Python",
+      "weightedTotal": 0.8745,
+      "selectedIssue": {
+        "number": 4424,
+        "title": "LogfirePlugin doesn't work with newest Temporal",
+        "htmlUrl": "https://github.com/pydantic/pydantic-ai/issues/4424",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Initial Checks - [x] I'm using the [latest version](https://github.com/pydantic/pydantic-ai/releases/latest) of Pydantic AI - [x] I've searched for my issue in [the issue tracker](https://github.com/pydantic/pydantic-ai/issues) before o",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/pydantic__pydantic-ai",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 6125,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/pydantic__pydantic-ai'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 93,
+        "stdoutPreview": "",
+        "stderrPreview": "Using Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --system -e .\nUsing Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "Chia-Network/chia-blockchain",
+      "language": "Python",
+      "weightedTotal": 0.8737,
+      "selectedIssue": {
+        "number": 15250,
+        "title": "[Bug] On-demand minting is stopping working since v1.7.1",
+        "htmlUrl": "https://github.com/Chia-Network/chia-blockchain/issues/15250",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "GUI",
+          "Windows",
+          "offers",
+          "NFT",
+          "1.8.0"
+        ],
+        "bodyPreview": "### What happened? On-demand minting is stopping working since v1.7.1 - Last working version: 1.7.0 - Confirmed Bug version: 1.7.1/1.8.0/1.8.0b4-dev30(local) Seems Chia Client checks the NFT existence before accepting offer. `error with Coi",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/Chia-Network__chia-blockchain",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1504,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/Chia-Network__chia-blockchain'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 106,
+        "stdoutPreview": "",
+        "stderrPreview": "Using Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --system -e .\nUsing Python 3.11.2 environment at: /usr\nerror: The interpreter at /usr is externally managed, and indicates the following:\n\n  To install Python packages system-wide, try apt install\n  python3-xyz, where xyz is the package you are trying to\n  install.\n\n  If you wish to install a non-Debian-packaged Python package,\n  create a virtual environment using python3 -m venv path/to/venv.\n  Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n  sure you have python3-full installed.\n\n  If you wish to install a non-Debian packaged Python application,\n  it may be easiest to use pipx install xyz, which will manage a\n  virtual environment for you. Make sure you have pipx installed.\n\n  See /usr/share/doc/python3.11/README.venv for more information.\n\nhint: Virtual environments were not considered due to the `--system` flag\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "vercel/ai",
+      "language": "TypeScript",
+      "weightedTotal": 0.8707,
+      "selectedIssue": {
+        "number": 12878,
+        "title": "generateText() silently swallows AbortError in multi-step tool loop",
+        "htmlUrl": "https://github.com/vercel/ai/issues/12878",
+        "comments": 0,
+        "labels": [
+          "bug",
+          "ai/core",
+          "support",
+          "reproduction provided"
+        ],
+        "bodyPreview": "### Description `generateText()` (and by extension Mastra's `agent.generate()`) silently swallows `AbortError` when an `AbortSignal` fires mid-generation in a multi-step tool-use loop. Instead of throwing, it returns normally, the caller ha",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-JAL06m/vercel__ai",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2916,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-JAL06m/vercel__ai'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 4275,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    }
+  ]
+}

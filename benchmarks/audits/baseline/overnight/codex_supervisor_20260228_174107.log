@@ -1,0 +1,14 @@
+[codex-supervisor][2026-02-28 17:41:07] start hours=1 frontier=42 window=20 active_profile=wide_ticks codex_timeout_sec=10
+[codex-supervisor][2026-02-28 17:41:07] cycle=1 profile=wide_ticks range=43-62 (codex exec)
+[codex-supervisor][2026-02-28 17:41:17] codex exec timeout/non-zero for cycle=1 profile=wide_ticks; see /home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_cycle_20260228_174107_1.trace.log
+[codex-supervisor][2026-02-28 17:41:18] cycle=1 status=PASS passed=2 failed=0 first_fail=0 frontier=42 next_window=20 next_profile=balanced
+[codex-supervisor][2026-02-28 17:41:18] cycle=2 profile=balanced range=43-62 (codex exec)
+[codex-supervisor][2026-02-28 17:41:28] codex exec timeout/non-zero for cycle=2 profile=balanced; see /home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_cycle_20260228_174107_2.trace.log
+[codex-supervisor][2026-02-28 17:41:28] cycle=2 status=PASS passed=2 failed=0 first_fail=0 frontier=42 next_window=20 next_profile=strict_halt
+[codex-supervisor][2026-02-28 17:41:28] cycle=3 profile=strict_halt range=43-62 (codex exec)
+[codex-supervisor][2026-02-28 17:41:38] codex exec timeout/non-zero for cycle=3 profile=strict_halt; see /home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_cycle_20260228_174107_3.trace.log
+[codex-supervisor][2026-02-28 17:41:38] cycle=3 status=PASS passed=2 failed=0 first_fail=0 frontier=42 next_window=20 next_profile=wide_ticks
+[codex-supervisor][2026-02-28 17:41:38] cycle=4 profile=wide_ticks range=43-62 (codex exec)
+[codex-supervisor][2026-02-28 17:41:48] codex exec timeout/non-zero for cycle=4 profile=wide_ticks; see /home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_cycle_20260228_174107_4.trace.log
+[codex-supervisor][2026-02-28 17:41:48] cycle=4 status=PASS passed=2 failed=0 first_fail=0 frontier=42 next_window=20 next_profile=balanced
+[codex-supervisor][2026-02-28 17:41:48] cycle=5 profile=balanced range=43-62 (codex exec)

@@ -1,0 +1,27 @@
+OpenAI Codex v0.106.0 (research preview)
+--------
+workdir: /home/zephryj/projects/turingos
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019ca552-371e-74f0-93e9-b97448abfab2
+--------
+user
+You are executing one baseline benchmark cycle. Do not edit any files.
+Run exactly this command:
+npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 43 --max-tests 62 --continue-after-fail
+
+Then read benchmarks/audits/baseline/million_baseline_compare_latest.json.
+Return only one JSON object with these fields:
+- status: PASS/FAIL/ERROR
+- passed: integer
+- failed: integer
+- firstFailAt: integer or null
+- reportPath: absolute path to the stamped report file if available, else latest path
+- reason: short reason string (empty if PASS)
+
+If command fails or report can't be parsed, return status=ERROR and include reason.
+mcp startup: no servers

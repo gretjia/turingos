@@ -1,0 +1,411 @@
+{
+  "stamp": "20260227_163602",
+  "generatedAt": "2026-02-27T16:36:02.994Z",
+  "policy": {
+    "recencyDays": 30,
+    "minStars": 1000,
+    "maxStars": 25000,
+    "maxSizeKb": 350000,
+    "maxPerLanguage": 3,
+    "maxRepoChecks": 48,
+    "topK": 10,
+    "weights": {
+      "reproducibility": 0.3,
+      "ciVerifiability": 0.25,
+      "systemEntropy": 0.2,
+      "activityHealth": 0.15,
+      "toolchainFriction": 0.1
+    },
+    "queries": [
+      "language:TypeScript archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28",
+      "language:Python archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28",
+      "language:Go archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28",
+      "language:Rust archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28"
+    ]
+  },
+  "summary": {
+    "fetchedRepos": 239,
+    "scoredRepos": 26,
+    "shortlisted": 10
+  },
+  "rows": [
+    {
+      "fullName": "zeroclaw-labs/zeroclaw",
+      "htmlUrl": "https://github.com/zeroclaw-labs/zeroclaw",
+      "language": "Rust",
+      "stars": 20370,
+      "pushedAt": "2026-02-27T16:32:49Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 95,
+      "sizeKb": 14735,
+      "workflowCount": 41,
+      "selectedIssue": {
+        "number": 2055,
+        "title": "[Bug]: Cannot compile with channel-matrix",
+        "htmlUrl": "https://github.com/zeroclaw-labs/zeroclaw/issues/2055",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Summary zeroclaw cannot compile with feature channel-matrix ### Affected component channel ### Severity S0 - data loss / security risk ### Current behavior compile error ### Expected behavior compile success ### Steps to reproduce ```ba",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.95,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "keploy/keploy",
+      "htmlUrl": "https://github.com/keploy/keploy",
+      "language": "Go",
+      "stars": 16136,
+      "pushedAt": "2026-02-27T15:52:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 595,
+      "sizeKb": 141528,
+      "workflowCount": 59,
+      "selectedIssue": {
+        "number": 3843,
+        "title": "[bug]: `status_code_class` Assertion Always Evaluates Against `\"2xx\"` Due to Hardcoded Literal - T152",
+        "htmlUrl": "https://github.com/keploy/keploy/issues/3843",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "keploy"
+        ],
+        "bodyPreview": "### 👀 Is there an existing issue for this? - [x] I have searched and didn't find similar issue ### 👍 Current behavior ### Team Number - T152 ## � Current Behavior The `status_code_class` assertion always compares against the hardcoded cla",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.95,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "clockworklabs/SpacetimeDB",
+      "htmlUrl": "https://github.com/clockworklabs/SpacetimeDB",
+      "language": "Rust",
+      "stars": 21232,
+      "pushedAt": "2026-02-27T16:14:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 709,
+      "sizeKb": 78420,
+      "workflowCount": 30,
+      "selectedIssue": {
+        "number": 244,
+        "title": "Some server errors are not reported to the client",
+        "htmlUrl": "https://github.com/clockworklabs/SpacetimeDB/issues/244",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "This is a mix of server/protobuf/C# client SDK issues, but I'm sticking them all here for now. There are three cases I'm aware of: - [x] 1. Malformed `Subscribe` calls are not reported to the client at all <details> <summary>Repro</summary>",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8572670690061994,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9393,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "nocobase/nocobase",
+      "htmlUrl": "https://github.com/nocobase/nocobase",
+      "language": "TypeScript",
+      "stars": 21631,
+      "pushedAt": "2026-02-27T16:08:39Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 265,
+      "sizeKb": 259957,
+      "workflowCount": 29,
+      "selectedIssue": {
+        "number": 8116,
+        "title": "SubTable--The drawer closes every time a block is configured.",
+        "htmlUrl": "https://github.com/nocobase/nocobase/issues/8116",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "<!-- First off, thank you for reporting bugs. Please do not clear the contents of the issue template. Items marked with * are required. Issues not filled out according to the template will be closed. Please communicate in English, and post ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8462197768561404,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9366,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "huggingface/lerobot",
+      "htmlUrl": "https://github.com/huggingface/lerobot",
+      "language": "Python",
+      "stars": 21845,
+      "pushedAt": "2026-02-27T16:18:56Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 594,
+      "sizeKb": 242726,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 2954,
+        "title": "X-VLA LIBERO: Inconsistent config.json",
+        "htmlUrl": "https://github.com/huggingface/lerobot/issues/2954",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "policies",
+          "dataset",
+          "configuration",
+          "processor"
+        ],
+        "bodyPreview": "### Ticket Type 🐛 Bug Report (Something isn't working) ### Environment & System Info ```Shell ``` ### Description ### **Summary** I encountered an issue when loading the pretrained `libero-xvla` policy using `lerobot`. There is a mismatch ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9092,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "htmlUrl": "https://github.com/langfuse/langfuse",
+      "language": "TypeScript",
+      "stars": 22392,
+      "pushedAt": "2026-02-27T16:33:56Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 557,
+      "sizeKb": 70867,
+      "workflowCount": 18,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7091168824543141,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9023,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "gitbutlerapp/gitbutler",
+      "htmlUrl": "https://github.com/gitbutlerapp/gitbutler",
+      "language": "Rust",
+      "stars": 19621,
+      "pushedAt": "2026-02-27T15:58:30Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 650,
+      "sizeKb": 168056,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 12615,
+        "title": "GutButler requires restart to pick up staged changes",
+        "htmlUrl": "https://github.com/gitbutlerapp/gitbutler/issues/12615",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Version 0.19.3 ### Operating System macOS ### Distribution Method dmg (Mac OS - Apple Silicon) ### Describe the issue At one point I was switching branches away from my workspace (usually and for months gitbutler mandled this properly b",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "scalar/scalar",
+      "htmlUrl": "https://github.com/scalar/scalar",
+      "language": "TypeScript",
+      "stars": 14105,
+      "pushedAt": "2026-02-27T16:25:44Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 183,
+      "sizeKb": 268830,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "PrefectHQ/prefect",
+      "htmlUrl": "https://github.com/PrefectHQ/prefect",
+      "language": "Python",
+      "stars": 21687,
+      "pushedAt": "2026-02-27T16:32:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1067,
+      "sizeKb": 205866,
+      "workflowCount": 49,
+      "selectedIssue": {
+        "number": 20388,
+        "title": "Suspend does not pause running flow in 3.6.13; tasks continue executing after suspend is requested",
+        "htmlUrl": "https://github.com/PrefectHQ/prefect/issues/20388",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Bug summary ## Basics - Prefect version: 3.6.13 - Backend: OSS (version: 3.6.13) - Python version: 3.13.5 - OS/arch: arch btw / x86_64 - How run: `flow.from_source(...).serve('simple-deployment')` - Description: Pressing “Suspend” durin",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.8,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.89,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "AstrBotDevs/AstrBot",
+      "htmlUrl": "https://github.com/AstrBotDevs/AstrBot",
+      "language": "Python",
+      "stars": 18218,
+      "pushedAt": "2026-02-27T16:06:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 544,
+      "sizeKb": 45946,
+      "workflowCount": 13,
+      "selectedIssue": {
+        "number": 5275,
+        "title": "[Bug] 在 QQ 使用 Sandbox 生成图片不显示",
+        "htmlUrl": "https://github.com/AstrBotDevs/AstrBot/issues/5275",
+        "comments": 3,
+        "labels": [
+          "bug",
+          "priority: p0",
+          "area:platform"
+        ],
+        "bodyPreview": "### What happened / 发生了什么 在配置好 SandBox 沙箱环境后，我试图让 Bot 运行一段 python plt 图像生成代码并发送图像给我。通过下面的日志分析可以得知：脚本生成、下载到容器的步骤均正确，且日志无报错并使用了send_message_to_user的tool，但是 QQ 侧却接收不到图像。而如果使用同样的环境和提示词在AstrBot仪表盘的chatui中测试，便可以返回图像。 ### Reproduce / 如何复现？ 1. 配置好s",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6326661530556787,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8832,
+      "rejectReasons": []
+    }
+  ]
+}

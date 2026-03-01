@@ -1,0 +1,16 @@
+[2026-03-01T01:36:50.079Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:36:50.078Z","pid":"planner_8d719329","role":"PLANNER","lane":"P","laneLabel":"P:planner-mock","temperature":0.7}
+[2026-03-01T01:36:50.081Z] [HYPERCORE_MAP] pid=planner_8d719329 children=worker_bb65356d,worker_8be2d016 task_count=2
+[2026-03-01T01:36:50.081Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:36:50.081Z","pid":"worker_bb65356d","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-03-01T01:36:50.083Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:36:50.083Z","pid":"worker_8be2d016","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-03-01T01:36:50.084Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:36:50.084Z","pid":"worker_bb65356d","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-03-01T01:36:50.084Z] [HYPERCORE_HALT_REQUEST] pid=worker_bb65356d
+[2026-03-01T01:36:50.091Z] [HYPERCORE_PRICE] pid=worker_bb65356d verdict=PASS price=1
+[2026-03-01T01:36:50.093Z] [HYPERCORE_REDUCE_DROP] pid=planner_8d719329 child=worker_bb65356d reason=invalid_vote_format
+[2026-03-01T01:36:50.093Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:36:50.093Z","pid":"worker_8be2d016","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-03-01T01:36:50.093Z] [HYPERCORE_HALT_REQUEST] pid=worker_8be2d016
+[2026-03-01T01:36:50.099Z] [HYPERCORE_PRICE] pid=worker_8be2d016 verdict=PASS price=1
+[2026-03-01T01:36:50.099Z] [HYPERCORE_REDUCE_DROP] pid=planner_8d719329 child=worker_8be2d016 reason=invalid_vote_format
+[2026-03-01T01:36:50.100Z] [HYPERCORE_REDUCE] pid=planner_8d719329 resumed=1 early_stop=0 math_lock=0 consensus=[NO_VALID_VOTE] votes=0/0
+[2026-03-01T01:36:50.100Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:36:50.100Z","pid":"planner_8d719329","role":"PLANNER","lane":"P","laneLabel":"P:planner-mock","temperature":0.7}
+[2026-03-01T01:36:50.100Z] [HYPERCORE_HALT_REQUEST] pid=planner_8d719329
+[2026-03-01T01:36:50.106Z] [HYPERCORE_PRICE] pid=planner_8d719329 verdict=PASS price=1

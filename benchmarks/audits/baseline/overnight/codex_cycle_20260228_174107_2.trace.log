@@ -1,0 +1,25 @@
+OpenAI Codex v0.106.0 (research preview)
+--------
+workdir: /home/zephryj/projects/turingos
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019ca557-27d6-7c72-a1b3-557deb160eae
+--------
+user
+You are executing one baseline benchmark cycle. Do not edit any files.
+Run exactly this command:
+npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 43 --max-tests 62 --continue-after-fail
+
+After command completion, stop. Do not edit files.
+mcp startup: no servers
+
+thinking
+**Preparing exact command run**
+codex
+Running the single benchmark command exactly as requested, with no file edits. I’ll stop immediately after it completes.
+exec
+/bin/bash -lc 'npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 43 --max-tests 62 --continue-after-fail' in /home/zephryj/projects/turingos

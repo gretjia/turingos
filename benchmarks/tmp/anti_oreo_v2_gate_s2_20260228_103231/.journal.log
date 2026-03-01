@@ -1,0 +1,24 @@
+[2026-02-28T10:32:31.210Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.210Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.211Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.211Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.211Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.211Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.212Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.212Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.212Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.213Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.213Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.213Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.213Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.213Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.213Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.213Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.213Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.214Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.214Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.214Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.214Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.214Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.214Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.214Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.215Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.215Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.215Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.215Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.215Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.215Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.216Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.216Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.216Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:32:31.216Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:32:31.216Z","pid":"planner_496a6515","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:32:31.216Z] [HYPERCORE_TRAP] pid=planner_496a6515 details=Error: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.

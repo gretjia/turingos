@@ -1,0 +1,77 @@
+{
+  "stamp": "20260228_060053",
+  "targetTests": 1000000,
+  "maxTests": 3,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "Connection error."
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "KIMI_API_KEY missing"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "Planner API key missing"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "Connection error."
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "KIMI_API_KEY missing"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "Planner API key missing"
+    }
+  ],
+  "bestMode": "qwen_direct"
+}

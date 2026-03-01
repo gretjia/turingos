@@ -1,4 +1,4 @@
-import { IOracle, Slice, State, Transition } from '../kernel/types.js';
+import { IOracle, OracleCollapseOptions, Slice, State, Transition } from '../kernel/types.js';
 
 type DispatcherLane = 'P' | 'E';
 type InstructionClass =
@@ -59,7 +59,7 @@ function classifyFromOp(op: string): InstructionClass {
   if (op === 'SYS_GOTO' || op === 'SYS_GIT_LOG') {
     return 'WORLD_NAVIGATION';
   }
-  if (op === 'SYS_PUSH' || op === 'SYS_POP' || op === 'SYS_EDIT' || op === 'SYS_MOVE') {
+  if (op === 'SYS_PUSH' || op === 'SYS_POP' || op === 'SYS_EDIT' || op === 'SYS_MOVE' || op === 'SYS_MAP_REDUCE') {
     return 'MIND_SCHEDULING';
   }
   if (op === 'SYS_HALT') {
@@ -90,11 +90,16 @@ export class DispatcherOracle implements IOracle {
     this.switchMargin = config.switchMargin ?? 0.15;
   }
 
-  public async collapse(discipline: string, q: State, s: Slice): Promise<Transition> {
+  public async collapse(
+    discipline: string,
+    q: State,
+    s: Slice,
+    options?: OracleCollapseOptions
+  ): Promise<Transition> {
     const decision = this.decide(q, s);
 
     try {
-      const transition = await this.callLane(decision.lane, discipline, q, s);
+      const transition = await this.callLane(decision.lane, discipline, q, s, options);
       this.recordTrace(decision, transition, undefined);
       return transition;
     } catch (error: unknown) {
@@ -109,7 +114,7 @@ export class DispatcherOracle implements IOracle {
           selectedHealth: this.laneHealth('P'),
           alternateHealth: this.laneHealth('E'),
         };
-        const transition = await this.callLane('P', discipline, q, s);
+        const transition = await this.callLane('P', discipline, q, s, options);
         this.recordTrace(failoverDecision, transition, 'E', failoverReason);
         return transition;
       }
@@ -170,12 +175,13 @@ export class DispatcherOracle implements IOracle {
     lane: DispatcherLane,
     discipline: string,
     q: State,
-    s: Slice
+    s: Slice,
+    options?: OracleCollapseOptions
   ): Promise<Transition> {
     const oracle = lane === 'P' ? this.config.pOracle : this.config.eOracle;
     this.stats[lane].attempts += 1;
     try {
-      const transition = await oracle.collapse(discipline, q, s);
+      const transition = await oracle.collapse(discipline, q, s, options);
       this.stats[lane].successes += 1;
       this.stats[lane].consecutiveFailures = 0;
       return transition;

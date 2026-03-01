@@ -1,0 +1,61 @@
+{
+  "stamp": "20260228_091929",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 5,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 196 + 484",
+    "expected": "680"
+  },
+  "observed": null,
+  "reason": "mismatch expected=680 got=(null)",
+  "attempted": 5,
+  "passed": 4,
+  "failed": 1,
+  "firstFailAt": 5,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000005",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T09:19:01.329Z] [HYPERCORE_RED_FLAG] pid=planner_a1bd8082 red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: frame\n[2026-02-28T09:19:05.704Z] [HYPERCORE_RED_FLAG] pid=planner_a1bd8082 red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: source\n[2026-02-28T09:19:09.951Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:19:05.704Z\",\"pid\":\"planner_a1bd8082\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:19:14.934Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:19:09.953Z\",\"pid\":\"planner_a1bd8082\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:19:18.431Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:19:14.935Z\",\"pid\":\"planner_a1bd8082\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:19:21.271Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:19:18.432Z\",\"pid\":\"planner_a1bd8082\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:19:25.536Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:19:21.272Z\",\"pid\":\"planner_a1bd8082\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:19:25.537Z] [HYPERCORE_TRAP_RECOVERY] pid=planner_a1bd8082 kind=thrashing details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks\n[2026-02-28T09:19:29.700Z] [HYPERCORE_RED_FLAG] pid=planner_a1bd8082 red_flags=3/3 details=Error: [CPU_FAULT: INVALID_OPCODE] world_op[0]: MUTEX_VIOLATION: SYS_WRITE has unsupported fields: target\n",
+  "callstack": [
+    {
+      "task_id": "task_d591731fa71a",
+      "status": "SUSPENDED",
+      "objective": "196 + 484",
+      "scratchpad": "196 + 484",
+      "created_at": "2026-02-28T09:19:09.953Z",
+      "updated_at": "2026-02-28T09:19:14.934Z"
+    },
+    {
+      "task_id": "task_6accfb1d522f",
+      "status": "SUSPENDED",
+      "objective": "{\"expr\":\"196 + 484\",\"result\":680}",
+      "scratchpad": "{\"expr\":\"196 + 484\",\"result\":680}",
+      "created_at": "2026-02-28T09:19:14.934Z",
+      "updated_at": "2026-02-28T09:19:18.431Z"
+    },
+    {
+      "task_id": "task_94a6d0dc2989",
+      "status": "SUSPENDED",
+      "objective": "{\"type\":\"ERROR\",\"message\":\"Invalid expression format in MAIN_TAPE.md\"}",
+      "scratchpad": "{\"type\":\"ERROR\",\"message\":\"Invalid expression format in MAIN_TAPE.md\"}",
+      "created_at": "2026-02-28T09:19:18.431Z",
+      "updated_at": "2026-02-28T09:19:21.272Z"
+    },
+    {
+      "task_id": "task_588b4d1e7841",
+      "status": "SUSPENDED",
+      "objective": "680",
+      "scratchpad": "680",
+      "created_at": "2026-02-28T09:19:21.272Z",
+      "updated_at": "2026-02-28T09:19:25.536Z"
+    },
+    {
+      "task_id": "task_f61a5516e424",
+      "status": "ACTIVE",
+      "objective": "{\"type\":\"ERROR\",\"message\":\"Invalid expression format in MAIN_TAPE.md\"}",
+      "scratchpad": "{\"type\":\"ERROR\",\"message\":\"Invalid expression format in MAIN_TAPE.md\"}",
+      "created_at": "2026-02-28T09:19:25.536Z",
+      "updated_at": "2026-02-28T09:19:25.536Z"
+    }
+  ]
+}

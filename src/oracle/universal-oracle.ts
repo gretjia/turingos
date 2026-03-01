@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import fsp from 'node:fs/promises';
-import { IOracle, Slice, State, Transition } from '../kernel/types.js';
+import { IOracle, OracleCollapseOptions, Slice, State, Transition } from '../kernel/types.js';
+import { SYSCALL_EXACT_FIELD_PROMPT_LINES } from '../kernel/syscall-schema.js';
 import { BusProvider, extractProviderText, parseProviderBusTransition, ProviderUsage } from './turing-bus-adapter.js';
 
 type OracleMode = 'openai' | 'kimi';
@@ -42,6 +43,7 @@ export class UniversalOracle implements IOracle {
   private readonly telemetryPath: string | null;
   private readonly localRepairEnabled: boolean;
   private readonly localRepairMaxAttempts: number;
+  private readonly repairAllProviders: boolean;
   private readonly requestTimeoutMs: number;
   private telemetrySeq = 0;
   private kimimart?: {
@@ -61,6 +63,7 @@ export class UniversalOracle implements IOracle {
     this.telemetryPath = telemetryPath.length > 0 ? telemetryPath : null;
     this.localRepairEnabled = this.parseBoolEnv(process.env.TURINGOS_OLLAMA_REPAIR_ENABLED, true);
     this.localRepairMaxAttempts = this.parseIntEnv(process.env.TURINGOS_OLLAMA_REPAIR_MAX_ATTEMPTS, 2, 0, 5);
+    this.repairAllProviders = this.parseBoolEnv(process.env.TURINGOS_ORACLE_REPAIR_ALL, false);
     this.requestTimeoutMs = config.requestTimeoutMs ?? this.parseIntEnv(process.env.TURINGOS_ORACLE_REQUEST_TIMEOUT_MS, 20_000, 1_000, 600_000);
     if (mode === 'openai') {
       const clientConfig: { apiKey: string; baseURL?: string; timeout?: number } = {
@@ -85,7 +88,12 @@ export class UniversalOracle implements IOracle {
     }
   }
 
-  public async collapse(discipline: string, q: State, s: Slice): Promise<Transition> {
+  public async collapse(
+    discipline: string,
+    q: State,
+    s: Slice,
+    options?: OracleCollapseOptions
+  ): Promise<Transition> {
     const userFrame = [
       '================',
       '[CPU REGISTER q]:',
@@ -96,7 +104,7 @@ export class UniversalOracle implements IOracle {
       s,
     ].join('\n');
 
-    const rawPayload = await this.request(discipline, userFrame);
+    const rawPayload = await this.request(discipline, userFrame, options?.temperature);
     const parsed = await this.parseWithLocalRepair(rawPayload, discipline, userFrame);
     await this.recordTelemetry(this.responseProvider, discipline, userFrame, parsed.text, parsed.usage);
     return parsed.transition;
@@ -119,16 +127,14 @@ export class UniversalOracle implements IOracle {
       let candidateText = this.toRepairCandidateText(candidatePayload);
 
       for (let attempt = 1; attempt <= this.localRepairMaxAttempts; attempt += 1) {
-        const repairSystemPrompt = [
-          'You returned an invalid TuringOS syscall frame.',
-          'Return exactly one strict JSON object with no markdown or extra commentary.',
-          'Schema: q_next(string), optional thought/thought_process(string), mind_ops(array), world_op(object|null).',
-          'mind_ops op must be one of SYS_PUSH|SYS_POP|SYS_EDIT|SYS_MOVE.',
-          'world_op op must be one of SYS_WRITE|SYS_EXEC|SYS_GOTO|SYS_GIT_LOG|SYS_HALT.',
-          'mind_ops may contain 0..N entries; world_op may contain 0..1 entry.',
-          'Do not emit world_ops. Do not emit legacy a_t.',
-          'Field ABI is fail-closed: include only allowed fields per opcode.',
-        ].join('\n');
+        const repairSystemPrompt = this.composeSystemPrompt(
+          [
+            'You returned an invalid TuringOS syscall frame.',
+            'Repair and return one valid frame now.',
+            'If q_next is unknown, set q_next to an empty string.',
+            'Do not emit world_ops. Do not emit legacy a_t.',
+          ].join('\n')
+        );
 
         const repairUserFrame = [
           '[PARSER_ERROR]',
@@ -144,7 +150,7 @@ export class UniversalOracle implements IOracle {
           candidateText,
         ].join('\n');
 
-        candidatePayload = await this.request(repairSystemPrompt, repairUserFrame);
+        candidatePayload = await this.request(repairSystemPrompt, repairUserFrame, 0);
         try {
           return parseProviderBusTransition(this.responseProvider, candidatePayload);
         } catch (retryError: unknown) {
@@ -162,7 +168,13 @@ export class UniversalOracle implements IOracle {
   }
 
   private shouldAttemptLocalRepair(): boolean {
-    return this.responseProvider === 'ollama' && this.localRepairEnabled && this.localRepairMaxAttempts > 0;
+    if (!this.localRepairEnabled || this.localRepairMaxAttempts <= 0) {
+      return false;
+    }
+    if (this.responseProvider === 'ollama') {
+      return true;
+    }
+    return this.repairAllProviders;
   }
 
   private toRepairCandidateText(payload: unknown): string {
@@ -198,9 +210,31 @@ export class UniversalOracle implements IOracle {
     return Math.min(max, Math.max(min, parsed));
   }
 
-  private async request(systemPrompt: string, userFrame: string): Promise<unknown> {
+  private composeSystemPrompt(basePrompt: string): string {
+    const strictContract = [
+      '',
+      '[OUTPUT_CONTRACT: STRICT_JSON_SINGLE_FRAME]',
+      'Return exactly one JSON object and nothing else.',
+      'No markdown fences, no prose, no comments, no XML tags (including <think>/<thought>).',
+      'Transition schema:',
+      '{"q_next":"...","mind_ops":[...],"world_op":{"op":"..."}|null}',
+      'mind_ops: 0..N; world_op: 0..1.',
+      'Never emit world_ops array.',
+      'Never emit more than one world action in a frame.',
+      'SYS_HALT must be emitted alone (no SYS_WRITE/SYS_EXEC/SYS_GOTO/SYS_GIT_LOG in the same frame).',
+      'Allowed exact syscall envelopes:',
+      ...SYSCALL_EXACT_FIELD_PROMPT_LINES,
+      'Forbidden extra keys in syscall objects: args, file, offset, line, column, explanation, analysis.',
+      'Fail-closed ABI: include only allowed keys for the chosen opcode.',
+    ];
+    return `${basePrompt.trim()}\n${strictContract.join('\n')}`.trim();
+  }
+
+  private async request(systemPrompt: string, userFrame: string, requestedTemperature?: number): Promise<unknown> {
+    const temperature = this.normalizeTemperature(requestedTemperature);
+    const strictSystemPrompt = this.composeSystemPrompt(systemPrompt);
     const openAIMessages = [
-      { role: 'system' as const, content: systemPrompt.trim() },
+      { role: 'system' as const, content: strictSystemPrompt },
       { role: 'user' as const, content: userFrame.trim() },
     ];
 
@@ -209,7 +243,7 @@ export class UniversalOracle implements IOracle {
         const response = await this.openai!.chat.completions.create({
           model: this.model,
           messages: openAIMessages,
-          temperature: 0,
+          temperature,
           response_format: { type: 'json_object' },
         });
         return response as unknown;
@@ -230,8 +264,8 @@ export class UniversalOracle implements IOracle {
           body: JSON.stringify({
             model: this.kimimart!.model,
             max_tokens: this.kimimart!.maxOutputTokens,
-            temperature: 0,
-            system: systemPrompt.trim(),
+            temperature,
+            system: strictSystemPrompt,
             messages: kimiMessages,
           }),
         });
@@ -318,6 +352,19 @@ export class UniversalOracle implements IOracle {
     const exponential = this.retryBaseDelayMs * 2 ** attempt;
     const jitter = Math.floor(Math.random() * 300);
     return Math.min(exponential + jitter, this.retryMaxDelayMs);
+  }
+
+  private normalizeTemperature(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      return 0;
+    }
+    if (value < 0) {
+      return 0;
+    }
+    if (value > 1.5) {
+      return 1.5;
+    }
+    return value;
   }
 
   private async sleep(ms: number): Promise<void> {

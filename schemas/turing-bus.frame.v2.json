@@ -56,7 +56,8 @@
       "SYS_PUSH",
       "SYS_POP",
       "SYS_EDIT",
-      "SYS_MOVE"
+      "SYS_MOVE",
+      "SYS_MAP_REDUCE"
     ],
     "SYSTEM_CONTROL": [
       "SYS_HALT"

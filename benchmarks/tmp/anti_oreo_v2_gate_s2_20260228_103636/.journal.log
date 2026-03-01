@@ -1,0 +1,6 @@
+[2026-02-28T10:36:36.522Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:36:36.522Z","pid":"planner_a9fbb385","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:36:36.523Z] [HYPERCORE_RED_FLAG] pid=planner_a9fbb385 red_flags=1/3 details=Error: CAUSALITY_VIOLATION: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:36:36.524Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:36:36.523Z","pid":"planner_a9fbb385","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:36:36.524Z] [HYPERCORE_RED_FLAG] pid=planner_a9fbb385 red_flags=2/3 details=Error: CAUSALITY_VIOLATION: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.
+[2026-02-28T10:36:36.524Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:36:36.524Z","pid":"planner_a9fbb385","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-02-28T10:36:36.524Z] [HYPERCORE_RED_FLAG] pid=planner_a9fbb385 red_flags=3/3 details=Error: CAUSALITY_VIOLATION: SYS_MAP_REDUCE cannot be combined with world_op in the same tick.

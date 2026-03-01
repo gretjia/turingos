@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_1d2baaa2",
+  "rootState": "TERMINATED",
+  "ticks": 4,
+  "q": "verify_and_halt",
+  "d": "MAIN_TAPE.md"
+}

@@ -1,0 +1,41 @@
+{
+  "stamp": "20260301_015247",
+  "pass": true,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/hypercore_v2_gate_20260301_015247",
+  "rootPid": "planner_af5711e5",
+  "ticks": 6,
+  "rootState": "TERMINATED",
+  "haltCommand": "test -f result.txt && test -f proof.txt",
+  "checks": [
+    {
+      "name": "root_terminated",
+      "pass": true,
+      "detail": "TERMINATED"
+    },
+    {
+      "name": "result_file_exists",
+      "pass": true,
+      "detail": "result.txt"
+    },
+    {
+      "name": "proof_file_exists",
+      "pass": true,
+      "detail": "proof.txt"
+    },
+    {
+      "name": "map_reduce_logged",
+      "pass": true,
+      "detail": "journal contains HYPERCORE_MAP"
+    },
+    {
+      "name": "reduce_join_logged",
+      "pass": true,
+      "detail": "journal contains HYPERCORE_REDUCE"
+    },
+    {
+      "name": "pricing_logged",
+      "pass": true,
+      "detail": "journal contains HYPERCORE_PRICE"
+    }
+  ]
+}

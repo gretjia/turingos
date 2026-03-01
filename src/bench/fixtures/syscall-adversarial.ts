@@ -19,6 +19,7 @@ const canonicalByOp: Record<SyscallOpcode, Record<string, unknown>> = {
   SYS_PUSH: { op: 'SYS_PUSH', task: 'diagnose trap' },
   SYS_EDIT: { op: 'SYS_EDIT', task: 'diagnose trap with new evidence' },
   SYS_MOVE: { op: 'SYS_MOVE', task_id: 'task_abcd', target_pos: 'BOTTOM', status: 'SUSPENDED' },
+  SYS_MAP_REDUCE: { op: 'SYS_MAP_REDUCE', tasks: ['fix parser edge case', 'add regression test'] },
   SYS_POP: { op: 'SYS_POP' },
   SYS_HALT: { op: 'SYS_HALT' },
 };
@@ -73,6 +74,11 @@ export function buildSyscallAdversarialFixtures(): {
       input: { op: 'SYS_PUSH', task: { objective: 'json payload accepted then stringified' } },
       expect: 'accept',
     },
+    {
+      id: 'valid_alias_map_reduce_task_list',
+      input: { op: 'SYS_MAPREDUCE', task_list: ['task A', 'task B'] },
+      expect: 'accept',
+    },
   ];
 
   const invalid: SyscallFixtureCase[] = [
@@ -103,6 +109,7 @@ export function buildSyscallAdversarialFixtures(): {
     SYS_PUSH: { pointer: 'not-allowed' },
     SYS_EDIT: { semantic_cap: 'vfd://rw/bad' },
     SYS_MOVE: { payload: 'not-allowed' },
+    SYS_MAP_REDUCE: { pointer: 'not-allowed' },
     SYS_POP: { task: 'not-allowed' },
     SYS_HALT: { pointer: 'not-allowed' },
   };
@@ -122,6 +129,7 @@ export function buildSyscallAdversarialFixtures(): {
     SYS_EXEC: 'cmd',
     SYS_PUSH: 'task',
     SYS_EDIT: 'task',
+    SYS_MAP_REDUCE: 'tasks',
   };
 
   const wrongTypeByField: Record<string, unknown> = {
@@ -129,6 +137,7 @@ export function buildSyscallAdversarialFixtures(): {
     pointer: { nested: true },
     cmd: false,
     task: 9,
+    tasks: 'not-array',
   };
 
   for (const [op, field] of Object.entries(requiredFieldByOp) as Array<[SyscallOpcode, string]>) {
@@ -146,7 +155,7 @@ export function buildSyscallAdversarialFixtures(): {
       expect: 'reject',
     });
 
-    if (field !== 'payload') {
+    if (field !== 'payload' && field !== 'tasks') {
       invalid.push({
         id: `invalid_required_empty_${op.toLowerCase()}_${field}`,
         input: { ...deepCopy(canonicalByOp[op]), [field]: '   ' },
@@ -164,6 +173,18 @@ export function buildSyscallAdversarialFixtures(): {
     {
       id: 'invalid_move_mutex_extra',
       input: { op: 'SYS_MOVE', target_pos: 'TOP', state_reason: 'extra' },
+      expect: 'reject',
+      expectMutex: true,
+    }
+  );
+
+  invalid.push(
+    { id: 'invalid_map_reduce_empty_tasks', input: { op: 'SYS_MAP_REDUCE', tasks: [] }, expect: 'reject' },
+    { id: 'invalid_map_reduce_non_string_task', input: { op: 'SYS_MAP_REDUCE', tasks: ['ok', 1] }, expect: 'reject' },
+    { id: 'invalid_map_reduce_blank_task', input: { op: 'SYS_MAP_REDUCE', tasks: ['   '] }, expect: 'reject' },
+    {
+      id: 'invalid_map_reduce_extra_field',
+      input: { op: 'SYS_MAP_REDUCE', tasks: ['t1'], status: 'ACTIVE' },
       expect: 'reject',
       expectMutex: true,
     }

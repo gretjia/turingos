@@ -1,0 +1,5 @@
+[continuous-until-fail][2026-03-01 03:03:51] start mode=turingos_dualbrain window=20 frontier=5 timeout_sec=1800 stop_file=/home/zephryj/projects/turingos/benchmarks/audits/baseline/continuous/continuous_until_fail.stop
+[continuous-until-fail][2026-03-01 03:03:51] cycle=1 range=6-25 frontier=5
+[continuous-until-fail][2026-03-01 03:09:57] cycle=1 status=ERROR passed=5 failed=1 first_fail=0 report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_021644.json
+[continuous-until-fail][2026-03-01 03:09:57] stop_on_first_error cycle=1 status=ERROR passed=5 failed=1 first_fail=0 reason=unexpected_report_range:1-5
+[continuous-until-fail][2026-03-01 03:09:57] finished frontier=5 summary=/home/zephryj/projects/turingos/benchmarks/audits/baseline/continuous/continuous_until_fail_20260301_030351.jsonl

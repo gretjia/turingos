@@ -1,0 +1,468 @@
+{
+  "stamp": "20260227_170337",
+  "generatedAt": "2026-02-27T17:03:37.277Z",
+  "sourcePoolGeneratedAt": "2026-02-27T16:44:37.684Z",
+  "policy": {
+    "maxRepos": 3,
+    "maxScan": 12,
+    "timeoutMs": {
+      "clone": 180000,
+      "install": 300000,
+      "testProbe": 180000
+    }
+  },
+  "toolchains": {
+    "node": true,
+    "python": true,
+    "npm": true,
+    "pip": false,
+    "pnpm": true,
+    "yarn": false,
+    "uv": true
+  },
+  "summary": {
+    "selected": 9,
+    "pass": 3,
+    "fail": 6,
+    "skip": 0
+  },
+  "rows": [
+    {
+      "fullName": "PrefectHQ/fastmcp",
+      "language": "Python",
+      "weightedTotal": 0.9189,
+      "selectedIssue": {
+        "number": 2867,
+        "title": "GoogleProvider: jwt_signing_key parameter appears to be ignored, causing InvalidSignatureError on /sse",
+        "htmlUrl": "https://github.com/PrefectHQ/fastmcp/issues/2867",
+        "comments": 4,
+        "labels": [
+          "bug",
+          "server",
+          "auth"
+        ],
+        "bodyPreview": "### Description ## Environment - **FastMCP version:** 2.14.2 - **Python version:** 3.12 - **Deployment:** Google Cloud Run (single instance, single process confirmed via PID logging) ## Description When using `GoogleProvider` in OAuth proxy",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/PrefectHQ__fastmcp",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1571,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/PrefectHQ__fastmcp'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 187,
+        "stdoutPreview": "",
+        "stderrPreview": "error: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --python 3.13 -e .\nerror: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "huggingface/lerobot",
+      "language": "Python",
+      "weightedTotal": 0.9092,
+      "selectedIssue": {
+        "number": 2954,
+        "title": "X-VLA LIBERO: Inconsistent config.json",
+        "htmlUrl": "https://github.com/huggingface/lerobot/issues/2954",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "policies",
+          "dataset",
+          "configuration",
+          "processor"
+        ],
+        "bodyPreview": "### Ticket Type 🐛 Bug Report (Something isn't working) ### Environment & System Info ```Shell ``` ### Description ### **Summary** I encountered an issue when loading the pretrained `libero-xvla` policy using `lerobot`. There is a mismatch ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/huggingface__lerobot",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 888,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/huggingface__lerobot'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 103,
+        "stdoutPreview": "",
+        "stderrPreview": "error: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --python 3.13 -e .\nerror: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "ag-ui-protocol/ag-ui",
+      "language": "Python",
+      "weightedTotal": 0.9092,
+      "selectedIssue": {
+        "number": 1128,
+        "title": "[Bug]: Multiple deprecation warnings in ag-ui-langgraph package",
+        "htmlUrl": "https://github.com/ag-ui-protocol/ag-ui/issues/1128",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Pre-flight Checklist - [x] I have searched [existing issues](https://github.com/ag-ui-protocol/ag-ui/issues) and this hasn't been reported yet. - [x] I am using the **latest** version AG-UI. ### Describe the Bug There are a number of de",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/ag-ui-protocol__ag-ui",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1794,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/ag-ui-protocol__ag-ui'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "no requirements/pyproject, install probe skipped",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": false,
+        "code": 1,
+        "durationMs": 0,
+        "stdoutPreview": "",
+        "stderrPreview": "no python test signal found"
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "language": "TypeScript",
+      "weightedTotal": 0.9023,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/langfuse__langfuse",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1687,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/langfuse__langfuse'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1889,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "scalar/scalar",
+      "language": "TypeScript",
+      "weightedTotal": 0.895,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/scalar__scalar",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2433,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/scalar__scalar'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2186,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "PrefectHQ/prefect",
+      "language": "Python",
+      "weightedTotal": 0.89,
+      "selectedIssue": {
+        "number": 20388,
+        "title": "Suspend does not pause running flow in 3.6.13; tasks continue executing after suspend is requested",
+        "htmlUrl": "https://github.com/PrefectHQ/prefect/issues/20388",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Bug summary ## Basics - Prefect version: 3.6.13 - Backend: OSS (version: 3.6.13) - Python version: 3.13.5 - OS/arch: arch btw / x86_64 - How run: `flow.from_source(...).serve('simple-deployment')` - Description: Pressing “Suspend” durin",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/PrefectHQ__prefect",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 3337,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/PrefectHQ__prefect'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 95,
+        "stdoutPreview": "",
+        "stderrPreview": "error: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --python 3.13 -e .\nerror: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "monkeytypegame/monkeytype",
+      "language": "TypeScript",
+      "weightedTotal": 0.8872,
+      "selectedIssue": {
+        "number": 7518,
+        "title": "AFK Detected Bug",
+        "htmlUrl": "https://github.com/monkeytypegame/monkeytype/issues/7518",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Did you clear cache before opening an issue? - [x] I have cleared my cache ### Is there an existing issue for this? - [x] I have [searched](https://github.com/monkeytypegame/monkeytype/issues?q=is%3Aissue) the existing open and closed i",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/monkeytypegame__monkeytype",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 10713,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/monkeytypegame__monkeytype'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 1,
+        "durationMs": 1239,
+        "stdoutPreview": "",
+        "stderrPreview": "",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s pnpm install --frozen-lockfile --ignore-scripts --lockfile-only\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "AstrBotDevs/AstrBot",
+      "language": "Python",
+      "weightedTotal": 0.8832,
+      "selectedIssue": {
+        "number": 5275,
+        "title": "[Bug] 在 QQ 使用 Sandbox 生成图片不显示",
+        "htmlUrl": "https://github.com/AstrBotDevs/AstrBot/issues/5275",
+        "comments": 3,
+        "labels": [
+          "bug",
+          "priority: p0",
+          "area:platform"
+        ],
+        "bodyPreview": "### What happened / 发生了什么 在配置好 SandBox 沙箱环境后，我试图让 Bot 运行一段 python plt 图像生成代码并发送图像给我。通过下面的日志分析可以得知：脚本生成、下载到容器的步骤均正确，且日志无报错并使用了send_message_to_user的tool，但是 QQ 侧却接收不到图像。而如果使用同样的环境和提示词在AstrBot仪表盘的chatui中测试，便可以返回图像。 ### Reproduce / 如何复现？ 1. 配置好s",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/AstrBotDevs__AstrBot",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 796,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/AstrBotDevs__AstrBot'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 2,
+        "durationMs": 40,
+        "stdoutPreview": "",
+        "stderrPreview": "error: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s uv pip install --dry-run --python 3.13 -r requirements.txt\nerror: No virtual environment found for Python 3.13; run `uv venv` to create an environment, or pass `--system` to install into a non-virtual environment\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "python_test_signal_detected",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "fullName": "apify/crawlee",
+      "language": "TypeScript",
+      "weightedTotal": 0.8789,
+      "selectedIssue": {
+        "number": 3427,
+        "title": "RequestQueue marks requests as handled without firing requestHandler under high concurrency/load",
+        "htmlUrl": "https://github.com/apify/crawlee/issues/3427",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Which package is this bug report for? If unsure which one to select, leave blank @crawlee/playwright (PlaywrightCrawler) ### Issue description I am experiencing a race condition where the RequestQueue transitions requests to the \"Handle",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-j0uECd/apify__crawlee",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 5914,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-j0uECd/apify__crawlee'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 63858,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    }
+  ]
+}

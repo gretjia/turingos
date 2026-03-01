@@ -1,0 +1,404 @@
+{
+  "stamp": "20260227_162453",
+  "generatedAt": "2026-02-27T16:24:53.000Z",
+  "policy": {
+    "recencyDays": 30,
+    "minStars": 300,
+    "topK": 10,
+    "weights": {
+      "reproducibility": 0.3,
+      "ciVerifiability": 0.25,
+      "systemEntropy": 0.2,
+      "activityHealth": 0.15,
+      "toolchainFriction": 0.1
+    },
+    "queries": [
+      "language:TypeScript archived:false fork:false stars:>=300 pushed:>=2026-01-28",
+      "language:Python archived:false fork:false stars:>=300 pushed:>=2026-01-28",
+      "language:Go archived:false fork:false stars:>=300 pushed:>=2026-01-28"
+    ]
+  },
+  "summary": {
+    "fetchedRepos": 90,
+    "scoredRepos": 44,
+    "shortlisted": 10
+  },
+  "rows": [
+    {
+      "fullName": "openclaw/openclaw",
+      "htmlUrl": "https://github.com/openclaw/openclaw",
+      "language": "TypeScript",
+      "stars": 236106,
+      "pushedAt": "2026-02-27T16:15:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 9012,
+      "sizeKb": 227561,
+      "workflowCount": 40,
+      "selectedIssue": {
+        "number": 28877,
+        "title": "[Bug]: macOS app v2026.2.26 is arm64-only — regression vs v2026.2.25 (universal binary)",
+        "htmlUrl": "https://github.com/openclaw/openclaw/issues/28877",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Summary The macOS app shipped in v2026.2.26 is arm64-only. It crashes immediately on Intel Macs with \"You can’t open the application ‘OpenClaw’ because this application is not supported on this Mac.\" v2026.2.25 was a universal binary an",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "microsoft/vscode",
+      "htmlUrl": "https://github.com/microsoft/vscode",
+      "language": "TypeScript",
+      "stars": 182121,
+      "pushedAt": "2026-02-27T16:22:16Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 14383,
+      "sizeKb": 1136958,
+      "workflowCount": 28,
+      "selectedIssue": {
+        "number": 298023,
+        "title": "Install GitHub Copilot CLI? ['y/N']",
+        "htmlUrl": "https://github.com/microsoft/vscode/issues/298023",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "info-needed",
+          "chat-background-agent"
+        ],
+        "bodyPreview": "<!-- Please search existing issues to avoid creating duplicates --> <!-- Please attach logs to help us diagnose your issue --> - Copilot Chat Extension Version: 0.37.8 - VS Code Version: 1.109.3 - OS Version: Ubuntu 25.10 - Feature (e.g. ag",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "huggingface/transformers",
+      "htmlUrl": "https://github.com/huggingface/transformers",
+      "language": "Python",
+      "stars": 157095,
+      "pushedAt": "2026-02-27T16:13:54Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 2276,
+      "sizeKb": 449657,
+      "workflowCount": 69,
+      "selectedIssue": {
+        "number": 44322,
+        "title": "AttributeError: 'Qwen3_5Config' object has no attribute 'num_attention_heads'",
+        "htmlUrl": "https://github.com/huggingface/transformers/issues/44322",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### System Info - transfomers: 5.3.0.dev0 ### Who can help? @remi-or @ArthurZucker @McPatate ### Information - [ ] The official example scripts - [x] My own modified scripts ### Tasks - [x] An officially supported task in the `examples` fol",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "langflow-ai/langflow",
+      "htmlUrl": "https://github.com/langflow-ai/langflow",
+      "language": "Python",
+      "stars": 145122,
+      "pushedAt": "2026-02-27T16:19:25Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1065,
+      "sizeKb": 1176450,
+      "workflowCount": 47,
+      "selectedIssue": {
+        "number": 11792,
+        "title": "make docker_build failing- ModuleNotFoundError: No module named 'hatchling.build'",
+        "htmlUrl": "https://github.com/langflow-ai/langflow/issues/11792",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Bug Description `make docker_build` is failing with following error: ``` [1/2] STEP 7/21: COPY ./uv.lock /app/uv.lock --> 0b3006ce87fc [1/2] STEP 8/21: COPY ./README.md /app/README.md --> b6114eb396a6 [1/2] STEP 9/21: COPY ./pyproject.t",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "langchain-ai/langchain",
+      "htmlUrl": "https://github.com/langchain-ai/langchain",
+      "language": "Python",
+      "stars": 127656,
+      "pushedAt": "2026-02-27T08:12:53Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 401,
+      "sizeKb": 519291,
+      "workflowCount": 26,
+      "selectedIssue": {
+        "number": 35443,
+        "title": "# Bug Report: langchain-docling Pydantic v2 Compatibility Issue",
+        "htmlUrl": "https://github.com/langchain-ai/langchain/issues/35443",
+        "comments": 4,
+        "labels": [
+          "bug",
+          "external"
+        ],
+        "bodyPreview": "### Checked other resources - [x] This is a bug, not a usage question. - [x] I added a clear and descriptive title that summarizes this issue. - [x] I used the GitHub search to find a similar question and didn't find it. - [x] I am sure tha",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "open-webui/open-webui",
+      "htmlUrl": "https://github.com/open-webui/open-webui",
+      "language": "Python",
+      "stars": 125146,
+      "pushedAt": "2026-02-26T21:34:42Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 265,
+      "sizeKb": 329228,
+      "workflowCount": 10,
+      "selectedIssue": {
+        "number": 21788,
+        "title": "issue: Failed to store OAuth session server-side: 'NoneType' object has no attribute 'id' Open WebUI 0.8.4-0.8.5",
+        "htmlUrl": "https://github.com/open-webui/open-webui/issues/21788",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Check Existing Issues - [x] I have searched for any existing and/or related issues. - [x] I have searched for any existing and/or related discussions. - [x] I have also searched in the CLOSED issues AND CLOSED discussions and found no r",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "anomalyco/opencode",
+      "htmlUrl": "https://github.com/anomalyco/opencode",
+      "language": "TypeScript",
+      "stars": 112320,
+      "pushedAt": "2026-02-27T16:20:19Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 5957,
+      "sizeKb": 209530,
+      "workflowCount": 48,
+      "selectedIssue": {
+        "number": 15305,
+        "title": "The read tool should return the exact file content without any additional markers or prefixes.",
+        "htmlUrl": "https://github.com/anomalyco/opencode/issues/15305",
+        "comments": 6,
+        "labels": [
+          "bug",
+          "windows",
+          "core"
+        ],
+        "bodyPreview": "### Description ## Expected Behavior The read tool should return the exact file content without any additional markers or prefixes. ## Environment - OS: Windows (win32) - Working directory: - File type: .txt text file - File encoding: UTF-8",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "shadcn-ui/ui",
+      "htmlUrl": "https://github.com/shadcn-ui/ui",
+      "language": "TypeScript",
+      "stars": 107414,
+      "pushedAt": "2026-02-27T05:29:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1778,
+      "sizeKb": 46301,
+      "workflowCount": 14,
+      "selectedIssue": {
+        "number": 9709,
+        "title": "[bug]: Switch documentation uses `data-checked` / `data-unchecked` but Radix exposes `data-state`",
+        "htmlUrl": "https://github.com/shadcn-ui/ui/issues/9709",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Describe the bug ## Summary The Switch example on the documentation page: https://ui.shadcn.com/docs/components/radix/switch uses Tailwind variants like: ```tsx data-checked:bg-primary data-unchecked:bg-input ``` However, Radix Switch e",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "Comfy-Org/ComfyUI",
+      "htmlUrl": "https://github.com/Comfy-Org/ComfyUI",
+      "language": "Python",
+      "stars": 104390,
+      "pushedAt": "2026-02-27T16:13:39Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 3767,
+      "sizeKb": 80556,
+      "workflowCount": 23,
+      "selectedIssue": {
+        "number": 11855,
+        "title": "stable audio broken with partial loading (indicative of slightly bigger bug)",
+        "htmlUrl": "https://github.com/Comfy-Org/ComfyUI/issues/11855",
+        "comments": 3,
+        "labels": [
+          "Bug"
+        ],
+        "bodyPreview": "### Custom Node Testing - [x] I have tried disabling custom nodes and the issue persists (see [how to disable custom nodes](https://docs.comfy.org/troubleshooting/custom-node-issues#step-1%3A-test-with-all-custom-nodes-disabled) if you need",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "angular/angular",
+      "htmlUrl": "https://github.com/angular/angular",
+      "language": "TypeScript",
+      "stars": 100028,
+      "pushedAt": "2026-02-26T23:52:16Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1119,
+      "sizeKb": 615350,
+      "workflowCount": 21,
+      "selectedIssue": {
+        "number": 65493,
+        "title": "Inline template Template Literals is not highlighted properly",
+        "htmlUrl": "https://github.com/angular/angular/issues/65493",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "area: vscode-extension"
+        ],
+        "bodyPreview": "<!--🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅🔅 Oh hi there! 😄 To expedite issue processing please search open and closed issues before submitting a new one. Existing issues often contain information about workarounds, r",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 1,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 1
+      },
+      "weightedTotal": 1,
+      "rejectReasons": []
+    }
+  ]
+}

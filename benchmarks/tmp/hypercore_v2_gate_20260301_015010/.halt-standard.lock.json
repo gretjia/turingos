@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "command": "test -f result.txt && test -f proof.txt",
+  "createdAt": "2026-03-01T01:50:10.111Z"
+}

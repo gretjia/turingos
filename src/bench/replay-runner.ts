@@ -235,6 +235,7 @@ function computeNextPointer(pointer: string, syscall: Syscall): string {
     case 'SYS_PUSH':
     case 'SYS_EDIT':
     case 'SYS_MOVE':
+    case 'SYS_MAP_REDUCE':
     case 'SYS_POP':
       return pointer;
     case 'SYS_HALT':
@@ -356,6 +357,9 @@ async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<
       await manifold.interfere('sys://callstack', `MOVE: ${parts.join('; ') || 'target_pos=BOTTOM'}`);
       return pointer;
     }
+    case 'SYS_MAP_REDUCE':
+      await manifold.interfere('sys://callstack', `MAP_REDUCE: ${syscall.tasks.join(' | ')}`);
+      return pointer;
     case 'SYS_POP':
       await manifold.interfere('sys://callstack', 'POP');
       return pointer;

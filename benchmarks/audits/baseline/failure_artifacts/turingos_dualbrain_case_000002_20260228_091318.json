@@ -1,0 +1,45 @@
+{
+  "stamp": "20260228_091318",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 2,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 85 + 211",
+    "expected": "296"
+  },
+  "observed": null,
+  "reason": "mismatch expected=296 got=(null)",
+  "attempted": 2,
+  "passed": 1,
+  "failed": 1,
+  "firstFailAt": 2,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000002",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T09:12:54.609Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:12:52.231Z\",\"pid\":\"planner_357255a2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:13:00.404Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:12:54.610Z\",\"pid\":\"planner_357255a2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:13:03.838Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T09:13:00.405Z\",\"pid\":\"planner_357255a2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.2}\n[2026-02-28T09:13:10.652Z] [HYPERCORE_RED_FLAG] pid=planner_357255a2 red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: target, value\n[2026-02-28T09:13:14.718Z] [HYPERCORE_RED_FLAG] pid=planner_357255a2 red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: target\n[2026-02-28T09:13:18.484Z] [HYPERCORE_RED_FLAG] pid=planner_357255a2 red_flags=3/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: target\n",
+  "callstack": [
+    {
+      "task_id": "task_6edc029cf232",
+      "status": "SUSPENDED",
+      "objective": "85 + 211",
+      "scratchpad": "85 + 211",
+      "created_at": "2026-02-28T09:12:54.609Z",
+      "updated_at": "2026-02-28T09:13:00.405Z"
+    },
+    {
+      "task_id": "task_5c9a74210ac4",
+      "status": "SUSPENDED",
+      "objective": "{\"expr\":\"85 + 211\",\"result\":296}",
+      "scratchpad": "{\"expr\":\"85 + 211\",\"result\":296}",
+      "created_at": "2026-02-28T09:13:00.405Z",
+      "updated_at": "2026-02-28T09:13:03.838Z"
+    },
+    {
+      "task_id": "task_7677d3cca236",
+      "status": "ACTIVE",
+      "objective": "{\"type\":\"ERROR\",\"message\":\"Invalid expression format in MAIN_TAPE.md\"}",
+      "scratchpad": "{\"type\":\"ERROR\",\"message\":\"Invalid expression format in MAIN_TAPE.md\"}",
+      "created_at": "2026-02-28T09:13:03.838Z",
+      "updated_at": "2026-02-28T09:13:03.838Z"
+    }
+  ]
+}

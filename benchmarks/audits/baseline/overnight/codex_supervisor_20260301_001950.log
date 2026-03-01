@@ -1,0 +1,4 @@
+[codex-supervisor][2026-03-01 00:19:50] start run_forever=1 hours=0 max_cycles=1 frontier=122 window=20 active_profile=balanced codex_timeout_sec=1200 stop_file=/home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_supervisor.stop
+[codex-supervisor][2026-03-01 00:19:50] cycle=1 profile=balanced range=123-142 (codex exec)
+[codex-supervisor][2026-03-01 00:23:20] cycle=1 status=PASS passed=20 failed=0 first_fail=0 frontier=142 next_window=20 next_profile=balanced
+[codex-supervisor][2026-03-01 00:23:22] finished frontier=142 window=20 active_profile=balanced summary=/home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_supervisor_summary_20260301_001950.jsonl

@@ -641,6 +641,11 @@ async function main(): Promise<void> {
   await fs.writeFile(latestJsonPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
   await fs.writeFile(latestMdPath, `${toMarkdown(report, reportJsonPath)}\n`, 'utf-8');
 
+  const keepWorkspace = (process.env.VOYAGER_KEEP_WORKSPACE ?? '0').trim() === '1';
+  if (!keepWorkspace) {
+    await fs.rm(workspace, { recursive: true, force: true });
+  }
+
   for (const check of checks) {
     console.log(`[voyager-eval] ${check.pass ? 'PASS' : 'FAIL'} ${check.id}: ${check.details}`);
   }

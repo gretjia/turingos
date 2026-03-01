@@ -1,0 +1,5 @@
+[relentless-push][2026-03-01 03:10:21] start mode=turingos_dualbrain frontier=5 window=20 backtrack=3 max_debug_attempts=3 max_blocker_repeats=3 stop_file=/home/zephryj/projects/turingos/benchmarks/audits/baseline/relentless/relentless_push.stop
+[relentless-push][2026-03-01 03:10:21] cycle=1 bench range=6-25 frontier=5 window=20
+[relentless-push][2026-03-01 03:40:21] cycle=1 bench codex exec timeout/non-zero trace=/home/zephryj/projects/turingos/benchmarks/audits/baseline/relentless/relentless_cycle_20260301_031021_c1_bench.trace.log
+[relentless-push][2026-03-01 03:40:21] cycle=1 bench status=ERROR passed=5 failed=1 first_fail=0 report=none
+[relentless-push][2026-03-01 03:40:21] cycle=1 debug_attempt=1 fail_case=11 replay=8-14

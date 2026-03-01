@@ -2,11 +2,13 @@ import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import { FileChronos } from '../chronos/file-chronos.js';
-import { TuringEngine } from '../kernel/engine.js';
+import { HaltVerifier } from '../kernel/halt-verifier.js';
+import { TuringHyperCore } from '../kernel/scheduler.js';
 import { SYSCALL_OPCODE_PIPE } from '../kernel/syscall-schema.js';
 import { IOracle } from '../kernel/types.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
 import { DispatcherOracle } from '../oracle/dispatcher-oracle.js';
+import { DualBrainOracle } from '../oracle/dual-brain-oracle.js';
 import { MockOracle } from '../oracle/mock-oracle.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
 import { FileExecutionContract } from './file-execution-contract.js';
@@ -198,11 +200,21 @@ async function main(): Promise<void> {
   const maxOutputTokens = Number.parseInt(process.env.TURINGOS_MAX_OUTPUT_TOKENS ?? '1024', 10);
   const baseURL = process.env.TURINGOS_API_BASE_URL;
   const dispatcherEnabled = parseBoolFlag(process.env.TURINGOS_DISPATCHER_ENABLED);
+  // Anti-Oreo v2 requires strict single-frame parser by default.
+  if (process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME === undefined) {
+    process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME = '1';
+  }
+  const hypercoreV2Env = process.env.TURINGOS_HYPERCORE_V2;
+  const hypercoreV2Enabled = hypercoreV2Env === undefined ? true : parseBoolFlag(hypercoreV2Env);
+  if (!hypercoreV2Enabled) {
+    throw new Error('Topology violation: legacy_engine is disabled by anti-oreo v2. Set TURINGOS_HYPERCORE_V2=1.');
+  }
   const manifold = new LocalManifold(workspace, { timeoutMs });
   const chronos = new FileChronos(path.join(workspace, '.journal.log'));
   const executionContract = await FileExecutionContract.fromWorkspace(workspace);
 
   let oracleDescriptor = `${oracleMode}:${model}`;
+  const defaults = { mode: oracleMode, model, baseURL, maxOutputTokens };
   const oracle = (() => {
     if (!dispatcherEnabled) {
       const built = buildSingleOracle({
@@ -215,7 +227,6 @@ async function main(): Promise<void> {
       return built.oracle;
     }
 
-    const defaults = { mode: oracleMode, model, baseURL, maxOutputTokens };
     const pLane = buildDispatcherLane('P', defaults);
     const eLane = buildDispatcherLane('E', defaults);
     oracleDescriptor = `dispatcher(${pLane.label}|${eLane.label})`;
@@ -229,13 +240,13 @@ async function main(): Promise<void> {
     });
   })();
 
-  const engine = new TuringEngine(manifold, oracle, chronos, disciplinePrompt, executionContract ?? undefined);
-
   const startQ = registers.readQ();
   const startD = registers.readD();
 
   console.log(`[turingos] boot workspace=${workspace}`);
   console.log(`[turingos] oracle=${oracleDescriptor} maxTicks=${maxTicks}`);
+  console.log('[turingos] kernel_mode=hypercore_v2_scheduler');
+  console.log(`[turingos] strict_single_json_frame=${process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME}`);
   if (dispatcherEnabled) {
     console.log(
       `[turingos] dispatcher min_health=${process.env.TURINGOS_DISPATCHER_MIN_HEALTH ?? '0.45'} switch_margin=${
@@ -248,20 +259,48 @@ async function main(): Promise<void> {
   }
   console.log(`[turingos] registers q="${startQ}" d="${startD}"`);
 
-  const result = await engine.ignite(startQ, startD, {
+  const pLane = buildDispatcherLane('P', defaults);
+  const eLane = buildDispatcherLane('E', defaults);
+  const dualOracle = new DualBrainOracle({
+    plannerOracle: pLane.oracle,
+    workerOracle: eLane.oracle,
+    plannerLabel: pLane.label,
+    workerLabel: eLane.label,
+  });
+  const haltCommand = HaltVerifier.resolveLockedCommand(workspace);
+  const verifier = new HaltVerifier({
+    workspaceDir: workspace,
+    command: haltCommand,
+    timeoutMs: Number.parseInt(process.env.TURINGOS_HALT_VERIFY_TIMEOUT_MS ?? '300000', 10),
+  });
+  console.log(`[turingos] hypercore lanes planner=${pLane.label} worker=${eLane.label}`);
+  console.log(`[turingos] halt_standard_locked command="${haltCommand}"`);
+
+  const scheduler = new TuringHyperCore({
+    manifold,
+    chronos,
+    oracle: dualOracle,
+    verifier,
+    disciplinePrompt,
+  });
+  const rootPid = scheduler.spawnRoot(startQ, startD);
+  const result = await scheduler.run(rootPid, {
     maxTicks,
-    onTick: async (tick, q, d) => {
-      registers.write(q, d);
+    onTick: async (tick, pid, q, d) => {
+      if (pid === rootPid) {
+        registers.write(q, d);
+      }
       if (tickDelayMs > 0) {
         await new Promise((resolve) => setTimeout(resolve, tickDelayMs));
       }
-      console.log(`[turingos] tick=${tick} q="${q.split('\n')[0]}" d="${d}"`);
+      console.log(`[turingos] tick=${tick} pid=${pid} q="${q.split('\n')[0]}" d="${d}"`);
     },
   });
-
-  console.log(`[turingos] stopped after ${result.ticks} ticks. q="${result.q}" d="${result.d}"`);
-
-  if (result.q.trim() !== 'HALT' && result.d.trim() !== 'HALT') {
+  registers.write(result.q, result.d);
+  console.log(
+    `[turingos] stopped after ${result.ticks} ticks. root_pid=${result.rootPid} state=${result.rootState} q="${result.q}" d="${result.d}"`
+  );
+  if (result.rootState !== 'TERMINATED') {
     process.exitCode = 2;
   }
 }

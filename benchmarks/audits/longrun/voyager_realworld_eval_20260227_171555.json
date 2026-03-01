@@ -1,0 +1,80 @@
+{
+  "stamp": "20260227_171555",
+  "workspace": "/tmp/turingos-voyager-realworld-euMpQV",
+  "scenario": {
+    "type": "real_repo",
+    "repoUrl": "https://github.com/keploy/keploy.git",
+    "repoRef": "main",
+    "repoIssueUrl": "https://github.com/keploy/keploy/issues/3843",
+    "repoDir": "keploy",
+    "repoCommit": "75bd8751fe162c3adf2b58af58b1bafa3213ce1d",
+    "entryPointer": "VOYAGER_TASK.md"
+  },
+  "oracle": {
+    "mode": "kimi",
+    "model": "kimi-for-coding",
+    "baseURL": "https://api.groq.com/openai/v1",
+    "maxOutputTokens": 1024,
+    "maxRetries": 1,
+    "retryBaseDelayMs": 500,
+    "retryMaxDelayMs": 2000,
+    "requestTimeoutMs": 15000
+  },
+  "chaos": {
+    "execTimeoutRate": 0.1,
+    "writeDenyRate": 0.05,
+    "logFloodRate": 0.1,
+    "logFloodChars": 50000
+  },
+  "traceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_171555.jsonl",
+  "traceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/trace.jsonl",
+  "dirtyTraceJsonlPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_20260227_171555.jsonl",
+  "dirtyTraceJsonlLatestPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/dirty_trace_latest.jsonl",
+  "ticksRequested": 160,
+  "ticksObserved": 0,
+  "replayTuples": 0,
+  "contextStats": {
+    "min": 0,
+    "max": 0,
+    "avg": 0,
+    "p95": 0
+  },
+  "vliwEvidence": {
+    "found": false,
+    "tickSeq": null,
+    "details": "(missing)"
+  },
+  "chaosEvidence": {
+    "pagedFloodDetected": false,
+    "tickSeq": null,
+    "followupAction": ""
+  },
+  "checks": [
+    {
+      "id": "oracle_mode_is_real",
+      "pass": true,
+      "details": "mode=kimi model=kimi-for-coding"
+    },
+    {
+      "id": "ticks_observed_>=_100",
+      "pass": false,
+      "details": "ticks=0"
+    },
+    {
+      "id": "vliw_combo_edit_push_then_exec",
+      "pass": false,
+      "details": "missing tuple with [SYS_EDIT,SYS_PUSH] + SYS_EXEC"
+    },
+    {
+      "id": "chaos_log_flood_detected_and_followed",
+      "pass": false,
+      "details": "no paged command flood detected"
+    },
+    {
+      "id": "context_o1_bound_under_4k_mmu",
+      "pass": true,
+      "details": "min=0 max=0 avg=0 p95=0"
+    }
+  ],
+  "pass": false
+}

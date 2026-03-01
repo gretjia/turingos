@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-02-28T05:34:16.367Z",
+  "paperUrl": "https://arxiv.org/html/2511.09030v1",
+  "requiredSteps": 1000000,
+  "observedSteps": 69,
+  "reachedStepThreshold": false,
+  "answerCorrect": false,
+  "pass": false,
+  "tracePath": "benchmarks/audits/longrun/voyager_realworld_trace_20260227_173218.jsonl",
+  "answerPath": "benchmarks/audits/longrun/voyager_realworld_eval_20260227_173218.json",
+  "notes": [
+    "Step threshold not met: observed=69, required=1000000. Continue hardening and rerun.",
+    "Final answer correctness proof missing or failed."
+  ]
+}

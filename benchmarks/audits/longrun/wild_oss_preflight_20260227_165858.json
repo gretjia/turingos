@@ -1,0 +1,174 @@
+{
+  "stamp": "20260227_165858",
+  "generatedAt": "2026-02-27T16:58:58.967Z",
+  "sourcePoolGeneratedAt": "2026-02-27T16:44:37.684Z",
+  "policy": {
+    "maxRepos": 3,
+    "maxScan": 12,
+    "timeoutMs": {
+      "clone": 180000,
+      "install": 300000,
+      "testProbe": 180000
+    }
+  },
+  "toolchains": {
+    "node": true,
+    "python": true,
+    "npm": true,
+    "pip": false,
+    "pnpm": true,
+    "yarn": false
+  },
+  "summary": {
+    "selected": 3,
+    "pass": 2,
+    "fail": 1,
+    "skip": 0
+  },
+  "rows": [
+    {
+      "fullName": "langfuse/langfuse",
+      "language": "TypeScript",
+      "weightedTotal": 0.9023,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-MfvtL6/langfuse__langfuse",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1594,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-MfvtL6/langfuse__langfuse'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2011,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "scalar/scalar",
+      "language": "TypeScript",
+      "weightedTotal": 0.895,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-MfvtL6/scalar__scalar",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2536,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-MfvtL6/scalar__scalar'...\n"
+      },
+      "install": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2390,
+        "stdoutPreview": "",
+        "stderrPreview": ""
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "PASS"
+    },
+    {
+      "fullName": "monkeytypegame/monkeytype",
+      "language": "TypeScript",
+      "weightedTotal": 0.8872,
+      "selectedIssue": {
+        "number": 7518,
+        "title": "AFK Detected Bug",
+        "htmlUrl": "https://github.com/monkeytypegame/monkeytype/issues/7518",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Did you clear cache before opening an issue? - [x] I have cleared my cache ### Is there an existing issue for this? - [x] I have [searched](https://github.com/monkeytypegame/monkeytype/issues?q=is%3Aissue) the existing open and closed i",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": true,
+      "toolchainReason": "",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-MfvtL6/monkeytypegame__monkeytype",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 10980,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-MfvtL6/monkeytypegame__monkeytype'...\n"
+      },
+      "install": {
+        "ok": false,
+        "code": 1,
+        "durationMs": 1243,
+        "stdoutPreview": "",
+        "stderrPreview": "",
+        "errorMessage": "Command failed: timeout --signal=KILL 300s pnpm install --frozen-lockfile --ignore-scripts --lockfile-only\n"
+      },
+      "testProbe": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 0,
+        "stdoutPreview": "test_script_detected:test",
+        "stderrPreview": ""
+      },
+      "verdict": "FAIL"
+    }
+  ]
+}

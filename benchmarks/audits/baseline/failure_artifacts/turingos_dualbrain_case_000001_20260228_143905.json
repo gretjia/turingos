@@ -1,0 +1,20 @@
+{
+  "stamp": "20260228_143905",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": null,
+  "reason": "mismatch expected=168 got=(null)",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000001",
+  "workspaceExists": true,
+  "answerFile": "168",
+  "journalTail": "[2026-02-28T14:34:48.697Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:34:38.804Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:34:57.255Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:34:48.699Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:35:45.710Z] [HYPERCORE_RED_FLAG] pid=planner_1935fac0 red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS:SYS_WRITE,SYS_HALT\n[2026-02-28T14:36:09.701Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:35:45.711Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:36:34.250Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:36:09.702Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:36:58.580Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:36:34.251Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:37:44.252Z] [HYPERCORE_RED_FLAG] pid=planner_1935fac0 red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS:SYS_WRITE,SYS_HALT\n[2026-02-28T14:37:53.499Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:37:44.252Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:38:15.399Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:37:53.500Z\",\"pid\":\"planner_1935fac0\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T14:39:05.746Z] [HYPERCORE_RED_FLAG] pid=planner_1935fac0 red_flags=3/3 details=Error: [CPU_FAULT: INVALID_OPCODE] CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS:SYS_WRITE,SYS_HALT\n",
+  "callstack": []
+}

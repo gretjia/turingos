@@ -1,0 +1,2 @@
+{"ts":"2026-02-28T17:35:13.427Z","cycle":1,"profile":"balanced","startTest":43,"endTest":62,"status":"ERROR","passed":0,"failed":1,"firstFailAt":null,"reportPath":"","reason":"codex_exec_failed"}
+{"ts":"2026-02-28T17:35:14.579Z","cycle":2,"profile":"strict_halt","startTest":43,"endTest":62,"status":"ERROR","passed":0,"failed":1,"firstFailAt":null,"reportPath":"","reason":"codex_exec_failed"}

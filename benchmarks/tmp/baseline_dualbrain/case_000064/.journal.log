@@ -1,0 +1,6 @@
+[2026-02-28T17:43:35.375Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:43:33.816Z","pid":"planner_230ed72e","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.1}
+[2026-02-28T17:43:37.157Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:43:35.375Z","pid":"planner_230ed72e","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.1}
+[2026-02-28T17:43:38.717Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:43:37.158Z","pid":"planner_230ed72e","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.1}
+[2026-02-28T17:43:40.916Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T17:43:38.718Z","pid":"planner_230ed72e","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.1}
+[2026-02-28T17:43:40.929Z] [HYPERCORE_HALT_ASSIST] pid=planner_230ed72e reason=write_thrashing_ready_to_halt streak=3
+[2026-02-28T17:43:40.940Z] [HYPERCORE_PRICE] pid=planner_230ed72e verdict=PASS price=1

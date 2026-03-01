@@ -1,0 +1,45 @@
+{
+  "stamp": "20260228_070033",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 6,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 233 + 575",
+    "expected": "808"
+  },
+  "observed": null,
+  "reason": "mismatch expected=808 got=(null)",
+  "attempted": 6,
+  "passed": 5,
+  "failed": 1,
+  "firstFailAt": 6,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000006",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T06:58:50.211Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:58:40.307Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:01.143Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:58:50.213Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:08.411Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:01.144Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:14.662Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:08.411Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:19.614Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:14.662Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:25.560Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:19.614Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:32.178Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:25.560Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:39.613Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:32.179Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:44.663Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:39.613Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:50.728Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:44.663Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T06:59:56.959Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:50.728Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:00:01.953Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T06:59:56.959Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:00:09.732Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:00:01.953Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:00:19.936Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:00:09.733Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:00:26.061Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:00:19.936Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:00:33.878Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:00:26.061Z\",\"pid\":\"planner_c969fe3c\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n",
+  "callstack": [
+    {
+      "task_id": "task_2025c0d2d3b4",
+      "status": "SUSPENDED",
+      "objective": "Write 808 to ANSWER.txt with newline",
+      "scratchpad": "Write 808 to ANSWER.txt with newline",
+      "created_at": "2026-02-28T06:58:50.212Z",
+      "updated_at": "2026-02-28T06:58:50.212Z"
+    },
+    {
+      "task_id": "task_7ea4fd6e7dfb",
+      "status": "SUSPENDED",
+      "objective": "Verify ANSWER.txt contents match 808",
+      "scratchpad": "Verify ANSWER.txt contents match 808",
+      "created_at": "2026-02-28T06:58:50.212Z",
+      "updated_at": "2026-02-28T06:59:01.143Z"
+    },
+    {
+      "task_id": "task_73e52f4c4515",
+      "status": "ACTIVE",
+      "objective": "verify ANSWER.txt contains 808 then HALT",
+      "scratchpad": "verify ANSWER.txt contains 808 then HALT",
+      "created_at": "2026-02-28T06:59:01.143Z",
+      "updated_at": "2026-02-28T06:59:01.143Z"
+    }
+  ]
+}

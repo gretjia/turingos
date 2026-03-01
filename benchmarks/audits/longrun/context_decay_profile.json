@@ -1,619 +1,430 @@
 {
-  "inputPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_115404.jsonl",
-  "generatedAt": "2026-02-27T12:09:13.767Z",
-  "ticks": 100,
+  "inputPath": "/home/zephryj/projects/turingos/benchmarks/audits/longrun/voyager_realworld_trace_20260227_173218.jsonl",
+  "generatedAt": "2026-02-27T17:49:33.004Z",
+  "ticks": 69,
   "context": {
-    "min": 780,
-    "max": 3972,
-    "avg": 1272.26,
-    "p95": 3900,
-    "slopePerTick": -3.4242
+    "min": 448,
+    "max": 3996,
+    "avg": 1803.94,
+    "p95": 3992,
+    "slopePerTick": 32.0882
   },
   "traps": {
-    "totalEvents": 2,
-    "byMarker": {
-      "OS_PANIC": 1,
-      "sys://trap/panic_reset": 1
-    }
+    "totalEvents": 0,
+    "byMarker": {}
   },
   "points": [
     {
       "tick": 0,
-      "length": 1259,
-      "mindOps": 3,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 1,
-      "length": 1087,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 2,
-      "length": 1803,
+      "length": 1264,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
+      "tick": 1,
+      "length": 3996,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 2,
+      "length": 834,
+      "mindOps": 0,
+      "hasWorldOp": true
+    },
+    {
       "tick": 3,
-      "length": 1905,
+      "length": 1223,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 4,
-      "length": 3152,
+      "length": 1301,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 5,
-      "length": 965,
-      "mindOps": 1,
+      "length": 850,
+      "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 6,
-      "length": 1082,
-      "mindOps": 2,
+      "length": 3992,
+      "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 7,
-      "length": 1384,
+      "length": 1018,
       "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 8,
-      "length": 1869,
-      "mindOps": 1,
+      "length": 3992,
+      "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 9,
-      "length": 1012,
-      "mindOps": 1,
+      "length": 3992,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 10,
-      "length": 3953,
+      "length": 3992,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 11,
-      "length": 966,
+      "length": 850,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 12,
-      "length": 3943,
+      "length": 920,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 13,
-      "length": 3972,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 14,
-      "length": 2197,
-      "mindOps": 3,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 15,
-      "length": 1053,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 16,
-      "length": 957,
+      "length": 866,
       "mindOps": 0,
       "hasWorldOp": true
     },
     {
-      "tick": 17,
-      "length": 1051,
+      "tick": 14,
+      "length": 1146,
       "mindOps": 2,
       "hasWorldOp": true
     },
     {
-      "tick": 18,
-      "length": 900,
+      "tick": 15,
+      "length": 1070,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
+      "tick": 16,
+      "length": 1434,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 17,
+      "length": 850,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 18,
+      "length": 942,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
       "tick": 19,
-      "length": 1003,
+      "length": 908,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 20,
-      "length": 1064,
-      "mindOps": 1,
+      "length": 1131,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 21,
-      "length": 787,
+      "length": 1409,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 22,
-      "length": 1117,
-      "mindOps": 1,
+      "length": 1139,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 23,
-      "length": 1028,
+      "length": 3976,
       "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 24,
-      "length": 969,
+      "length": 920,
       "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 25,
-      "length": 1129,
+      "length": 970,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 26,
-      "length": 787,
+      "length": 971,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 27,
-      "length": 976,
-      "mindOps": 1,
+      "length": 1173,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 28,
-      "length": 1062,
-      "mindOps": 1,
+      "length": 1176,
+      "mindOps": 3,
       "hasWorldOp": true
     },
     {
       "tick": 29,
-      "length": 834,
+      "length": 964,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 30,
-      "length": 961,
-      "mindOps": 1,
+      "length": 1139,
+      "mindOps": 3,
       "hasWorldOp": true
     },
     {
       "tick": 31,
-      "length": 1031,
-      "mindOps": 0,
+      "length": 1037,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 32,
-      "length": 1105,
-      "mindOps": 0,
+      "length": 986,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 33,
-      "length": 834,
-      "mindOps": 0,
+      "length": 980,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 34,
-      "length": 834,
-      "mindOps": 0,
+      "length": 1068,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 35,
-      "length": 834,
-      "mindOps": 0,
+      "length": 971,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 36,
-      "length": 1105,
-      "mindOps": 1,
+      "length": 1109,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 37,
-      "length": 1464,
-      "mindOps": 1,
+      "length": 3952,
+      "mindOps": 3,
       "hasWorldOp": true
     },
     {
       "tick": 38,
-      "length": 1793,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 39,
-      "length": 962,
+      "length": 3222,
       "mindOps": 0,
       "hasWorldOp": true
     },
     {
+      "tick": 39,
+      "length": 3946,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
       "tick": 40,
-      "length": 954,
-      "mindOps": 1,
+      "length": 3221,
+      "mindOps": 3,
       "hasWorldOp": true
     },
     {
       "tick": 41,
-      "length": 962,
-      "mindOps": 1,
+      "length": 3947,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 42,
-      "length": 904,
+      "length": 1040,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 43,
-      "length": 962,
+      "length": 845,
       "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 44,
-      "length": 1044,
+      "length": 950,
       "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 45,
-      "length": 948,
+      "length": 3956,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 46,
-      "length": 849,
+      "length": 2028,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 47,
-      "length": 891,
-      "mindOps": 0,
+      "length": 1285,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 48,
-      "length": 931,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 49,
-      "length": 1464,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 50,
-      "length": 1874,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 51,
-      "length": 964,
+      "length": 845,
       "mindOps": 0,
       "hasWorldOp": true
     },
     {
+      "tick": 49,
+      "length": 3935,
+      "mindOps": 2,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 50,
+      "length": 448,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
+      "tick": 51,
+      "length": 1099,
+      "mindOps": 3,
+      "hasWorldOp": true
+    },
+    {
       "tick": 52,
-      "length": 1015,
+      "length": 1032,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 53,
-      "length": 964,
-      "mindOps": 0,
+      "length": 1360,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 54,
-      "length": 943,
-      "mindOps": 0,
+      "length": 1062,
+      "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 55,
-      "length": 1060,
+      "length": 1023,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 56,
-      "length": 1119,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 57,
-      "length": 947,
+      "length": 3732,
       "mindOps": 2,
       "hasWorldOp": true
     },
     {
+      "tick": 57,
+      "length": 3691,
+      "mindOps": 1,
+      "hasWorldOp": true
+    },
+    {
       "tick": 58,
-      "length": 927,
+      "length": 3675,
       "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 59,
-      "length": 853,
+      "length": 3662,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 60,
-      "length": 3970,
-      "mindOps": 1,
+      "length": 808,
+      "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 61,
-      "length": 967,
+      "length": 1047,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 62,
-      "length": 854,
-      "mindOps": 1,
+      "length": 1024,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 63,
-      "length": 1134,
+      "length": 1115,
       "mindOps": 1,
       "hasWorldOp": true
     },
     {
       "tick": 64,
-      "length": 1110,
-      "mindOps": 0,
+      "length": 1265,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 65,
-      "length": 962,
-      "mindOps": 1,
+      "length": 1025,
+      "mindOps": 2,
       "hasWorldOp": true
     },
     {
       "tick": 66,
-      "length": 3900,
+      "length": 790,
       "mindOps": 0,
       "hasWorldOp": true
     },
     {
       "tick": 67,
-      "length": 3900,
+      "length": 3437,
       "mindOps": 1,
-      "hasWorldOp": true
+      "hasWorldOp": false
     },
     {
       "tick": 68,
-      "length": 1002,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 69,
-      "length": 1002,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 70,
-      "length": 1002,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 71,
-      "length": 844,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 72,
-      "length": 1813,
-      "mindOps": 2,
-      "hasWorldOp": false
-    },
-    {
-      "tick": 73,
-      "length": 2194,
-      "mindOps": 1,
-      "hasWorldOp": false
-    },
-    {
-      "tick": 74,
-      "length": 896,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 75,
-      "length": 942,
-      "mindOps": 3,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 76,
-      "length": 1094,
-      "mindOps": 3,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 77,
-      "length": 906,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 78,
-      "length": 918,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 79,
-      "length": 919,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 80,
-      "length": 1415,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 81,
-      "length": 780,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 82,
-      "length": 918,
-      "mindOps": 2,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 83,
-      "length": 1780,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 84,
-      "length": 959,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 85,
-      "length": 1125,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 86,
-      "length": 953,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 87,
-      "length": 1125,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 88,
-      "length": 989,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 89,
-      "length": 1127,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 90,
-      "length": 1008,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 91,
-      "length": 920,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 92,
-      "length": 842,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 93,
-      "length": 920,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 94,
-      "length": 920,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 95,
-      "length": 856,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 96,
-      "length": 859,
-      "mindOps": 1,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 97,
-      "length": 920,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 98,
-      "length": 797,
-      "mindOps": 0,
-      "hasWorldOp": true
-    },
-    {
-      "tick": 99,
-      "length": 920,
+      "length": 3446,
       "mindOps": 1,
       "hasWorldOp": true
     }

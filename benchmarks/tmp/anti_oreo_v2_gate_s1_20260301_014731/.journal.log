@@ -1,0 +1,19 @@
+[2026-03-01T01:47:31.117Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.117Z","pid":"planner_25ae0590","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-03-01T01:47:31.119Z] [HYPERCORE_HALT_REQUEST] pid=planner_25ae0590
+[2026-03-01T01:47:31.130Z] [HYPERCORE_PRICE] pid=planner_25ae0590 verdict=FAIL price=-1
+[2026-03-01T01:47:31.130Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.130Z","pid":"planner_25ae0590","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-03-01T01:47:31.131Z] [HYPERCORE_MAP] pid=planner_25ae0590 children=worker_ef0ff124,worker_a92716e9 task_count=2
+[2026-03-01T01:47:31.132Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.132Z","pid":"worker_ef0ff124","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:47:31.134Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.134Z","pid":"worker_a92716e9","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:47:31.135Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.135Z","pid":"worker_ef0ff124","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:47:31.135Z] [HYPERCORE_HALT_REQUEST] pid=worker_ef0ff124
+[2026-03-01T01:47:31.145Z] [HYPERCORE_PRICE] pid=worker_ef0ff124 verdict=PASS price=1
+[2026-03-01T01:47:31.145Z] [HYPERCORE_REDUCE_DROP] pid=planner_25ae0590 child=worker_ef0ff124 reason=invalid_vote_format
+[2026-03-01T01:47:31.146Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.146Z","pid":"worker_a92716e9","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-03-01T01:47:31.146Z] [HYPERCORE_HALT_REQUEST] pid=worker_a92716e9
+[2026-03-01T01:47:31.152Z] [HYPERCORE_PRICE] pid=worker_a92716e9 verdict=PASS price=1
+[2026-03-01T01:47:31.152Z] [HYPERCORE_REDUCE_DROP] pid=planner_25ae0590 child=worker_a92716e9 reason=invalid_vote_format
+[2026-03-01T01:47:31.152Z] [HYPERCORE_REDUCE] pid=planner_25ae0590 resumed=1 early_stop=0 math_lock=0 consensus=[NO_VALID_VOTE] votes=0/0
+[2026-03-01T01:47:31.153Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:31.153Z","pid":"planner_25ae0590","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-03-01T01:47:31.153Z] [HYPERCORE_HALT_REQUEST] pid=planner_25ae0590
+[2026-03-01T01:47:31.166Z] [HYPERCORE_PRICE] pid=planner_25ae0590 verdict=PASS price=0

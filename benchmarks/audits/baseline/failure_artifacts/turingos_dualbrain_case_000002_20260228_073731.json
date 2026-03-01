@@ -1,0 +1,77 @@
+{
+  "stamp": "20260228_073731",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 2,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 85 + 211",
+    "expected": "296"
+  },
+  "observed": null,
+  "reason": "mismatch expected=296 got=(null)",
+  "attempted": 2,
+  "passed": 1,
+  "failed": 1,
+  "firstFailAt": 2,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000002",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T07:36:45.106Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:36:38.649Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:36:54.099Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:36:45.110Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:37:00.160Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:36:54.099Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:37:00.160Z] [HYPERCORE_HALT_REQUEST] pid=planner_1be51bd9\n[2026-02-28T07:37:00.165Z] [HYPERCORE_PRICE] pid=planner_1be51bd9 verdict=FAIL price=-1\n[2026-02-28T07:37:09.325Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:37:00.165Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:37:15.088Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:37:09.336Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:37:18.681Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:37:15.097Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:37:25.215Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:37:18.690Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:37:31.352Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:37:25.224Z\",\"pid\":\"planner_1be51bd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n",
+  "callstack": [
+    {
+      "task_id": "task_e6ca50186ff1",
+      "status": "SUSPENDED",
+      "objective": "Compute 85+211=296 and prepare to write to ANSWER.txt",
+      "scratchpad": "Compute 85+211=296 and prepare to write to ANSWER.txt",
+      "created_at": "2026-02-28T07:36:45.109Z",
+      "updated_at": "2026-02-28T07:37:09.325Z"
+    },
+    {
+      "task_id": "task_e48468b1bfa2",
+      "status": "SUSPENDED",
+      "objective": "Check if ANSWER.txt exists and inspect its exact contents",
+      "scratchpad": "Check if ANSWER.txt exists and inspect its exact contents",
+      "created_at": "2026-02-28T07:37:09.325Z",
+      "updated_at": "2026-02-28T07:37:09.326Z"
+    },
+    {
+      "task_id": "task_d78d8505054c",
+      "status": "SUSPENDED",
+      "objective": "Write exactly '296' to ANSWER.txt if missing or malformed",
+      "scratchpad": "Write exactly '296' to ANSWER.txt if missing or malformed",
+      "created_at": "2026-02-28T07:37:09.326Z",
+      "updated_at": "2026-02-28T07:37:15.089Z"
+    },
+    {
+      "task_id": "task_66010b2b3529",
+      "status": "SUSPENDED",
+      "objective": "Verify ANSWER.txt after write: check exists, content is exactly '296' with proper newline termination",
+      "scratchpad": "Verify ANSWER.txt after write: check exists, content is exactly '296' with proper newline termination",
+      "created_at": "2026-02-28T07:37:15.089Z",
+      "updated_at": "2026-02-28T07:37:18.682Z"
+    },
+    {
+      "task_id": "task_f17798b84367",
+      "status": "SUSPENDED",
+      "objective": "Verify ANSWER.txt exists with content '296' after write",
+      "scratchpad": "Verify ANSWER.txt exists with content '296' after write",
+      "created_at": "2026-02-28T07:37:18.682Z",
+      "updated_at": "2026-02-28T07:37:25.216Z"
+    },
+    {
+      "task_id": "task_f0579b7dc4eb",
+      "status": "SUSPENDED",
+      "objective": "Verify ANSWER.txt exists and contains exactly '296\\n'",
+      "scratchpad": "Verify ANSWER.txt exists and contains exactly '296\\n'",
+      "created_at": "2026-02-28T07:37:25.216Z",
+      "updated_at": "2026-02-28T07:37:31.353Z"
+    },
+    {
+      "task_id": "task_277030119cf5",
+      "status": "ACTIVE",
+      "objective": "verify ANSWER.txt exists with content '296\\n'",
+      "scratchpad": "verify ANSWER.txt exists with content '296\\n'",
+      "created_at": "2026-02-28T07:37:31.353Z",
+      "updated_at": "2026-02-28T07:37:31.353Z"
+    }
+  ]
+}

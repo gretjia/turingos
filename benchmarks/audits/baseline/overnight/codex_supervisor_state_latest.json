@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2026-03-01T00:23:20.743Z",
+  "cycle": 1,
+  "frontier": 142,
+  "window": 20,
+  "activeProfile": "balanced",
+  "lastSummary": {
+    "ts": "2026-03-01T00:23:20.550Z",
+    "cycle": 1,
+    "profile": "balanced",
+    "startTest": 123,
+    "endTest": 142,
+    "status": "PASS",
+    "passed": 20,
+    "failed": 0,
+    "firstFailAt": null,
+    "reportPath": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_002317.json",
+    "reason": ""
+  }
+}

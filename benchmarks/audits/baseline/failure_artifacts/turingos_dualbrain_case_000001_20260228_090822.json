@@ -1,0 +1,20 @@
+{
+  "stamp": "20260228_090822",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": null,
+  "reason": "mismatch expected=168 got=(null)",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000001",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T09:08:12.480Z] [HYPERCORE_RED_FLAG] pid=planner_d59b8ad6 red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: content\n[2026-02-28T09:08:17.965Z] [HYPERCORE_RED_FLAG] pid=planner_d59b8ad6 red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: content\n[2026-02-28T09:08:22.007Z] [HYPERCORE_RED_FLAG] pid=planner_d59b8ad6 red_flags=3/3 details=Error: [CPU_FAULT: INVALID_OPCODE] mind_ops[0]: MUTEX_VIOLATION: SYS_PUSH has unsupported fields: data\n",
+  "callstack": []
+}

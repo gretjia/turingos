@@ -8,6 +8,7 @@ export const SYSCALL_OPCODES = [
   'SYS_PUSH',
   'SYS_EDIT',
   'SYS_MOVE',
+  'SYS_MAP_REDUCE',
   'SYS_POP',
   'SYS_HALT',
 ] as const;
@@ -18,7 +19,7 @@ export const SYSCALL_OPCODE_PIPE = SYSCALL_OPCODES.join('|');
 export const SYSCALL_OPCODE_SLASH = SYSCALL_OPCODES.join('/');
 
 export const SYSCALL_WORLD_OPCODES = ['SYS_WRITE', 'SYS_EXEC', 'SYS_GOTO', 'SYS_GIT_LOG'] as const;
-export const SYSCALL_MIND_OPCODES = ['SYS_PUSH', 'SYS_POP', 'SYS_EDIT', 'SYS_MOVE'] as const;
+export const SYSCALL_MIND_OPCODES = ['SYS_PUSH', 'SYS_POP', 'SYS_EDIT', 'SYS_MOVE', 'SYS_MAP_REDUCE'] as const;
 export const SYSCALL_SYSTEM_CONTROL_OPCODES = ['SYS_HALT'] as const;
 export type SyscallWorldOpcode = (typeof SYSCALL_WORLD_OPCODES)[number];
 export type SyscallMindOpcode = (typeof SYSCALL_MIND_OPCODES)[number];
@@ -32,6 +33,7 @@ export const SYSCALL_EXACT_FIELD_PROMPT_LINES: readonly string[] = [
   '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."}',
   '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."}',
   '- SYS_MOVE: {"op":"SYS_MOVE","task_id":"optional","target_pos":"TOP|BOTTOM","status":"ACTIVE|SUSPENDED|BLOCKED"}',
+  '- SYS_MAP_REDUCE: {"op":"SYS_MAP_REDUCE","tasks":["atomic task 1","atomic task 2"]}',
   '- SYS_POP: {"op":"SYS_POP"}',
   '- SYS_HALT: {"op":"SYS_HALT"}',
 ];
@@ -55,6 +57,8 @@ function normalizeOpcode(raw: string): SyscallOpcode | null {
       ? 'SYS_EDIT'
       : normalized === 'SYS_STACK_MOVE'
         ? 'SYS_MOVE'
+        : normalized === 'SYS_MAPREDUCE'
+          ? 'SYS_MAP_REDUCE'
         : normalized;
   return isSyscallOpcode(mapped) ? mapped : null;
 }
@@ -137,11 +141,16 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
       'syscall',
       'payload',
       'content',
+      'value',
+      'data',
       's_prime',
       'semantic_cap',
       'semanticCap',
       'cap',
       'capability',
+      'target',
+      'path',
+      'file',
     ]);
     if (envelope) {
       return { ok: false, reason: envelope };
@@ -152,9 +161,13 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
         ? raw.payload
         : typeof raw.content === 'string'
           ? raw.content
-          : typeof raw.s_prime === 'string'
-            ? raw.s_prime
-            : null;
+          : typeof raw.value === 'string'
+            ? raw.value
+            : typeof raw.data === 'string'
+              ? raw.data
+            : typeof raw.s_prime === 'string'
+              ? raw.s_prime
+              : null;
     if (payload === null) {
       return { ok: false, reason: 'SYS_WRITE.payload must be a string.' };
     }
@@ -176,7 +189,10 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
       normalizeString(raw.semantic_cap) ||
       normalizeString(raw.semanticCap) ||
       normalizeString(raw.cap) ||
-      normalizeString(raw.capability);
+      normalizeString(raw.capability) ||
+      normalizeString(raw.target) ||
+      normalizeString(raw.path) ||
+      normalizeString(raw.file);
 
     if (semanticCap) {
       return { ok: true, syscall: { op: 'SYS_WRITE', payload, semantic_cap: semanticCap } };
@@ -294,7 +310,25 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
   }
 
   if (opcode === 'SYS_PUSH' || opcode === 'SYS_EDIT') {
-    const envelope = rejectExtra(['op', 'sys', 'syscall', 'task', 'stack_payload', 'cmd', 'command']);
+    const envelope = rejectExtra([
+      'op',
+      'sys',
+      'syscall',
+      'task',
+      'stack_payload',
+      'cmd',
+      'command',
+      'content',
+      'data',
+      'payload',
+      'target',
+      'value',
+      'objective',
+      'text',
+      'note',
+      'frame',
+      'source',
+    ]);
     if (envelope) {
       return { ok: false, reason: envelope };
     }
@@ -303,7 +337,17 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
       normalizeTask(raw.task) ||
       normalizeTask(raw.stack_payload) ||
       normalizeTask(raw.cmd) ||
-      normalizeTask(raw.command);
+      normalizeTask(raw.command) ||
+      normalizeTask(raw.content) ||
+      normalizeTask(raw.data) ||
+      normalizeTask(raw.payload) ||
+      normalizeTask(raw.target) ||
+      normalizeTask(raw.value) ||
+      normalizeTask(raw.objective) ||
+      normalizeTask(raw.text) ||
+      normalizeTask(raw.note) ||
+      normalizeTask(raw.frame) ||
+      normalizeTask(raw.source);
     if (task.length === 0) {
       return { ok: false, reason: `${opcode}.task must be non-empty.` };
     }
@@ -380,6 +424,39 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
       normalized.status = status;
     }
     return { ok: true, syscall: normalized };
+  }
+
+  if (opcode === 'SYS_MAP_REDUCE') {
+    const envelope = rejectExtra(['op', 'sys', 'syscall', 'tasks', 'task_list']);
+    if (envelope) {
+      return { ok: false, reason: envelope };
+    }
+
+    const taskSource = Array.isArray(raw.tasks)
+      ? raw.tasks
+      : Array.isArray(raw.task_list)
+        ? raw.task_list
+        : null;
+    if (!taskSource) {
+      return { ok: false, reason: 'SYS_MAP_REDUCE.tasks must be a non-empty string array.' };
+    }
+
+    const tasks: string[] = [];
+    for (const item of taskSource) {
+      if (typeof item !== 'string') {
+        return { ok: false, reason: 'SYS_MAP_REDUCE.tasks must contain only non-empty strings.' };
+      }
+      const trimmed = item.trim();
+      if (trimmed.length === 0) {
+        return { ok: false, reason: 'SYS_MAP_REDUCE.tasks must contain only non-empty strings.' };
+      }
+      tasks.push(trimmed);
+    }
+
+    if (tasks.length === 0) {
+      return { ok: false, reason: 'SYS_MAP_REDUCE.tasks must contain at least one non-empty string.' };
+    }
+    return { ok: true, syscall: { op: 'SYS_MAP_REDUCE', tasks } };
   }
 
   if (opcode === 'SYS_POP' || opcode === 'SYS_HALT') {
@@ -512,6 +589,22 @@ export function validateCanonicalSyscallEnvelope(value: unknown): string | null 
       const normalized = raw.status.trim().toUpperCase();
       if (normalized !== 'ACTIVE' && normalized !== 'SUSPENDED' && normalized !== 'BLOCKED') {
         return `SYS_MOVE.status invalid: ${raw.status}`;
+      }
+    }
+    return null;
+  }
+
+  if (op === 'SYS_MAP_REDUCE') {
+    const envelope = allowOnly(['op', 'tasks']);
+    if (envelope) {
+      return envelope;
+    }
+    if (!Array.isArray(raw.tasks) || raw.tasks.length === 0) {
+      return 'SYS_MAP_REDUCE.tasks must be a non-empty string array.';
+    }
+    for (const task of raw.tasks) {
+      if (typeof task !== 'string' || task.trim().length === 0) {
+        return 'SYS_MAP_REDUCE.tasks must contain only non-empty strings.';
       }
     }
     return null;

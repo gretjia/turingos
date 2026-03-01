@@ -1,0 +1,10 @@
+[
+  {
+    "task_id": "task_a61446948d81",
+    "status": "ACTIVE",
+    "objective": "Compute 5191 + 2769 = 7960",
+    "scratchpad": "Compute 5191 + 2769 = 7960",
+    "created_at": "2026-03-01T00:22:57.035Z",
+    "updated_at": "2026-03-01T00:22:57.035Z"
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "stamp": "20260228_074721",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": null,
+  "reason": "mismatch expected=168 got=(null)",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000001",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T07:46:28.415Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:15.633Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:46:34.494Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:28.418Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:46:40.625Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:34.495Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:46:46.435Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:40.626Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:46:50.343Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:46.436Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:46:55.427Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:50.343Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:46:55.428Z] [HYPERCORE_TRAP_RECOVERY] pid=planner_23ba896e kind=thrashing details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT\n[2026-02-28T07:47:02.488Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:46:55.428Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:47:08.612Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:47:02.488Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:47:15.574Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:47:08.613Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n[2026-02-28T07:47:21.247Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:47:15.574Z\",\"pid\":\"planner_23ba896e\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n",
+  "callstack": [
+    {
+      "task_id": "task_af0dec12ffec",
+      "status": "SUSPENDED",
+      "objective": "Read MAIN_TAPE.md to verify expression",
+      "scratchpad": "Read MAIN_TAPE.md to verify expression",
+      "created_at": "2026-02-28T07:46:28.417Z",
+      "updated_at": "2026-02-28T07:46:34.494Z"
+    },
+    {
+      "task_id": "task_13a4a6dd6d8f",
+      "status": "ACTIVE",
+      "objective": "Step 1: Read MAIN_TAPE.md",
+      "scratchpad": "Step 1: Read MAIN_TAPE.md",
+      "created_at": "2026-02-28T07:46:34.494Z",
+      "updated_at": "2026-02-28T07:46:34.494Z"
+    }
+  ]
+}

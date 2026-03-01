@@ -1,0 +1,20 @@
+{
+  "stamp": "20260228_151426",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": null,
+  "reason": "mismatch expected=168 got=(null)",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000001",
+  "workspaceExists": true,
+  "answerFile": "168",
+  "journalTail": "[2026-02-28T15:13:07.427Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:12:42.463Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:12.785Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:07.429Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:18.737Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:12.788Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:23.536Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:18.738Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:29.991Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:23.536Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:41.043Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:29.991Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:49.463Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:41.044Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:13:57.301Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:49.464Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:14:03.198Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:13:57.301Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:14:12.333Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:14:03.199Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:14:20.023Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:14:12.334Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n[2026-02-28T15:14:26.749Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T15:14:20.024Z\",\"pid\":\"planner_ed2041f2\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwq:32b\",\"temperature\":0.7}\n",
+  "callstack": []
+}

@@ -1,0 +1,2 @@
+[continuous-until-fail][2026-03-01 03:02:45] start mode=turingos_dualbrain window=20 frontier=5 timeout_sec=300 stop_file=/home/zephryj/projects/turingos/benchmarks/audits/baseline/continuous/continuous_until_fail.stop
+[continuous-until-fail][2026-03-01 03:02:45] cycle=1 range=6-25 frontier=5

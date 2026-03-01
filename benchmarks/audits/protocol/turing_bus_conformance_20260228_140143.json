@@ -1,0 +1,78 @@
+{
+  "stamp": "20260228_140143",
+  "pass": false,
+  "schemaChecks": [
+    {
+      "id": "bus_schema.version_present",
+      "pass": true,
+      "details": "version=2.0.0"
+    },
+    {
+      "id": "bus_schema.providers_include_openai_kimi_ollama",
+      "pass": true,
+      "details": "providers=openai,kimi,ollama"
+    },
+    {
+      "id": "bus_instruction_classes_match_syscall_schema",
+      "pass": false,
+      "details": "bus_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE"
+    }
+  ],
+  "caseResults": [
+    {
+      "id": "openai_valid_with_think_prefix",
+      "provider": "openai",
+      "expect": "accept",
+      "pass": true,
+      "details": "a_t=SYS_GOTO mind_ops=SYS_EDIT world_op=SYS_GOTO"
+    },
+    {
+      "id": "openai_valid_legacy",
+      "provider": "openai",
+      "expect": "accept",
+      "pass": false,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Strict single-frame mode requires VLIW fields mind_ops/world_op; legacy a_t-only frame is forbidden."
+    },
+    {
+      "id": "kimi_valid_vliw",
+      "provider": "kimi",
+      "expect": "accept",
+      "pass": true,
+      "details": "a_t=SYS_EXEC mind_ops=SYS_EDIT|SYS_PUSH world_op=SYS_EXEC"
+    },
+    {
+      "id": "ollama_valid_mind_only",
+      "provider": "ollama",
+      "expect": "accept",
+      "pass": true,
+      "details": "a_t=SYS_MOVE mind_ops=SYS_MOVE world_op=(none)"
+    },
+    {
+      "id": "openai_reject_mutex_violation",
+      "provider": "openai",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] Strict single-frame mode requires VLIW fields mind_ops/world_op; legacy a_t-only frame is forbidden."
+    },
+    {
+      "id": "kimi_reject_invalid_mind_opcode",
+      "provider": "kimi",
+      "expect": "reject",
+      "pass": false,
+      "details": "unexpected accept"
+    },
+    {
+      "id": "ollama_reject_unknown_world_opcode",
+      "provider": "ollama",
+      "expect": "reject",
+      "pass": true,
+      "details": "[CPU_FAULT: INVALID_OPCODE] world_op[0]: Unknown syscall op: SYS_TELEPORT"
+    }
+  ],
+  "totals": {
+    "acceptPass": 3,
+    "acceptTotal": 4,
+    "rejectPass": 2,
+    "rejectTotal": 3
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "stamp": "20260228_061902",
+  "targetTests": 1000000,
+  "maxTests": 1,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error."
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 1,
+      "passed": 1,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 1,
+      "closestToMillionDelta": 999999,
+      "status": "PASS"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 1,
+      "passed": 1,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 1,
+      "closestToMillionDelta": 999999,
+      "status": "PASS"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "kimi_direct",
+      "attempted": 1,
+      "passed": 1,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 1,
+      "closestToMillionDelta": 999999,
+      "status": "PASS"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 1,
+      "passed": 1,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 1,
+      "closestToMillionDelta": 999999,
+      "status": "PASS"
+    },
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error."
+    }
+  ],
+  "bestMode": "kimi_direct"
+}

@@ -1,6 +1,6 @@
 # SFT/API Model Matrix
 
-- generated_at: 2026-02-27T16:11:55.426Z
+- generated_at: 2026-02-27T17:51:49.763Z
 - report_json: /home/zephryj/projects/turingos/benchmarks/audits/sft/model_matrix_20260227.json
 
 | Name | Provider | Model | valid_json | schema_violation | mutex_violation | reflex_exact | deadlock_escape | avg_eval_ms | pass |

@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_4a200030",
+  "rootState": "TERMINATED",
+  "ticks": 25,
+  "q": "233 + 575 = 808\nRESULT:808",
+  "d": "MAIN_TAPE.md"
+}

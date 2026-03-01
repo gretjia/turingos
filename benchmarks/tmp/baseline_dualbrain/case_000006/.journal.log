@@ -1,0 +1,44 @@
+[2026-03-01T03:55:37.636Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:35.489Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:39.595Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:37.638Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:41.610Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:39.596Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:43.412Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:41.613Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:45.329Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:43.412Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:48.077Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:45.329Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:48.078Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:55:49.990Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:48.078Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:49.990Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:55:51.783Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:49.991Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:51.784Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:55:53.734Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:51.785Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:53.734Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:55:55.619Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:53.734Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:55.620Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:55:57.790Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:55.620Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:57.790Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:55:59.728Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:57.791Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:55:59.729Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:01.625Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:55:59.729Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:01.625Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:03.457Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:01.625Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:03.457Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:05.304Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:03.458Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:05.304Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:07.230Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:05.304Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:07.231Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:09.252Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:07.231Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:09.252Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:11.273Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:09.252Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:11.273Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:13.096Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:11.273Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:13.096Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:14.975Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:13.097Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:14.975Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:16.847Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:14.975Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:16.847Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:18.753Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:16.847Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:18.753Z] [HYPERCORE_TRAP] pid=planner_4a200030 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-01T03:56:20.699Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:18.753Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:22.539Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:20.700Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:24.391Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T03:56:22.539Z","pid":"planner_4a200030","role":"PLANNER","lane":"P","laneLabel":"P:kimi:kimi-k2-turbo-preview","temperature":0.2}
+[2026-03-01T03:56:24.405Z] [HYPERCORE_HALT_ASSIST] pid=planner_4a200030 reason=write_thrashing_ready_to_halt streak=3
+[2026-03-01T03:56:24.417Z] [HYPERCORE_PRICE] pid=planner_4a200030 verdict=PASS price=1

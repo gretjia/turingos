@@ -1,0 +1,1455 @@
+{
+  "stamp": "20260227_164437",
+  "generatedAt": "2026-02-27T16:44:37.684Z",
+  "policy": {
+    "recencyDays": 30,
+    "minStars": 1000,
+    "maxStars": 25000,
+    "maxSizeKb": 350000,
+    "maxPerLanguage": 3,
+    "maxRepoChecks": 48,
+    "topK": 10,
+    "weights": {
+      "reproducibility": 0.3,
+      "ciVerifiability": 0.25,
+      "systemEntropy": 0.2,
+      "activityHealth": 0.15,
+      "toolchainFriction": 0.1
+    },
+    "queries": [
+      "language:TypeScript archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28",
+      "language:Python archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28",
+      "language:Go archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28",
+      "language:Rust archived:false fork:false stars:1000..25000 size:100..350000 pushed:>=2026-01-28"
+    ]
+  },
+  "summary": {
+    "fetchedRepos": 239,
+    "scoredRepos": 28,
+    "shortlisted": 10
+  },
+  "rows": [
+    {
+      "fullName": "zeroclaw-labs/zeroclaw",
+      "htmlUrl": "https://github.com/zeroclaw-labs/zeroclaw",
+      "language": "Rust",
+      "stars": 20373,
+      "pushedAt": "2026-02-27T16:37:11Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 96,
+      "sizeKb": 14735,
+      "workflowCount": 41,
+      "selectedIssue": {
+        "number": 2055,
+        "title": "[Bug]: Cannot compile with channel-matrix",
+        "htmlUrl": "https://github.com/zeroclaw-labs/zeroclaw/issues/2055",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Summary zeroclaw cannot compile with feature channel-matrix ### Affected component channel ### Severity S0 - data loss / security risk ### Current behavior compile error ### Expected behavior compile success ### Steps to reproduce ```ba",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.95,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "keploy/keploy",
+      "htmlUrl": "https://github.com/keploy/keploy",
+      "language": "Go",
+      "stars": 16138,
+      "pushedAt": "2026-02-27T15:52:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 595,
+      "sizeKb": 141528,
+      "workflowCount": 59,
+      "selectedIssue": {
+        "number": 3843,
+        "title": "[bug]: `status_code_class` Assertion Always Evaluates Against `\"2xx\"` Due to Hardcoded Literal - T152",
+        "htmlUrl": "https://github.com/keploy/keploy/issues/3843",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "keploy"
+        ],
+        "bodyPreview": "### 👀 Is there an existing issue for this? - [x] I have searched and didn't find similar issue ### 👍 Current behavior ### Team Number - T152 ## � Current Behavior The `status_code_class` assertion always compares against the hardcoded cla",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.95,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "clockworklabs/SpacetimeDB",
+      "htmlUrl": "https://github.com/clockworklabs/SpacetimeDB",
+      "language": "Rust",
+      "stars": 21232,
+      "pushedAt": "2026-02-27T16:14:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 709,
+      "sizeKb": 78420,
+      "workflowCount": 30,
+      "selectedIssue": {
+        "number": 244,
+        "title": "Some server errors are not reported to the client",
+        "htmlUrl": "https://github.com/clockworklabs/SpacetimeDB/issues/244",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "This is a mix of server/protobuf/C# client SDK issues, but I'm sticking them all here for now. There are three cases I'm aware of: - [x] 1. Malformed `Subscribe` calls are not reported to the client at all <details> <summary>Repro</summary>",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8572670690061994,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9393,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "PrefectHQ/fastmcp",
+      "htmlUrl": "https://github.com/PrefectHQ/fastmcp",
+      "language": "Python",
+      "stars": 23209,
+      "pushedAt": "2026-02-27T16:42:45Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 243,
+      "sizeKb": 36854,
+      "workflowCount": 23,
+      "selectedIssue": {
+        "number": 2867,
+        "title": "GoogleProvider: jwt_signing_key parameter appears to be ignored, causing InvalidSignatureError on /sse",
+        "htmlUrl": "https://github.com/PrefectHQ/fastmcp/issues/2867",
+        "comments": 4,
+        "labels": [
+          "bug",
+          "server",
+          "auth"
+        ],
+        "bodyPreview": "### Description ## Environment - **FastMCP version:** 2.14.2 - **Python version:** 3.12 - **Deployment:** Google Cloud Run (single instance, single process confirmed via PID logging) ## Description When using `GoogleProvider` in OAuth proxy",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7754997827975263,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9189,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "huggingface/lerobot",
+      "htmlUrl": "https://github.com/huggingface/lerobot",
+      "language": "Python",
+      "stars": 21845,
+      "pushedAt": "2026-02-27T16:39:48Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 595,
+      "sizeKb": 242726,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 2954,
+        "title": "X-VLA LIBERO: Inconsistent config.json",
+        "htmlUrl": "https://github.com/huggingface/lerobot/issues/2954",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "policies",
+          "dataset",
+          "configuration",
+          "processor"
+        ],
+        "bodyPreview": "### Ticket Type 🐛 Bug Report (Something isn't working) ### Environment & System Info ```Shell ``` ### Description ### **Summary** I encountered an issue when loading the pretrained `libero-xvla` policy using `lerobot`. There is a mismatch ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9092,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "ag-ui-protocol/ag-ui",
+      "htmlUrl": "https://github.com/ag-ui-protocol/ag-ui",
+      "language": "Python",
+      "stars": 12183,
+      "pushedAt": "2026-02-27T16:09:37Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 268,
+      "sizeKb": 36346,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 1128,
+        "title": "[Bug]: Multiple deprecation warnings in ag-ui-langgraph package",
+        "htmlUrl": "https://github.com/ag-ui-protocol/ag-ui/issues/1128",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Pre-flight Checklist - [x] I have searched [existing issues](https://github.com/ag-ui-protocol/ag-ui/issues) and this hasn't been reported yet. - [x] I am using the **latest** version AG-UI. ### Describe the Bug There are a number of de",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9092,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "htmlUrl": "https://github.com/langfuse/langfuse",
+      "language": "TypeScript",
+      "stars": 22392,
+      "pushedAt": "2026-02-27T16:33:56Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 557,
+      "sizeKb": 70867,
+      "workflowCount": 18,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7091168824543141,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9023,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "rustfs/rustfs",
+      "htmlUrl": "https://github.com/rustfs/rustfs",
+      "language": "Rust",
+      "stars": 22444,
+      "pushedAt": "2026-02-27T16:40:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 77,
+      "sizeKb": 14890,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 1725,
+        "title": "Performance on concurrent tests issue",
+        "htmlUrl": "https://github.com/rustfs/rustfs/issues/1725",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "S-reproducing"
+        ],
+        "bodyPreview": "**Describe the bug** Hi RustFS team, We have been in the Apache James project testing some alternatives to MinIO for S3 object storages and we gave a try to rustfs. The goal was to try to pass our test suite against it. I truly understand t",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "gitbutlerapp/gitbutler",
+      "htmlUrl": "https://github.com/gitbutlerapp/gitbutler",
+      "language": "Rust",
+      "stars": 19621,
+      "pushedAt": "2026-02-27T15:58:30Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 650,
+      "sizeKb": 168056,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 12615,
+        "title": "GutButler requires restart to pick up staged changes",
+        "htmlUrl": "https://github.com/gitbutlerapp/gitbutler/issues/12615",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Version 0.19.3 ### Operating System macOS ### Distribution Method dmg (Mac OS - Apple Silicon) ### Describe the issue At one point I was switching branches away from my workspace (usually and for months gitbutler mandled this properly b",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "scalar/scalar",
+      "htmlUrl": "https://github.com/scalar/scalar",
+      "language": "TypeScript",
+      "stars": 14105,
+      "pushedAt": "2026-02-27T16:25:44Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 184,
+      "sizeKb": 268830,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "PrefectHQ/prefect",
+      "htmlUrl": "https://github.com/PrefectHQ/prefect",
+      "language": "Python",
+      "stars": 21687,
+      "pushedAt": "2026-02-27T16:32:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1067,
+      "sizeKb": 205866,
+      "workflowCount": 49,
+      "selectedIssue": {
+        "number": 20388,
+        "title": "Suspend does not pause running flow in 3.6.13; tasks continue executing after suspend is requested",
+        "htmlUrl": "https://github.com/PrefectHQ/prefect/issues/20388",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Bug summary ## Basics - Prefect version: 3.6.13 - Backend: OSS (version: 3.6.13) - Python version: 3.13.5 - OS/arch: arch btw / x86_64 - How run: `flow.from_source(...).serve('simple-deployment')` - Description: Pressing “Suspend” durin",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.8,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.89,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "monkeytypegame/monkeytype",
+      "htmlUrl": "https://github.com/monkeytypegame/monkeytype",
+      "language": "TypeScript",
+      "stars": 19489,
+      "pushedAt": "2026-02-27T16:27:23Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 112,
+      "sizeKb": 147589,
+      "workflowCount": 14,
+      "selectedIssue": {
+        "number": 7518,
+        "title": "AFK Detected Bug",
+        "htmlUrl": "https://github.com/monkeytypegame/monkeytype/issues/7518",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Did you clear cache before opening an issue? - [x] I have cleared my cache ### Is there an existing issue for this? - [x] I have [searched](https://github.com/monkeytypegame/monkeytype/issues?q=is%3Aissue) the existing open and closed i",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.648998886412873,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8872,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "AstrBotDevs/AstrBot",
+      "htmlUrl": "https://github.com/AstrBotDevs/AstrBot",
+      "language": "Python",
+      "stars": 18219,
+      "pushedAt": "2026-02-27T16:06:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 544,
+      "sizeKb": 45946,
+      "workflowCount": 13,
+      "selectedIssue": {
+        "number": 5275,
+        "title": "[Bug] 在 QQ 使用 Sandbox 生成图片不显示",
+        "htmlUrl": "https://github.com/AstrBotDevs/AstrBot/issues/5275",
+        "comments": 3,
+        "labels": [
+          "bug",
+          "priority: p0",
+          "area:platform"
+        ],
+        "bodyPreview": "### What happened / 发生了什么 在配置好 SandBox 沙箱环境后，我试图让 Bot 运行一段 python plt 图像生成代码并发送图像给我。通过下面的日志分析可以得知：脚本生成、下载到容器的步骤均正确，且日志无报错并使用了send_message_to_user的tool，但是 QQ 侧却接收不到图像。而如果使用同样的环境和提示词在AstrBot仪表盘的chatui中测试，便可以返回图像。 ### Reproduce / 如何复现？ 1. 配置好s",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6326661530556787,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8832,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "bufbuild/buf",
+      "htmlUrl": "https://github.com/bufbuild/buf",
+      "language": "Go",
+      "stars": 10872,
+      "pushedAt": "2026-02-27T16:08:41Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 56,
+      "sizeKb": 28240,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 3973,
+        "title": "`buf` silently consumes v1 configuration errors",
+        "htmlUrl": "https://github.com/bufbuild/buf/issues/3973",
+        "comments": 1,
+        "labels": [
+          "Bug"
+        ],
+        "bodyPreview": "### GitHub repository with your minimal reproducible example (do not leave this field blank or fill out this field with \"github.com/bufbuild/buf\" or we will automatically close your issue, see the instructions above!) https://github.com/eng",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.9,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8792,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "apify/crawlee",
+      "htmlUrl": "https://github.com/apify/crawlee",
+      "language": "TypeScript",
+      "stars": 21913,
+      "pushedAt": "2026-02-27T16:41:14Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 177,
+      "sizeKb": 155916,
+      "workflowCount": 12,
+      "selectedIssue": {
+        "number": 3427,
+        "title": "RequestQueue marks requests as handled without firing requestHandler under high concurrency/load",
+        "htmlUrl": "https://github.com/apify/crawlee/issues/3427",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Which package is this bug report for? If unsure which one to select, leave blank @crawlee/playwright (PlaywrightCrawler) ### Issue description I am experiencing a race condition where the RequestQueue transitions requests to the \"Handle",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6156921938165305,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8789,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "pydantic/pydantic-ai",
+      "htmlUrl": "https://github.com/pydantic/pydantic-ai",
+      "language": "Python",
+      "stars": 15122,
+      "pushedAt": "2026-02-27T15:53:08Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 551,
+      "sizeKb": 217353,
+      "workflowCount": 11,
+      "selectedIssue": {
+        "number": 4424,
+        "title": "LogfirePlugin doesn't work with newest Temporal",
+        "htmlUrl": "https://github.com/pydantic/pydantic-ai/issues/4424",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Initial Checks - [x] I'm using the [latest version](https://github.com/pydantic/pydantic-ai/releases/latest) of Pydantic AI - [x] I've searched for my issue in [the issue tracker](https://github.com/pydantic/pydantic-ai/issues) before o",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.597994974842648,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8745,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "tracel-ai/burn",
+      "htmlUrl": "https://github.com/tracel-ai/burn",
+      "language": "Rust",
+      "stars": 14460,
+      "pushedAt": "2026-02-27T16:38:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 227,
+      "sizeKb": 72542,
+      "workflowCount": 11,
+      "selectedIssue": {
+        "number": 4541,
+        "title": "Precision issue on mobile devices",
+        "htmlUrl": "https://github.com/tracel-ai/burn/issues/4541",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "**Describe the bug** <!-- A clear and concise description of what the bug is. --> I implemented the loading of safetensor and then inference for qwen 2.5 0.5B model, and tested with request \"what is 1+1? only answer with numbers\" it correct",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.597994974842648,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8745,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "Chia-Network/chia-blockchain",
+      "htmlUrl": "https://github.com/Chia-Network/chia-blockchain",
+      "language": "Python",
+      "stars": 10852,
+      "pushedAt": "2026-02-27T16:35:07Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 371,
+      "sizeKb": 158122,
+      "workflowCount": 28,
+      "selectedIssue": {
+        "number": 15250,
+        "title": "[Bug] On-demand minting is stopping working since v1.7.1",
+        "htmlUrl": "https://github.com/Chia-Network/chia-blockchain/issues/15250",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "GUI",
+          "Windows",
+          "offers",
+          "NFT",
+          "1.8.0"
+        ],
+        "bodyPreview": "### What happened? On-demand minting is stopping working since v1.7.1 - Last working version: 1.7.0 - Confirmed Bug version: 1.7.1/1.8.0/1.8.0b4-dev30(local) Seems Chia Client checks the NFT existence before accepting offer. `error with Coi",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.8,
+        "ciVerifiability": 0.8349803146555017,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8737,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "vercel/ai",
+      "htmlUrl": "https://github.com/vercel/ai",
+      "language": "TypeScript",
+      "stars": 22113,
+      "pushedAt": "2026-02-27T16:28:09Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 1177,
+      "sizeKb": 154777,
+      "workflowCount": 22,
+      "selectedIssue": {
+        "number": 12878,
+        "title": "generateText() silently swallows AbortError in multi-step tool loop",
+        "htmlUrl": "https://github.com/vercel/ai/issues/12878",
+        "comments": 0,
+        "labels": [
+          "bug",
+          "ai/core",
+          "support",
+          "reproduction provided"
+        ],
+        "bodyPreview": "### Description `generateText()` (and by extension Mastra's `agent.generate()`) silently swallows `AbortError` when an `AbortSignal` fires mid-generation in a multi-step tool-use loop. Instead of throwing, it returns normally, the caller ha",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.85,
+        "ciVerifiability": 0.7628498911788115,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8707,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "bluesky-social/social-app",
+      "htmlUrl": "https://github.com/bluesky-social/social-app",
+      "language": "TypeScript",
+      "stars": 17730,
+      "pushedAt": "2026-02-27T16:40:45Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 2200,
+      "sizeKb": 241188,
+      "workflowCount": 17,
+      "selectedIssue": {
+        "number": 9944,
+        "title": "Meatball menu popup jumps to top-left corner when pressing Enter without a focused menu item",
+        "htmlUrl": "https://github.com/bluesky-social/social-app/issues/9944",
+        "comments": 0,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Steps to Reproduce 1. Navigate to any post on Bluesky (web app, Chrome browser) 2. Click the meatball menu icon (⋯) at the bottom-right of the post 3. When the menu popup appears, do not focus/select any menu item 4. Press the Enter key",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.85,
+        "ciVerifiability": 0.6947726750741192,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8537,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "HKUDS/DeepTutor",
+      "htmlUrl": "https://github.com/HKUDS/DeepTutor",
+      "language": "Python",
+      "stars": 10487,
+      "pushedAt": "2026-02-27T16:33:28Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 31,
+      "sizeKb": 63759,
+      "workflowCount": 8,
+      "selectedIssue": {
+        "number": 179,
+        "title": "[Bug]:创意生成无法显示结果",
+        "htmlUrl": "https://github.com/HKUDS/DeepTutor/issues/179",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Do you need to file an issue? - [ ] I have searched the existing issues and this bug is not already filed. - [ ] I believe this is a legitimate bug, not just a question or feature request. ### Describe the bug 在左侧输入框中输入想法后，创意生成里显示：Succe",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.5394112549695429,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.65
+      },
+      "weightedTotal": 0.8499,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "fuma-nama/fumadocs",
+      "htmlUrl": "https://github.com/fuma-nama/fumadocs",
+      "language": "TypeScript",
+      "stars": 10937,
+      "pushedAt": "2026-02-27T16:41:24Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 7,
+      "sizeKb": 125580,
+      "workflowCount": 5,
+      "selectedIssue": {
+        "number": 3046,
+        "title": "Failed to generate typescript schema: RangeError: Maximum call stack size exceeded",
+        "htmlUrl": "https://github.com/fuma-nama/fumadocs/issues/3046",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### To Reproduce **OpenAPI spec:** ```yaml # Minimal repro for fumadocs TypeScript stack overflow. Recursive AggregationBucket. openapi: 3.0.0 info: title: Records API (Generic Repro) version: '1.0' servers: - url: https://api.example.com c",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.4683281572999748,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.65
+      },
+      "weightedTotal": 0.8321,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "triggerdotdev/trigger.dev",
+      "htmlUrl": "https://github.com/triggerdotdev/trigger.dev",
+      "language": "TypeScript",
+      "stars": 13881,
+      "pushedAt": "2026-02-27T16:34:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 208,
+      "sizeKb": 156607,
+      "workflowCount": 25,
+      "selectedIssue": {
+        "number": 1384,
+        "title": "Localhost magic link redirect on Safari (MacOS)",
+        "htmlUrl": "https://github.com/triggerdotdev/trigger.dev/issues/1384",
+        "comments": 12,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Provide environment information System: OS: macOS 14.4.1 CPU: (8) arm64 Apple M2 Memory: 77.13 MB / 16.00 GB Shell: 5.9 - /bin/zsh Binaries: Node: 22.2.0 - /opt/homebrew/bin/node Yarn: 1.22.19 - /opt/homebrew/bin/yarn npm: 10.7.0 - /opt",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.6,
+        "ciVerifiability": 0.8,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.65
+      },
+      "weightedTotal": 0.795,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "BloopAI/vibe-kanban",
+      "htmlUrl": "https://github.com/BloopAI/vibe-kanban",
+      "language": "Rust",
+      "stars": 22028,
+      "pushedAt": "2026-02-27T16:34:32Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 399,
+      "sizeKb": 96227,
+      "workflowCount": 13,
+      "selectedIssue": {
+        "number": 1694,
+        "title": "Unable to get it set-up (MacOS)",
+        "htmlUrl": "https://github.com/BloopAI/vibe-kanban/issues/1694",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "I've been trying to use vibe-kanban on my Mac for the past few days and it seems like I can't get it to work. I've tried both Gemini and Codex (which are both installed and logged-in on my computer), but neither works. Interestingly, both C",
+        "reproducibilitySignals": [
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.55,
+        "ciVerifiability": 0.6326661530556787,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.7482,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "encoredev/encore",
+      "htmlUrl": "https://github.com/encoredev/encore",
+      "language": "Go",
+      "stars": 11496,
+      "pushedAt": "2026-02-27T16:02:00Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 129,
+      "sizeKb": 15659,
+      "workflowCount": 4,
+      "selectedIssue": {
+        "number": 1034,
+        "title": "\"could not find package\" build fail with AWS-V2 and dependents",
+        "htmlUrl": "https://github.com/encoredev/encore/issues/1034",
+        "comments": 5,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "On deploy encore build fails with `could not find package \"github.com/aws/aws-sdk-go-v2/service/s3\"` - This work locally without issue. - The package is well and alive [https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3](https://pkg",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_failure_signal",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.7000000000000001,
+        "ciVerifiability": 0.44,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.745,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "niri-wm/niri",
+      "htmlUrl": "https://github.com/niri-wm/niri",
+      "language": "Rust",
+      "stars": 20484,
+      "pushedAt": "2026-02-27T15:56:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 412,
+      "sizeKb": 10929,
+      "workflowCount": 5,
+      "selectedIssue": {
+        "number": 2223,
+        "title": "ScreenCast shows window selection but only black screen (OBS mainly)",
+        "htmlUrl": "https://github.com/niri-wm/niri/issues/2223",
+        "comments": 12,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "<!-- Please describe the issue here at the top, then fill in the system information below. --> When I try to screen record with OBS, the gnome portal selection pops up, sees all my windows and reports back a size to OBS, but only a black sc",
+        "reproducibilitySignals": [
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.65,
+        "ciVerifiability": 0.4683281572999748,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.7371,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "go-vgo/robotgo",
+      "htmlUrl": "https://github.com/go-vgo/robotgo",
+      "language": "Go",
+      "stars": 10617,
+      "pushedAt": "2026-02-27T16:40:45Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 134,
+      "sizeKb": 6045,
+      "workflowCount": 2,
+      "selectedIssue": {
+        "number": 120,
+        "title": "Change volume and brightness in quarter-step doesn't work ",
+        "htmlUrl": "https://github.com/go-vgo/robotgo/issues/120",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "- Robotgo version (or commit ref): v0.46.0.400, Pyrenees Mountains! - Go version: 1.10 - Gcc version: Apple LLVM version 9.0.0 (clang-900.0.39.2) - Operating system and bit: macOS 10.12.6 - Can you reproduce the bug at [Examples](https://gi",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.6,
+        "ciVerifiability": 0.3697056274847714,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.65
+      },
+      "weightedTotal": 0.6874,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "jeessy2/ddns-go",
+      "htmlUrl": "https://github.com/jeessy2/ddns-go",
+      "language": "Go",
+      "stars": 16367,
+      "pushedAt": "2026-02-27T15:49:39Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 18,
+      "sizeKb": 25162,
+      "workflowCount": 8,
+      "selectedIssue": {
+        "number": 1296,
+        "title": "cloudflare突然就变这样了，改了api还是不行。。",
+        "htmlUrl": "https://github.com/jeessy2/ddns-go/issues/1296",
+        "comments": 5,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Description 2024/10/27 21:08:59 查询域名信息发生异常! 返回内容: {\"success\":false,\"errors\":[{\"code\":6003,\"message\":\"Invalid request headers\",\"error_chain\":[{\"code\":6111,\"message\":\"Invalid format for Authorization header\"}]}],\"messages\":[],\"result\":nul",
+        "reproducibilitySignals": [
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 0.45000000000000007,
+        "ciVerifiability": 0.5394112549695429,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.55
+      },
+      "weightedTotal": 0.6749,
+      "rejectReasons": []
+    }
+  ],
+  "shortlist": [
+    {
+      "fullName": "zeroclaw-labs/zeroclaw",
+      "htmlUrl": "https://github.com/zeroclaw-labs/zeroclaw",
+      "language": "Rust",
+      "stars": 20373,
+      "pushedAt": "2026-02-27T16:37:11Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 96,
+      "sizeKb": 14735,
+      "workflowCount": 41,
+      "selectedIssue": {
+        "number": 2055,
+        "title": "[Bug]: Cannot compile with channel-matrix",
+        "htmlUrl": "https://github.com/zeroclaw-labs/zeroclaw/issues/2055",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Summary zeroclaw cannot compile with feature channel-matrix ### Affected component channel ### Severity S0 - data loss / security risk ### Current behavior compile error ### Expected behavior compile success ### Steps to reproduce ```ba",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.95,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "keploy/keploy",
+      "htmlUrl": "https://github.com/keploy/keploy",
+      "language": "Go",
+      "stars": 16138,
+      "pushedAt": "2026-02-27T15:52:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 595,
+      "sizeKb": 141528,
+      "workflowCount": 59,
+      "selectedIssue": {
+        "number": 3843,
+        "title": "[bug]: `status_code_class` Assertion Always Evaluates Against `\"2xx\"` Due to Hardcoded Literal - T152",
+        "htmlUrl": "https://github.com/keploy/keploy/issues/3843",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "keploy"
+        ],
+        "bodyPreview": "### 👀 Is there an existing issue for this? - [x] I have searched and didn't find similar issue ### 👍 Current behavior ### Team Number - T152 ## � Current Behavior The `status_code_class` assertion always compares against the hardcoded cla",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8999999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.95,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "clockworklabs/SpacetimeDB",
+      "htmlUrl": "https://github.com/clockworklabs/SpacetimeDB",
+      "language": "Rust",
+      "stars": 21232,
+      "pushedAt": "2026-02-27T16:14:47Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 709,
+      "sizeKb": 78420,
+      "workflowCount": 30,
+      "selectedIssue": {
+        "number": 244,
+        "title": "Some server errors are not reported to the client",
+        "htmlUrl": "https://github.com/clockworklabs/SpacetimeDB/issues/244",
+        "comments": 3,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "This is a mix of server/protobuf/C# client SDK issues, but I'm sticking them all here for now. There are three cases I'm aware of: - [x] 1. Malformed `Subscribe` calls are not reported to the client at all <details> <summary>Repro</summary>",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.8572670690061994,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9393,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "PrefectHQ/fastmcp",
+      "htmlUrl": "https://github.com/PrefectHQ/fastmcp",
+      "language": "Python",
+      "stars": 23209,
+      "pushedAt": "2026-02-27T16:42:45Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 243,
+      "sizeKb": 36854,
+      "workflowCount": 23,
+      "selectedIssue": {
+        "number": 2867,
+        "title": "GoogleProvider: jwt_signing_key parameter appears to be ignored, causing InvalidSignatureError on /sse",
+        "htmlUrl": "https://github.com/PrefectHQ/fastmcp/issues/2867",
+        "comments": 4,
+        "labels": [
+          "bug",
+          "server",
+          "auth"
+        ],
+        "bodyPreview": "### Description ## Environment - **FastMCP version:** 2.14.2 - **Python version:** 3.12 - **Deployment:** Google Cloud Run (single instance, single process confirmed via PID logging) ## Description When using `GoogleProvider` in OAuth proxy",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7754997827975263,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9189,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "huggingface/lerobot",
+      "htmlUrl": "https://github.com/huggingface/lerobot",
+      "language": "Python",
+      "stars": 21845,
+      "pushedAt": "2026-02-27T16:39:48Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 595,
+      "sizeKb": 242726,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 2954,
+        "title": "X-VLA LIBERO: Inconsistent config.json",
+        "htmlUrl": "https://github.com/huggingface/lerobot/issues/2954",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "policies",
+          "dataset",
+          "configuration",
+          "processor"
+        ],
+        "bodyPreview": "### Ticket Type 🐛 Bug Report (Something isn't working) ### Environment & System Info ```Shell ``` ### Description ### **Summary** I encountered an issue when loading the pretrained `libero-xvla` policy using `lerobot`. There is a mismatch ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9092,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "ag-ui-protocol/ag-ui",
+      "htmlUrl": "https://github.com/ag-ui-protocol/ag-ui",
+      "language": "Python",
+      "stars": 12183,
+      "pushedAt": "2026-02-27T16:09:37Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 268,
+      "sizeKb": 36346,
+      "workflowCount": 20,
+      "selectedIssue": {
+        "number": 1128,
+        "title": "[Bug]: Multiple deprecation warnings in ag-ui-langgraph package",
+        "htmlUrl": "https://github.com/ag-ui-protocol/ag-ui/issues/1128",
+        "comments": 2,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Pre-flight Checklist - [x] I have searched [existing issues](https://github.com/ag-ui-protocol/ag-ui/issues) and this hasn't been reported yet. - [x] I am using the **latest** version AG-UI. ### Describe the Bug There are a number of de",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7366563145999496,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9092,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "htmlUrl": "https://github.com/langfuse/langfuse",
+      "language": "TypeScript",
+      "stars": 22392,
+      "pushedAt": "2026-02-27T16:33:56Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 557,
+      "sizeKb": 70867,
+      "workflowCount": 18,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.7091168824543141,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.9023,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "rustfs/rustfs",
+      "htmlUrl": "https://github.com/rustfs/rustfs",
+      "language": "Rust",
+      "stars": 22444,
+      "pushedAt": "2026-02-27T16:40:51Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 77,
+      "sizeKb": 14890,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 1725,
+        "title": "Performance on concurrent tests issue",
+        "htmlUrl": "https://github.com/rustfs/rustfs/issues/1725",
+        "comments": 1,
+        "labels": [
+          "bug",
+          "S-reproducing"
+        ],
+        "bodyPreview": "**Describe the bug** Hi RustFS team, We have been in the Apache James project testing some alternatives to MinIO for S3 object storages and we gave a try to rustfs. The goal was to try to pass our test suite against it. I truly understand t",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "scalar/scalar",
+      "htmlUrl": "https://github.com/scalar/scalar",
+      "language": "TypeScript",
+      "stars": 14105,
+      "pushedAt": "2026-02-27T16:25:44Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 184,
+      "sizeKb": 268830,
+      "workflowCount": 16,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.6799999999999999,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.895,
+      "rejectReasons": []
+    },
+    {
+      "fullName": "monkeytypegame/monkeytype",
+      "htmlUrl": "https://github.com/monkeytypegame/monkeytype",
+      "language": "TypeScript",
+      "stars": 19489,
+      "pushedAt": "2026-02-27T16:27:23Z",
+      "daysSincePush": 0,
+      "openIssuesCount": 112,
+      "sizeKb": 147589,
+      "workflowCount": 14,
+      "selectedIssue": {
+        "number": 7518,
+        "title": "AFK Detected Bug",
+        "htmlUrl": "https://github.com/monkeytypegame/monkeytype/issues/7518",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "### Did you clear cache before opening an issue? - [x] I have cleared my cache ### Is there an existing issue for this? - [x] I have [searched](https://github.com/monkeytypegame/monkeytype/issues?q=is%3Aissue) the existing open and closed i",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "score": {
+        "reproducibility": 1,
+        "ciVerifiability": 0.648998886412873,
+        "systemEntropy": 1,
+        "activityHealth": 1,
+        "toolchainFriction": 0.75
+      },
+      "weightedTotal": 0.8872,
+      "rejectReasons": []
+    }
+  ]
+}

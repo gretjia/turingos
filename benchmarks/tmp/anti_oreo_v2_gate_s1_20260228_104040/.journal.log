@@ -1,0 +1,17 @@
+[2026-02-28T10:40:41.005Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.005Z","pid":"planner_bab430f2","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-02-28T10:40:41.008Z] [HYPERCORE_HALT_REQUEST] pid=planner_bab430f2
+[2026-02-28T10:40:41.027Z] [HYPERCORE_PRICE] pid=planner_bab430f2 verdict=FAIL price=-1
+[2026-02-28T10:40:41.027Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.027Z","pid":"planner_bab430f2","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-02-28T10:40:41.028Z] [HYPERCORE_MAP] pid=planner_bab430f2 children=worker_7a6bbc0f,worker_e9680e7a task_count=2
+[2026-02-28T10:40:41.028Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.028Z","pid":"worker_7a6bbc0f","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-02-28T10:40:41.030Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.030Z","pid":"worker_e9680e7a","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-02-28T10:40:41.031Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.031Z","pid":"worker_7a6bbc0f","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-02-28T10:40:41.031Z] [HYPERCORE_HALT_REQUEST] pid=worker_7a6bbc0f
+[2026-02-28T10:40:41.050Z] [HYPERCORE_PRICE] pid=worker_7a6bbc0f verdict=PASS price=1
+[2026-02-28T10:40:41.051Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.051Z","pid":"worker_e9680e7a","role":"WORKER","lane":"E","laneLabel":"E:worker-gate","temperature":0}
+[2026-02-28T10:40:41.051Z] [HYPERCORE_HALT_REQUEST] pid=worker_e9680e7a
+[2026-02-28T10:40:41.058Z] [HYPERCORE_PRICE] pid=worker_e9680e7a verdict=PASS price=1
+[2026-02-28T10:40:41.058Z] [HYPERCORE_REDUCE] pid=planner_bab430f2 resumed=1
+[2026-02-28T10:40:41.058Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T10:40:41.058Z","pid":"planner_bab430f2","role":"PLANNER","lane":"P","laneLabel":"P:planner-gate","temperature":0.7}
+[2026-02-28T10:40:41.058Z] [HYPERCORE_HALT_REQUEST] pid=planner_bab430f2
+[2026-02-28T10:40:41.074Z] [HYPERCORE_PRICE] pid=planner_bab430f2 verdict=PASS price=0

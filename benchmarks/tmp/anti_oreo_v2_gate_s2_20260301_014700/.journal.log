@@ -1,0 +1,23 @@
+[2026-03-01T01:47:00.215Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.215Z","pid":"planner_5ee3233f","role":"PLANNER","lane":"P","laneLabel":"P:planner-invalid","temperature":0.7}
+[2026-03-01T01:47:00.215Z] [HYPERCORE_TRAP] pid=planner_5ee3233f details=PLANNER_MAP_REDUCE_DROPPED_WORLD_OP world_op=SYS_GOTO
+[2026-03-01T01:47:00.215Z] [HYPERCORE_MAP] pid=planner_5ee3233f children=worker_379034b7 task_count=1
+[2026-03-01T01:47:00.216Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.216Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.218Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.218Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.219Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.219Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.220Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.220Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.220Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.221Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.221Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.221Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.222Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.222Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.222Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.222Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.223Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.223Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.224Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.224Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.224Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.225Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.225Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.225Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.225Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.225Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.225Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.226Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks
+[2026-03-01T01:47:00.226Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:47:00.226Z","pid":"worker_379034b7","role":"WORKER","lane":"E","laneLabel":"E:worker-invalid","temperature":0}
+[2026-03-01T01:47:00.227Z] [HYPERCORE_TRAP] pid=worker_379034b7 details=Error: TRAP_THRASHING: 3 consecutive mind-only ticks

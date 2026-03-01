@@ -1,0 +1,185 @@
+OpenAI Codex v0.106.0 (research preview)
+--------
+workdir: /home/zephryj/projects/turingos
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019ca760-23d9-7833-9bc3-6af7b74a7fbc
+--------
+user
+You are executing one baseline benchmark cycle. Do not edit any files.
+Run exactly this command:
+npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 6 --max-tests 25 --continue-after-fail
+After command completion, stop.
+mcp startup: no servers
+
+thinking
+**Preparing to run command**
+codex
+Running the benchmark command exactly as provided and will stop after it completes.
+exec
+/bin/bash -lc 'npm run -s bench:million-baseline-compare -- --modes turingos_dualbrain --start-test 6 --max-tests 25 --continue-after-fail' in /home/zephryj/projects/turingos
+thinking
+**Planning repeated polling loops**
+codex
+Benchmark is running now; I’m waiting for completion and will stop immediately afterward.
+
+thinking
+**Refining poll interval to 5 seconds**
+
+thinking
+**Adjusting update interval**
+codex
+Still running with no terminal output yet; continuing to wait for the command to finish.
+codex
+Command is still in progress; I’m continuing to monitor until it exits.
+
+thinking
+**Continuing polling due to delay**
+codex
+Process remains active with no emitted output so far; waiting for completion.
+
+thinking
+**Monitoring long-running process**
+codex
+Still running; no interaction prompt appeared, so I’m continuing to wait for normal exit.
+codex
+Benchmark process is still active and silent; continuing to monitor until completion.
+codex
+No output yet, but the process is still running; I’ll keep waiting for it to exit.
+codex
+Command continues running without stdout/stderr; monitoring until it completes.
+codex
+Still active and silent. I’ll continue waiting for the benchmark to return.
+codex
+Benchmark run is ongoing; there has still been no terminal output.
+
+thinking
+**Handling potential process hang**
+codex
+Process is still running with no emitted logs; I’m continuing to wait for completion.
+codex
+Still in progress; keeping the session open until the command exits.
+codex
+Benchmark command remains active and silent; I’m waiting for the process to finish naturally.
+
+thinking
+**Acknowledging frequent updates**
+codex
+No logs have appeared; the process is still running and being monitored.
+
+thinking
+**Considering script output behavior**
+codex
+Benchmark run is still executing; continuing to wait for exit.
+codex
+Process remains active with no stdout/stderr; waiting for completion.
+codex
+Still running; I’ll report once it exits.
+codex
+Benchmark is still in-flight with no visible output; continuing to wait.
+codex
+No change yet; still waiting for the command to terminate.
+codex
+Command remains running and silent; monitoring continues.
+codex
+Still active with no terminal output. I’ll keep the process running until it exits.
+codex
+No new output; benchmark process is still running.
+codex
+The command is still executing silently; I’m continuing to wait for completion.
+codex
+Benchmark is still in progress and hasn’t produced output yet.
+codex
+Still running with no stdout/stderr activity; continuing to monitor.
+codex
+The process is still active and silent; I’ll keep waiting until it exits.
+codex
+No visible output yet; benchmark command continues to run.
+codex
+Process remains ongoing and quiet; continuing to wait for completion.
+codex
+Benchmark is still running; no output has been emitted yet.
+codex
+Still active and silent; continuing to wait for the process to end.
+codex
+No change: the benchmark process is still running without logs.
+codex
+Process continues to run silently; I’m still waiting for completion.
+codex
+Still in progress with no terminal output; waiting for the command to finish.
+codex
+Benchmark command remains active and silent; monitoring continues until exit.
+codex
+No emitted logs yet; the process is still running.
+codex
+Still active and silent. I’m keeping the benchmark running until it exits on its own.
+codex
+Benchmark process continues without output; waiting for completion.
+codex
+No logs yet; process is still active and being monitored.
+
+thinking
+
+codex
+Benchmark command remains running and silent. I’ll report immediately when it exits.
+codex
+Still in progress with no visible output; waiting for process completion.
+codex
+The benchmark is still running silently; continuing to monitor.
+codex
+No output yet and process remains active. I’m still waiting for termination.
+codex
+Still running silently; monitoring until completion.
+codex
+Benchmark process is still active with no terminal output.
+
+thinking
+**Reporting transient error occurrence**
+codex
+The command is still running; it just logged a transient retry message from `oracle:openai`, and I’m continuing to wait for final completion.
+codex
+No further output after the transient retry line; the benchmark is still in progress.
+codex
+Process remains active and quiet; continuing to wait for completion.
+codex
+No new logs yet; benchmark still running.
+codex
+Still in progress with no additional output; monitoring continues.
+codex
+Command remains active and silent; waiting for it to exit.
+codex
+Benchmark process is still running with no new output; continuing to monitor.
+codex
+Still active and silent; I’m waiting for the command to complete.
+codex
+No further logs. Benchmark process remains running and is being monitored.
+codex
+Still active with no output. I’m continuing to wait for process completion.
+codex
+No change yet; benchmark process is still running quietly.
+codex
+Command is still in progress and silent; I’m continuing to monitor.
+codex
+Still running with no additional logs; waiting for exit.
+codex
+Process remains active and quiet. I’m still waiting for completion.
+codex
+No new output; benchmark command still running.
+codex
+Benchmark remains active and silent; continuing to monitor until it ends.
+codex
+Another transient retry line appeared from `oracle:openai`; the process is still running and I’m waiting for completion.
+codex
+Still running with no new logs after that retry message. Continuing to wait.
+codex
+Process remains active and quiet; monitoring continues until normal exit.
+codex
+No new output has appeared; benchmark command is still running.
+codex
+Still in progress with no output; continuing to wait for completion.
+codex
+Benchmark process remains active and silent; I’m still monitoring it.

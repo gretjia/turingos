@@ -1,0 +1,137 @@
+{
+  "stamp": "20260227_164329",
+  "generatedAt": "2026-02-27T16:43:29.116Z",
+  "sourcePoolGeneratedAt": "2026-02-27T16:36:02.994Z",
+  "policy": {
+    "maxRepos": 3,
+    "maxScan": 12,
+    "timeoutMs": {
+      "clone": 180000,
+      "install": 300000,
+      "testProbe": 180000
+    }
+  },
+  "toolchains": {
+    "node": true,
+    "python": true,
+    "npm": true,
+    "pip": false,
+    "pnpm": false,
+    "yarn": false
+  },
+  "summary": {
+    "selected": 3,
+    "pass": 0,
+    "fail": 0,
+    "skip": 3
+  },
+  "rows": [
+    {
+      "fullName": "nocobase/nocobase",
+      "language": "TypeScript",
+      "weightedTotal": 0.9366,
+      "selectedIssue": {
+        "number": 8116,
+        "title": "SubTable--The drawer closes every time a block is configured.",
+        "htmlUrl": "https://github.com/nocobase/nocobase/issues/8116",
+        "comments": 1,
+        "labels": [
+          "bug"
+        ],
+        "bodyPreview": "<!-- First off, thank you for reporting bugs. Please do not clear the contents of the issue template. Items marked with * are required. Issues not filled out according to the template will be closed. Please communicate in English, and post ",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "yarn.lock found but yarn/pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-rrfkuG/nocobase__nocobase",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 6818,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-rrfkuG/nocobase__nocobase'...\nUpdating files:  37% (10511/27745)\rUpdating files:  38% (10544/27745)\rUpdating files:  39% (10821/27745)\rUpdating files:  40% (11098/27745)\rUpdating files:  41% (11376/27745)\rUpdating files:  42% (11653/27745)\rUpdating files:  43% (11931/27745)\rUpdating files:  44% (12208/27745)\rUpdating files:  45% (12486/27745)\rUpdating files:  46% (12763/27745)\rUpdating files:  47% (13041/27745)\rUpdating files:  48% (13318/27745)\rUpdating files:  49% (13596/27745)\rUpdating files:  50% (13873/27745)\rUpdating files:  51% (14150/27745)\rUpdating files:  52% (14428/27745)\rUpdating files:  53% (14705/27745)\rUpdating files:  54% (14983/27745)\rUpdating files:  55% (15260/27745)\rUpdating files:  56% (15538/27745)\rUpdating files:  57% (15815/27745)\rUpdating files:  58% (16093/27745)\rUpdating files:  59% (16370/27745)\rUpdating files:  60% (16647/27745)\rUpdating files:  61% (16925/27745)\rUpdating files:  62% (17202/27745)\rUpdating files:  63% (17480/27745)\rUpdating files:  64% (17757/27745)\rUpdating files:  65% (18035/27745)\rUpdating files:  66% (18312/27745)\rUpdating files:  66% (18391/27745)\rUpdating files:  67% (18590/27745)\rUpdating files:  68% (18867/27745)\rUpdating files:  69% (19145/27745)\rUpdating files:  70% (19422/27745)\rUpdating files:  71% (19699/27745)\rUpdating files:  72% (19977/27745)\rUpdating files:  73% (20254/27745)\rUpdating files:  74% (20532/27745)\rUpdating files:  75% (20809/27745)\rUpdating files:  76% (21087/27745)\rUpdating files:  77% (21364/27745)\rUpdating files:  78% (21642/27745)\rUpdating files:  79% (21919/27745)\rUpdating files:  80% (22196/27745)\rUpdating files:  81% (22474/27745)\rUpdating files:  82% (22751/27745)\rUpdating files:  83% (23029/27745)\rUpdating files:  84% (23306/27745)\rUpdating files:  85% (23584/27745)\rUpdating files:  86% (23861/27745)\rUpdating files:  87% (24139/27745)\rUpdating files:  88% (24416/27745)\rUpdating files:  89% (24694/27745)\rUpdating files:  90% (24971/27745)\rUpdating files:  91% (25248/27745)\rUpdating files:  92% (25526/27745)\rUpdating files:  93% (25803/27745)\rUpdating files:  94% (26081/27745)\rUpdating files:  95% (26358/27745)\rUpdating files:  96% (26636/27745)\rUpdating files:  97% (26913/27745)\rUpdating files:  98% (27191/27745)\rUpdating files:  99% (27468/27745)\rUpdating files:  99% (27617/27745)\rUpdating files: 100% (27745/27745)\rUpdating files: 100% (27745/27745), done.\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "language": "TypeScript",
+      "weightedTotal": 0.9023,
+      "selectedIssue": {
+        "number": 11827,
+        "title": "bug: Mixpanel Integration stuck on \"Never (pending)\" - no data synced",
+        "htmlUrl": "https://github.com/langfuse/langfuse/issues/11827",
+        "comments": 5,
+        "labels": [
+          "bug",
+          "integration"
+        ],
+        "bodyPreview": "### Describe the bug The Mixpanel integration is configured and shows \"Active\" status in the UI, but data is never synced. The status remains \"Data synced until: Never (pending)\" despite the integration being enabled for several weeks. Conf",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-rrfkuG/langfuse__langfuse",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 1765,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-rrfkuG/langfuse__langfuse'...\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    },
+    {
+      "fullName": "scalar/scalar",
+      "language": "TypeScript",
+      "weightedTotal": 0.895,
+      "selectedIssue": {
+        "number": 8076,
+        "title": "Next.js / @scalar/api-reference-react / docker builds /  NftJsonAsset  Error",
+        "htmlUrl": "https://github.com/scalar/scalar/issues/8076",
+        "comments": 2,
+        "labels": [
+          "bug",
+          "package: @scalar/api-reference-react"
+        ],
+        "bodyPreview": "### What happens? Docker builds using api-reference-react will fail in docker. App created with: `bun create next-app bun-broken` Docker configs from Next.js https://github.com/vercel/next.js/tree/canary/examples/with-docker Created a simpl",
+        "reproducibilitySignals": [
+          "has_repro_steps",
+          "has_expected_actual",
+          "has_failure_signal",
+          "has_env_details",
+          "has_discussion"
+        ]
+      },
+      "toolchainSupported": false,
+      "toolchainReason": "pnpm-lock.yaml found but pnpm is unavailable",
+      "workspaceDir": "/tmp/turingos-wild-oss-preflight-rrfkuG/scalar__scalar",
+      "clone": {
+        "ok": true,
+        "code": 0,
+        "durationMs": 2610,
+        "stdoutPreview": "",
+        "stderrPreview": "Cloning into '/tmp/turingos-wild-oss-preflight-rrfkuG/scalar__scalar'...\n"
+      },
+      "install": null,
+      "testProbe": null,
+      "verdict": "SKIP"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"ts":"2026-03-01T03:40:21.438Z","kind":"bench","cycle":1,"attempt":0,"mode":"turingos_dualbrain","startTest":6,"endTest":25,"status":"ERROR","attempted":5,"passed":5,"failed":1,"firstFailAt":null,"reason":"unexpected_report_range:1-5","firstFailArtifact":null,"reportPath":"/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_021644.json"}

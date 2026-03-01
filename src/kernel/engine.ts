@@ -61,9 +61,9 @@ export class TuringEngine {
     return parsed;
   })();
   private readonly minTicksBeforeHalt = (() => {
-    const parsed = Number.parseInt(process.env.TURINGOS_MIN_TICKS_BEFORE_HALT ?? '0', 10);
+    const parsed = Number.parseInt(process.env.TURINGOS_MIN_TICKS_BEFORE_HALT ?? '1000000', 10);
     if (!Number.isFinite(parsed) || parsed < 0) {
-      return 0;
+      return 1_000_000;
     }
     return parsed;
   })();
@@ -400,6 +400,17 @@ export class TuringEngine {
               parts.push(`status=${statusRaw}`);
             }
             await this.manifold.interfere('sys://callstack', `MOVE: ${parts.join('; ')}`);
+            d_next = d_t;
+            s_prime = '👆🏻';
+            break;
+          }
+          case 'SYS_MAP_REDUCE': {
+            // HyperCore scheduler is required for true fork/join semantics.
+            // Legacy engine records intent and keeps pointer stable.
+            await this.manifold.interfere(
+              'sys://callstack',
+              `MAP_REDUCE: ${syscall.tasks.map((task) => task.trim()).filter(Boolean).join(' | ')}`
+            );
             d_next = d_t;
             s_prime = '👆🏻';
             break;
@@ -1079,6 +1090,8 @@ export class TuringEngine {
         }
         return `${syscall.op}(${summary.join(',') || 'default'})`;
       }
+      case 'SYS_MAP_REDUCE':
+        return `${syscall.op}(tasks=${syscall.tasks.length})`;
       case 'SYS_POP':
       case 'SYS_HALT':
         return syscall.op;

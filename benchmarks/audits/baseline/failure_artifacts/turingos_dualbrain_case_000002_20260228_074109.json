@@ -1,0 +1,101 @@
+{
+  "stamp": "20260228_074109",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 2,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 85 + 211",
+    "expected": "296"
+  },
+  "observed": null,
+  "reason": "mismatch expected=296 got=(null)",
+  "attempted": 2,
+  "passed": 1,
+  "failed": 1,
+  "firstFailAt": 2,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000002",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-02-28T07:39:34.803Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:39:27.766Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:39:45.627Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:39:34.804Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:39:56.184Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:39:45.629Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:40:00.749Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:39:56.184Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:40:06.715Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:40:00.750Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:40:15.918Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:40:06.715Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:40:15.919Z] [HYPERCORE_TRAP_RECOVERY] pid=planner_ed1cadd9 kind=thrashing details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT\n[2026-02-28T07:40:24.109Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:40:15.919Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:40:38.448Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:40:24.109Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:40:55.328Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:40:38.448Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n[2026-02-28T07:41:09.796Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T07:40:55.335Z\",\"pid\":\"planner_ed1cadd9\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.7}\n",
+  "callstack": [
+    {
+      "task_id": "task_4136c4359e49",
+      "status": "SUSPENDED",
+      "objective": "Parse MAIN_TAPE.md and extract computation requirements",
+      "scratchpad": "Parse MAIN_TAPE.md and extract computation requirements",
+      "created_at": "2026-02-28T07:39:45.627Z",
+      "updated_at": "2026-02-28T07:39:45.627Z"
+    },
+    {
+      "task_id": "task_e8f0f2ec577a",
+      "status": "SUSPENDED",
+      "objective": "Compute exact integer answer from problem spec",
+      "scratchpad": "Compute exact integer answer from problem spec",
+      "created_at": "2026-02-28T07:39:45.627Z",
+      "updated_at": "2026-02-28T07:39:45.628Z"
+    },
+    {
+      "task_id": "task_62e4686f332e",
+      "status": "SUSPENDED",
+      "objective": "Write answer to ANSWER.txt with newline",
+      "scratchpad": "Write answer to ANSWER.txt with newline",
+      "created_at": "2026-02-28T07:39:45.628Z",
+      "updated_at": "2026-02-28T07:39:45.629Z"
+    },
+    {
+      "task_id": "task_39d2716f6b33",
+      "status": "SUSPENDED",
+      "objective": "Verify ANSWER.txt contents match expected",
+      "scratchpad": "Verify ANSWER.txt contents match expected",
+      "created_at": "2026-02-28T07:39:45.629Z",
+      "updated_at": "2026-02-28T07:40:00.750Z"
+    },
+    {
+      "task_id": "task_2c6296f8f2c6",
+      "status": "SUSPENDED",
+      "objective": "Parse MAIN_TAPE.md structure and extract objectives",
+      "scratchpad": "Parse MAIN_TAPE.md structure and extract objectives",
+      "created_at": "2026-02-28T07:40:00.750Z",
+      "updated_at": "2026-02-28T07:40:15.918Z"
+    },
+    {
+      "task_id": "task_293c3c3c5c6e",
+      "status": "SUSPENDED",
+      "objective": "Analyze MAIN_TAPE.md structure: extract section hierarchy, identify intent statement, locate any progress markers or state registers",
+      "scratchpad": "Analyze MAIN_TAPE.md structure: extract section hierarchy, identify intent statement, locate any progress markers or state registers",
+      "created_at": "2026-02-28T07:40:15.918Z",
+      "updated_at": "2026-02-28T07:40:55.329Z"
+    },
+    {
+      "task_id": "task_52e263313f16",
+      "status": "SUSPENDED",
+      "objective": "Parse MAIN_TAPE.md: extract headers (# ## ###), identify section hierarchy, locate any state markers (DONE:, TODO:, BLOCKED:), find navigation anchors for next operations",
+      "scratchpad": "Parse MAIN_TAPE.md: extract headers (# ## ###), identify section hierarchy, locate any state markers (DONE:, TODO:, BLOCKED:), find navigation anchors for next operations",
+      "created_at": "2026-02-28T07:40:55.329Z",
+      "updated_at": "2026-02-28T07:41:09.796Z"
+    },
+    {
+      "task_id": "task_5bc63608a961",
+      "status": "SUSPENDED",
+      "objective": "Verify computation: 85 + 211 = 296",
+      "scratchpad": "Verify computation: 85 + 211 = 296",
+      "created_at": "2026-02-28T07:41:09.796Z",
+      "updated_at": "2026-02-28T07:41:09.796Z"
+    },
+    {
+      "task_id": "task_25e7be59a766",
+      "status": "SUSPENDED",
+      "objective": "Write '296' to ANSWER.txt",
+      "scratchpad": "Write '296' to ANSWER.txt",
+      "created_at": "2026-02-28T07:41:09.796Z",
+      "updated_at": "2026-02-28T07:41:09.797Z"
+    },
+    {
+      "task_id": "task_3243372d26ca",
+      "status": "ACTIVE",
+      "objective": "HALT system",
+      "scratchpad": "HALT system",
+      "created_at": "2026-02-28T07:41:09.797Z",
+      "updated_at": "2026-02-28T07:41:09.797Z"
+    }
+  ]
+}

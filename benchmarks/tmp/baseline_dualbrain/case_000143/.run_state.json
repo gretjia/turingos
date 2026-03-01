@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_c4b05636",
+  "rootState": "READY",
+  "ticks": 28,
+  "q": "5302 + 3042\n[MAP_REDUCE] spawned=2\n[SYS_ERROR] Error: TRAP_THRASHING: 3 consecutive mind-only ticks",
+  "d": "MAIN_TAPE.md"
+}

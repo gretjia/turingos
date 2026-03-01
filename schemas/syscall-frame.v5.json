@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schema_id": "turingos.syscall_frame.v5",
-  "version": "5.0.0",
+  "version": "5.1.0",
+  "topology_profile": "turingos.anti_oreo.v2",
   "constraint": "ALU may emit 0..N mind_ops and at most 1 world_op per tick (nQ+1A).",
   "opcodes": [
     "SYS_WRITE",
@@ -11,6 +12,7 @@
     "SYS_PUSH",
     "SYS_EDIT",
     "SYS_MOVE",
+    "SYS_MAP_REDUCE",
     "SYS_POP",
     "SYS_HALT"
   ],
@@ -27,7 +29,8 @@
       "SYS_PUSH",
       "SYS_POP",
       "SYS_EDIT",
-      "SYS_MOVE"
+      "SYS_MOVE",
+      "SYS_MAP_REDUCE"
     ],
     "SYSTEM_CONTROL": [
       "SYS_HALT"
@@ -50,7 +53,8 @@
         "SYS_PUSH",
         "SYS_POP",
         "SYS_EDIT",
-        "SYS_MOVE"
+        "SYS_MOVE",
+        "SYS_MAP_REDUCE"
       ]
     },
     "world_op": {
@@ -63,7 +67,20 @@
         "SYS_GIT_LOG",
         "SYS_HALT"
       ]
+    },
+    "role_constraints": {
+      "planner_only_ops": [
+        "SYS_MAP_REDUCE"
+      ],
+      "worker_forbidden_ops": [
+        "SYS_MAP_REDUCE"
+      ]
     }
+  },
+  "halt_policy": {
+    "mode": "top_white_box_pricing",
+    "llm_as_judge": false,
+    "standard_lock_required": true
   },
   "exact_field_prompt_lines": [
     "- SYS_WRITE: {\"op\":\"SYS_WRITE\",\"payload\":\"...\",\"semantic_cap\":\"optional\"}",
@@ -73,6 +90,7 @@
     "- SYS_PUSH: {\"op\":\"SYS_PUSH\",\"task\":\"...\"}",
     "- SYS_EDIT: {\"op\":\"SYS_EDIT\",\"task\":\"...\"}",
     "- SYS_MOVE: {\"op\":\"SYS_MOVE\",\"task_id\":\"optional\",\"target_pos\":\"TOP|BOTTOM\",\"status\":\"ACTIVE|SUSPENDED|BLOCKED\"}",
+    "- SYS_MAP_REDUCE: {\"op\":\"SYS_MAP_REDUCE\",\"tasks\":[\"atomic task 1\",\"atomic task 2\"]}",
     "- SYS_POP: {\"op\":\"SYS_POP\"}",
     "- SYS_HALT: {\"op\":\"SYS_HALT\"}"
   ],

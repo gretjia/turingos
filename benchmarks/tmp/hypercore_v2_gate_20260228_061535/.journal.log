@@ -1,0 +1,14 @@
+[2026-02-28T06:15:35.677Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T06:15:35.677Z","pid":"planner_b2bf5ed7","role":"PLANNER","lane":"P","laneLabel":"P:planner-mock","temperature":0.7}
+[2026-02-28T06:15:35.679Z] [HYPERCORE_MAP] pid=planner_b2bf5ed7 children=worker_044f18fc,worker_633f7b14 task_count=2
+[2026-02-28T06:15:35.679Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T06:15:35.679Z","pid":"worker_044f18fc","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-02-28T06:15:35.680Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T06:15:35.680Z","pid":"worker_633f7b14","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-02-28T06:15:35.680Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T06:15:35.680Z","pid":"worker_044f18fc","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-02-28T06:15:35.680Z] [HYPERCORE_HALT_REQUEST] pid=worker_044f18fc
+[2026-02-28T06:15:35.687Z] [HYPERCORE_PRICE] pid=worker_044f18fc verdict=PASS price=1
+[2026-02-28T06:15:35.688Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T06:15:35.688Z","pid":"worker_633f7b14","role":"WORKER","lane":"E","laneLabel":"E:worker-mock","temperature":0}
+[2026-02-28T06:15:35.688Z] [HYPERCORE_HALT_REQUEST] pid=worker_633f7b14
+[2026-02-28T06:15:35.693Z] [HYPERCORE_PRICE] pid=worker_633f7b14 verdict=PASS price=1
+[2026-02-28T06:15:35.693Z] [HYPERCORE_REDUCE] pid=planner_b2bf5ed7 resumed=1
+[2026-02-28T06:15:35.693Z] [HYPERCORE_ROUTE] {"ts":"2026-02-28T06:15:35.693Z","pid":"planner_b2bf5ed7","role":"PLANNER","lane":"P","laneLabel":"P:planner-mock","temperature":0.7}
+[2026-02-28T06:15:35.693Z] [HYPERCORE_HALT_REQUEST] pid=planner_b2bf5ed7
+[2026-02-28T06:15:35.698Z] [HYPERCORE_PRICE] pid=planner_b2bf5ed7 verdict=PASS price=1

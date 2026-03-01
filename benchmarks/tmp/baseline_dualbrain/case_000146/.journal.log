@@ -1,0 +1,57 @@
+[2026-03-01T01:34:31.893Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:34:04.009Z","pid":"planner_a39da5e8","role":"PLANNER","lane":"P","laneLabel":"P:openai:qwq:32b","temperature":0.2}
+[2026-03-01T01:34:55.969Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:34:31.895Z","pid":"planner_a39da5e8","role":"PLANNER","lane":"P","laneLabel":"P:openai:qwq:32b","temperature":0.2}
+[2026-03-01T01:35:09.964Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:34:55.970Z","pid":"planner_a39da5e8","role":"PLANNER","lane":"P","laneLabel":"P:openai:qwq:32b","temperature":0.2}
+[2026-03-01T01:35:09.964Z] [HYPERCORE_MAP] pid=planner_a39da5e8 children=worker_dddab76c,worker_fbeeb7e4,worker_715d057f task_count=3
+[2026-03-01T01:35:12.825Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:09.964Z","pid":"worker_dddab76c","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b","temperature":0}
+[2026-03-01T01:35:15.654Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:12.829Z","pid":"worker_fbeeb7e4","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b","temperature":0}
+[2026-03-01T01:35:18.265Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:15.655Z","pid":"worker_715d057f","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b","temperature":0}
+[2026-03-01T01:35:20.271Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:18.265Z","pid":"worker_dddab76c","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b","temperature":0}
+[2026-03-01T01:35:20.271Z] [HYPERCORE_TRAP] pid=worker_dddab76c details=WORKER_MAP_REDUCE_FORBIDDEN
+[2026-03-01T01:35:20.271Z] [HYPERCORE_REDUCE_DROP] pid=planner_a39da5e8 child=worker_dddab76c reason=red_flag
+[2026-03-01T01:35:22.757Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:20.271Z","pid":"worker_fbeeb7e4","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b","temperature":0}
+[2026-03-01T01:35:22.758Z] [HYPERCORE_TRAP] pid=worker_fbeeb7e4 details=WORKER_MAP_REDUCE_FORBIDDEN
+[2026-03-01T01:35:22.758Z] [HYPERCORE_REDUCE_DROP] pid=planner_a39da5e8 child=worker_fbeeb7e4 reason=red_flag
+[2026-03-01T01:35:27.268Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:22.758Z","pid":"worker_715d057f","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b","temperature":0}
+[2026-03-01T01:35:27.269Z] [HYPERCORE_TRAP] pid=worker_715d057f details=WORKER_MAP_REDUCE_FORBIDDEN
+[2026-03-01T01:35:27.269Z] [HYPERCORE_REDUCE_DROP] pid=planner_a39da5e8 child=worker_715d057f reason=red_flag
+[2026-03-01T01:35:27.269Z] [HYPERCORE_REDUCE] pid=planner_a39da5e8 resumed=1 early_stop=0 consensus=[NO_VALID_VOTE] votes=0/0
+[2026-03-01T01:35:53.182Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:27.269Z","pid":"planner_a39da5e8","role":"PLANNER","lane":"P","laneLabel":"P:openai:qwq:32b","temperature":0.2}
+[2026-03-01T01:37:10.860Z] [HYPERCORE_ROUTE] {"ts":"2026-03-01T01:35:53.183Z","pid":"planner_a39da5e8","role":"PLANNER","lane":"P","laneLabel":"P:openai:qwq:32b","temperature":0.2}
+[2026-03-01T01:38:28.692Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:30.060Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:31.368Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:32.739Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:33.953Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:35.350Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:36.592Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:37.916Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:39.186Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:40.622Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:42.033Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:43.389Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:44.698Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:46.050Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:47.303Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:48.540Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:49.744Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:51.164Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:52.409Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:53.817Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:55.269Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:56.651Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:57.922Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:38:59.211Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:00.538Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:01.787Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:03.038Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:04.346Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:05.512Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:06.892Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:08.206Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:09.425Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:10.824Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:12.108Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:13.443Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:14.783Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:39:16.142Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Connection error.
+[2026-03-01T01:40:21.125Z] [HYPERCORE_TRAP] pid=planner_a39da5e8 details=Error: Request timed out.

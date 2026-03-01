@@ -1,0 +1,20 @@
+{
+  "stamp": "20260228_144110",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": null,
+  "reason": "mismatch expected=168 got=(null)",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000001",
+  "workspaceExists": true,
+  "answerFile": "168",
+  "journalTail": "[2026-02-28T14:39:38.972Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:39:24.893Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:39:56.088Z] [HYPERCORE_RED_FLAG] pid=planner_5da3a68a red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS:SYS_WRITE,SYS_HALT\n[2026-02-28T14:39:59.524Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:39:56.088Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:40:03.432Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:39:59.525Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:40:18.503Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:40:03.433Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:40:30.395Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:40:18.503Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:40:38.153Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:40:30.396Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:40:47.310Z] [HYPERCORE_RED_FLAG] pid=planner_5da3a68a red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] CAUSALITY_VIOLATION_MULTIPLE_WORLD_OPS:SYS_WRITE,SYS_HALT\n[2026-02-28T14:40:50.609Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:40:47.311Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:40:54.244Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:40:50.610Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:41:04.244Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:40:54.245Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n[2026-02-28T14:41:10.039Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-02-28T14:41:04.245Z\",\"pid\":\"planner_5da3a68a\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:openai:qwen3-coder:30b\",\"temperature\":0.7}\n",
+  "callstack": []
+}

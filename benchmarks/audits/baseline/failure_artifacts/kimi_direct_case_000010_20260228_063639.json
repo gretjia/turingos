@@ -1,0 +1,16 @@
+{
+  "stamp": "20260228_063639",
+  "mode": "kimi_direct",
+  "testCase": {
+    "index": 10,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 381 + 939",
+    "expected": "1320"
+  },
+  "observed": null,
+  "reason": "The operation was aborted due to timeout",
+  "attempted": 10,
+  "passed": 9,
+  "failed": 1,
+  "firstFailAt": 10,
+  "errorStack": "TimeoutError: The operation was aborted due to timeout\n    at node:internal/deps/undici/undici:14902:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async solveKimiDirect (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:154:20)\n    at async runMode (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:345:13)\n    at async main (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:426:20)"
+}

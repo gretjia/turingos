@@ -1,0 +1,8 @@
+[codex-supervisor][2026-02-28 17:35:12] start hours=8 frontier=42 window=20 active_profile=balanced
+[codex-supervisor][2026-02-28 17:35:12] cycle=1 profile=balanced range=43-62 (codex exec)
+[codex-supervisor][2026-02-28 17:35:13] codex exec failed for cycle=1 profile=balanced; see /home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_cycle_20260228_173512_1.trace.log
+[codex-supervisor][2026-02-28 17:35:13] cycle=1 status=ERROR passed=0 failed=1 first_fail=0 frontier=42 next_window=20 next_profile=strict_halt
+[codex-supervisor][2026-02-28 17:35:13] cycle=2 profile=strict_halt range=43-62 (codex exec)
+[codex-supervisor][2026-02-28 17:35:14] codex exec failed for cycle=2 profile=strict_halt; see /home/zephryj/projects/turingos/benchmarks/audits/baseline/overnight/codex_cycle_20260228_173512_2.trace.log
+[codex-supervisor][2026-02-28 17:35:14] cycle=2 status=ERROR passed=0 failed=1 first_fail=0 frontier=42 next_window=20 next_profile=wide_ticks
+[codex-supervisor][2026-02-28 17:35:14] cycle=3 profile=wide_ticks range=43-62 (codex exec)

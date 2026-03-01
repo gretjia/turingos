@@ -1,0 +1,34 @@
+{
+  "stamp": "20260228_070700",
+  "targetTests": 1000000,
+  "metric": "consecutivePassBeforeFirstFail",
+  "modes": [
+    {
+      "mode": "qwen_direct",
+      "consecutive": 19,
+      "firstFailAt": 20,
+      "report": "benchmarks/audits/baseline/million_baseline_compare_20260228_064532.json",
+      "artifact": "benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000020_20260228_064532.json"
+    },
+    {
+      "mode": "kimi_direct",
+      "consecutive": 200,
+      "firstFailAt": null,
+      "lowerBound": true,
+      "report": "benchmarks/audits/baseline/million_baseline_compare_20260228_070618.json"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "consecutive": 5,
+      "firstFailAt": 6,
+      "report": "benchmarks/audits/baseline/million_baseline_compare_20260228_070033.json",
+      "artifact": "benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000006_20260228_070033.json"
+    }
+  ],
+  "ranking": ["kimi_direct", "qwen_direct", "turingos_dualbrain"],
+  "notes": [
+    "Kimi result is a lower bound under max-tests=200 cap.",
+    "Dual-brain failure traces show route-thrashing and capability-handle traps.",
+    "Use failure-recovery traces for SFT/DPO rather than golden-only curation."
+  ]
+}
