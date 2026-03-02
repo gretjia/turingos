@@ -338,6 +338,8 @@ export class UniversalOracle implements IOracle {
     const strictContract = [
       '',
       '[OUTPUT_CONTRACT: STRICT_JSON_SINGLE_FRAME]',
+      'CRITICAL: You are an OS Kernel process. You must output EXACTLY ONE JSON object matching the Transition schema below.',
+      'DO NOT OUTPUT `{"answer": ...}` directly. You MUST wrap all actions inside `world_op` or `mind_ops`.',
       'Return exactly one JSON object and nothing else.',
       'No markdown fences, no prose, no comments, no XML tags (including <think>/<thought>).',
       'Transition schema:',
