@@ -488,10 +488,16 @@ export class TuringHyperCore {
         pcb.price -= 1;
         pcb.state = 'READY';
         const q = this.readRegisterString(pcb, 'q');
+        let consensusFeedback = '';
+        const lastConsensus = this.readRegisterString(pcb, 'lastMapReduceConsensus').trim();
+        if (lastConsensus && /^-?[0-9]+$/.test(lastConsensus)) {
+          consensusFeedback = `\n[SYSTEM RED FLAG] The consensus answer ${lastConsensus} is INCORRECT. DO NOT submit this number again.`;
+        }
+
         this.writeRegisterString(
           pcb,
           'q',
-          `${q}\n[WHITE_BOX_REJECTED]\ncommand=${result.command}\nexit=${result.exitCode}\n${result.feedback}`
+          `${q}\n[WHITE_BOX_REJECTED]\ncommand=${result.command}\nexit=${result.exitCode}\n${result.feedback}${consensusFeedback}`
         );
         this.readyQueue.push(pcb.pid);
         await this.chronos.engrave(`[HYPERCORE_PRICE] pid=${pcb.pid} verdict=FAIL price=${pcb.price}`);
