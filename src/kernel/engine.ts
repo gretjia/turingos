@@ -39,6 +39,8 @@ interface TrapFrame {
   metadata?: Record<string, unknown>;
 }
 
+type OracleFrameMode = 'full' | 'stateless';
+
 export class TuringEngine {
   private watchdogHistory: string[] = [];
   private l1TraceCache: string[] = [];
@@ -53,6 +55,10 @@ export class TuringEngine {
   private readonly oracleFrameMinChars = 1024;
   private readonly oracleFrameSafetyMarginChars = 512;
   private readonly oracleObservedMinChars = 512;
+  private readonly oracleGoalProjectionMaxChars = 512;
+  private readonly oracleFrameMode: OracleFrameMode = this.resolveOracleFrameMode(
+    process.env.TURINGOS_ORACLE_FRAME_MODE
+  );
   private readonly maxPanicResets = (() => {
     const parsed = Number.parseInt(process.env.TURINGOS_MAX_PANIC_RESETS ?? '2', 10);
     if (!Number.isFinite(parsed) || parsed < 0) {
@@ -81,6 +87,7 @@ export class TuringEngine {
   private lastTrapDetails = new Map<string, string>();
   private recentVerificationSignals: string[] = [];
   private trapPointerHistory: string[] = [];
+  private lastStepResultSummary = '(bootstrap)';
 
   constructor(
     private manifold: IPhysicalManifold,
@@ -667,9 +674,20 @@ export class TuringEngine {
       this.l1TraceCache.shift();
     }
 
+    let l1AbaLoop = false;
+    if (this.l1TraceCache.length >= 3) {
+      const n = this.l1TraceCache.length;
+      const a = this.l1TraceCache[n - 3];
+      const b = this.l1TraceCache[n - 2];
+      const c = this.l1TraceCache[n - 1];
+      if (a === c && a !== b) {
+        l1AbaLoop = true;
+      }
+    }
+
     const l1LoopDetected =
-      this.l1TraceCache.length === this.l1TraceDepth &&
-      this.l1TraceCache.every((item) => item === actionHash);
+      (this.l1TraceCache.length === this.l1TraceDepth &&
+      this.l1TraceCache.every((item) => item === actionHash)) || l1AbaLoop;
     if (l1LoopDetected) {
       this.l1TraceCache = [];
       const trapDetails = [
@@ -681,6 +699,7 @@ export class TuringEngine {
         'sys://trap/l1_cache_hit',
         trapDetails,
         [
+          '[SYSTEM RED FLAG] 陷入死循环，严禁重试当前路径',
           '[OS_TRAP: L1_CACHE_HIT] Repeated action detected in short horizon.',
           `Action signature: ${actionHash.slice(0, 12)}`,
           'Action: change strategy now (different pointer/command) or PUSH a diagnostic subtask.',
@@ -791,6 +810,16 @@ export class TuringEngine {
         ? transition.thought.split('\n').find((line) => line.trim().length > 0)?.slice(0, 80) ?? ''
         : '';
     const syscallNote = this.renderSyscallNote(transition);
+    const ioPreview =
+      s_prime.trim() === '👆🏻'
+        ? '-'
+        : s_prime
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 120);
+    this.setLastStepResultSummary(
+      `mode=${this.oracleFrameMode} op=${transition.a_t.op} from=${d_t} to=${d_next} io=${ioPreview} q=${shortQ}`
+    );
     await this.chronos.engrave(
       `[Tick] d:${d_t} -> d':${d_next} | ${shortQ} | syscall:${syscallNote} | thought:${shortThought || '-'}`
     );
@@ -888,6 +917,9 @@ export class TuringEngine {
     trapPointer: Pointer,
     metadata?: Record<string, unknown>
   ): Promise<[State, Pointer]> {
+    this.setLastStepResultSummary(
+      `mode=${this.oracleFrameMode} trap=${trapBase} pointer=${trapPointer} details=${details.replace(/\s+/g, ' ').slice(0, 180)}`
+    );
     const frame = this.buildTrapFrame(trapBase, trapPointer, details, metadata);
     await this.chronos.engrave(`[TRAP_FRAME] ${JSON.stringify(frame)}`);
     return [this.appendTrapFrameToState(trapState, frame), trapPointer];
@@ -930,6 +962,7 @@ export class TuringEngine {
       'sys://trap/panic_reset',
       panicDetails,
       [
+        '[SYSTEM RED FLAG] 陷入死循环，严禁重试当前路径',
         '[OS_PANIC: INFINITE_LOOP_KILLED] Repeated trap loop interrupted.',
         `Repeated trap: ${trapBase}`,
         'Action: use a different pointer/command strategy and avoid the last failing function path.',
@@ -976,6 +1009,15 @@ export class TuringEngine {
     } catch {
       return null;
     }
+  }
+
+  private setLastStepResultSummary(summary: string): void {
+    const normalized = summary.replace(/\s+/g, ' ').trim();
+    if (normalized.length === 0) {
+      this.lastStepResultSummary = '(none)';
+      return;
+    }
+    this.lastStepResultSummary = normalized.slice(0, 512);
   }
 
   private materializeInstructionPlan(transition: Transition): {
@@ -1142,6 +1184,10 @@ export class TuringEngine {
     hash: string;
     clippedSections: string[];
   } {
+    if (this.oracleFrameMode === 'stateless') {
+      return this.composeStatelessOracleFrame(q_t, contractSlice, observedSlice);
+    }
+
     const raw = [
       '[OS_CONTRACT]',
       contractSlice,
@@ -1212,13 +1258,116 @@ export class TuringEngine {
     };
   }
 
-  private computeOracleFrameBudget(q_t: State): number {
+  private composeStatelessOracleFrame(
+    q_t: State,
+    contractSlice: Slice,
+    observedSlice: Slice
+  ): {
+    slice: Slice;
+    truncated: boolean;
+    originalLength: number;
+    emittedLength: number;
+    hash: string;
+    clippedSections: string[];
+  } {
+    const clippedSections: string[] = [];
+    const goalSlice = this.projectGoalState(q_t);
+    const lastResultSlice = this.lastStepResultSummary;
+
+    const raw = [
+      '[OS_GOAL]',
+      goalSlice,
+      '',
+      '[OS_CONTRACT]',
+      contractSlice,
+      '',
+      '[LAST_STEP_RESULT]',
+      lastResultSlice,
+      '',
+      '[OBSERVED_SLICE]',
+      observedSlice,
+    ].join('\n');
+
+    const frameBudget = this.computeOracleFrameBudget(goalSlice.length);
+    const metaBudget = Math.max(256, Math.floor(frameBudget * 0.34));
+    const goalBudget = Math.max(128, Math.floor(metaBudget * 0.4));
+    const contractBudget = Math.max(96, Math.floor(metaBudget * 0.35));
+    const lastResultBudget = Math.max(80, metaBudget - goalBudget - contractBudget);
+
+    const goal = this.clipFrameSection('OS_GOAL', goalSlice, goalBudget, clippedSections);
+    const contract = this.clipFrameSection('OS_CONTRACT', contractSlice, contractBudget, clippedSections);
+    const lastResult = this.clipFrameSection(
+      'LAST_STEP_RESULT',
+      lastResultSlice,
+      lastResultBudget,
+      clippedSections
+    );
+
+    const prefix = [
+      '[OS_GOAL]',
+      goal,
+      '',
+      '[OS_CONTRACT]',
+      contract,
+      '',
+      '[LAST_STEP_RESULT]',
+      lastResult,
+      '',
+      '[OBSERVED_SLICE]',
+    ].join('\n');
+    const observedBudget = Math.max(
+      this.oracleObservedMinChars,
+      Math.max(0, frameBudget - prefix.length - 1)
+    );
+    const observed = this.clipFrameSection('OBSERVED_SLICE', observedSlice, observedBudget, clippedSections);
+    const assembled = `${prefix}\n${observed}`;
+    const fallback = this.applyOracleFrameHardLimit(assembled, frameBudget);
+    const truncated = clippedSections.length > 0 || fallback.truncated;
+
+    return {
+      slice: fallback.slice,
+      truncated,
+      originalLength: raw.length,
+      emittedLength: fallback.emittedLength,
+      hash: fallback.hash,
+      clippedSections,
+    };
+  }
+
+  private projectGoalState(q_t: State): string {
+    const lines = q_t
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .filter((line) => line !== '[OS_TRAP_FRAME_JSON]')
+      .filter((line) => !line.startsWith('{\"seq\"'));
+    const projection = lines.slice(0, 3).join('\n');
+    if (projection.length === 0) {
+      return '(goal_unavailable)';
+    }
+    if (projection.length <= this.oracleGoalProjectionMaxChars) {
+      return projection;
+    }
+    return projection.slice(0, this.oracleGoalProjectionMaxChars);
+  }
+
+  private computeOracleFrameBudget(qSignal: State | number): number {
     const requestBudget =
       Number.isFinite(this.oracleRequestCharBudget) && this.oracleRequestCharBudget > 0
         ? this.oracleRequestCharBudget
         : 8192;
-    const dynamic = requestBudget - this.disciplinePrompt.length - q_t.length - this.oracleFrameSafetyMarginChars;
+    const qSignalLength = typeof qSignal === 'number' ? qSignal : qSignal.length;
+    const dynamic =
+      requestBudget - this.disciplinePrompt.length - qSignalLength - this.oracleFrameSafetyMarginChars;
     return Math.min(this.oracleFrameHardLimitChars, Math.max(this.oracleFrameMinChars, dynamic));
+  }
+
+  private resolveOracleFrameMode(raw: string | undefined): OracleFrameMode {
+    if (!raw || raw.trim().length === 0) {
+      return 'full';
+    }
+    const normalized = raw.trim().toLowerCase();
+    return normalized === 'stateless' ? 'stateless' : 'full';
   }
 
   private clipFrameSection(section: string, content: string, limit: number, clippedSections: string[]): string {
@@ -1463,13 +1612,15 @@ export class TuringEngine {
       }
     }
 
-    const loopDetected =
-      this.trapPointerHistory.length === this.trapLoopDepth &&
-      this.trapPointerHistory.every((item) => item === trapBase);
-
-    if (loopDetected) {
-      this.trapPointerHistory = [];
-      return { loop: true, trapBase };
+    // Trigger hard interrupt on 2 consecutive same errors
+    if (this.trapPointerHistory.length >= 2) {
+      const n = this.trapPointerHistory.length;
+      const a = this.trapPointerHistory[n - 2];
+      const b = this.trapPointerHistory[n - 1];
+      if (a === b) {
+        this.trapPointerHistory = [];
+        return { loop: true, trapBase };
+      }
     }
 
     return { loop: false };

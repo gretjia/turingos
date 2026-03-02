@@ -9,30 +9,129 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
-1. Current blocker and architecture-review summary:
+1. Emergency system audit (complexity-collapse):
+   - `./artitecture_response/chief_architect_system_audit_complexity_collapse_20260301.md`
+2. Dual-LLM recursive upgrade execution plan (current cycle):
+   - `./artitecture_response/dual_llm_recursive_upgrade_execution_plan_20260301.md`
+3. Gemini independent recursive upgrade plan:
+   - `./artitecture_response/gemini_recursive_upgrade_plan_from_chief_audit_20260301.md`
+4. Latest G0 longrun progress snapshot (fixed-16 run-until-fail):
+   - `./artitecture_response/g0_progress_fixed16_longrun_20260301_160614.md`
+5. Current blocker and architecture-review summary:
    - `../../../handover/turingos_arch_review_handover_20260301_035950.md`
-2. Total design overview:
+6. Total design overview:
    - `../README.md`
-3. Topology blueprint:
+7. Topology blueprint:
    - `../topology.md`
-4. Latest architect core design:
+8. Network topology runbook (cross-host execution baseline):
+   - `./network_topology_runbook_20260301.md`
+   - Source workspace: `/Users/zephryj/work/network`
+9. Latest architect core design:
    - `./artitecture_response/core_architect_opinion_anti_oreo_v2_20260228.md`
-5. Latest architect action plan:
+10. Latest architect action plan:
    - `./artitecture_response/dual_llm_joint_action_plan_from_core_opinion_20260228.md`
-6. Final success criterion toward 1M steps:
+11. Final success criterion toward 1M steps:
    - `./artitecture_response/final_success_criterion_maker_1m_steps_20260228.md`
-7. Baseline comparison evidence:
+12. Baseline comparison evidence:
    - `./audits/modelcompare/main_steps_baseline_20260228.md`
+13. Recursive phase gate status:
+   - `../benchmarks/audits/phase_gate/recursive_phase_gate_latest.md`
 
 ## Current Main Problems
 
-- Baseline accounting can read stale `latest` report after timeout/interruption.
-- Planner can enter post-consensus thrashing before deterministic halt completion.
-- Worker fan-out is large but model diversity is low, limiting effective gain.
-- Continuous recovery loops need stronger run-scoped resume guarantees.
+- Context entropy still grows too fast in long-run loops and can starve core objective focus.
+- Syscall contract robustness depends too much on prompt compliance instead of hard decoding constraints.
+- Dual-brain orchestration can still degrade into loop-like indecision on boundary conditions.
+- Cross-case environment isolation and deterministic rollback discipline are not yet complete.
+
+## Control and Compute Role Contract (2026-03-01)
+
+- `omega-vm` is the controller/orchestrator host for this project.
+- Local `Mac + Windows` are primary compute hosts (planner/worker serving lanes).
+- Do not assume controller-to-compute bulk transfer via tailscale is fast by default.
+- For large installers or model artifacts, prefer:
+  - Mac download/staging first.
+  - Mac LAN (`192.168.3.x`) to Windows LAN (`192.168.3.x`) transfer.
+  - Then local archive bootstrap on Windows.
+
+## Temporary Runtime Guard (2026-03-01)
+
+- Temporary worker cap remains available, but is now opt-in (default unlocked).
+- Enforcement location: `src/bench/million-baseline-compare.ts` via `resolveTemporaryWorkerCap()`.
+- Default behavior:
+  - `TURINGOS_BASELINE_TEMP_WORKER_CAP_ENABLED` defaults to `false`.
+  - When enabled, `TURINGOS_BASELINE_TEMP_WORKER_CAP_MAX` defaults to `2` when unset.
+- To re-enable emergency throttling:
+  - Set `TURINGOS_BASELINE_TEMP_WORKER_CAP_ENABLED=true`.
+  - Optionally set `TURINGOS_BASELINE_TEMP_WORKER_CAP_MAX=<N>`.
+
+## True Parallel Prep (Mac + Windows, 2026-03-01)
+
+- Kernel now supports true worker parallel execution per cycle via:
+  - `TURINGOS_HYPERCORE_WORKER_PARALLELISM` (set by baseline runner).
+- Baseline runner now supports worker endpoint pool:
+  - `TURINGOS_BASELINE_WORKER_BASE_URLS` (comma-separated OpenAI-compatible endpoints).
+  - Routed by round-robin across worker oracles.
+- Important distinction:
+  - `TURINGOS_BASELINE_WORKER_PARALLELISM` controls scheduler worker lane concurrency.
+  - It does **not** by itself force per-case map-reduce fanout.
+  - To force fixed per-case fanout in baseline, set:
+    - `TURINGOS_BASELINE_WORKER_FANOUT_FIXED=<N>`
+- Current integration target (when Windows is free):
+  - Mac keeps planner lane.
+  - Mac + Windows both serve `qwen2.5:7b` worker endpoints.
+  - Start with `worker_parallelism=8`, then `16`, then `32` after stability checks.
+- Recommended launch pattern:
+  - Mac-only warmup:
+    - `TURINGOS_BASELINE_PLANNER_ORACLE=openai`
+    - `TURINGOS_BASELINE_PLANNER_MODEL=qwen3.5:27b`
+    - `TURINGOS_BASELINE_PLANNER_BASE_URL=http://127.0.0.1:11434/v1`
+    - `TURINGOS_BASELINE_WORKER_ORACLE=openai`
+    - `TURINGOS_BASELINE_WORKER_MODEL=qwen2.5:7b`
+    - `TURINGOS_BASELINE_WORKER_BASE_URL=http://127.0.0.1:11434/v1`
+    - `TURINGOS_BASELINE_WORKER_PARALLELISM=4`
+  - Mac+Windows worker pool:
+    - `TURINGOS_BASELINE_WORKER_BASE_URLS=http://<mac-ip>:11434/v1,http://<windows-ip>:11434/v1`
+    - raise `TURINGOS_BASELINE_WORKER_PARALLELISM` stepwise (`8 -> 16 -> 32`).
+
+## Baseline G0 Hard Contract (2026-03-01)
+
+- Baseline arithmetic lane now defaults to strict integer-write enforcement:
+  - `TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_FILES=ANSWER.txt`
+  - `TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE=0` (default reject non-integer payload)
+  - `TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_EXTRACT_LAST_INT=1` (used only when coerce enabled)
+- To reduce post-join planner loop stalls in fixed-fanout mode:
+  - `TURINGOS_HYPERCORE_AUTO_WRITE_CONSENSUS_ON_MAP_DROP=1` can auto-write numeric consensus when redundant map-reduce is dropped after a completed join.
+
+## Windows Worker Bootstrap (D Drive + Exit Node)
+
+- Windows fresh machine bootstrap script:
+  - `scripts/windows_worker/bootstrap_windows_worker.sh windows1-w1`
+- Preferred when Windows external egress is unstable:
+  - `scripts/windows_worker/bootstrap_windows_worker_via_mac_lan.sh`
+- Script responsibilities:
+  - install `ollama.exe` under `D:\work\turingos_llm\bin`
+  - start service and pull `qwen2.5:7b`
+  - register periodic cleanup task (`TuringOS-Worker-Cleanup`, default every 30 min)
+- If direct internet is blocked, switch exit node before bootstrap:
+  - `tailscale up --reset --exit-node=100.81.234.55 --exit-node-allow-lan-access --hostname=windows1-w1 --unattended`
+
+## Cleanup Rule (Linux + Windows + Mac)
+
+- After successful bootstrap, remove non-essential install artifacts:
+  - Linux: temporary Ollama installers and transfer test shards under `~/tmp/ollama`
+  - Windows: stale archives/shards in `D:\work\turingos_llm\downloads` and transient extract dirs
+  - Mac: temporary installer shards/caches used only for bootstrap staging
+- Keep only runtime binaries, required models, and active logs.
 
 ## Directory Rule
 
 - `artitecture_response/`: primary architect-v2 and current-cycle design/audit docs.
 - `audits/`: evidence data and benchmark outputs.
+- `network_topology_runbook_20260301.md`: canonical cross-host SD-WAN topology and operations baseline.
 - `archive/`: legacy or non-current materials (including old `artiteture_response/` and `audit/` bundles); do not use as default source.
+
+## Technical Reserves & Experience
+
+- ModelScope Native (vLLM/Xinference) vs Ollama evaluation for long-term 1M step baseline scaling:
+  - `./technical_reserves/modelscope_vs_ollama_research_20260302.md`
