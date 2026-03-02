@@ -8,6 +8,7 @@ import { HaltVerifier } from '../kernel/halt-verifier.js';
 import { TuringHyperCore } from '../kernel/scheduler.js';
 import { LocalManifold } from '../manifold/local-manifold.js';
 import { DualBrainOracle } from '../oracle/dual-brain-oracle.js';
+import { RoundRobinOracle } from '../oracle/round-robin-oracle.js';
 import { UniversalOracle } from '../oracle/universal-oracle.js';
 
 type BaselineMode = 'qwen_direct' | 'kimi_direct' | 'turingos_dualbrain';
@@ -63,6 +64,7 @@ interface AdaptiveWorkerState {
   workerFanout: number;
   minWorkers: number;
   maxWorkers: number;
+  temporaryWorkerCap: number | null;
   aheadByK: number;
   upshiftRiskThreshold: number;
   downshiftStableCases: number;
@@ -72,6 +74,7 @@ interface AdaptiveWorkerState {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const OUT_DIR = path.resolve(ROOT, 'benchmarks', 'audits', 'baseline');
 const FAIL_ARTIFACT_DIR = path.resolve(OUT_DIR, 'failure_artifacts');
+const BASELINE_TMP_DIR = path.resolve(ROOT, 'benchmarks', 'tmp', 'baseline_dualbrain');
 const TARGET_DEFAULT = 1_000_000;
 
 function parseArgs(argv: string[]): CliArgs {
@@ -140,6 +143,23 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+function resolveTemporaryWorkerCap(): number | null {
+  // 2026-03-01: cap is opt-in. Default is unlocked to allow staged scale tests.
+  const capEnabled = parseBoolEnv('TURINGOS_BASELINE_TEMP_WORKER_CAP_ENABLED', false);
+  if (!capEnabled) {
+    return null;
+  }
+  const raw = process.env.TURINGOS_BASELINE_TEMP_WORKER_CAP_MAX;
+  if (!raw || raw.trim().length === 0) {
+    return 2;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 2;
+  }
+  return parsed;
+}
+
 function estimateAheadByK(targetTests: number, singleWorkerPassRate: number, targetReliability: number): number {
   const s = Math.max(1, targetTests);
   const p = clamp(singleWorkerPassRate, 0.51, 0.999);
@@ -157,19 +177,37 @@ function initAdaptiveWorkerState(targetTests: number): AdaptiveWorkerState {
   const empiricalP = Number.parseFloat(process.env.TURINGOS_BASELINE_EMPIRICAL_WORKER_P ?? '0.85');
   const targetReliability = Number.parseFloat(process.env.TURINGOS_BASELINE_TARGET_RELIABILITY ?? '0.99');
   const autoAhead = estimateAheadByK(targetTests, Number.isFinite(empiricalP) ? empiricalP : 0.85, Number.isFinite(targetReliability) ? targetReliability : 0.99);
+  const temporaryWorkerCap = resolveTemporaryWorkerCap();
   const aheadByK = Math.max(1, parsePositiveIntEnv('TURINGOS_BASELINE_AHEAD_BY_K', autoAhead));
-  const minWorkersDefault = Math.max(2, aheadByK + 2);
-  const minWorkers = parsePositiveIntEnv('TURINGOS_BASELINE_WORKERS_MIN', minWorkersDefault);
-  const maxWorkersDefault = Math.max(minWorkers, aheadByK * 2 + 5);
-  const maxWorkers = Math.max(minWorkers, parsePositiveIntEnv('TURINGOS_BASELINE_WORKERS_MAX', maxWorkersDefault));
+  const minWorkersDefault = temporaryWorkerCap === null ? Math.max(2, aheadByK + 2) : 1;
+  const requestedMinWorkers = parsePositiveIntEnv('TURINGOS_BASELINE_WORKERS_MIN', minWorkersDefault);
+  const minWorkers =
+    temporaryWorkerCap === null
+      ? requestedMinWorkers
+      : Math.max(1, Math.min(requestedMinWorkers, temporaryWorkerCap));
+  const maxWorkersDefault = Math.max(requestedMinWorkers, aheadByK * 2 + 5);
+  const requestedMaxWorkers = Math.max(
+    minWorkers,
+    parsePositiveIntEnv('TURINGOS_BASELINE_WORKERS_MAX', maxWorkersDefault)
+  );
+  const maxWorkers =
+    temporaryWorkerCap === null
+      ? requestedMaxWorkers
+      : Math.max(minWorkers, Math.min(requestedMaxWorkers, temporaryWorkerCap));
   const initialWorkers = clamp(parsePositiveIntEnv('TURINGOS_BASELINE_WORKERS_INITIAL', minWorkers), minWorkers, maxWorkers);
+  const defaultUpshiftRiskThreshold =
+    temporaryWorkerCap !== null && temporaryWorkerCap <= 2 ? 99 : 1;
   return {
     enabled,
     workerFanout: initialWorkers,
     minWorkers,
     maxWorkers,
+    temporaryWorkerCap,
     aheadByK,
-    upshiftRiskThreshold: parsePositiveIntEnv('TURINGOS_BASELINE_ADAPTIVE_UPSHIFT_RISK', 1),
+    upshiftRiskThreshold: parsePositiveIntEnv(
+      'TURINGOS_BASELINE_ADAPTIVE_UPSHIFT_RISK',
+      defaultUpshiftRiskThreshold
+    ),
     downshiftStableCases: parsePositiveIntEnv('TURINGOS_BASELINE_ADAPTIVE_DOWNSHIFT_STABLE', 10000),
     stableCases: 0,
   };
@@ -183,8 +221,216 @@ function makeTestCase(index: number): TestCase {
   return { index, question, expected };
 }
 
+function withTimeout(input: string, max = 300): string {
+  return input.length > max ? `${input.slice(0, max)}...` : input;
+}
+
+function normalizeBaseURL(baseURL: string): string {
+  return baseURL.replace(/\/+$/, '');
+}
+
+function extractModelIds(payload: unknown): string[] {
+  if (typeof payload !== 'object' || payload === null) {
+    return [];
+  }
+  const data = (payload as { data?: unknown }).data;
+  if (!Array.isArray(data)) {
+    return [];
+  }
+  return data
+    .map((item) => (typeof item === 'object' && item !== null ? (item as { id?: unknown }).id : null))
+    .filter((id): id is string => typeof id === 'string' && id.length > 0);
+}
+
+async function preflightOpenAIEndpoint(input: {
+  label: string;
+  model: string;
+  baseURL: string;
+  apiKey: string;
+  timeoutMs: number;
+}): Promise<void> {
+  const base = normalizeBaseURL(input.baseURL);
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+  };
+  if (input.apiKey) {
+    headers.authorization = `Bearer ${input.apiKey}`;
+  }
+  const timeout = Math.max(5_000, input.timeoutMs);
+
+  const modelsResp = await fetch(`${base}/models`, {
+    method: 'GET',
+    signal: AbortSignal.timeout(timeout),
+    headers,
+  });
+  const modelsRaw = await modelsResp.text();
+  if (!modelsResp.ok) {
+    throw new Error(
+      `[preflight:${input.label}] GET /models failed status=${modelsResp.status} body=${withTimeout(modelsRaw)}`
+    );
+  }
+  let modelIds: string[] = [];
+  try {
+    modelIds = extractModelIds(JSON.parse(modelsRaw));
+  } catch {
+    // no-op: leave empty and let chat preflight provide final signal.
+  }
+  if (modelIds.length > 0 && !modelIds.includes(input.model)) {
+    throw new Error(
+      `[preflight:${input.label}] model_not_listed target=${input.model} available=${modelIds.slice(0, 16).join(',')}`
+    );
+  }
+
+  const chatResp = await fetch(`${base}/chat/completions`, {
+    method: 'POST',
+    signal: AbortSignal.timeout(timeout),
+    headers,
+    body: JSON.stringify({
+      model: input.model,
+      temperature: 0,
+      max_tokens: 8,
+      messages: [{ role: 'user', content: 'Reply exactly: OK' }],
+    }),
+  });
+  const chatRaw = await chatResp.text();
+  if (!chatResp.ok) {
+    throw new Error(
+      `[preflight:${input.label}] POST /chat/completions failed status=${chatResp.status} body=${withTimeout(chatRaw)}`
+    );
+  }
+}
+
+async function preflightDualBrainOracles(): Promise<void> {
+  const enabled = parseBoolEnv('TURINGOS_BASELINE_PREFLIGHT_ENABLED', true);
+  if (!enabled) {
+    return;
+  }
+  const preflightTimeoutMsRaw = Number.parseInt(process.env.TURINGOS_BASELINE_PREFLIGHT_TIMEOUT_MS ?? '60000', 10);
+  const timeoutMs = Number.isFinite(preflightTimeoutMsRaw) ? Math.max(5_000, preflightTimeoutMsRaw) : 60_000;
+
+  const plannerMode = (process.env.TURINGOS_BASELINE_PLANNER_ORACLE ?? 'kimi') as 'kimi' | 'openai';
+  const plannerModel = process.env.TURINGOS_BASELINE_PLANNER_MODEL
+    ?? (plannerMode === 'openai' ? 'qwen3.5:27b' : 'kimi-k2-turbo-preview');
+  const plannerBaseURL = plannerMode === 'openai'
+    ? (process.env.TURINGOS_BASELINE_PLANNER_BASE_URL ?? 'http://127.0.0.1:11434/v1')
+    : (process.env.TURINGOS_BASELINE_KIMI_BASE_URL ?? 'https://api.kimi.com/coding/v1/messages');
+  const plannerKey = plannerMode === 'kimi'
+    ? (process.env.KIMI_API_KEY ?? process.env.OPENAI_API_KEY ?? '')
+    : (process.env.OPENAI_API_KEY ?? 'local');
+
+  const workerMode = (process.env.TURINGOS_BASELINE_WORKER_ORACLE ?? 'openai') as 'openai' | 'kimi';
+  const workerModel = process.env.TURINGOS_BASELINE_WORKER_MODEL ?? 'qwen2.5:7b';
+  const workerBaseURL = process.env.TURINGOS_BASELINE_WORKER_BASE_URL ?? 'http://127.0.0.1:11434/v1';
+  const workerBaseURLsRaw = process.env.TURINGOS_BASELINE_WORKER_BASE_URLS ?? '';
+  const workerBaseURLs = workerBaseURLsRaw
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  const workerEndpoints = workerBaseURLs.length > 0 ? workerBaseURLs : [workerBaseURL];
+  const workerKey = workerMode === 'kimi'
+    ? (process.env.KIMI_API_KEY ?? process.env.OPENAI_API_KEY ?? '')
+    : (process.env.OPENAI_API_KEY ?? 'local');
+
+  if (plannerMode === 'openai') {
+    await preflightOpenAIEndpoint({
+      label: 'planner',
+      model: plannerModel,
+      baseURL: plannerBaseURL,
+      apiKey: plannerKey,
+      timeoutMs,
+    });
+  }
+  if (workerMode === 'openai') {
+    for (let i = 0; i < workerEndpoints.length; i += 1) {
+      await preflightOpenAIEndpoint({
+        label: `worker#${i + 1}`,
+        model: workerModel,
+        baseURL: workerEndpoints[i]!,
+        apiKey: workerKey,
+        timeoutMs,
+      });
+    }
+  }
+}
+
 function dualWorkspace(caseIndex: number): string {
   return path.resolve(ROOT, 'benchmarks', 'tmp', 'baseline_dualbrain', `case_${String(caseIndex).padStart(6, '0')}`);
+}
+
+function parseCaseIndexFromDirName(name: string): number | null {
+  const match = name.match(/^case_(\d{6})$/);
+  if (!match) {
+    return null;
+  }
+  const parsed = Number.parseInt(match[1], 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+}
+
+function maybeCleanupDualBrainWorkspaces(currentCaseIndex: number): void {
+  const enabled = parseBoolEnv('TURINGOS_BASELINE_WORKSPACE_CLEANUP_ENABLED', true);
+  if (!enabled) {
+    return;
+  }
+  const everyN = parsePositiveIntEnv('TURINGOS_BASELINE_WORKSPACE_CLEANUP_EVERY_N', 25);
+  if (currentCaseIndex % everyN !== 0) {
+    return;
+  }
+  const keepLast = parsePositiveIntEnv('TURINGOS_BASELINE_WORKSPACE_KEEP_LAST', 300);
+  const maxAgeMinutes = parsePositiveIntEnv('TURINGOS_BASELINE_WORKSPACE_MAX_AGE_MINUTES', 0);
+  if (!fs.existsSync(BASELINE_TMP_DIR)) {
+    return;
+  }
+  const entries = fs.readdirSync(BASELINE_TMP_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
+      const caseIndex = parseCaseIndexFromDirName(entry.name);
+      if (caseIndex === null) {
+        return null;
+      }
+      return {
+        name: entry.name,
+        caseIndex,
+        fullPath: path.join(BASELINE_TMP_DIR, entry.name),
+      };
+    })
+    .filter((item): item is { name: string; caseIndex: number; fullPath: string } => item !== null)
+    .sort((a, b) => a.caseIndex - b.caseIndex);
+  if (entries.length <= keepLast) {
+    return;
+  }
+
+  const protectedCaseIndices = new Set<number>();
+  for (const entry of entries.slice(-keepLast)) {
+    protectedCaseIndices.add(entry.caseIndex);
+  }
+  protectedCaseIndices.add(currentCaseIndex);
+  protectedCaseIndices.add(Math.max(1, currentCaseIndex - 1));
+
+  const nowMs = Date.now();
+  const maxAgeMs = maxAgeMinutes > 0 ? maxAgeMinutes * 60_000 : 0;
+  let removed = 0;
+  for (const entry of entries) {
+    if (protectedCaseIndices.has(entry.caseIndex)) {
+      continue;
+    }
+    if (maxAgeMs > 0) {
+      const stat = fs.statSync(entry.fullPath);
+      const ageMs = nowMs - stat.mtimeMs;
+      if (ageMs < maxAgeMs) {
+        continue;
+      }
+    }
+    fs.rmSync(entry.fullPath, { recursive: true, force: true });
+    removed += 1;
+  }
+  if (removed > 0) {
+    console.log(
+      `[million-baseline] workspace_cleanup removed=${removed} keep_last=${keepLast} max_age_min=${maxAgeMinutes}`
+    );
+  }
 }
 
 function readTail(filePath: string, maxChars = 12_000): string | null {
@@ -282,7 +528,7 @@ function updateAdaptiveWorkerState(
 async function solveQwenDirect(testCase: TestCase): Promise<string | null> {
   const baseURL = process.env.TURINGOS_BASELINE_QWEN_BASE_URL ?? 'http://127.0.0.1:11434/v1';
   const apiKey = process.env.TURINGOS_BASELINE_QWEN_API_KEY ?? 'local';
-  const model = process.env.TURINGOS_BASELINE_QWEN_MODEL ?? 'qwen3-coder:30b';
+  const model = process.env.TURINGOS_BASELINE_QWEN_MODEL ?? 'qwen3.5:27b';
   const client = new OpenAI({ apiKey, baseURL, timeout: 30_000 });
   const response = await client.chat.completions.create({
     model,
@@ -339,11 +585,21 @@ async function solveTuringOSDualBrain(
   const oracleTimeoutMs = Number.parseInt(process.env.TURINGOS_BASELINE_ORACLE_TIMEOUT_MS ?? '15000', 10);
   const dualMaxTicks = Number.parseInt(process.env.TURINGOS_BASELINE_DUAL_MAX_TICKS ?? '12', 10);
   const plannerMode = (process.env.TURINGOS_BASELINE_PLANNER_ORACLE ?? 'kimi') as 'kimi' | 'openai';
-  const plannerModel = process.env.TURINGOS_BASELINE_PLANNER_MODEL ?? 'kimi-k2-turbo-preview';
+  const plannerModel = process.env.TURINGOS_BASELINE_PLANNER_MODEL
+    ?? (plannerMode === 'openai' ? 'qwen3.5:27b' : 'kimi-k2-turbo-preview');
   const workerMode = (process.env.TURINGOS_BASELINE_WORKER_ORACLE ?? 'openai') as 'openai' | 'kimi';
-  const workerModel = process.env.TURINGOS_BASELINE_WORKER_MODEL ?? 'qwen3-coder:30b';
+  const workerModel = process.env.TURINGOS_BASELINE_WORKER_MODEL ?? 'qwen2.5:7b';
   const workerBaseURL = process.env.TURINGOS_BASELINE_WORKER_BASE_URL ?? 'http://127.0.0.1:11434/v1';
-  const workerFanout = options.adaptiveWorkersEnabled ? Math.max(1, options.workerFanout) : 1;
+  const workerBaseURLsRaw = process.env.TURINGOS_BASELINE_WORKER_BASE_URLS ?? '';
+  const workerBaseURLs = workerBaseURLsRaw
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  const workerEndpoints = workerMode === 'openai'
+    ? (workerBaseURLs.length > 0 ? workerBaseURLs : [workerBaseURL])
+    : [process.env.TURINGOS_BASELINE_KIMI_BASE_URL ?? 'https://api.kimi.com/coding/v1/messages'];
+  const workerFanout = Math.max(1, options.workerFanout);
+  const workerParallelism = parsePositiveIntEnv('TURINGOS_BASELINE_WORKER_PARALLELISM', workerFanout);
   const workspace = dualWorkspace(testCase.index);
   const initialPointer = process.env.TURINGOS_BASELINE_DUAL_INITIAL_POINTER ?? 'MAIN_TAPE.md';
   process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME ??= '1';
@@ -360,7 +616,12 @@ async function solveTuringOSDualBrain(
   process.env.TURINGOS_HYPERCORE_FILTER_FAILED_WORKERS = '1';
   process.env.TURINGOS_HYPERCORE_PLANNER_MAP_REDUCE_DROP_WORLD_OP = '1';
   process.env.TURINGOS_HYPERCORE_SINGLE_MAP_PER_PROCESS = '1';
+  process.env.TURINGOS_HYPERCORE_AUTO_WRITE_CONSENSUS_ON_MAP_DROP ??= '1';
   process.env.TURINGOS_HYPERCORE_WORKER_MAP_REDUCE_POLICY = 'drop';
+  process.env.TURINGOS_HYPERCORE_WORKER_PARALLELISM = String(Math.max(1, workerParallelism));
+  process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_FILES ??= 'ANSWER.txt';
+  process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE ??= '0';
+  process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_EXTRACT_LAST_INT ??= '1';
   if (workerFanout > 1) {
     process.env.TURINGOS_HYPERCORE_FORCE_MAP_TASK_COUNT = String(workerFanout);
   } else {
@@ -424,20 +685,25 @@ async function solveTuringOSDualBrain(
     maxRetries: Number.isFinite(oracleRetries) ? Math.max(0, oracleRetries) : 1,
     requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 15000,
   });
-  const workerOracle = new UniversalOracle(workerMode, {
-    apiKey: workerKey || 'local',
-    model: workerModel,
-    baseURL: workerMode === 'openai' ? workerBaseURL : process.env.TURINGOS_BASELINE_KIMI_BASE_URL,
-    maxOutputTokens: 512,
-    maxRetries: Number.isFinite(oracleRetries) ? Math.max(0, oracleRetries) : 1,
-    requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 15000,
-  });
+  const workerOracles = workerEndpoints.map((endpoint) =>
+    new UniversalOracle(workerMode, {
+      apiKey: workerKey || 'local',
+      model: workerModel,
+      baseURL: endpoint,
+      maxOutputTokens: 512,
+      maxRetries: Number.isFinite(oracleRetries) ? Math.max(0, oracleRetries) : 1,
+      requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 15000,
+    })
+  );
+  const workerOracle = workerOracles.length === 1
+    ? workerOracles[0]
+    : new RoundRobinOracle(workerOracles);
 
   const dualOracle = new DualBrainOracle({
     plannerOracle,
     workerOracle,
     plannerLabel: `P:${plannerMode}:${plannerModel}`,
-    workerLabel: `E:${workerMode}:${workerModel}`,
+    workerLabel: `E:${workerMode}:${workerModel}:pool=${workerOracles.length}`,
   });
   const manifold = new LocalManifold(workspace, { timeoutMs: 30_000 });
   const chronos = new FileChronos(path.join(workspace, '.journal.log'));
@@ -610,6 +876,37 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
   let reason = '';
   let firstFailArtifact: string | undefined;
   const adaptiveState = mode === 'turingos_dualbrain' ? initAdaptiveWorkerState(args.targetTests) : null;
+  const fixedWorkerFanout =
+    mode === 'turingos_dualbrain'
+      ? parsePositiveIntEnv('TURINGOS_BASELINE_WORKER_FANOUT_FIXED', 0)
+      : 0;
+  if (mode === 'turingos_dualbrain' && adaptiveState) {
+    const workerParallelism = parsePositiveIntEnv(
+      'TURINGOS_BASELINE_WORKER_PARALLELISM',
+      adaptiveState.workerFanout
+    );
+    const workerBaseURL = process.env.TURINGOS_BASELINE_WORKER_BASE_URL ?? 'http://127.0.0.1:11434/v1';
+    const workerBaseURLs = (process.env.TURINGOS_BASELINE_WORKER_BASE_URLS ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+    const workerEndpoints = workerBaseURLs.length > 0 ? workerBaseURLs : [workerBaseURL];
+    console.log(
+      `[million-baseline] adaptive_workers enabled=${adaptiveState.enabled} initial=${adaptiveState.workerFanout} min=${adaptiveState.minWorkers} max=${adaptiveState.maxWorkers} ahead_by_k=${adaptiveState.aheadByK} temporary_cap=${adaptiveState.temporaryWorkerCap ?? 'none'}`
+    );
+    const fanoutMode =
+      fixedWorkerFanout > 0
+        ? `fixed:${fixedWorkerFanout}`
+        : adaptiveState.enabled
+          ? `adaptive:${adaptiveState.workerFanout}`
+          : 'single:1';
+    console.log(`[million-baseline] worker_fanout mode=${fanoutMode}`);
+    console.log(
+      `[million-baseline] worker_parallelism=${workerParallelism} worker_endpoints=${workerEndpoints.length} endpoints=${workerEndpoints.join(',')}`
+    );
+    await preflightDualBrainOracles();
+    console.log('[million-baseline] preflight=ok planner_worker_endpoints_ready');
+  }
 
   if (args.startTest > args.maxTests) {
     return {
@@ -628,6 +925,9 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
   for (let i = args.startTest; i <= args.maxTests; i += 1) {
     attempted += 1;
     const testCase = makeTestCase(i);
+    if (mode === 'turingos_dualbrain') {
+      maybeCleanupDualBrainWorkspaces(i);
+    }
     try {
       let answer: string | null = null;
       let dualMetrics: DualBrainCaseMetrics | null = null;
@@ -636,9 +936,15 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
       } else if (mode === 'kimi_direct') {
         answer = await solveKimiDirect(testCase);
       } else {
+        const forceFixedFanout = fixedWorkerFanout > 0;
+        const effectiveWorkerFanout = forceFixedFanout
+          ? fixedWorkerFanout
+          : adaptiveState?.enabled
+            ? adaptiveState.workerFanout
+            : 1;
         const solveOptions: DualBrainSolveOptions = {
-          adaptiveWorkersEnabled: Boolean(adaptiveState?.enabled),
-          workerFanout: adaptiveState?.workerFanout ?? 1,
+          adaptiveWorkersEnabled: Boolean(adaptiveState?.enabled) && !forceFixedFanout,
+          workerFanout: Math.max(1, effectiveWorkerFanout),
           aheadByK: adaptiveState?.aheadByK ?? 1,
         };
         const solved = await solveTuringOSDualBrain(testCase, solveOptions);
@@ -646,7 +952,7 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
         dualMetrics = solved.metrics;
       }
       const ok = answer === testCase.expected;
-      if (mode === 'turingos_dualbrain' && adaptiveState && dualMetrics) {
+      if (mode === 'turingos_dualbrain' && adaptiveState && dualMetrics && fixedWorkerFanout <= 0) {
         updateAdaptiveWorkerState(adaptiveState, ok, dualMetrics, {
           adaptiveWorkersEnabled: adaptiveState.enabled,
           workerFanout: adaptiveState.workerFanout,
@@ -694,6 +1000,15 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
       }
       if (args.stopOnFirstFail) {
         break;
+      }
+    } finally {
+      if (mode === 'turingos_dualbrain' && parseBoolEnv('TURINGOS_BASELINE_EPHEMERAL_WORKSPACE', true)) {
+        const workspace = dualWorkspace(testCase.index);
+        try {
+          fs.rmSync(workspace, { recursive: true, force: true });
+        } catch {
+          // Ignore cleanup errors to ensure the next benchmark iteration proceeds
+        }
       }
     }
   }

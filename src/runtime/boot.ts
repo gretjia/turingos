@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { FileChronos } from '../chronos/file-chronos.js';
@@ -159,9 +160,12 @@ function buildDispatcherLane(
 async function main(): Promise<void> {
   const cli = parseArgs(process.argv.slice(2));
 
-  const workspace = path.resolve(
+  let workspace = path.resolve(
     cli.workspace ?? process.env.TURINGOS_WORKSPACE ?? path.join(process.cwd(), 'workspace')
   );
+  if (parseBoolFlag(process.env.TURINGOS_EPHEMERAL_WORKSPACE)) {
+    workspace = path.join(workspace, `run_${randomUUID()}`);
+  }
   const envOracle = parseOracleMode(process.env.TURINGOS_ORACLE);
   const oracleMode = cli.oracle ?? envOracle ?? 'kimi';
   const model =
@@ -203,6 +207,12 @@ async function main(): Promise<void> {
   // Anti-Oreo v2 requires strict single-frame parser by default.
   if (process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME === undefined) {
     process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME = '1';
+  }
+  if (process.env.TURINGOS_OPENAI_JSON_SCHEMA_ENABLED === undefined) {
+    process.env.TURINGOS_OPENAI_JSON_SCHEMA_ENABLED = '1';
+  }
+  if (process.env.TURINGOS_ORACLE_FRAME_MODE === undefined) {
+    process.env.TURINGOS_ORACLE_FRAME_MODE = 'stateless';
   }
   const hypercoreV2Env = process.env.TURINGOS_HYPERCORE_V2;
   const hypercoreV2Enabled = hypercoreV2Env === undefined ? true : parseBoolFlag(hypercoreV2Env);
@@ -247,6 +257,8 @@ async function main(): Promise<void> {
   console.log(`[turingos] oracle=${oracleDescriptor} maxTicks=${maxTicks}`);
   console.log('[turingos] kernel_mode=hypercore_v2_scheduler');
   console.log(`[turingos] strict_single_json_frame=${process.env.TURINGOS_STRICT_SINGLE_JSON_FRAME}`);
+  console.log(`[turingos] openai_json_schema=${process.env.TURINGOS_OPENAI_JSON_SCHEMA_ENABLED}`);
+  console.log(`[turingos] oracle_frame_mode=${process.env.TURINGOS_ORACLE_FRAME_MODE}`);
   if (dispatcherEnabled) {
     console.log(
       `[turingos] dispatcher min_health=${process.env.TURINGOS_DISPATCHER_MIN_HEALTH ?? '0.45'} switch_margin=${
@@ -300,6 +312,16 @@ async function main(): Promise<void> {
   console.log(
     `[turingos] stopped after ${result.ticks} ticks. root_pid=${result.rootPid} state=${result.rootState} q="${result.q}" d="${result.d}"`
   );
+
+  if (parseBoolFlag(process.env.TURINGOS_EPHEMERAL_WORKSPACE)) {
+    try {
+      console.log(`[turingos] destroying ephemeral workspace ${workspace}`);
+      fs.rmSync(workspace, { recursive: true, force: true });
+    } catch (e: unknown) {
+      console.error(`[turingos] failed to destroy workspace: ${e}`);
+    }
+  }
+
   if (result.rootState !== 'TERMINATED') {
     process.exitCode = 2;
   }
