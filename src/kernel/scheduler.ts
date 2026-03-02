@@ -255,6 +255,19 @@ export class TuringHyperCore {
             await this.chronos.engrave(
               `[HYPERCORE_AUTOWRITE] pid=${pcb.pid} source=join_consensus consensus=${lastConsensus}`
             );
+            
+            // Force halt to prevent recursive auto-write loops. 
+            // We cannot push SYS_HALT to normalizedWorldOps because the system only executes index 0 (SYS_WRITE).
+            pcb.state = 'PENDING_HALT';
+            pcb.exitOutput = this.readRegisterString(pcb, 'q');
+            await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid} details=AUTO_WRITE_HALT`);
+          } else if (lastConsensus && !/^-?[0-9]+$/.test(lastConsensus)) {
+            const q = this.readRegisterString(pcb, 'q');
+            this.writeRegisterString(
+              pcb,
+              'q',
+              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT emit SYS_MAP_REDUCE. You must rethink the problem and use SYS_WRITE.`
+            );
           }
         }
       }
@@ -512,6 +525,15 @@ export class TuringHyperCore {
           await this.resolveJoin(pcb.ppid, pcb.pid, pcb.exitOutput ?? '[HALT_PASS]');
         }
       } else {
+        // KILL_AND_FAIL logic: If Planner fails multiple times (e.g. price drops below -3)
+        // kill it to fail the test run rather than looping infinitely on a wrong answer.
+        if (pcb.price <= -3) {
+            pcb.state = 'KILLED';
+            this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[KILLED] Exceeded maximum verification rejections. Consensus or self-calculated answer was persistently incorrect.`);
+            await this.chronos.engrave(`[HYPERCORE_PRICE] pid=${pcb.pid} verdict=FAIL price=${pcb.price} status=KILLED`);
+            continue;
+        }
+
         pcb.price -= 1;
         pcb.state = 'READY';
         const q = this.readRegisterString(pcb, 'q');

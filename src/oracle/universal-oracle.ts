@@ -357,6 +357,16 @@ export class UniversalOracle implements IOracle {
     return `${basePrompt.trim()}\n${strictContract.join('\n')}`.trim();
   }
 
+  private async fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(new Error(`Timeout of ${this.requestTimeoutMs}ms exceeded`)), this.requestTimeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
   private async request(systemPrompt: string, userFrame: string, requestedTemperature?: number): Promise<unknown> {
     const temperature = this.normalizeTemperature(requestedTemperature);
     const strictSystemPrompt = this.composeSystemPrompt(systemPrompt);
@@ -381,9 +391,8 @@ export class UniversalOracle implements IOracle {
     if (this.mode === 'kimi' && this.kimimart) {
       return this.withRetry('kimi', async () => {
         const kimiMessages = [{ role: 'user' as const, content: userFrame.trim() }];
-        const response = await fetch(this.kimimart!.endpoint, {
+        const response = await this.fetchWithTimeout(this.kimimart!.endpoint, {
           method: 'POST',
-          signal: AbortSignal.timeout(this.requestTimeoutMs),
           headers: {
             'content-type': 'application/json',
             'anthropic-version': '2023-06-01',
