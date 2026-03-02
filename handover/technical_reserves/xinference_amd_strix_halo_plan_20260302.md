@@ -16,7 +16,7 @@ We have **reverted to Ollama** on Windows for managing the GGUF models. It is a 
 Ollama is actively running and bound to the Tailscale IP (`100.123.90.25:11434`) so Omega-VM can reach it without hitting Windows loopback policies.
 
 ## Current Mac Planner Blocker (2026-03-02)
-The Mac currently runs Ollama 0.17.4 via Homebrew. This version was released before the `qwen35` model architecture was fully adopted by `llama.cpp`.
+The Mac currently runs Ollama 0.5.11 (latest). However, the Qwen3.5:27B model architecture (`qwen35` internally) is still explicitly failing to load within Ollama/llama.cpp.
 When `ollama run qwen3.5:27b` is executed, it fails with:
-`error loading model architecture: unknown model architecture: 'qwen35'`
-The preflight correctly intercepts this, but we are effectively blocked from running the 1M test with the 27B Planner model. 
+`llama_model_load: error loading model: error loading model architecture: unknown model architecture: 'qwen35'`
+The model architecture identifier in the downloaded GGUF file is simply too new or incorrectly tagged for the current Mac distribution of `llama.cpp` bundled with Ollama.
