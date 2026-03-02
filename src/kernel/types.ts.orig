@@ -19,7 +19,6 @@ export interface PCB {
   waitPids: Set<string>;
   mailbox: string[];
   exitOutput?: string;
-  workspaceHashes: string[];
 }
 
 export type Syscall =

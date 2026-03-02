@@ -103,3 +103,12 @@ Use these scripts as operational reference; do not assume deterministic forced m
 - The external network `.env` handover mentions a Tailscale auth key snapshot.
 - Treat it as sensitive and rotate after takeover.
 - Do not commit private keys or live secrets into this repository.
+
+## 10) Agent Networking & SSH Memories
+
+- The central orchestrator/controller is `omega-vm`. The user SSHes into `omega-vm` to issue commands and control the other compute hosts in the home network (Mac, Windows, and Linux).
+- When the user refers to "linux" generally, they mean the Tailscale node `linux1-lx` (`100.64.97.113`), not the `omega-vm` controller node.
+- SSH alias `mac-back` connects to the user's Mac via a reverse tunnel on `localhost:2222` (Key: `~/.ssh/id_ed25519_mac_backssh`).
+- SSH aliases `linux1-lx` and `windows1-w1` use the dedicated key `~/.ssh/id_ed25519_omega_workers` for automated access from `omega-vm`.
+- SSH aliases `mac-back`, `linux1-lx`, and `windows1-w1` are configured on `omega-vm` for direct access to the home network.
+- **GFW/Download Strategy**: When downloading dependencies or models, always prioritize **domestic mirrors** first. If a domestic mirror fails, is too slow, or is unavailable, configure your tools (npm, pip, curl, etc.) to use the Mac's commercial VPN proxy at port `7897` (use `127.0.0.1:7897` if executing directly on the Mac, or the Mac's Tailscale/LAN IP at `100.72.87.94:7897` if executing from other nodes).

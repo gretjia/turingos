@@ -1,0 +1,28 @@
+--- /home/zephryj/projects/turingos/handover/README.md
++++ /home/zephryj/projects/turingos/handover/README.md
+@@ -6,6 +6,9 @@
+ 
+ ## Priority Reading Order
+ 
++0. Current G1->G2 Transition Plan & Acceptance Criteria:
++   - `./artitecture_response/g1_g2_transition_plan_20260302.md`
++
+ 1. Emergency system audit (complexity-collapse):
+    - `./artitecture_response/chief_architect_system_audit_complexity_collapse_20260301.md`
+ 2. Dual-LLM recursive upgrade execution plan (current cycle):
+@@ -95,6 +98,9 @@
+ 
+ ## Technical Reserves & Experience
+ 
++- DeepThink Architectural Audit & Hardening Directives (G0 -> G1 Transition) - 2026-03-02:
++  - `./artitecture_response/deepthink_g1_transition_audit_20260302.md`
++
+ - ModelScope Native (vLLM/Xinference) vs Ollama evaluation for long-term 1M step baseline scaling:
+   - `./technical_reserves/modelscope_vs_ollama_research_20260302.md`
+ 
+@@ -112,6 +118,3 @@
+ - Codex Handover Report: P1-P3 Completion & Qwen32B Integration (2026-03-02):
+   - `./artitecture_response/codex_handover_report_20260302_end_of_day.md`
+ 
+-- DeepThink Architectural Audit & Hardening Directives (G0 -> G1 Transition) - 2026-03-02:
+-  - `./artitecture_response/deepthink_g1_transition_audit_20260302.md`

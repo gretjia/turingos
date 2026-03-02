@@ -420,6 +420,9 @@ export class UniversalOracle implements IOracle {
   }
 
   private buildOpenAIResponseFormat(): OpenAIResponseFormat {
+    if (this.openai && this.openai.baseURL && this.openai.baseURL.includes(':8080')) {
+        return { type: 'json_object', schema: TuringTransitionFrameSchema } as any;
+    }
     if (!this.strictOpenAIJsonSchemaEnabled || this.responseProvider !== 'openai') {
       return { type: 'json_object' };
     }

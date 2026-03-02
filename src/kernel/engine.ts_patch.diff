@@ -1,0 +1,15 @@
+--- /home/zephryj/projects/turingos/src/kernel/engine.ts
++++ /home/zephryj/projects/turingos/src/kernel/engine.ts
+@@ -519,9 +519,9 @@
+         `Failed to dispatch syscall: ${message}`,
+         [
+-          q_t,
++          `[SYSTEM_RECOVERY_PHASE: ${Date.now()}]`,
+           '',
+           `[SYSTEM: PREVIOUS_WORLD_OP_FAILED_AT_EXECUTION]`,
+           `Action: Do not repeat your exact previous output. The environment has been rolled back.`,
+         ].join('\n'),
+-        q_t
++        `[SYSTEM_RECOVERY_PHASE: ${Date.now()}]\n[SYSTEM: PREVIOUS_WORLD_OP_FAILED_AT_EXECUTION]`
+       );
+     }

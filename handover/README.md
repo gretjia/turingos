@@ -9,6 +9,8 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
+0. Current G1->G2 Transition Plan & Acceptance Criteria:
+   - `./artitecture_response/g1_g2_transition_plan_20260302.md`
 1. Emergency system audit (complexity-collapse):
    - `./artitecture_response/chief_architect_system_audit_complexity_collapse_20260301.md`
 2. Dual-LLM recursive upgrade execution plan (current cycle):
