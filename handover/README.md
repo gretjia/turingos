@@ -135,3 +135,12 @@ This index is for agents joining the current TuringOS cycle.
 
 - ModelScope Native (vLLM/Xinference) vs Ollama evaluation for long-term 1M step baseline scaling:
   - `./technical_reserves/modelscope_vs_ollama_research_20260302.md`
+
+- Codex Phase 3 Completion Report (Micro-Snapshot & Absolute Rollback):
+  - `./artitecture_response/codex_phase3_completion_20260302.md`
+
+- Codex Workplan (2026-03-02):
+  - `./artitecture_response/codex_workplan_20260302.md`
+
+- Codex Workplan (2026-03-02):
+  - `./artitecture_response/codex_workplan_20260302.md`
