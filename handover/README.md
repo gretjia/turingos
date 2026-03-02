@@ -153,3 +153,6 @@ This index is for agents joining the current TuringOS cycle.
 
 - Codex Handover Report: P1-P3 Completion & Qwen32B Integration (2026-03-02):
   - `./artitecture_response/codex_handover_report_20260302_end_of_day.md`
+
+- DeepThink Architectural Audit & Hardening Directives (G0 -> G1 Transition) - 2026-03-02:
+  - `./artitecture_response/deepthink_g1_transition_audit_20260302.md`
