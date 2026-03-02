@@ -1,0 +1,18 @@
+{
+  "stamp": "20260301_060216",
+  "dataset": "/home/zephryj/projects/turingos/benchmarks/data/local_alu/ac41b_seed_20260301_060215.jsonl",
+  "source": "local_alu",
+  "baseURL": "http://127.0.0.1:11434/v1",
+  "model": "qwen3-coder:30b",
+  "requested": 1000,
+  "attempted": 509,
+  "succeeded": 509,
+  "failed": 0,
+  "successRate": 1,
+  "setupReady": true,
+  "setupError": null,
+  "outputJsonl": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_outputs_20260301_060216.jsonl",
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_20260301_060216.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_20260301_060216.md",
+  "generatedAt": "2026-03-01T06:50:07.756Z"
+}

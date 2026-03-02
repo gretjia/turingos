@@ -1,0 +1,23 @@
+[million-baseline] adaptive_workers enabled=true initial=13 min=13 max=27 ahead_by_k=11 temporary_cap=none
+[million-baseline] worker_fanout mode=fixed:16
+[million-baseline] worker_parallelism=16 worker_endpoints=2 endpoints=http://100.72.87.94:11434/v1,http://100.123.90.25:11434/v1
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[million-baseline] start_test=1101 target_tests=1000000 max_tests=1000000
+[million-baseline] mode=turingos_dualbrain consecutive=15 delta_to_1m=999985 status=FAIL
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_160614.json
+EXIT_CODE=0

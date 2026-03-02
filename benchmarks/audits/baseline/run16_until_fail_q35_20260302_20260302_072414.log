@@ -1,0 +1,10 @@
+[million-baseline] adaptive_workers enabled=true initial=13 min=13 max=27 ahead_by_k=11 temporary_cap=none
+[million-baseline] worker_fanout mode=fixed:16
+[million-baseline] worker_parallelism=16 worker_endpoints=2 endpoints=http://100.72.87.94:11434/v1,http://100.123.90.25:11434/v1
+[million-baseline] FAIL Error: [preflight:planner] POST /chat/completions failed status=500 body={"error":{"message":"unable to load model: /Users/zephryj/.ollama/models/blobs/sha256-bca098fbfe3a80cd7456462bf38a49d5e2dfe4eb118439062d93d8476394d9d1","type":"api_error","param":null,"code":null}}
+
+    at preflightOpenAIEndpoint (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:297:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async preflightDualBrainOracles (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:335:5)
+    at async runMode (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:907:5)
+    at async main (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:1049:20)

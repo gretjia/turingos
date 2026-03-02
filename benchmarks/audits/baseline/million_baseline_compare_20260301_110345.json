@@ -1,0 +1,36 @@
+{
+  "stamp": "20260301_110345",
+  "startTest": 488,
+  "targetTests": 1000000,
+  "maxTests": 1000000,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 5,
+      "passed": 4,
+      "failed": 1,
+      "firstFailAt": 492,
+      "consecutivePassBeforeFirstFail": 4,
+      "closestToMillionDelta": 999996,
+      "status": "FAIL",
+      "reason": "mismatch expected=13016 got=(null)",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000492_20260301_110345.json"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 5,
+      "passed": 4,
+      "failed": 1,
+      "firstFailAt": 492,
+      "consecutivePassBeforeFirstFail": 4,
+      "closestToMillionDelta": 999996,
+      "status": "FAIL",
+      "reason": "mismatch expected=13016 got=(null)",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000492_20260301_110345.json"
+    }
+  ],
+  "bestMode": "turingos_dualbrain"
+}

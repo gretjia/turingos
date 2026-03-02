@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { IChronos, IPhysicalManifold, PCB, Pointer, ProcessState, Syscall, Transition } from './types.js';
 import { HaltVerifier } from './halt-verifier.js';
@@ -633,7 +634,6 @@ export class TuringHyperCore {
 
     if (hasWorldOp && workspaceDir) {
       microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
-      const { execSync } = require('node:child_process');
       try {
         execSync(`rm -rf ${microSnapshotPath} && mkdir -p ${microSnapshotPath} && cp -a * ${microSnapshotPath} 2>/dev/null || true`, { cwd: workspaceDir as string });
       } catch {
@@ -644,7 +644,6 @@ export class TuringHyperCore {
     try {
       await this.applyTransition(pcb, transition);
       if (hasWorldOp && microSnapshotPath && workspaceDir) {
-        const { execSync } = require('node:child_process');
         try {
           execSync(`rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
         } catch {
@@ -653,7 +652,6 @@ export class TuringHyperCore {
       }
     } catch (error: unknown) {
       if (hasWorldOp && microSnapshotPath && workspaceDir) {
-        const { execSync } = require('node:child_process');
         try {
           execSync(`cp -a ${microSnapshotPath}/* . 2>/dev/null || true && rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
         } catch {

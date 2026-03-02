@@ -1,0 +1,7 @@
+[cap2-longrun][2026-03-01T08:36:34+00:00] launcher window=1 target=1 start=1
+[cap2-longrun][2026-03-01T08:36:34+00:00] run start=1 end=1
+[million-baseline] adaptive_workers enabled=true initial=1 min=1 max=2 ahead_by_k=11 temporary_cap=2
+[million-baseline] start_test=1 target_tests=1000000 max_tests=1
+[million-baseline] mode=turingos_dualbrain consecutive=1 delta_to_1m=999999 status=PASS
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260301_083643.json
+[cap2-longrun][2026-03-01T08:36:43+00:00] done start=1 end=1 attempted=1 passed=1 failed=0 first_fail=null status=PASS report=benchmarks/audits/baseline/million_baseline_compare_20260301_083643.json

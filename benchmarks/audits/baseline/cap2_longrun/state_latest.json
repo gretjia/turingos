@@ -1,0 +1,16 @@
+{
+  "ts": "2026-03-01T08:57:21+00:00",
+  "runDir": "benchmarks/audits/baseline/cap2_longrun",
+  "log": "benchmarks/audits/baseline/cap2_longrun/runner_20260301_083834.log",
+  "state": "benchmarks/audits/baseline/cap2_longrun/state_latest.json",
+  "lastReport": "benchmarks/audits/baseline/million_baseline_compare_20260301_085721.json",
+  "lastStatus": "PASS",
+  "lastStart": 63,
+  "lastEnd": 82,
+  "nextTest": 83,
+  "lastAttempted": 20,
+  "lastPassed": 20,
+  "lastFailed": 0,
+  "lastFirstFail": "null",
+  "workerCap": 2
+}

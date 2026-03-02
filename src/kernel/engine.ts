@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { execSync } from 'node:child_process';
+import path from 'node:path';
 import {
   isMindOpcode,
   isSystemControlOpcode,
@@ -350,8 +352,7 @@ export class TuringEngine {
       let microSnapshotPath = '';
       const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
       if (plan.worldOps.length > 0 && workspaceDir) {
-        microSnapshotPath = require('node:path').join(workspaceDir as string, '.micro_snapshot.tmp');
-        const { execSync } = require('node:child_process');
+        microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
         try {
           execSync(`rm -rf ${microSnapshotPath} && mkdir -p ${microSnapshotPath} && cp -a * ${microSnapshotPath} 2>/dev/null || true`, { cwd: workspaceDir as string });
         } catch {
@@ -469,7 +470,6 @@ export class TuringEngine {
       );
 
       if (plan.worldOps.length > 0 && microSnapshotPath && workspaceDir) {
-        const { execSync } = require('node:child_process');
         try {
           execSync(`rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
         } catch {
@@ -479,9 +479,8 @@ export class TuringEngine {
     } catch (error: unknown) {
       let microSnapshotPath = '';
       const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
-      if (workspaceDir) microSnapshotPath = require('node:path').join(workspaceDir as string, '.micro_snapshot.tmp');
+      if (workspaceDir) microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
       if (microSnapshotPath && workspaceDir) {
-        const { execSync } = require('node:child_process');
         try {
           execSync(`cp -a ${microSnapshotPath}/* . 2>/dev/null || true && rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
         } catch {

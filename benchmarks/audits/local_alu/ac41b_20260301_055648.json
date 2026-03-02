@@ -1,0 +1,17 @@
+{
+  "stamp": "20260301_055648",
+  "source": "mac_qwen3_coder_30b_l20",
+  "input": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_outputs_20260301_055505.jsonl",
+  "totalSamples": 20,
+  "validSamples": 20,
+  "mutexViolations": 0,
+  "validJsonRate": 1,
+  "mutexViolationRate": 0,
+  "minSamples": 1000,
+  "minValidJsonRate": 0.999,
+  "maxMutexViolationRate": 0,
+  "pass": false,
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_20260301_055648.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_20260301_055648.md",
+  "generatedAt": "2026-03-01T05:56:48.546Z"
+}

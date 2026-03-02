@@ -9,9 +9,12 @@ MODEL="${MODEL:-qwen2.5:14b-instruct}"
 LIMIT="${LIMIT:-200}"
 SOURCE="${SOURCE:-local_alu}"
 RUN_STAGED="${RUN_STAGED:-1}"
+DATASET_ROOT="${DATASET_ROOT:-benchmarks/audits/evidence}"
+MIN_ROWS="${MIN_ROWS:-1000}"
+UPSAMPLE_TO_MIN="${UPSAMPLE_TO_MIN:-1}"
 
 echo "[mac-local-alu] root=$ROOT_DIR"
-echo "[mac-local-alu] base_url=$BASE_URL model=$MODEL limit=$LIMIT source=$SOURCE run_staged=$RUN_STAGED"
+echo "[mac-local-alu] base_url=$BASE_URL model=$MODEL limit=$LIMIT source=$SOURCE run_staged=$RUN_STAGED dataset_root=$DATASET_ROOT min_rows=$MIN_ROWS upsample_to_min=$UPSAMPLE_TO_MIN"
 
 if ! curl -fsS --max-time 5 "$BASE_URL/models" >/dev/null; then
   echo "[mac-local-alu] ERROR: cannot reach $BASE_URL/models"
@@ -25,7 +28,7 @@ if [ ! -d node_modules ]; then
 fi
 
 echo "[mac-local-alu] Step A: build/refresh dataset"
-npm run bench:ac41b-build-trace-dataset || true
+npm run bench:ac41b-build-trace-dataset -- --root "$DATASET_ROOT" --min-rows "$MIN_ROWS" --upsample-to-min "$UPSAMPLE_TO_MIN" || true
 
 DATASET="$(
   node -e "const fs=require('node:fs');const j=JSON.parse(fs.readFileSync('benchmarks/audits/local_alu/ac41b_dataset_latest.json','utf8'));process.stdout.write(j.output||'');"

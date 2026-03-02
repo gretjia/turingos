@@ -1,0 +1,21 @@
+{
+  "stamp": "20260302_071321",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1117,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 1340 + 1676",
+    "expected": "3016"
+  },
+  "observed": null,
+  "reason": "require is not defined",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1117,
+  "errorStack": "ReferenceError: require is not defined\n    at TuringHyperCore.executeOneReadyProcess (/home/zephryj/projects/turingos/src/kernel/scheduler.ts:636:28)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Promise.all (index 0)\n    at async TuringHyperCore.run (/home/zephryj/projects/turingos/src/kernel/scheduler.ts:147:7)\n    at async solveTuringOSDualBrain (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:787:21)\n    at async runMode (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:950:24)\n    at async main (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:1049:20)",
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_001117",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-03-02T07:13:21.055Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-02T07:13:16.935Z\",\"pid\":\"planner_db4d4b38\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:kimi-k2-turbo-preview\",\"temperature\":0.2}\n",
+  "callstack": []
+}

@@ -6,6 +6,7 @@ interface CliArgs {
   roots: string[];
   output: string;
   minRows: number;
+  upsampleToMin: boolean;
 }
 
 interface DatasetRow {
@@ -22,6 +23,8 @@ interface DatasetSummary {
   stamp: string;
   roots: string[];
   output: string;
+  rawRows: number;
+  upsampledRows: number;
   rows: number;
   traces: number;
   opCounts: Record<string, number>;
@@ -51,6 +54,7 @@ function timestamp(): string {
 function parseArgs(argv: string[]): CliArgs {
   let output = '';
   let minRows = 1000;
+  let upsampleToMin = false;
   const roots: string[] = [];
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -69,6 +73,9 @@ function parseArgs(argv: string[]): CliArgs {
     if (key === '--min-rows') {
       minRows = Number.parseInt(value, 10);
     }
+    if (key === '--upsample-to-min') {
+      upsampleToMin = /^(1|true|yes|on)$/i.test(value.trim());
+    }
   }
 
   if (!output) {
@@ -84,6 +91,7 @@ function parseArgs(argv: string[]): CliArgs {
     roots: roots.length > 0 ? roots : [DEFAULT_ROOT],
     output,
     minRows,
+    upsampleToMin,
   };
 }
 
@@ -171,6 +179,8 @@ function toMarkdown(summary: DatasetSummary): string {
     `- stamp: ${summary.stamp}`,
     `- roots: ${summary.roots.join(', ')}`,
     `- output: ${summary.output}`,
+    `- rawRows: ${summary.rawRows}`,
+    `- upsampledRows: ${summary.upsampledRows}`,
     `- rows: ${summary.rows}`,
     `- traces: ${summary.traces}`,
     `- minRows: ${summary.minRows}`,
@@ -208,6 +218,23 @@ async function main(): Promise<void> {
     }
   }
 
+  const rawRows = allRows.length;
+  let upsampledRows = 0;
+  if (args.upsampleToMin && rawRows > 0 && rawRows < args.minRows) {
+    const seedRows = [...allRows];
+    let idx = 0;
+    while (allRows.length < args.minRows) {
+      const base = seedRows[idx % seedRows.length];
+      const replicaEpoch = Math.floor(idx / seedRows.length) + 1;
+      allRows.push({
+        ...base,
+        source_trace: `${base.source_trace}#upsample_${replicaEpoch}`,
+      });
+      idx += 1;
+      upsampledRows += 1;
+    }
+  }
+
   const outputLines = allRows.map((row) => JSON.stringify(row));
   await fsp.mkdir(path.dirname(args.output), { recursive: true });
   await fsp.writeFile(args.output, `${outputLines.join('\n')}\n`, 'utf-8');
@@ -225,6 +252,8 @@ async function main(): Promise<void> {
     stamp,
     roots: args.roots,
     output: args.output,
+    rawRows,
+    upsampledRows,
     rows: allRows.length,
     traces: traceSet.size,
     opCounts,

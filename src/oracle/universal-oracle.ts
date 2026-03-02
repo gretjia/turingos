@@ -5,6 +5,7 @@ import { SYSCALL_EXACT_FIELD_PROMPT_LINES } from '../kernel/syscall-schema.js';
 import { BusProvider, extractProviderText, parseProviderBusTransition, ProviderUsage } from './turing-bus-adapter.js';
 
 type OracleMode = 'openai' | 'kimi';
+type OpenAIResponseFormat = OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming['response_format'];
 
 interface UniversalOracleConfig {
   apiKey: string;
@@ -33,6 +34,127 @@ function inferOpenAIProvider(baseURL?: string): BusProvider {
   return 'openai';
 }
 
+const TuringSyscallSchema: Record<string, unknown> = {
+  oneOf: [
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_WRITE' },
+        payload: { type: 'string' },
+        semantic_cap: { type: 'string' },
+      },
+      required: ['op', 'payload'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_GOTO' },
+        pointer: { type: 'string' },
+      },
+      required: ['op', 'pointer'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_EXEC' },
+        cmd: { type: 'string' },
+      },
+      required: ['op', 'cmd'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_GIT_LOG' },
+        query_params: { type: 'string' },
+        path: { type: 'string' },
+        limit: { type: 'number' },
+        ref: { type: 'string' },
+        grep: { type: 'string' },
+        since: { type: 'string' },
+      },
+      required: ['op'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_PUSH' },
+        task: { type: 'string' },
+      },
+      required: ['op', 'task'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_EDIT' },
+        task: { type: 'string' },
+      },
+      required: ['op', 'task'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_MOVE' },
+        task_id: { type: 'string' },
+        target_pos: { enum: ['TOP', 'BOTTOM'] },
+        status: { enum: ['ACTIVE', 'SUSPENDED', 'BLOCKED'] },
+      },
+      required: ['op'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_MAP_REDUCE' },
+        tasks: {
+          type: 'array',
+          minItems: 1,
+          items: { type: 'string' },
+        },
+      },
+      required: ['op', 'tasks'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_POP' },
+      },
+      required: ['op'],
+      additionalProperties: false,
+    },
+    {
+      type: 'object',
+      properties: {
+        op: { const: 'SYS_HALT' },
+      },
+      required: ['op'],
+      additionalProperties: false,
+    },
+  ],
+};
+
+const TuringTransitionFrameSchema: Record<string, unknown> = {
+  type: 'object',
+  properties: {
+    q_next: { type: 'string' },
+    mind_ops: {
+      type: 'array',
+      items: TuringSyscallSchema,
+    },
+    world_op: {
+      anyOf: [TuringSyscallSchema, { type: 'null' }],
+    },
+  },
+  required: ['q_next', 'mind_ops', 'world_op'],
+  additionalProperties: false,
+};
+
 export class UniversalOracle implements IOracle {
   private openai?: OpenAI;
   private model: string;
@@ -44,6 +166,7 @@ export class UniversalOracle implements IOracle {
   private readonly localRepairEnabled: boolean;
   private readonly localRepairMaxAttempts: number;
   private readonly repairAllProviders: boolean;
+  private readonly strictOpenAIJsonSchemaEnabled: boolean;
   private readonly requestTimeoutMs: number;
   private telemetrySeq = 0;
   private kimimart?: {
@@ -64,6 +187,7 @@ export class UniversalOracle implements IOracle {
     this.localRepairEnabled = this.parseBoolEnv(process.env.TURINGOS_OLLAMA_REPAIR_ENABLED, true);
     this.localRepairMaxAttempts = this.parseIntEnv(process.env.TURINGOS_OLLAMA_REPAIR_MAX_ATTEMPTS, 2, 0, 5);
     this.repairAllProviders = this.parseBoolEnv(process.env.TURINGOS_ORACLE_REPAIR_ALL, false);
+    this.strictOpenAIJsonSchemaEnabled = this.parseBoolEnv(process.env.TURINGOS_OPENAI_JSON_SCHEMA_ENABLED, true);
     this.requestTimeoutMs = config.requestTimeoutMs ?? this.parseIntEnv(process.env.TURINGOS_ORACLE_REQUEST_TIMEOUT_MS, 20_000, 1_000, 600_000);
     if (mode === 'openai') {
       const clientConfig: { apiKey: string; baseURL?: string; timeout?: number } = {
@@ -239,12 +363,13 @@ export class UniversalOracle implements IOracle {
     ];
 
     if (this.mode === 'openai' && this.openai) {
+      const responseFormat = this.buildOpenAIResponseFormat();
       return this.withRetry('openai', async () => {
         const response = await this.openai!.chat.completions.create({
           model: this.model,
           messages: openAIMessages,
           temperature,
-          response_format: { type: 'json_object' },
+          response_format: responseFormat,
         });
         return response as unknown;
       });
@@ -289,6 +414,20 @@ export class UniversalOracle implements IOracle {
     }
 
     throw new Error('Oracle not configured');
+  }
+
+  private buildOpenAIResponseFormat(): OpenAIResponseFormat {
+    if (!this.strictOpenAIJsonSchemaEnabled || this.responseProvider !== 'openai') {
+      return { type: 'json_object' };
+    }
+    return {
+      type: 'json_schema',
+      json_schema: {
+        name: 'turingos_transition_frame_v2',
+        strict: true,
+        schema: TuringTransitionFrameSchema,
+      },
+    } as OpenAIResponseFormat;
   }
 
   private async withRetry<T>(provider: 'openai' | 'kimi', operation: () => Promise<T>): Promise<T> {

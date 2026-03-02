@@ -1,0 +1,17 @@
+{
+  "stamp": "20260301_074739",
+  "source": "local_alu",
+  "input": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_outputs_20260301_074513.jsonl",
+  "totalSamples": 40,
+  "validSamples": 40,
+  "mutexViolations": 0,
+  "validJsonRate": 1,
+  "mutexViolationRate": 0,
+  "minSamples": 40,
+  "minValidJsonRate": 0.999,
+  "maxMutexViolationRate": 0,
+  "pass": true,
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_20260301_074739.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_20260301_074739.md",
+  "generatedAt": "2026-03-01T07:47:39.769Z"
+}

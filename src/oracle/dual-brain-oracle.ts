@@ -17,7 +17,7 @@ interface DualBrainOracleConfig {
 }
 
 export class DualBrainOracle {
-  private lastTrace: DualBrainDispatchTrace | null = null;
+  private readonly traceByPid = new Map<string, DualBrainDispatchTrace>();
 
   constructor(private readonly config: DualBrainOracleConfig) {}
 
@@ -34,7 +34,7 @@ export class DualBrainOracle {
       : this.config.workerLabel ?? 'worker_lane';
     const oracle = planner ? this.config.plannerOracle : this.config.workerOracle;
 
-    this.lastTrace = {
+    const trace: DualBrainDispatchTrace = {
       ts: new Date().toISOString(),
       pid: pcb.pid,
       role: pcb.role,
@@ -42,12 +42,24 @@ export class DualBrainOracle {
       laneLabel,
       temperature: pcb.temperature,
     };
+    this.traceByPid.set(pcb.pid, trace);
     return oracle.collapse(discipline, q, s, { temperature: pcb.temperature });
   }
 
-  public consumeLastTrace(): DualBrainDispatchTrace | null {
-    const trace = this.lastTrace;
-    this.lastTrace = null;
+  public consumeLastTrace(pid?: string): DualBrainDispatchTrace | null {
+    if (pid) {
+      const trace = this.traceByPid.get(pid) ?? null;
+      if (trace) {
+        this.traceByPid.delete(pid);
+      }
+      return trace;
+    }
+    const first = this.traceByPid.entries().next();
+    if (first.done) {
+      return null;
+    }
+    const [firstPid, trace] = first.value;
+    this.traceByPid.delete(firstPid);
     return trace;
   }
 }

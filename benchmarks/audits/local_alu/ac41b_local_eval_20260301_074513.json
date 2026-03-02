@@ -1,0 +1,22 @@
+{
+  "stamp": "20260301_074513",
+  "dataset": "/tmp/ac41b_all_evidence.jsonl",
+  "source": "local_alu",
+  "baseURL": "http://localhost:11434/v1",
+  "model": "qwen2.5:7b",
+  "requested": 40,
+  "attempted": 40,
+  "succeeded": 40,
+  "failed": 0,
+  "successRate": 1,
+  "modelFailures": 2,
+  "fallbackRecovered": 2,
+  "fallbackFromDataset": 2,
+  "fallbackFromSafePop": 0,
+  "setupReady": true,
+  "setupError": null,
+  "outputJsonl": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_outputs_20260301_074513.jsonl",
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_20260301_074513.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_20260301_074513.md",
+  "generatedAt": "2026-03-01T07:47:36.120Z"
+}

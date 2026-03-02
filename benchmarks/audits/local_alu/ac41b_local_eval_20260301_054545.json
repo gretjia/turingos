@@ -1,0 +1,18 @@
+{
+  "stamp": "20260301_054545",
+  "dataset": "/home/zephryj/projects/turingos/benchmarks/data/local_alu/ac41b_seed_20260301_054543.jsonl",
+  "source": "local_alu",
+  "baseURL": "http://127.0.0.1:11434/v1",
+  "model": "qwen3-coder:30b",
+  "requested": 200,
+  "attempted": 0,
+  "succeeded": 0,
+  "failed": 0,
+  "successRate": 0,
+  "setupReady": false,
+  "setupError": "Missing API key. Set --api-key or TURINGOS_LOCAL_ALU_API_KEY/OPENAI_API_KEY/KIMI_API_KEY.",
+  "outputJsonl": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_outputs_20260301_054545.jsonl",
+  "reportJsonPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_20260301_054545.json",
+  "reportMdPath": "/home/zephryj/projects/turingos/benchmarks/audits/local_alu/ac41b_local_eval_20260301_054545.md",
+  "generatedAt": "2026-03-01T05:45:45.540Z"
+}

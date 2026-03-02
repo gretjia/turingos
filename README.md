@@ -17,20 +17,32 @@ Read in this order:
 1. Total design (this file): `./README.md`
 2. Topology blueprint/spec: `./topology.md`
 3. Handover index: `./handover/README.md`
-4. Latest architect core design: `./handover/artitecture_response/core_architect_opinion_anti_oreo_v2_20260228.md`
-5. Latest architect action plan: `./handover/artitecture_response/dual_llm_joint_action_plan_from_core_opinion_20260228.md`
-6. Latest blocker handover: `../../handover/turingos_arch_review_handover_20260301_035950.md`
+4. Emergency system audit (complexity-collapse): `./handover/artitecture_response/chief_architect_system_audit_complexity_collapse_20260301.md`
+5. Current dual-LLM recursive upgrade plan: `./handover/artitecture_response/dual_llm_recursive_upgrade_execution_plan_20260301.md`
+6. Gemini independent recursive upgrade plan: `./handover/artitecture_response/gemini_recursive_upgrade_plan_from_chief_audit_20260301.md`
+7. Latest architect core design: `./handover/artitecture_response/core_architect_opinion_anti_oreo_v2_20260228.md`
+8. Latest architect action plan: `./handover/artitecture_response/dual_llm_joint_action_plan_from_core_opinion_20260228.md`
+9. Latest blocker handover: `../../handover/turingos_arch_review_handover_20260301_035950.md`
 
 Current main issues:
 
-- Stale report reuse after timeout can corrupt progress accounting.
-- Planner may keep routing after consensus, causing thrashing before HALT.
-- Worker scaling is not adaptive enough for long-horizon cost/reliability balance.
-- Recovery orchestration is improved but not yet fully robust under long unattended runs.
+- Context entropy growth can still starve objective signal in long-horizon loops.
+- Syscall ABI stability still depends on model behavior more than decode hard constraints.
+- Dual-brain loop control remains vulnerable at ambiguous boundaries.
+- Deterministic isolation/rollback discipline is not yet fully closed for cross-case safety.
 
 ## Topology
 
 - [TuringOS System Topology Blueprint (v2.0 Anti-Oreo)](./topology.md)
+
+## Cross-Host Role Baseline
+
+- Controller/orchestrator: `omega-vm`
+- Primary compute hosts: local `Mac + Windows`
+- For Windows large installer delivery, prefer Mac staging and LAN transfer (`192.168.3.x -> 192.168.3.x`) before bootstrap.
+- See runbook and handover index for executable steps:
+  - `handover/network_topology_runbook_20260301.md`
+  - `handover/README.md`
 
 ## Core modules
 

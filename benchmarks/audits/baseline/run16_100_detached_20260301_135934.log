@@ -1,0 +1,2 @@
+[million-baseline] adaptive_workers enabled=false initial=16 min=16 max=16 ahead_by_k=11 temporary_cap=none
+[million-baseline] worker_parallelism=16 worker_endpoints=2 endpoints=http://100.72.87.94:11434/v1,http://100.123.90.25:11434/v1

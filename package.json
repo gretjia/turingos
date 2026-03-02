@@ -32,6 +32,7 @@
     "bench:guard-tiny-split-gate": "tsx src/bench/guard-tiny-split-gate.ts",
     "bench:longrun-dispatcher-soak": "tsx src/bench/longrun-dispatcher-soak.ts",
     "bench:staged-acceptance-joint": "bash scripts/run_joint_recursive_audit.sh",
+    "bench:phase-recursive-audit-gate": "tsx src/bench/phase-recursive-audit-gate.ts",
     "bench:dispatcher-gate": "tsx src/bench/dispatcher-gate.ts",
     "bench:turing-bus-conformance": "tsx src/bench/turing-bus-conformance.ts",
     "bench:extract-thrashing-journal": "tsx src/bench/extract-thrashing-journal.ts",
