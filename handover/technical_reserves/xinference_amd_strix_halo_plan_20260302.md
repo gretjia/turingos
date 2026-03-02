@@ -14,3 +14,9 @@ The attempt to deploy Xinference natively on Windows to manage the 100-worker sw
 ## Resolution
 We have **reverted to Ollama** on Windows for managing the GGUF models. It is a statically compiled Go/C++ binary that is rock solid on Windows and flawlessly manages the KV cache for the unified memory. 
 Ollama is actively running and bound to the Tailscale IP (`100.123.90.25:11434`) so Omega-VM can reach it without hitting Windows loopback policies.
+
+## Current Mac Planner Blocker (2026-03-02)
+The Mac currently runs Ollama 0.17.4 via Homebrew. This version was released before the `qwen35` model architecture was fully adopted by `llama.cpp`.
+When `ollama run qwen3.5:27b` is executed, it fails with:
+`error loading model architecture: unknown model architecture: 'qwen35'`
+The preflight correctly intercepts this, but we are effectively blocked from running the 1M test with the 27B Planner model. 
