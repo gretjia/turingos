@@ -147,3 +147,6 @@ This index is for agents joining the current TuringOS cycle.
 
 - G0 Progress Snapshot: Fixed-16 Longrun (Qwen32B Planner) - 2026-03-02:
   - `./artitecture_response/g0_progress_fixed16_longrun_q32b_20260302.md`
+
+- TuringOS Core Philosophy & Test Plan Alignment (2026-03-02):
+  - `./artitecture_response/turingos_core_philosophy_alignment_20260302.md`
