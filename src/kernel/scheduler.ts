@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
+import path from 'node:path';
 import { IChronos, IPhysicalManifold, PCB, Pointer, ProcessState, Syscall, Transition } from './types.js';
 import { HaltVerifier } from './halt-verifier.js';
 import { DualBrainOracle } from '../oracle/dual-brain-oracle.js';
@@ -46,7 +47,12 @@ export class TuringHyperCore {
   private readonly forceMapTaskCount: number;
   private readonly plannerMapReduceDropWorldOp: boolean;
   private readonly singleMapPerProcess: boolean;
+  private readonly autoWriteConsensusOnMapDrop: boolean;
   private readonly workerMapReducePolicy: 'kill' | 'drop';
+  private readonly workerParallelism: number;
+  private readonly strictIntegerWriteFiles: string[];
+  private readonly strictIntegerWriteCoerce: boolean;
+  private readonly strictIntegerWriteExtractLastInt: boolean;
   private readonly pcbTable = new Map<string, PCB>();
   private readonly readyQueue: string[] = [];
   private tickSeq = 0;
@@ -69,7 +75,18 @@ export class TuringHyperCore {
     this.forceMapTaskCount = this.resolvePositiveIntEnv('TURINGOS_HYPERCORE_FORCE_MAP_TASK_COUNT', 0);
     this.plannerMapReduceDropWorldOp = this.resolveBoolEnv('TURINGOS_HYPERCORE_PLANNER_MAP_REDUCE_DROP_WORLD_OP', false);
     this.singleMapPerProcess = this.resolveBoolEnv('TURINGOS_HYPERCORE_SINGLE_MAP_PER_PROCESS', false);
+    this.autoWriteConsensusOnMapDrop = this.resolveBoolEnv(
+      'TURINGOS_HYPERCORE_AUTO_WRITE_CONSENSUS_ON_MAP_DROP',
+      false
+    );
     this.workerMapReducePolicy = this.resolveWorkerMapReducePolicyEnv('TURINGOS_HYPERCORE_WORKER_MAP_REDUCE_POLICY', 'kill');
+    this.workerParallelism = this.resolvePositiveIntEnv('TURINGOS_HYPERCORE_WORKER_PARALLELISM', 1);
+    this.strictIntegerWriteFiles = this.resolveCsvEnv('TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_FILES');
+    this.strictIntegerWriteCoerce = this.resolveBoolEnv('TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE', true);
+    this.strictIntegerWriteExtractLastInt = this.resolveBoolEnv(
+      'TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_EXTRACT_LAST_INT',
+      true
+    );
   }
 
   public spawnRoot(initialQ: string, initialD: string): string {
@@ -115,49 +132,19 @@ export class TuringHyperCore {
     while (this.tickSeq < options.maxTicks && !this.isTerminal(rootPid)) {
       await this.topWhiteBoxPricingLoop();
 
-      const nextPid = this.nextReadyPid();
-      if (!nextPid) {
+      const remainingTickBudget = options.maxTicks - this.tickSeq;
+      if (remainingTickBudget <= 0) {
+        break;
+      }
+      const batch = this.dequeueReadyBatch(remainingTickBudget);
+      if (batch.length === 0) {
         if (!this.hasInFlightWork()) {
           break;
         }
         await sleep(20);
         continue;
       }
-
-      const pcb = this.pcbTable.get(nextPid);
-      if (!pcb || pcb.state !== 'READY') {
-        continue;
-      }
-      pcb.state = 'RUNNING';
-
-      const q = this.readRegisterString(pcb, 'q');
-      const d = this.readRegisterString(pcb, 'd');
-      const s = await this.observeWithTrap(d);
-
-      let transition: Transition;
-      try {
-        transition = await this.oracle.dispatchTick(pcb, this.disciplinePrompt, q, s);
-        const routeTrace = this.oracle.consumeLastTrace();
-        if (routeTrace) {
-          await this.chronos.engrave(`[HYPERCORE_ROUTE] ${JSON.stringify(routeTrace)}`);
-        }
-      } catch (error: unknown) {
-        await this.handleRedFlag(pcb, this.renderError(error));
-        continue;
-      }
-
-      try {
-        await this.applyTransition(pcb, transition);
-      } catch (error: unknown) {
-        await this.handleRedFlag(pcb, this.renderError(error));
-      }
-
-      this.tickSeq += 1;
-      const latestQ = this.readRegisterString(pcb, 'q');
-      const latestD = this.readRegisterString(pcb, 'd');
-      if (options.onTick) {
-        await options.onTick(this.tickSeq, pcb.pid, latestQ, latestD);
-      }
+      await Promise.all(batch.map((pid) => this.executeOneReadyProcess(pid, options.onTick)));
     }
 
     // Settle a HALT request emitted on the final allowed tick.
@@ -228,6 +215,27 @@ export class TuringHyperCore {
         await this.chronos.engrave(
           `[HYPERCORE_TRAP] pid=${pcb.pid} details=PLANNER_MAP_REDUCE_DROPPED_AFTER_JOIN_KEEP_WORLD`
         );
+        if (this.autoWriteConsensusOnMapDrop && normalizedWorldOps.length === 0) {
+          const lastConsensus = this.readRegisterString(pcb, 'lastMapReduceConsensus').trim();
+          if (/^-?[0-9]+$/.test(lastConsensus)) {
+            normalizedWorldOps = [
+              {
+                op: 'SYS_WRITE',
+                payload: `${lastConsensus}\n`,
+                semantic_cap: 'ANSWER.txt',
+              },
+            ];
+            const q = this.readRegisterString(pcb, 'q');
+            this.writeRegisterString(
+              pcb,
+              'q',
+              `${q}\n[MAP_REDUCE_SKIPPED_AFTER_JOIN] auto_write_consensus=${lastConsensus}`
+            );
+            await this.chronos.engrave(
+              `[HYPERCORE_AUTOWRITE] pid=${pcb.pid} source=join_consensus consensus=${lastConsensus}`
+            );
+          }
+        }
       }
     }
     if (hasMapReduce && normalizedWorldOps.length > 0) {
@@ -398,6 +406,13 @@ export class TuringHyperCore {
         const targetPointer = typeof op.semantic_cap === 'string' && op.semantic_cap.trim().length > 0
           ? op.semantic_cap.trim()
           : currentD;
+        const normalized = this.normalizeStrictIntegerPayload(targetPointer, op.payload);
+        op.payload = normalized.payload;
+        if (normalized.coerced) {
+          await this.chronos.engrave(
+            `[HYPERCORE_STRICT_WRITE_COERCE] pid=${pcb.pid} pointer=${targetPointer} source=${normalized.reason}`
+          );
+        }
         await this.manifold.interfere(targetPointer, op.payload);
         this.writeRegisterString(pcb, 'd', currentD);
         return;
@@ -450,6 +465,15 @@ export class TuringHyperCore {
   private async topWhiteBoxPricingLoop(): Promise<void> {
     for (const pcb of this.pcbTable.values()) {
       if (pcb.state !== 'PENDING_HALT') {
+        continue;
+      }
+      if (pcb.role === 'WORKER') {
+        pcb.state = 'TERMINATED';
+        pcb.price += 1;
+        await this.chronos.engrave(`[HYPERCORE_PRICE] pid=${pcb.pid} verdict=WORKER_ACCEPT price=${pcb.price}`);
+        if (pcb.ppid) {
+          await this.resolveJoin(pcb.ppid, pcb.pid, pcb.exitOutput ?? '[HALT_WORKER]');
+        }
         continue;
       }
       const result = this.verifier.verify();
@@ -530,6 +554,7 @@ export class TuringHyperCore {
       'q',
       `${q}\n[MAP_REDUCE_JOIN]\nconsensus=${consensus}\nbest_votes=${bestVotes}\nrunner_up_votes=${runnerUpVotes}\nahead_by_k=${this.mapReduceAheadByK}\ncollected=${parent.mailbox.length}`
     );
+    this.writeRegisterString(parent, 'lastMapReduceConsensus', consensus);
     const joinsSeen = this.readRegisterNumber(parent, 'mapReduceJoinCount');
     this.writeRegisterNumber(parent, 'mapReduceJoinCount', joinsSeen + 1);
     parent.mailbox = [];
@@ -570,15 +595,111 @@ export class TuringHyperCore {
     this.readyQueue.push(pcb.pid);
   }
 
-  private nextReadyPid(): string | null {
+  private async executeOneReadyProcess(
+    pid: string,
+    onTick?: (tick: number, pid: string, q: string, d: string) => Promise<void> | void
+  ): Promise<void> {
+    const pcb = this.pcbTable.get(pid);
+    if (!pcb || pcb.state !== 'READY') {
+      return;
+    }
+    pcb.state = 'RUNNING';
+
+    const q = this.readRegisterString(pcb, 'q');
+    const d = this.readRegisterString(pcb, 'd');
+    const s = await this.observeWithTrap(d);
+
+    let transition: Transition;
+    try {
+      transition = await this.oracle.dispatchTick(pcb, this.disciplinePrompt, q, s);
+      const routeTrace = this.oracle.consumeLastTrace(pcb.pid);
+      if (routeTrace) {
+        await this.chronos.engrave(`[HYPERCORE_ROUTE] ${JSON.stringify(routeTrace)}`);
+      }
+    } catch (error: unknown) {
+      await this.handleRedFlag(pcb, this.renderError(error));
+      return;
+    }
+
+    let microSnapshotPath = '';
+    const hasWorldOp = transition.world_ops && transition.world_ops.length > 0 || transition.world_op;
+    const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
+
+    if (hasWorldOp && workspaceDir) {
+      microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
+      const { execSync } = require('node:child_process');
+      try {
+        execSync(`rm -rf ${microSnapshotPath} && mkdir -p ${microSnapshotPath} && cp -a * ${microSnapshotPath} 2>/dev/null || true`, { cwd: workspaceDir as string });
+      } catch {
+        // Ignore error
+      }
+    }
+
+    try {
+      await this.applyTransition(pcb, transition);
+      if (hasWorldOp && microSnapshotPath && workspaceDir) {
+        const { execSync } = require('node:child_process');
+        try {
+          execSync(`rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
+        } catch {
+           // Ignore error
+        }
+      }
+    } catch (error: unknown) {
+      if (hasWorldOp && microSnapshotPath && workspaceDir) {
+        const { execSync } = require('node:child_process');
+        try {
+          execSync(`cp -a ${microSnapshotPath}/* . 2>/dev/null || true && rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
+        } catch {
+           // Ignore error
+        }
+      }
+      await this.handleRedFlag(pcb, this.renderError(error));
+    }
+
+    const tick = this.bumpTick();
+    const latestQ = this.readRegisterString(pcb, 'q');
+    const latestD = this.readRegisterString(pcb, 'd');
+    if (onTick) {
+      await onTick(tick, pcb.pid, latestQ, latestD);
+    }
+  }
+
+  private bumpTick(): number {
+    this.tickSeq += 1;
+    return this.tickSeq;
+  }
+
+  private dequeueReadyBatch(maxItems: number): string[] {
+    const boundedMaxItems = Math.max(1, maxItems);
+    const plannerPid = this.extractReadyByRole('PLANNER', 1);
+    if (plannerPid.length > 0) {
+      return plannerPid;
+    }
+    const workerLimit = Math.min(boundedMaxItems, Math.max(1, this.workerParallelism));
+    return this.extractReadyByRole('WORKER', workerLimit);
+  }
+
+  private extractReadyByRole(role: 'PLANNER' | 'WORKER', limit: number): string[] {
+    if (limit <= 0) {
+      return [];
+    }
+    const selected: string[] = [];
+    const remaining: string[] = [];
     while (this.readyQueue.length > 0) {
       const pid = this.readyQueue.shift()!;
       const pcb = this.pcbTable.get(pid);
-      if (pcb && pcb.state === 'READY') {
-        return pid;
+      if (!pcb || pcb.state !== 'READY') {
+        continue;
       }
+      if (selected.length < limit && pcb.role === role) {
+        selected.push(pid);
+        continue;
+      }
+      remaining.push(pid);
     }
-    return null;
+    this.readyQueue.push(...remaining);
+    return selected;
   }
 
   private hasInFlightWork(): boolean {
@@ -709,6 +830,62 @@ export class TuringHyperCore {
       return fallback;
     }
     return /^(1|true|yes|on)$/i.test(raw.trim());
+  }
+
+  private resolveCsvEnv(name: string): string[] {
+    const raw = process.env[name];
+    if (!raw || raw.trim().length === 0) {
+      return [];
+    }
+    return raw
+      .split(',')
+      .map((item) => this.normalizePointerToken(item))
+      .filter((item) => item.length > 0);
+  }
+
+  private normalizePointerToken(pointer: string): string {
+    return pointer.trim().replace(/\\/g, '/').replace(/^\.?\//, '').toLowerCase();
+  }
+
+  private shouldEnforceStrictIntegerWrite(pointer: string): boolean {
+    if (this.strictIntegerWriteFiles.length === 0) {
+      return false;
+    }
+    const normalizedPointer = this.normalizePointerToken(pointer);
+    if (normalizedPointer.length === 0) {
+      return false;
+    }
+    const baseName = path.posix.basename(normalizedPointer);
+    return this.strictIntegerWriteFiles.some(
+      (entry) =>
+        entry === normalizedPointer ||
+        entry === baseName ||
+        normalizedPointer.endsWith(`/${entry}`)
+    );
+  }
+
+  private normalizeStrictIntegerPayload(
+    pointer: string,
+    payload: string
+  ): { payload: string; coerced: boolean; reason: 'canonicalize' | 'extract_last_int' } {
+    if (!this.shouldEnforceStrictIntegerWrite(pointer)) {
+      return { payload, coerced: false, reason: 'canonicalize' };
+    }
+    const trimmed = payload.trim();
+    if (/^-?[0-9]+$/.test(trimmed)) {
+      const canonical = `${trimmed}\n`;
+      return { payload: canonical, coerced: canonical !== payload, reason: 'canonicalize' };
+    }
+    if (!this.strictIntegerWriteCoerce) {
+      throw new Error(`STRICT_INTEGER_WRITE_REJECTED pointer=${pointer}`);
+    }
+    if (this.strictIntegerWriteExtractLastInt) {
+      const allMatches = trimmed.match(/-?[0-9]+/g);
+      if (allMatches && allMatches.length > 0) {
+        return { payload: `${allMatches[allMatches.length - 1]}\n`, coerced: true, reason: 'extract_last_int' };
+      }
+    }
+    throw new Error(`STRICT_INTEGER_WRITE_REJECTED pointer=${pointer}`);
   }
 
   private isWorkerOutputRedFlag(output: string): boolean {

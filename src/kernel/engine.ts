@@ -347,6 +347,18 @@ export class TuringEngine {
         throw new Error('[CPU_FAULT: INVALID_OPCODE] Empty instruction bundle: no mind_ops/world_op to execute.');
       }
 
+      let microSnapshotPath = '';
+      const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
+      if (plan.worldOps.length > 0 && workspaceDir) {
+        microSnapshotPath = require('node:path').join(workspaceDir as string, '.micro_snapshot.tmp');
+        const { execSync } = require('node:child_process');
+        try {
+          execSync(`rm -rf ${microSnapshotPath} && mkdir -p ${microSnapshotPath} && cp -a * ${microSnapshotPath} 2>/dev/null || true`, { cwd: workspaceDir as string });
+        } catch {
+          // Ignore error
+        }
+      }
+
       for (const syscall of executionQueue) {
         const strictViolation = validateCanonicalSyscallEnvelope(syscall);
         if (strictViolation) {
@@ -455,7 +467,28 @@ export class TuringEngine {
           plan.worldOps[0]?.op ?? '(none)'
         } world_ops_count=${plan.worldOps.length}`
       );
+
+      if (plan.worldOps.length > 0 && microSnapshotPath && workspaceDir) {
+        const { execSync } = require('node:child_process');
+        try {
+          execSync(`rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
+        } catch {
+           // Ignore error
+        }
+      }
     } catch (error: unknown) {
+      let microSnapshotPath = '';
+      const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
+      if (workspaceDir) microSnapshotPath = require('node:path').join(workspaceDir as string, '.micro_snapshot.tmp');
+      if (microSnapshotPath && workspaceDir) {
+        const { execSync } = require('node:child_process');
+        try {
+          execSync(`cp -a ${microSnapshotPath}/* . 2>/dev/null || true && rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
+        } catch {
+           // Ignore error
+        }
+      }
+
       const message = error instanceof Error ? error.message : String(error);
       return this.raiseManagedTrap(
         'sys://trap/cpu_fault',
