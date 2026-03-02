@@ -18,7 +18,7 @@ This index is for agents joining the current TuringOS cycle.
 4. Latest G0 longrun progress snapshot (fixed-16 run-until-fail):
    - `./artitecture_response/g0_progress_fixed16_longrun_20260301_160614.md`
 5. Current blocker and architecture-review summary:
-   - `../../../handover/turingos_arch_review_handover_20260301_035950.md`
+   - `./audits/turingos_arch_review_handover_20260301_035950.md`
 6. Total design overview:
    - `../README.md`
 7. Topology blueprint:
