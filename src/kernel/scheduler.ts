@@ -376,7 +376,8 @@ export class TuringHyperCore {
         }
         const parentQ = this.readRegisterString(pcb, 'q');
         const parentD = this.readRegisterString(pcb, 'd');
-        for (const task of tasks) {
+        this.writeRegisterNumber(pcb, 'mapReduceTotalSpawned', tasks.length);
+        tasks.forEach((task, index) => {
           const childQ = [
             'q_worker_boot:',
             'ROLE=WORKER',
@@ -386,8 +387,13 @@ export class TuringHyperCore {
             `TASK: ${task}`,
           ].join('\n');
           const childPid = this.spawn('WORKER', task, pcb.pid, childQ, parentD);
+          const childPcb = this.pcbTable.get(childPid);
+          if (childPcb) {
+            const ditheredTemp = Math.max(0.0, Math.min(1.0, 0.7 + ((index - 8) * 0.025)));
+            childPcb.temperature = ditheredTemp;
+          }
           pcb.waitPids.add(childPid);
-        }
+        });
         pcb.state = 'BLOCKED';
         await this.chronos.engrave(
           `[HYPERCORE_MAP] pid=${pcb.pid} children=${Array.from(pcb.waitPids).join(',')} task_count=${tasks.length}`
@@ -538,7 +544,13 @@ export class TuringHyperCore {
       bestVotes >= runnerUpVotes + this.mapReduceAheadByK;
     const remainingChildren = parent.waitPids.size;
     const mathematicallyLocked = bestVotes > runnerUpVotes + remainingChildren;
-    const decisiveEarlyStop = thresholdAheadByK || mathematicallyLocked;
+    
+    // P85 Quorum barrier
+    const totalSpawned = this.readRegisterNumber(parent, 'mapReduceTotalSpawned');
+    const quorumThreshold = Math.ceil((totalSpawned || 1) * 0.85);
+    const p85Reached = parent.mailbox.length >= quorumThreshold;
+
+    const decisiveEarlyStop = thresholdAheadByK || mathematicallyLocked || p85Reached;
     const allChildrenDone = parent.waitPids.size === 0;
     if (!decisiveEarlyStop && !allChildrenDone) {
       return;

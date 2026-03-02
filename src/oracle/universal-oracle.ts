@@ -16,6 +16,7 @@ interface UniversalOracleConfig {
   retryBaseDelayMs?: number;
   retryMaxDelayMs?: number;
   requestTimeoutMs?: number;
+  forceJsonSchema?: boolean;
 }
 
 interface ErrorWithMetadata extends Error {
@@ -187,7 +188,7 @@ export class UniversalOracle implements IOracle {
     this.localRepairEnabled = this.parseBoolEnv(process.env.TURINGOS_OLLAMA_REPAIR_ENABLED, true);
     this.localRepairMaxAttempts = this.parseIntEnv(process.env.TURINGOS_OLLAMA_REPAIR_MAX_ATTEMPTS, 2, 0, 5);
     this.repairAllProviders = this.parseBoolEnv(process.env.TURINGOS_ORACLE_REPAIR_ALL, false);
-    this.strictOpenAIJsonSchemaEnabled = this.parseBoolEnv(process.env.TURINGOS_OPENAI_JSON_SCHEMA_ENABLED, true);
+    this.strictOpenAIJsonSchemaEnabled = config.forceJsonSchema ?? this.parseBoolEnv(process.env.TURINGOS_OPENAI_JSON_SCHEMA_ENABLED, true);
     this.requestTimeoutMs = config.requestTimeoutMs ?? this.parseIntEnv(process.env.TURINGOS_ORACLE_REQUEST_TIMEOUT_MS, 20_000, 1_000, 600_000);
     if (mode === 'openai') {
       const clientConfig: { apiKey: string; baseURL?: string; timeout?: number } = {

@@ -1,0 +1,20 @@
+{
+  "stamp": "20260302_113830",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 1130,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 1821 + 2859",
+    "expected": "4680"
+  },
+  "observed": null,
+  "reason": "mismatch expected=4680 got=(null)",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1130,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_001130",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-03-02T11:38:09.700Z] [HYPERCORE_RED_FLAG] pid=planner_c77f877e red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: JSON does not match Transition schema. Raw: { \"answer\": \"4680\" }\n[2026-03-02T11:38:20.306Z] [HYPERCORE_RED_FLAG] pid=planner_c77f877e red_flags=2/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: JSON does not match Transition schema. Raw: {\"answer\":\"4680\"}\n[2026-03-02T11:38:30.894Z] [HYPERCORE_RED_FLAG] pid=planner_c77f877e red_flags=3/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: JSON does not match Transition schema. Raw: {\"answer\":\"4680\"}\n",
+  "callstack": []
+}

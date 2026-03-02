@@ -46,9 +46,11 @@ type OracleFrameMode = 'full' | 'stateless';
 export class TuringEngine {
   private watchdogHistory: string[] = [];
   private l1TraceCache: string[] = [];
+  private l2TraceCache: string[] = [];
   private mindSchedulingHistory: Array<'SYS_EDIT' | 'SYS_MOVE'> = [];
   private logFloodFollowupRequired = false;
   private readonly l1TraceDepth = 3;
+  private readonly l2TraceDepth = 50;
   private readonly watchdogDepth = 5;
   private readonly thrashingDepth = 3;
   private readonly verificationSignalDepth = 6;
@@ -269,6 +271,28 @@ export class TuringEngine {
       );
     }
     s_t = frameGuard.slice;
+
+    // 1.9) Period-N Loop Detection (Merkle Hash sliding window)
+    const currentStateHash = createHash('sha256').update(q_t + s_t + d_t).digest('hex');
+    this.l2TraceCache.push(currentStateHash);
+    if (this.l2TraceCache.length > this.l2TraceDepth) {
+      this.l2TraceCache.shift();
+    }
+    const previousOccurrences = this.l2TraceCache.filter(h => h === currentStateHash).length;
+    if (previousOccurrences > 1) {
+      this.l2TraceCache = []; // Reset on trap
+      return this.raiseManagedTrap(
+        'sys://trap/period_n_loop',
+        `PERIOD_N_LOOP detected. The exact state hash ${currentStateHash} has been visited previously within the last ${this.l2TraceDepth} steps.`,
+        [
+          q_t,
+          '',
+          `[SYSTEM RED FLAG] You are stuck in a complex Period-N cycle.`,
+          `Action: Drastically change your approach. Break the current recursive logic path immediately.`,
+        ].join('\n'),
+        q_t
+      );
+    }
 
     // 2) Run the oracle transition.
     let transition: Transition;
@@ -495,8 +519,8 @@ export class TuringEngine {
         [
           q_t,
           '',
-          `[OS_TRAP: CPU_FAULT] Failed to dispatch syscall: ${message}`,
-          `Action: emit valid opcode(s) from ${SYSCALL_OPCODE_SLASH} with VLIW nQ+1A semantics.`,
+          `[SYSTEM: PREVIOUS_WORLD_OP_FAILED_AT_EXECUTION]`,
+          `Action: Do not repeat your exact previous output. The environment has been rolled back.`,
         ].join('\n'),
         q_t
       );

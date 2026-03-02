@@ -1,0 +1,1 @@
+{"ts":"2026-03-02T13:13:16.687Z","entry":"[HYPERCORE_RED_FLAG] pid=planner_9f791e2e red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: JSON does not match Transition schema. Raw: {\"answer\":\"10936\"}","prev_hash":"GENESIS","hash":"9882130224faaa0fcc7f605ab6a667dc24122daa9e7545a6c73e01b0af330aac"}
