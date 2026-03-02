@@ -150,3 +150,6 @@ This index is for agents joining the current TuringOS cycle.
 
 - TuringOS Core Philosophy & Test Plan Alignment (2026-03-02):
   - `./artitecture_response/turingos_core_philosophy_alignment_20260302.md`
+
+- Codex Handover Report: P1-P3 Completion & Qwen32B Integration (2026-03-02):
+  - `./artitecture_response/codex_handover_report_20260302_end_of_day.md`
