@@ -9,6 +9,9 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
+- **G2 Integrity Report: Reverting Overfit Cheat (2026-03-03):**
+  - `./audits/g2_purity_revert_20260303.md`
+
 - **DeepThink Architectural Response: G1 -> G2 Blueprint (2026-03-03):**
   - `./audits/deepthink_g2_blueprint_20260303.md`
 
