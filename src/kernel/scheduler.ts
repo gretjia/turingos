@@ -488,6 +488,7 @@ export class TuringHyperCore {
         }
         
         if (pcb.role === 'WORKER') {
+           this.writeRegisterNumber(pcb, 'hasUsedALU', 1);
            pcb.exitOutput = `RESULT: ${result}\nCODE: ${op.code}`;
            pcb.state = 'PENDING_HALT';
            await this.chronos.engrave(`[PYTHON_EXEC_CODE] worker=${pcb.pid} code=${op.code.replace(/\\n/g, ' ')}`);
@@ -503,6 +504,15 @@ export class TuringHyperCore {
         this.writeRegisterString(pcb, 'd', this.composeGitLogPointer(op));
         return;
       case 'SYS_HALT':
+        if (pcb.role === 'WORKER') {
+           const hasUsedALU = this.readRegisterNumber(pcb, 'hasUsedALU');
+           if (hasUsedALU === 0) {
+              const q = this.readRegisterString(pcb, 'q');
+              this.writeRegisterString(pcb, 'q', `${q}\n[SYSTEM ERROR] You CANNOT call SYS_HALT directly. You MUST emit SYS_EXEC_PYTHON to evaluate the math. Your neural weights are lossy.`);
+              return;
+           }
+        }
+
         pcb.exitOutput = this.readRegisterString(pcb, 'q');
         pcb.state = 'PENDING_HALT';
         await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid}`);
