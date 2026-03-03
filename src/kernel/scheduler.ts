@@ -239,13 +239,11 @@ export class TuringHyperCore {
         if (this.autoWriteConsensusOnMapDrop && normalizedWorldOps.length === 0) {
           const lastConsensus = this.readRegisterString(pcb, 'lastMapReduceConsensus').trim();
           if (/^-?[0-9]+$/.test(lastConsensus)) {
-            normalizedWorldOps = [
-              {
-                op: 'SYS_WRITE',
-                payload: `${lastConsensus}\n`,
-                semantic_cap: 'ANSWER.txt',
-              },
-            ];
+            await this.executeWorldOp(pcb, {
+              op: 'SYS_WRITE',
+              payload: `${lastConsensus}\n`,
+              semantic_cap: 'ANSWER.txt',
+            });
             const q = this.readRegisterString(pcb, 'q');
             this.writeRegisterString(
               pcb,
@@ -257,7 +255,6 @@ export class TuringHyperCore {
             );
             
             // Force halt to prevent recursive auto-write loops. 
-            // We cannot push SYS_HALT to normalizedWorldOps because the system only executes index 0 (SYS_WRITE).
             pcb.state = 'PENDING_HALT';
             pcb.exitOutput = this.readRegisterString(pcb, 'q');
             await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid} details=AUTO_WRITE_HALT`);
