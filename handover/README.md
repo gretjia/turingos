@@ -9,6 +9,9 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
+- **DeepThink Architectural Response: G1 -> G2 Blueprint (2026-03-03):**
+  - `./audits/deepthink_g2_blueprint_20260303.md`
+
 - **Prompt for DeepThink regarding Planner Deadlock (2026-03-02):**
   - `./audits/prompt_for_deepthink_20260302.md`
 
