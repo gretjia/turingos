@@ -9,6 +9,9 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
+- **Prompt for DeepThink regarding Planner Deadlock (2026-03-02):**
+  - `./audits/prompt_for_deepthink_20260302.md`
+
 0. Current G1->G2 Transition Plan & Acceptance Criteria:
    - `./artitecture_response/g1_g2_transition_plan_20260302.md`
 1. Emergency system audit (complexity-collapse):
