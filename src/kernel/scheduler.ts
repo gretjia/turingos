@@ -491,9 +491,14 @@ export class TuringHyperCore {
            this.writeRegisterNumber(pcb, 'hasUsedALU', 1);
            pcb.exitOutput = `RESULT: ${result}\nCODE: ${op.code}`;
            pcb.state = 'PENDING_HALT';
-           await this.chronos.engrave(`[PYTHON_EXEC_CODE] worker=${pcb.pid} code=${op.code.replace(/\\n/g, ' ')}`);
+           await this.chronos.engrave(`[PYTHON_EXEC_CODE] worker=${pcb.pid} code=${op.code.replace(/\n/g, ' ')}`);
         } else {
-           this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_PYTHON_CODE]\n${op.code}\n[SYS_EXEC_RESULT: ${result}]`);
+           // The Planner executed Python. Automatically write it to ANSWER.txt and halt!
+           console.log(`[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: ${result}`);
+           await this.executeWorldOp(pcb, { op: 'SYS_WRITE', payload: `${result}\n`, semantic_cap: 'ANSWER.txt' });
+           pcb.exitOutput = `RESULT: ${result}`;
+           pcb.state = 'PENDING_HALT';
+           await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid} details=PLANNER_AUTO_PYTHON_HALT`);
         }
         return;
       }
