@@ -470,6 +470,8 @@ export class TuringHyperCore {
         const workspaceDir = (this.manifold as any).workspaceDir || process.cwd();
         const tempFile = path.join(workspaceDir, `script_${pcb.pid}.py`);
         
+        console.log(`\n\n[!!!] WORKER GENERATED PYTHON CODE [!!!]\nPID: ${pcb.pid}\nCODE:\n${op.code}\n`);
+
         let result = '';
         if (!op.code.includes('MAIN_TAPE.md') || !op.code.includes('open')) {
             result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: You did not open MAIN_TAPE.md. You MUST dynamically read the tape using file I/O.';
