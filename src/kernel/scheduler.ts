@@ -470,11 +470,12 @@ export class TuringHyperCore {
         return;
       }
       case 'SYS_EXEC_PYTHON': {
-        const tempFile = path.join((this.manifold as any).workspaceDir || process.cwd(), `script_${pcb.pid}.py`);
+        const workspaceDir = (this.manifold as any).workspaceDir || process.cwd();
+        const tempFile = path.join(workspaceDir, `script_${pcb.pid}.py`);
         fs.writeFileSync(tempFile, op.code);
         let result = '';
         try {
-           result = execSync(`python3 ${tempFile}`, { timeout: 5000, encoding: 'utf-8' }).trim();
+           result = execSync(`python3 ${tempFile}`, { cwd: workspaceDir, timeout: 5000, encoding: 'utf-8' }).trim();
         } catch(e: any) {
            const errOut = (e.stderr || e.message || '').toString().trim();
            result = `[PYTHON_EXEC_ERROR]\n${errOut}`;
