@@ -469,14 +469,20 @@ export class TuringHyperCore {
       case 'SYS_EXEC_PYTHON': {
         const workspaceDir = (this.manifold as any).workspaceDir || process.cwd();
         const tempFile = path.join(workspaceDir, `script_${pcb.pid}.py`);
-        fs.writeFileSync(tempFile, op.code);
+        
         let result = '';
-        try {
-           result = execSync(`python3 ${tempFile}`, { cwd: workspaceDir, timeout: 5000, encoding: 'utf-8' }).trim();
-        } catch(e: any) {
-           const errOut = (e.stderr || e.message || '').toString().trim();
-           result = `[PYTHON_EXEC_ERROR]\n${errOut}`;
+        if (/[0-9]{3,}/.test(op.code)) {
+            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers (3+ digits) detected. You MUST use string splitting on MAIN_TAPE.md. Do not transcribe math problem digits directly.';
+        } else {
+            fs.writeFileSync(tempFile, op.code);
+            try {
+               result = execSync(`python3 ${tempFile}`, { cwd: workspaceDir, timeout: 5000, encoding: 'utf-8' }).trim();
+            } catch(e: any) {
+               const errOut = (e.stderr || e.message || '').toString().trim();
+               result = `[PYTHON_EXEC_ERROR]\n${errOut}`;
+            }
         }
+        
         if (pcb.role === 'WORKER') {
            pcb.exitOutput = `RESULT: ${result}`;
            pcb.state = 'PENDING_HALT';
