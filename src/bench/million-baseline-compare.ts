@@ -952,6 +952,7 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
         answer = solved.answer;
         dualMetrics = solved.metrics;
       }
+      console.log(`[million-baseline] case=${i} mode=${mode} attempted=${attempted} passed=${passed} expected=${testCase.expected} got=${answer}`);
       const ok = answer === testCase.expected;
       if (mode === 'turingos_dualbrain' && adaptiveState && dualMetrics && fixedWorkerFanout <= 0) {
         updateAdaptiveWorkerState(adaptiveState, ok, dualMetrics, {
