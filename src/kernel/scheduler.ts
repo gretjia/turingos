@@ -471,8 +471,10 @@ export class TuringHyperCore {
         const tempFile = path.join(workspaceDir, `script_${pcb.pid}.py`);
         
         let result = '';
-        if (/[0-9]{3,}/.test(op.code)) {
-            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers (3+ digits) detected. You MUST use string splitting on MAIN_TAPE.md. Do not transcribe math problem digits directly.';
+        if (!op.code.includes('MAIN_TAPE.md') || !op.code.includes('open')) {
+            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: You did not open MAIN_TAPE.md. You MUST dynamically read the tape using file I/O.';
+        } else if (/\d{2,}/.test(op.code) || /['"]\d+['"]/.test(op.code)) {
+            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().';
         } else {
             fs.writeFileSync(tempFile, op.code);
             try {
