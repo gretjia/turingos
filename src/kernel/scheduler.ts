@@ -486,10 +486,10 @@ export class TuringHyperCore {
         }
         
         if (pcb.role === 'WORKER') {
-           pcb.exitOutput = `RESULT: ${result}`;
+           pcb.exitOutput = `RESULT: ${result}\nCODE: ${op.code}`;
            pcb.state = 'PENDING_HALT';
         } else {
-           this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_RESULT: ${result}]`);
+           this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_PYTHON_CODE]\n${op.code}\n[SYS_EXEC_RESULT: ${result}]`);
         }
         return;
       }
