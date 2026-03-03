@@ -112,6 +112,14 @@
         {
           "type": "object",
           "properties": {
+            "op": { "const": "SYS_EXEC_PYTHON" },
+            "code": { "type": "string" }
+          },
+          "required": ["op", "code"]
+        },
+        {
+          "type": "object",
+          "properties": {
             "op": { "const": "SYS_HALT" }
           },
           "required": ["op"]

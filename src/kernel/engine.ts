@@ -407,6 +407,11 @@ export class TuringEngine {
             s_prime = '👆🏻';
             break;
           }
+          case 'SYS_EXEC_PYTHON': {
+            d_next = 'python3 script.py'; // Abstract pointer for the engine to show intent
+            s_prime = '👆🏻';
+            break;
+          }
           case 'SYS_GIT_LOG':
             d_next = this.composeGitLogPointer(syscall);
             s_prime = '👆🏻';
@@ -1155,6 +1160,8 @@ export class TuringEngine {
         return `${syscall.op}(${syscall.pointer.slice(0, 40)})`;
       case 'SYS_EXEC':
         return `${syscall.op}(${syscall.cmd.slice(0, 40)})`;
+      case 'SYS_EXEC_PYTHON':
+        return `${syscall.op}(len=${syscall.code.length})`;
       case 'SYS_GIT_LOG': {
         const summary: string[] = [];
         if (typeof syscall.limit === 'number') {

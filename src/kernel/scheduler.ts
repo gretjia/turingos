@@ -266,7 +266,7 @@ export class TuringHyperCore {
             this.writeRegisterString(
               pcb,
               'q',
-              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT emit SYS_MAP_REDUCE. You must rethink the problem and use SYS_WRITE.`
+              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights. You MUST emit SYS_EXEC_PYTHON containing a Python script to calculate the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
             );
           }
         }
@@ -461,6 +461,23 @@ export class TuringHyperCore {
         const cmd = op.cmd.trim();
         const nextD = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
         this.writeRegisterString(pcb, 'd', nextD);
+        return;
+      }
+      case 'SYS_EXEC_PYTHON': {
+        const tempFile = path.join((this.manifold as any).workspaceDir || process.cwd(), `script_${pcb.pid}.py`);
+        fs.writeFileSync(tempFile, op.code);
+        let result = '';
+        try {
+           result = execSync(`python3 ${tempFile}`, { timeout: 5000, encoding: 'utf-8' }).trim();
+        } catch(e: any) {
+           result = e.stdout ? e.stdout.trim() : '[PYTHON_EXEC_FAILED]';
+        }
+        if (pcb.role === 'WORKER') {
+           pcb.exitOutput = `RESULT: ${result}`;
+           pcb.state = 'PENDING_HALT';
+        } else {
+           this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_RESULT: ${result}]`);
+        }
         return;
       }
       case 'SYS_GOTO':

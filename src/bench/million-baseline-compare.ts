@@ -635,8 +635,11 @@ async function solveTuringOSDualBrain(
     [
       '# Baseline Test',
       `Question: ${testCase.question}`,
-      'Write only the final integer answer into ANSWER.txt, then HALT.',
-      'ANSWER.txt must contain digits only (no prose, no labels, no JSON).',
+      'You are a Python Code Execution ALU.',
+      'Do NOT attempt to solve this math problem using neural weights.',
+      'You must write a python script to solve this math equation and emit it using SYS_EXEC_PYTHON.',
+      'The stdout of your script must be exactly the final integer answer, printed to the console.',
+      'The system will automatically run your script and use the printed number as your final submission.',
     ].join('\n'),
     'utf8'
   );

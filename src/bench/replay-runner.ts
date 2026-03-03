@@ -230,6 +230,9 @@ function computeNextPointer(pointer: string, syscall: Syscall): string {
       const command = syscall.cmd.trim();
       return command.startsWith('$') ? command : `$ ${command}`;
     }
+    case 'SYS_EXEC_PYTHON': {
+      return pointer;
+    }
     case 'SYS_GIT_LOG':
       return composeGitLogPointer(syscall);
     case 'SYS_PUSH':
@@ -334,6 +337,10 @@ async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<
       const command = syscall.cmd.trim();
       const execPointer = command.startsWith('$') ? command : `$ ${command}`;
       return execPointer;
+    }
+    case 'SYS_EXEC_PYTHON': {
+      // Do not execute host python code in offline replay.
+      return pointer;
     }
     case 'SYS_GIT_LOG':
       return composeGitLogPointer(syscall);

@@ -4,6 +4,7 @@ export const SYSCALL_OPCODES = [
   'SYS_WRITE',
   'SYS_GOTO',
   'SYS_EXEC',
+  'SYS_EXEC_PYTHON',
   'SYS_GIT_LOG',
   'SYS_PUSH',
   'SYS_EDIT',

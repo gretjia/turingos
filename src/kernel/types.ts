@@ -26,6 +26,7 @@ export type Syscall =
   | { op: 'SYS_WRITE'; payload: string; semantic_cap?: Pointer }
   | { op: 'SYS_GOTO'; pointer: Pointer }
   | { op: 'SYS_EXEC'; cmd: string }
+  | { op: 'SYS_EXEC_PYTHON'; code: string }
   | {
       op: 'SYS_GIT_LOG';
       query_params?: string;
