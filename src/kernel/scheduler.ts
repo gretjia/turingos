@@ -459,6 +459,12 @@ export class TuringHyperCore {
       }
       case 'SYS_EXEC': {
         const cmd = op.cmd.trim();
+        
+        // If the LLM falls back to SYS_EXEC instead of SYS_EXEC_PYTHON but tries to write python inline
+        if (cmd.startsWith('with open(') || cmd.startsWith('import ') || cmd.includes('print(int(expr')) {
+           return this.executeWorldOp(pcb, { op: 'SYS_EXEC_PYTHON', code: cmd });
+        }
+
         const nextD = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
         this.writeRegisterString(pcb, 'd', nextD);
         return;
