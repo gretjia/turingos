@@ -266,7 +266,7 @@ export class TuringHyperCore {
             this.writeRegisterString(
               pcb,
               'q',
-              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights. You MUST emit SYS_EXEC_PYTHON containing a Python script to calculate the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
+              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights and do NOT transcribe numbers directly. You MUST emit SYS_EXEC_PYTHON containing a Python script that opens MAIN_TAPE.md, parses the numbers via regex, and calculates the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
             );
           }
         }
@@ -470,7 +470,8 @@ export class TuringHyperCore {
         try {
            result = execSync(`python3 ${tempFile}`, { timeout: 5000, encoding: 'utf-8' }).trim();
         } catch(e: any) {
-           result = e.stdout ? e.stdout.trim() : '[PYTHON_EXEC_FAILED]';
+           const errOut = (e.stderr || e.message || '').toString().trim();
+           result = `[PYTHON_EXEC_ERROR]\n${errOut}`;
         }
         if (pcb.role === 'WORKER') {
            pcb.exitOutput = `RESULT: ${result}`;
