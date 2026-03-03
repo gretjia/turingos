@@ -311,7 +311,7 @@ export class TuringHyperCore {
     }
 
     const worldOpName = worldOp?.op ?? '';
-    const hasPhysicalWorldOp = worldOpName === 'SYS_WRITE' || worldOpName === 'SYS_EXEC' || worldOpName === 'SYS_HALT';
+    const hasPhysicalWorldOp = worldOpName === 'SYS_WRITE' || worldOpName === 'SYS_EXEC' || worldOpName === 'SYS_EXEC_PYTHON' || worldOpName === 'SYS_HALT';
     const noPhysicalStreak = hasPhysicalWorldOp
       ? 0
       : this.readRegisterNumber(pcb, 'noPhysicalStreak') + 1;
