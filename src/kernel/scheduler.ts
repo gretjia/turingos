@@ -488,6 +488,7 @@ export class TuringHyperCore {
         if (pcb.role === 'WORKER') {
            pcb.exitOutput = `RESULT: ${result}\nCODE: ${op.code}`;
            pcb.state = 'PENDING_HALT';
+           await this.chronos.engrave(`[PYTHON_EXEC_CODE] worker=${pcb.pid} code=${op.code.replace(/\\n/g, ' ')}`);
         } else {
            this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_PYTHON_CODE]\n${op.code}\n[SYS_EXEC_RESULT: ${result}]`);
         }
