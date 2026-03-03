@@ -9,6 +9,9 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
+- **G2 Execution Debrief & The Qwen 3.5 Upgrade Pathway (2026-03-03):**
+  - `./audits/g2_deepthink_debrief_and_qwen35_upgrade_20260303.md`
+
 - **Prompt for DeepThink regarding Hallucination Paradox (2026-03-03):**
   - `./audits/prompt_for_deepthink_20260303.md`
 
