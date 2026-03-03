@@ -2,7 +2,7 @@
 
 **Date**: 2026-03-02
 **Phase**: G1 (Deterministic Hardening)
-**Status**: IN PROGRESS / STABILIZED
+**Status**: IN PROGRESS / STALLING DUE TO PLANNER CAPACITY
 
 ## 1. Initial G1 Implementation Review
 We successfully implemented all the mathematical constraints demanded by the architecture team for the G1 transition:
@@ -12,7 +12,7 @@ We successfully implemented all the mathematical constraints demanded by the arc
 
 ## 2. Unforeseen High-Concurrency Deadlocks (The Debug Phase)
 
-Upon launching the G1 daemon with the strict mathematical constraints, the test loop (`million-baseline-compare.ts`) began stalling out silently after $N$ cases. We identified and patched three critical engine-level bugs:
+Upon launching the G1 daemon with the strict mathematical constraints, the test loop (`million-baseline-compare.ts`) began stalling out silently after $N$ cases. We identified and patched four critical engine-level bugs:
 
 ### Bug A: The P85 Promise Barrier Infinite Block
 - **Symptom**: The orchestrator would freeze randomly if the network connection dropped to a subset of Ollama Workers, despite having a P85 Quorum logic implemented.
@@ -29,8 +29,30 @@ Upon launching the G1 daemon with the strict mathematical constraints, the test 
 - **Root Cause**: If the swarm reached a strong (but mathematically incorrect) consensus, the Planner would auto-write it and request a HALT. The `HaltVerifier` would run `.turingos_verify_answer.sh`, detect the wrong answer, reject the halt, subtract `1` from the PCB price, and throw the Planner back into the `READY` queue. Because the Planner was fully confident in the swarm's answer, it would just try to halt again with the exact same answer, creating an infinite verification failure loop.
 - **Fix**: Implemented a `KILL_AND_FAIL` price threshold limit. If a Planner's state price drops below `-3` (indicating persistent rejection by the physical verifier), the kernel forcibly kills the process, marks the test case as a `FAIL` in the benchmark metrics, and allows the `million-baseline-compare` loop to move on to the next number.
 
-## 3. Current State
-The TuringOS daemon has been refactored to run as a pure background detached `tmux` shell loop. The G1 test is actively executing (passing cases 1159, 1160, 1161, 1162). 
-Because of the heavy deterministic changes, the run time per test has increased slightly (due to the mathematical locks waiting for straggler failures), but the system is now **fully autonomous and self-healing** without the need for Python watchdogs.
+### Bug D: The Zombie Planner Resurrection
+- **Symptom**: Planners that hit the `-3` price kill limit would be resurrected, leading to infinite `-8` price failure loops.
+- **Root Cause**: A straggler Worker from the `SYS_MAP_REDUCE` call that was dropped/timed out would eventually fire `resolveJoin` asynchronously. The orchestrator's `resolveJoin` method called `schedule(parent)` (which pushes the parent back into the `READY` state queue), failing to check if the parent (Planner) was already `KILLED`. 
+- **Fix**: Added `if (pcb.state === 'TERMINATED' || pcb.state === 'KILLED') return;` to the `schedule` kernel call to prevent asynchronous necromancy. 
 
-The system will now continue towards the **G2** objective (demonstrating $P_{lift}$ mathematically) assuming the baseline stability holds over the next 200 cases.
+## 3. Current State & The Ultimate Bottleneck
+The TuringOS daemon has been refactored to run as a pure background detached `tmux` shell loop. We migrated execution entirely to `localhost` (Mac) with $K=4$ parallel workers to eliminate Tailscale trans-pacific network timeouts and SSD swap thrashing.
+
+**The user strictly mandated: "The 200 passes must be consecutive and mathematically perfect. Bypassing failures is meaningless."**
+
+After setting `--stop-on-fail`, the system consistently breaks its streak and crashes after only 5-10 tests (e.g., max streak of 5 before failure on case 1164, then failure on case 1176).
+
+**The bottleneck is definitively the Planner's (32B) reasoning capacity, not the Worker count.**
+
+**Evidence:**
+When the Worker Swarm entropy is too high and they fail to agree, the Planner receives `[NO_VALID_VOTE]`. The engine correctly flags this and orders the Planner to compute the answer manually:
+```typescript
+`${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT emit SYS_MAP_REDUCE. You must rethink the problem and use SYS_WRITE.`
+```
+
+However, the 32B model, stripped of external consensus and faced with a complex logical task, suffers complete cognitive collapse. Instead of complying and emitting a `SYS_WRITE` calculation, it outputs an empty `{}` JSON payload (a "null" action). It repeats this inaction until the kernel's watchdog kills it:
+`[HYPERCORE_TRAP] pid=planner_... details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT`
+
+Even in a `qwen_direct` 32B test, the Planner mathematically failed:
+`"reason": "mismatch expected=2600 got=2590"`
+
+Scaling Workers to $K=100$ will only *increase* the noise ratio the Planner has to filter. The current Planner acts as a brittle bottleneck in the Asymmetric Discriminator role; if the workers don't hand it a silver platter, it completely locks up rather than recovering.
