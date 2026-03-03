@@ -652,6 +652,9 @@ export class TuringHyperCore {
   }
 
   private schedule(pcb: PCB): void {
+    if (pcb.state === 'TERMINATED' || pcb.state === 'KILLED') {
+      return;
+    }
     pcb.state = 'READY';
     this.readyQueue.push(pcb.pid);
   }
@@ -852,6 +855,7 @@ export class TuringHyperCore {
       details.includes('INVALID_OPCODE') ||
       details.includes('MUTEX_VIOLATION') ||
       details.includes('CAUSALITY_VIOLATION') ||
+      details.includes('TRAP_THRASHING_NO_PHYSICAL_IO') ||
       details.includes('EACCES')
     );
   }
