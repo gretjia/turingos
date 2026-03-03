@@ -692,7 +692,7 @@ async function solveTuringOSDualBrain(
     baseURL: plannerMode === 'openai' ? process.env.TURINGOS_BASELINE_PLANNER_BASE_URL : process.env.TURINGOS_BASELINE_KIMI_BASE_URL,
     maxOutputTokens: 512,
     maxRetries: Number.isFinite(oracleRetries) ? Math.max(0, oracleRetries) : 1,
-    requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 15000,
+    requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 60000,
     forceJsonSchema: true,
   });
   const workerOracles = workerEndpoints.map((endpoint) =>
@@ -702,7 +702,7 @@ async function solveTuringOSDualBrain(
       baseURL: endpoint,
       maxOutputTokens: 512,
       maxRetries: Number.isFinite(oracleRetries) ? Math.max(0, oracleRetries) : 1,
-      requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 15000,
+      requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 60000,
     })
   );
   const workerOracle = workerOracles.length === 1
