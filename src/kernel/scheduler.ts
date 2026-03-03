@@ -266,7 +266,7 @@ export class TuringHyperCore {
             this.writeRegisterString(
               pcb,
               'q',
-              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights and do NOT transcribe numbers directly. You MUST emit SYS_EXEC_PYTHON containing a Python script that opens MAIN_TAPE.md, parses the numbers via regex, and calculates the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
+              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights and do NOT transcribe numbers directly. You MUST emit SYS_EXEC_PYTHON containing a Python script that opens MAIN_TAPE.md, parses the numbers via string splitting, and calculates the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
             );
           }
         }
