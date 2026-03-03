@@ -9,6 +9,9 @@ This index is for agents joining the current TuringOS cycle.
 
 ## Priority Reading Order
 
+- **Prompt for DeepThink regarding Hallucination Paradox (2026-03-03):**
+  - `./audits/prompt_for_deepthink_20260303.md`
+
 - **G2 Execution Report: Semantic DMA & The Hallucination Horizon (2026-03-03):**
   - `./audits/g2_semantic_dma_execution_report_20260303.md`
 
