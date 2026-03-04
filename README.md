@@ -1,5 +1,7 @@
 # TuringOS: The "Anti-Oreo" Agent Kernel
 
+> **🤖 AI Agents: Read [`AGENTS.md`](./AGENTS.md) first!** That is your primary context and constraints guide for operating in this repository.
+
 TuringOS is a mathematically rigorous, long-horizon agent kernel built to solve the $O(c^N)$ complexity collapse problem in autonomous execution. It is designed to prove the "Twin Axioms" of LLM execution:
 1. **Infinite Time = Turing Completeness:** Under TuringOS, an LLM will not randomly drift or recursively collapse. It will eventually solve any computable problem via absolute state rollback, micro-snapshots, and red-flag hard interrupts.
 2. **Infinite Workers = Intelligence Scaling:** A massive swarm of low-parameter "Worker Bee" models (e.g., 7B) coordinated by a single large Planner model can rival or exceed the determinism and correctness of a vastly larger model alone.
@@ -12,7 +14,6 @@ The system abandons the traditional "chat-loop" agent design and instead operate
 
 ## 📖 DeepThink Architectural Audit & Index
 
-**To Gemini DeepThink / Incoming Architecture Agents:** 
 This repository is heavily documented with its continuous design evolutions and debug loops. To understand the current status, roadblocks, and architectural milestones, please review the following files in exactly this order:
 
 ### 1. The Core Philosophy & 1M Growth Design
@@ -26,26 +27,27 @@ This repository is heavily documented with its continuous design evolutions and 
 - **[Phase 3 Completion Report (Micro-Snapshots & Absolute Rollback)](./handover/artitecture_response/codex_phase3_completion_20260302.md)**
   *(Details the critical fixes that stopped the hallucination cascade loops).*
 - **[End of Day Handover: P1-P3 & Qwen32B Integration](./handover/artitecture_response/codex_handover_report_20260302_end_of_day.md)**
-  *(The latest comprehensive snapshot of the active baseline loop currently running).*
+  *(The comprehensive snapshot of the active baseline loop prior to the Qwen3.5 upgrade).*
 
 ### 3. Deep-Dive Hardware & Topologies
 - **[TuringOS System Topology Blueprint](./topology.md)**
-- **[Mac Ollama Qwen32B Pivot Plan](./handover/technical_reserves/mac_ollama_qwen32b_plan_20260302.md)**
-- **[Xinference vs Ollama AMD Strix Halo Plan (Aborted)](./handover/technical_reserves/xinference_amd_strix_halo_plan_20260302.md)**
 - **[Network Topology Runbook](./handover/network_topology_runbook_20260301.md)**
+- **[Mac Ollama Qwen32B Pivot Plan](./handover/technical_reserves/mac_ollama_qwen32b_plan_20260302.md)** *(Historical context)*
+- **[Xinference vs Ollama AMD Strix Halo Plan (Aborted)](./handover/technical_reserves/xinference_amd_strix_halo_plan_20260302.md)** *(Historical context)*
 
 ---
 
-## 🚀 Current Project Status (As of 2026-03-02)
-The project has successfully bypassed severe architectural blockers (such as nested JSON parsing crashes inside Ollama and Mac hardware incompatibility with the `qwen35` LLAMA.cpp format). 
+## 🚀 Current Project Status (As of 2026-03-03)
 
-**The physical constraints are now built:**
+The project has successfully bypassed severe architectural blockers, including previous LLAMA.cpp architecture limitations on Mac, and reached the **48-pass limit** before hitting adversarial hallucination fatigue. 
+
+**The physical constraints are active:**
 - **Micro-Snapshots**: All filesystem modifications (`SYS_WRITE`, `SYS_EXEC`) take an absolute `.micro_snapshot.tmp`. Any kernel fault during execution triggers a `cp -a` hard rollback to block history pollution.
 - **Red Flag Trap Handlers**: A->B->A logic loops and repeated failed consensus numbers are hard-blocked by `[SYSTEM RED FLAG]` injections into the prompt.
-- **Dual-Brain Compute**: `omega-vm` operates as the orchestrator. `mac-back` runs `Qwen2.5-Coder-32B-Instruct` as the Planner. `windows1-w1` runs a 16-node fixed parallel fanout of `Qwen2.5:7b` Workers.
+- **Dual-Brain Compute**: `omega-vm` operates as the orchestrator. `mac-back` runs **Qwen3.5-27B-Instruct** (upgraded to break the 48-pass ceiling) as the Planner. `windows1-w1` runs a 16-node fixed parallel fanout of `Qwen2.5:7b` Workers.
 
 **Active Mission:**
-The `million-baseline-compare.ts` daemon is currently running relentlessly via `tmux` in the background of `omega-vm`. We are actively tracking if the format hallucinations (F1 drift) have dropped to 0%, before scaling up to 100 workers.
+The `million-baseline-compare.ts` daemon is currently running relentlessly via `tmux` in the background of `omega-vm`. We are actively tracking if the format hallucinations (F1 drift) have dropped to 0%, utilizing the newly upgraded Qwen 3.5 27B architecture on Mac.
 
 ---
 
