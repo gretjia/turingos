@@ -1,5 +1,5 @@
 {
-  "stamp": "20260227_044348",
+  "stamp": "20260304_041914",
   "pass": true,
   "results": [
     {
@@ -26,7 +26,7 @@
   "steps": [
     {
       "id": "split_tiny_dataset",
-      "command": "npm run bench:guard-sft-split -- --policy-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/policy_tiny.jsonl' --reflex-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/reflex_tiny.jsonl' --out-dir '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/splits' --train-pct 80 --val-pct 10",
+      "command": "npm run bench:guard-sft-split -- --policy-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/policy_tiny.jsonl' --reflex-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/reflex_tiny.jsonl' --out-dir '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/splits' --train-pct 80 --val-pct 10",
       "exitCode": 0,
       "ok": true
     },

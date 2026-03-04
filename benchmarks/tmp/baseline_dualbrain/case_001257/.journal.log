@@ -1,1 +1,0 @@
-[2026-03-02T13:13:16.687Z] [HYPERCORE_RED_FLAG] pid=planner_9f791e2e red_flags=1/3 details=Error: [CPU_FAULT: INVALID_OPCODE] Strict single-frame mode: JSON does not match Transition schema. Raw: {"answer":"10936"}

@@ -1,11 +1,11 @@
---- million-baseline-compare.ts
-+++ million-baseline-compare.ts
-@@ -51,7 +51,7 @@
- const WORKER_MODEL = process.env.TURINGOS_BASELINE_WORKER_MODEL || 'qwen2.5:7b';
- const WORKER_BASE_URLS = (process.env.TURINGOS_BASELINE_WORKER_BASE_URLS || 'http://100.123.90.25:11434/v1').split(',').map(u => u.trim());
- const WORKER_ORACLE_TYPE = process.env.TURINGOS_BASELINE_WORKER_ORACLE || 'openai';
--const PLANNER_BASE_URL = process.env.TURINGOS_BASELINE_PLANNER_BASE_URL || 'http://localhost:11434/v1';
-+const PLANNER_BASE_URL = process.env.TURINGOS_BASELINE_PLANNER_BASE_URL || 'http://localhost:8080/v1';
- const PLANNER_ORACLE_TYPE = process.env.TURINGOS_BASELINE_PLANNER_ORACLE || 'openai';
+--- src/bench/million-baseline-compare.ts
++++ src/bench/million-baseline-compare.ts
+@@ -620,7 +620,7 @@
+     );
+   }
  
- function resolveTemporaryWorkerCap(): number | null {
+-  const coerceEnabled =
++  let coerceEnabled =
+     process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE === undefined ||
+     process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE === '1' ||
+     process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE === 'true';

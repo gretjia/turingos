@@ -10,6 +10,7 @@ export const SYSCALL_OPCODES = [
   'SYS_EDIT',
   'SYS_MOVE',
   'SYS_MAP_REDUCE',
+  'SYS_DMA_EXTRACT',
   'SYS_POP',
   'SYS_HALT',
 ] as const;
@@ -19,7 +20,7 @@ export type SyscallOpcode = (typeof SYSCALL_OPCODES)[number];
 export const SYSCALL_OPCODE_PIPE = SYSCALL_OPCODES.join('|');
 export const SYSCALL_OPCODE_SLASH = SYSCALL_OPCODES.join('/');
 
-export const SYSCALL_WORLD_OPCODES = ['SYS_WRITE', 'SYS_EXEC', 'SYS_GOTO', 'SYS_GIT_LOG'] as const;
+export const SYSCALL_WORLD_OPCODES = ['SYS_WRITE', 'SYS_EXEC', 'SYS_EXEC_PYTHON', 'SYS_GOTO', 'SYS_GIT_LOG', 'SYS_DMA_EXTRACT'] as const;
 export const SYSCALL_MIND_OPCODES = ['SYS_PUSH', 'SYS_POP', 'SYS_EDIT', 'SYS_MOVE', 'SYS_MAP_REDUCE'] as const;
 export const SYSCALL_SYSTEM_CONTROL_OPCODES = ['SYS_HALT'] as const;
 export type SyscallWorldOpcode = (typeof SYSCALL_WORLD_OPCODES)[number];
@@ -30,11 +31,13 @@ export const SYSCALL_EXACT_FIELD_PROMPT_LINES: readonly string[] = [
   '- SYS_WRITE: {"op":"SYS_WRITE","payload":"...","semantic_cap":"optional"}',
   '- SYS_GOTO: {"op":"SYS_GOTO","pointer":"..."}',
   '- SYS_EXEC: {"op":"SYS_EXEC","cmd":"..."}',
+  '- SYS_EXEC_PYTHON: {"op":"SYS_EXEC_PYTHON","code":"..."}',
   '- SYS_GIT_LOG: {"op":"SYS_GIT_LOG","query_params":"optional","path":"optional","limit":20,"ref":"optional","grep":"optional","since":"optional"}',
   '- SYS_PUSH: {"op":"SYS_PUSH","task":"..."}',
   '- SYS_EDIT: {"op":"SYS_EDIT","task":"..."}',
   '- SYS_MOVE: {"op":"SYS_MOVE","task_id":"optional","target_pos":"TOP|BOTTOM","status":"ACTIVE|SUSPENDED|BLOCKED"}',
   '- SYS_MAP_REDUCE: {"op":"SYS_MAP_REDUCE","tasks":["atomic task 1","atomic task 2"]}',
+  '- SYS_DMA_EXTRACT: {"op":"SYS_DMA_EXTRACT","pointer":"...","witness":{"exact_extracts":["..."],"rpn_program":"1 2 ADD"}}',
   '- SYS_POP: {"op":"SYS_POP"}',
   '- SYS_HALT: {"op":"SYS_HALT"}',
 ];
@@ -225,6 +228,19 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
       return { ok: false, reason: 'SYS_EXEC.cmd must be a non-empty string.' };
     }
     return { ok: true, syscall: { op: 'SYS_EXEC', cmd } };
+  }
+
+  if (opcode === 'SYS_EXEC_PYTHON') {
+    const envelope = rejectExtra(['op', 'sys', 'syscall', 'code']);
+    if (envelope) {
+      return { ok: false, reason: envelope };
+    }
+
+    const code = normalizeString(raw.code);
+    if (!code) {
+      return { ok: false, reason: 'SYS_EXEC_PYTHON.code must be a non-empty string.' };
+    }
+    return { ok: true, syscall: { op: 'SYS_EXEC_PYTHON', code } };
   }
 
   if (opcode === 'SYS_GIT_LOG') {
@@ -471,6 +487,29 @@ export function normalizeModelSyscall(value: unknown): SyscallNormalizationResul
     return { ok: true, syscall: { op: 'SYS_HALT' } };
   }
 
+  if (opcode === 'SYS_DMA_EXTRACT') {
+    const envelope = rejectExtra(['op', 'sys', 'syscall', 'pointer', 'witness']);
+    if (envelope) {
+      return { ok: false, reason: envelope };
+    }
+    const pointer = normalizeString(raw.pointer);
+    if (!pointer) {
+      return { ok: false, reason: 'SYS_DMA_EXTRACT.pointer must be a non-empty string.' };
+    }
+    const witness = asRecord(raw.witness);
+    if (!witness) {
+      return { ok: false, reason: 'SYS_DMA_EXTRACT.witness must be an object.' };
+    }
+    if (!Array.isArray(witness.exact_extracts)) {
+      return { ok: false, reason: 'SYS_DMA_EXTRACT.witness.exact_extracts must be an array of strings.' };
+    }
+    const rpn_program = normalizeString(witness.rpn_program);
+    if (!rpn_program) {
+      return { ok: false, reason: 'SYS_DMA_EXTRACT.witness.rpn_program must be a string.' };
+    }
+    return { ok: true, syscall: { op: 'SYS_DMA_EXTRACT', pointer, witness: { exact_extracts: witness.exact_extracts.filter((x): x is string => typeof x === 'string'), rpn_program } } };
+  }
+
   return { ok: false, reason: `Unknown syscall op: ${opcode}` };
 }
 
@@ -526,6 +565,16 @@ export function validateCanonicalSyscallEnvelope(value: unknown): string | null 
     return typeof raw.cmd === 'string' && raw.cmd.trim().length > 0
       ? null
       : 'SYS_EXEC.cmd must be a non-empty string.';
+  }
+
+  if (op === 'SYS_EXEC_PYTHON') {
+    const envelope = allowOnly(['op', 'code']);
+    if (envelope) {
+      return envelope;
+    }
+    return typeof raw.code === 'string' && raw.code.trim().length > 0
+      ? null
+      : 'SYS_EXEC_PYTHON.code must be a non-empty string.';
   }
 
   if (op === 'SYS_GIT_LOG') {
@@ -613,6 +662,32 @@ export function validateCanonicalSyscallEnvelope(value: unknown): string | null 
 
   if (op === 'SYS_POP' || op === 'SYS_HALT') {
     return allowOnly(['op']);
+  }
+
+  if (op === 'SYS_DMA_EXTRACT') {
+    const envelope = allowOnly(['op', 'pointer', 'witness']);
+    if (envelope) {
+      return envelope;
+    }
+    if (typeof raw.pointer !== 'string' || raw.pointer.trim().length === 0) {
+      return 'SYS_DMA_EXTRACT.pointer must be a non-empty string.';
+    }
+    const witness = asRecord(raw.witness);
+    if (!witness) {
+      return 'SYS_DMA_EXTRACT.witness must be an object.';
+    }
+    if (!Array.isArray(witness.exact_extracts)) {
+      return 'SYS_DMA_EXTRACT.witness.exact_extracts must be an array of strings.';
+    }
+    for (const extract of witness.exact_extracts) {
+      if (typeof extract !== 'string') {
+        return 'SYS_DMA_EXTRACT.witness.exact_extracts items must be strings.';
+      }
+    }
+    if (typeof witness.rpn_program !== 'string') {
+      return 'SYS_DMA_EXTRACT.witness.rpn_program must be a string.';
+    }
+    return null;
   }
 
   return `Unknown syscall op: ${op}`;

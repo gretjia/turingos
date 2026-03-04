@@ -235,6 +235,8 @@ function computeNextPointer(pointer: string, syscall: Syscall): string {
     }
     case 'SYS_GIT_LOG':
       return composeGitLogPointer(syscall);
+    case 'SYS_DMA_EXTRACT':
+      return syscall.pointer;
     case 'SYS_PUSH':
     case 'SYS_EDIT':
     case 'SYS_MOVE':
@@ -344,6 +346,8 @@ async function applyFrame(manifold: LocalManifold, frame: ReplayFrame): Promise<
     }
     case 'SYS_GIT_LOG':
       return composeGitLogPointer(syscall);
+    case 'SYS_DMA_EXTRACT':
+      return syscall.pointer;
     case 'SYS_PUSH':
       await manifold.interfere('sys://callstack', `PUSH: ${syscall.task}`);
       return pointer;

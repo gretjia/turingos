@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import fsp from 'node:fs/promises';
 import { IOracle, OracleCollapseOptions, Slice, State, Transition } from '../kernel/types.js';
+import { CognitiveProfile } from './cognitive-router.js';
 import { SYSCALL_EXACT_FIELD_PROMPT_LINES } from '../kernel/syscall-schema.js';
 import { BusProvider, extractProviderText, parseProviderBusTransition, ProviderUsage } from './turing-bus-adapter.js';
 
@@ -217,7 +218,8 @@ export class UniversalOracle implements IOracle {
     discipline: string,
     q: State,
     s: Slice,
-    options?: OracleCollapseOptions
+    options?: OracleCollapseOptions | Partial<CognitiveProfile>,
+    signal?: AbortSignal
   ): Promise<Transition> {
     const userFrame = [
       '================',
@@ -229,8 +231,13 @@ export class UniversalOracle implements IOracle {
       s,
     ].join('\n');
 
-    const rawPayload = await this.request(discipline, userFrame, options?.temperature);
-    const parsed = await this.parseWithLocalRepair(rawPayload, discipline, userFrame);
+    let finalDiscipline = discipline;
+    if (options && 'entropySalt' in options && options.entropySalt) {
+      finalDiscipline += `\n\n[SYSTEM ENTROPY]\nSalt: ${options.entropySalt}`;
+    }
+
+    const rawPayload = await this.request(finalDiscipline, userFrame, options?.temperature, signal);
+    const parsed = await this.parseWithLocalRepair(rawPayload, finalDiscipline, userFrame);
     await this.recordTelemetry(this.responseProvider, discipline, userFrame, parsed.text, parsed.usage);
     return parsed.transition;
   }
@@ -357,17 +364,31 @@ export class UniversalOracle implements IOracle {
     return `${basePrompt.trim()}\n${strictContract.join('\n')}`.trim();
   }
 
-  private async fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
+  private async fetchWithTimeout(url: string, options: RequestInit, externalSignal?: AbortSignal): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(new Error(`Timeout of ${this.requestTimeoutMs}ms exceeded`)), this.requestTimeoutMs);
+    
+    // Listen to external abort and trigger our own controller
+    const abortHandler = () => controller.abort(externalSignal?.reason);
+    if (externalSignal) {
+      if (externalSignal.aborted) {
+        controller.abort(externalSignal.reason);
+      } else {
+        externalSignal.addEventListener('abort', abortHandler, { once: true });
+      }
+    }
+
     try {
       return await fetch(url, { ...options, signal: controller.signal });
     } finally {
       clearTimeout(timeoutId);
+      if (externalSignal) {
+        externalSignal.removeEventListener('abort', abortHandler);
+      }
     }
   }
 
-  private async request(systemPrompt: string, userFrame: string, requestedTemperature?: number): Promise<unknown> {
+  private async request(systemPrompt: string, userFrame: string, requestedTemperature?: number, signal?: AbortSignal): Promise<unknown> {
     const temperature = this.normalizeTemperature(requestedTemperature);
     const strictSystemPrompt = this.composeSystemPrompt(systemPrompt);
     const openAIMessages = [
@@ -377,13 +398,15 @@ export class UniversalOracle implements IOracle {
 
     if (this.mode === 'openai' && this.openai) {
       const responseFormat = this.buildOpenAIResponseFormat();
+      const maxOutputTokens = Number.parseInt(process.env.TURINGOS_MAX_OUTPUT_TOKENS ?? '4096', 10);
       return this.withRetry('openai', async () => {
         const response = await this.openai!.chat.completions.create({
           model: this.model,
           messages: openAIMessages,
           temperature,
           response_format: responseFormat,
-        });
+          max_tokens: maxOutputTokens,
+        }, { signal });
         return response as unknown;
       });
     }
@@ -405,7 +428,7 @@ export class UniversalOracle implements IOracle {
             system: strictSystemPrompt,
             messages: kimiMessages,
           }),
-        });
+        }, signal);
 
         const raw = await response.text();
         if (!response.ok) {
@@ -480,6 +503,12 @@ export class UniversalOracle implements IOracle {
   }
 
   private isRetryable(error: ErrorWithMetadata): boolean {
+    const errorName = (error as any).name;
+    const constructorName = error.constructor?.name;
+    if (errorName === 'AbortError' || errorName === 'TimeoutError' || errorName === 'APIUserAbortError' || constructorName === 'APIUserAbortError') {
+      return false; // Never retry an explicit abort from Promise.any race or fetch timeout
+    }
+
     const status = typeof error.status === 'number' ? error.status : undefined;
     if (status && (status === 408 || status === 409 || status === 425 || status === 429 || status >= 500)) {
       return true;
@@ -491,6 +520,10 @@ export class UniversalOracle implements IOracle {
     }
 
     const message = error.message.toLowerCase();
+    if (message.includes('abort') || message.includes('cancelled')) {
+      return false;
+    }
+
     return (
       message.includes('timeout') ||
       message.includes('timed out') ||

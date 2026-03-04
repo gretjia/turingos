@@ -1,5 +1,5 @@
 {
-  "stamp": "20260228_151216",
+  "stamp": "20260304_041912",
   "pass": true,
   "schemaChecks": [
     {
@@ -15,7 +15,7 @@
     {
       "id": "bus_instruction_classes_match_syscall_schema",
       "pass": true,
-      "details": "bus_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE"
+      "details": "bus_ops=SYS_DMA_EXTRACT|SYS_EDIT|SYS_EXEC|SYS_EXEC_PYTHON|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_DMA_EXTRACT|SYS_EDIT|SYS_EXEC|SYS_EXEC_PYTHON|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE"
     }
   ],
   "caseResults": [

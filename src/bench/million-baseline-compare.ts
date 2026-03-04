@@ -936,7 +936,7 @@ async function runMode(mode: BaselineMode, args: CliArgs): Promise<ModeResult> {
     attempted += 1;
     const testCase = makeTestCase(i);
     if (mode === 'turingos_dualbrain') {
-      maybeCleanupDualBrainWorkspaces(i);
+      // maybeCleanupDualBrainWorkspaces(i); // Temporarily disabled for debugging
     }
     try {
       let answer: string | null = null;

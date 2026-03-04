@@ -1,8 +1,8 @@
 # Dispatcher Gate
 
-- stamp: 20260227_043823
+- stamp: 20260304_041913
 - pass: true
-- report_json: /home/zephryj/projects/turingos/benchmarks/audits/protocol/dispatcher_gate_20260227_043823.json
+- report_json: /home/zephryj/projects/turingos/benchmarks/audits/protocol/dispatcher_gate_20260304_041913.json
 
 | Check | Result | Details |
 |---|---|---|

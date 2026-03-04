@@ -1,8 +1,8 @@
 # Guard Tiny Split Gate
 
-- stamp: 20260227_044348
+- stamp: 20260304_041914
 - pass: true
-- report_json: /home/zephryj/projects/turingos/benchmarks/audits/guard/guard_tiny_split_gate_20260227_044348.json
+- report_json: /home/zephryj/projects/turingos/benchmarks/audits/guard/guard_tiny_split_gate_20260304_041914.json
 
 | Check | Result | Details |
 |---|---|---|
@@ -13,6 +13,6 @@
 
 | Step | Exit | Result | Command |
 |---|---:|---|---|
-| split_tiny_dataset | 0 | PASS | `npm run bench:guard-sft-split -- --policy-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/policy_tiny.jsonl' --reflex-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/reflex_tiny.jsonl' --out-dir '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260227_044348/splits' --train-pct 80 --val-pct 10` |
+| split_tiny_dataset | 0 | PASS | `npm run bench:guard-sft-split -- --policy-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/policy_tiny.jsonl' --reflex-input '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/reflex_tiny.jsonl' --out-dir '/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/splits' --train-pct 80 --val-pct 10` |
 | eval_tiny_dataset | 0 | PASS | `npm run bench:guard-mcu-eval -- --mode gold --split-manifest '/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json' --policy-limit 50 --reflex-limit 50` |
 

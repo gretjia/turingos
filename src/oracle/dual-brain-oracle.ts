@@ -1,4 +1,5 @@
 import { BrainRole, IOracle, PCB, Slice, State, Transition } from '../kernel/types.js';
+import { CognitiveProfile } from './cognitive-router.js';
 
 export interface DualBrainDispatchTrace {
   ts: string;
@@ -25,7 +26,9 @@ export class DualBrainOracle {
     pcb: Pick<PCB, 'pid' | 'role' | 'temperature'>,
     discipline: string,
     q: State,
-    s: Slice
+    s: Slice,
+    options?: Partial<CognitiveProfile>,
+    signal?: AbortSignal
   ): Promise<Transition> {
     const planner = pcb.role === 'PLANNER';
     const lane: 'P' | 'E' = planner ? 'P' : 'E';
@@ -40,10 +43,10 @@ export class DualBrainOracle {
       role: pcb.role,
       lane,
       laneLabel,
-      temperature: pcb.temperature,
+      temperature: options?.temperature ?? pcb.temperature,
     };
     this.traceByPid.set(pcb.pid, trace);
-    return oracle.collapse(discipline, q, s, { temperature: pcb.temperature });
+    return oracle.collapse(discipline, q, s, { temperature: pcb.temperature, ...options }, signal);
   }
 
   public consumeLastTrace(pid?: string): DualBrainDispatchTrace | null {

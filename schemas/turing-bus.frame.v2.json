@@ -46,11 +46,13 @@
   "instruction_classes": {
     "WORLD_MUTATION": [
       "SYS_WRITE",
-      "SYS_EXEC"
+      "SYS_EXEC",
+      "SYS_EXEC_PYTHON"
     ],
     "WORLD_NAVIGATION": [
       "SYS_GOTO",
-      "SYS_GIT_LOG"
+      "SYS_GIT_LOG",
+      "SYS_DMA_EXTRACT"
     ],
     "MIND_SCHEDULING": [
       "SYS_PUSH",

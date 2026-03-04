@@ -1,3 +1,5 @@
+import { CognitiveProfile } from '../oracle/cognitive-router.js';
+
 export type State = string;
 export type Pointer = string;
 export type Slice = string;
@@ -45,6 +47,7 @@ export type Syscall =
       status?: RunqueueStatus;
     }
   | { op: 'SYS_MAP_REDUCE'; tasks: string[] }
+  | { op: 'SYS_DMA_EXTRACT'; pointer: Pointer; witness: { exact_extracts: string[]; rpn_program: string } }
   | { op: 'SYS_POP' }
   | { op: 'SYS_HALT' };
 
@@ -65,7 +68,7 @@ export interface OracleCollapseOptions {
 }
 
 export interface IOracle {
-  collapse(discipline: string, q: State, s: Slice, options?: OracleCollapseOptions): Promise<Transition>;
+  collapse(discipline: string, q: State, s: Slice, options?: OracleCollapseOptions | Partial<CognitiveProfile>, signal?: AbortSignal): Promise<Transition>;
 }
 
 export interface IPhysicalManifold {

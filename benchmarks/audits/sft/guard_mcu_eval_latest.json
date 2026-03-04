@@ -1,25 +1,25 @@
 {
-  "stamp": "20260227_175117",
-  "mode": "model",
+  "stamp": "20260304_041916",
+  "mode": "gold",
   "splitManifest": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/latest_manifest.json",
   "provider": {
-    "oracleMode": "kimi",
-    "baseURL": "https://api.kimi.com/coding",
-    "model": "kimi-for-coding"
+    "oracleMode": "openai",
+    "baseURL": "",
+    "model": ""
   },
   "selectedSplits": {
     "policy": "val",
     "reflex": "val"
   },
   "selectedFiles": {
-    "policy": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_174934/policy/policy_val.jsonl",
-    "reflex": "/home/zephryj/projects/turingos/benchmarks/data/sft/splits/20260227_174934/reflex/reflex_val.jsonl"
+    "policy": "/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/splits/policy/policy_val.jsonl",
+    "reflex": "/home/zephryj/projects/turingos/benchmarks/data/sft/tiny_gate_20260304_041914/splits/reflex/reflex_val.jsonl"
   },
   "counts": {
-    "policyTotal": 61,
-    "policyEvaluated": 61,
-    "reflexTotal": 5,
-    "reflexEvaluated": 5,
+    "policyTotal": 1,
+    "policyEvaluated": 1,
+    "reflexTotal": 1,
+    "reflexEvaluated": 1,
     "modelRepairAttempts": 0,
     "modelFailures": 0
   },
@@ -27,19 +27,19 @@
     "validJsonRate": 1,
     "schemaViolationRate": 0,
     "mutexViolationRate": 0,
-    "reflexExactMatchRate": 0.4,
+    "reflexExactMatchRate": 1,
     "deadlockEscapeRate": 1
   },
   "latency": {
-    "totalDurationMs": 81598,
-    "avgPerEvalMs": 1236.33
+    "totalDurationMs": 3,
+    "avgPerEvalMs": 1.5
   },
   "thresholds": {
-    "profile": "dev",
+    "profile": "prod",
     "maxModelAttempts": 2,
-    "minValidJsonRate": 0.1,
-    "minReflexExactRate": 0,
-    "minDeadlockEscapeRate": 0.8
+    "minValidJsonRate": 0.999,
+    "minReflexExactRate": 0.75,
+    "minDeadlockEscapeRate": 0.95
   },
   "pass": true
 }

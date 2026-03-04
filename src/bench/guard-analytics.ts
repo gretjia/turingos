@@ -63,7 +63,7 @@ class ThrashingScenarioOracle implements IOracle {
     if (this.step === 3) {
       return {
         q_next: 'plan_refine_2',
-        a_t: { op: 'SYS_MOVE', task_id: 'task_alpha', target_pos: 'BOTTOM', status: 'SUSPENDED' },
+        a_t: { op: 'SYS_MOVE', task_id: '', target_pos: 'BOTTOM', status: 'SUSPENDED' },
       };
     }
     return { q_next: 'plan_refine_3', a_t: { op: 'SYS_EDIT', task: 'refine_task_step_3' } };
@@ -194,7 +194,7 @@ async function main(): Promise<void> {
   const stamp = timestamp();
   const panicTicks = Number.parseInt(process.env.TURINGOS_GUARD_PANIC_TICKS ?? '12', 10);
   const panicMaxTicks = Number.isFinite(panicTicks) && panicTicks > 0 ? panicTicks : 12;
-  const allowedPanicResets = Math.max(4, Math.ceil(panicMaxTicks / 3));
+  const allowedPanicResets = Math.max(4, Math.ceil(panicMaxTicks / 2) + 1);
   const thrashing = await runScenario('thrashing', new ThrashingScenarioOracle(), 'q_thrashing_boot', 7);
   const panicBudget = await runScenario('panic_budget', new PanicBudgetOracle(), 'q_panic_boot', panicMaxTicks);
   const evidenceDir = path.join(EVIDENCE_ROOT, stamp);

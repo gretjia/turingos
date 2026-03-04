@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
+import { verifyProofCarryingDMA } from './semantic-dma.js';
+import { createMicroSnapshot, commitMicroSnapshot, rollbackMicroSnapshot } from './snapshot.js';
 import {
   isMindOpcode,
   isSystemControlOpcode,
@@ -327,6 +329,7 @@ export class TuringEngine {
     let writePointer: Pointer = d_t;
     let s_prime = '👆🏻';
     let executedSyscalls: Syscall[] = [];
+    let hasMicroSnapshot = false;
 
     try {
       const plan = this.materializeInstructionPlan(transition);
@@ -373,15 +376,10 @@ export class TuringEngine {
         throw new Error('[CPU_FAULT: INVALID_OPCODE] Empty instruction bundle: no mind_ops/world_op to execute.');
       }
 
-      let microSnapshotPath = '';
       const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
       if (plan.worldOps.length > 0 && workspaceDir) {
-        microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
-        try {
-          execSync(`rm -rf ${microSnapshotPath} && mkdir -p ${microSnapshotPath} && cp -a * ${microSnapshotPath} 2>/dev/null || true`, { cwd: workspaceDir as string });
-        } catch {
-          // Ignore error
-        }
+        createMicroSnapshot(workspaceDir as string);
+        hasMicroSnapshot = true;
       }
 
       for (const syscall of executionQueue) {
@@ -389,15 +387,30 @@ export class TuringEngine {
         if (strictViolation) {
           throw new Error(`[CPU_FAULT: INVALID_OPCODE] ${strictViolation}`);
         }
+
+        // --- VFS Interceptor (Kernel/World Isolation) ---
+        const enforceVFS = (targetPath: string, isWrite: boolean) => {
+          const p = targetPath.trim();
+          if (p.startsWith('.') || p.startsWith('..')) {
+            throw new Error(`[MUTEX_VIOLATION] Permission denied: Kernel/World isolation prevents access to dotfiles or parent directories (${p}).`);
+          }
+          if (isWrite && p.includes('sys://')) {
+            throw new Error(`[MUTEX_VIOLATION] Permission denied: Cannot mutate kernel control plane via world ops (${p}).`);
+          }
+        };
+
         switch (syscall.op) {
           case 'SYS_WRITE':
-            d_next = d_t;
-            writePointer = typeof syscall.semantic_cap === 'string' && syscall.semantic_cap.trim().length > 0
+            const target = typeof syscall.semantic_cap === 'string' && syscall.semantic_cap.trim().length > 0
               ? syscall.semantic_cap.trim()
               : d_t;
+            enforceVFS(target, true);
+            d_next = d_t;
+            writePointer = target;
             s_prime = syscall.payload;
             break;
           case 'SYS_GOTO':
+            enforceVFS(syscall.pointer, false);
             d_next = syscall.pointer;
             s_prime = '👆🏻';
             break;
@@ -416,6 +429,17 @@ export class TuringEngine {
             d_next = this.composeGitLogPointer(syscall);
             s_prime = '👆🏻';
             break;
+          case 'SYS_DMA_EXTRACT': {
+            enforceVFS(syscall.pointer, false);
+            const content = await this.manifold.observe(syscall.pointer);
+            const res = verifyProofCarryingDMA(syscall.witness, content);
+            if (!res.ok) {
+              throw new Error(`[DMA_FAULT] Proof-Carrying Verifier failed: ${res.error}`);
+            }
+            d_next = syscall.pointer;
+            s_prime = `[DMA_EXTRACT_OK] Result: ${res.result}`;
+            break;
+          }
           case 'SYS_PUSH': {
             const task = syscall.task.trim();
             if (task.length === 0) {
@@ -498,23 +522,13 @@ export class TuringEngine {
         } world_ops_count=${plan.worldOps.length}`
       );
 
-      if (plan.worldOps.length > 0 && microSnapshotPath && workspaceDir) {
-        try {
-          execSync(`rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
-        } catch {
-           // Ignore error
-        }
+      if (hasMicroSnapshot && workspaceDir) {
+        commitMicroSnapshot(workspaceDir as string);
       }
     } catch (error: unknown) {
-      let microSnapshotPath = '';
       const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
-      if (workspaceDir) microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
-      if (microSnapshotPath && workspaceDir) {
-        try {
-          execSync(`cp -a ${microSnapshotPath}/* . 2>/dev/null || true && rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
-        } catch {
-           // Ignore error
-        }
+      if (hasMicroSnapshot && workspaceDir) {
+        rollbackMicroSnapshot(workspaceDir as string);
       }
 
       const message = error instanceof Error ? error.message : String(error);
@@ -1178,6 +1192,8 @@ export class TuringEngine {
         }
         return `${syscall.op}(${summary.join(',') || 'default'})`;
       }
+      case 'SYS_DMA_EXTRACT':
+        return `${syscall.op}(${syscall.pointer.slice(0, 40)})`;
       case 'SYS_PUSH':
         return `${syscall.op}(${syscall.task.slice(0, 40)})`;
       case 'SYS_EDIT':

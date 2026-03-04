@@ -1,8 +1,8 @@
 # Turing Bus Conformance
 
-- stamp: 20260228_151216
+- stamp: 20260304_041912
 - pass: true
-- report_json: /home/zephryj/projects/turingos/benchmarks/audits/protocol/turing_bus_conformance_20260228_151216.json
+- report_json: /home/zephryj/projects/turingos/benchmarks/audits/protocol/turing_bus_conformance_20260304_041912.json
 
 ## Schema Checks
 
@@ -10,7 +10,7 @@
 |---|---|---|
 | bus_schema.version_present | PASS | version=2.0.0 |
 | bus_schema.providers_include_openai_kimi_ollama | PASS | providers=openai,kimi,ollama |
-| bus_instruction_classes_match_syscall_schema | PASS | bus_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_EDIT|SYS_EXEC|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE |
+| bus_instruction_classes_match_syscall_schema | PASS | bus_ops=SYS_DMA_EXTRACT|SYS_EDIT|SYS_EXEC|SYS_EXEC_PYTHON|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE syscall_ops=SYS_DMA_EXTRACT|SYS_EDIT|SYS_EXEC|SYS_EXEC_PYTHON|SYS_GIT_LOG|SYS_GOTO|SYS_HALT|SYS_MAP_REDUCE|SYS_MOVE|SYS_POP|SYS_PUSH|SYS_WRITE |
 
 ## Provider Cases
 

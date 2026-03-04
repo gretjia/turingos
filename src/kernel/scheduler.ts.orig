@@ -112,8 +112,15 @@ export class TuringHyperCore {
     // If it's a WORKER and we have baseline dithering enabled via env (or fallback logic).
     // DeepThink requested dithering from T=0.1 to T=0.7 across 16 Windows workers based on ID.
     if (role === 'WORKER') {
-       // Since PID is pseudo-random, a simple hash/modulo or random assignment works well
-       finalTemperature = 0.1 + (Math.random() * 0.6); // Random between 0.1 and 0.7
+       // Calculate deterministic temperature based on PID hash to ensure even spread.
+       let hash = 0;
+       for (let i = 0; i < pid.length; i++) {
+         hash = (hash << 5) - hash + pid.charCodeAt(i);
+         hash |= 0;
+       }
+       const kIndex = Math.abs(hash) % 16;
+       // Map kIndex (0-15) linearly to range 0.1 - 0.7
+       finalTemperature = Number((0.1 + (0.6 * (kIndex / 15.0))).toFixed(3));
     }
 
     const pcb: PCB = {
@@ -232,13 +239,11 @@ export class TuringHyperCore {
         if (this.autoWriteConsensusOnMapDrop && normalizedWorldOps.length === 0) {
           const lastConsensus = this.readRegisterString(pcb, 'lastMapReduceConsensus').trim();
           if (/^-?[0-9]+$/.test(lastConsensus)) {
-            normalizedWorldOps = [
-              {
-                op: 'SYS_WRITE',
-                payload: `${lastConsensus}\n`,
-                semantic_cap: 'ANSWER.txt',
-              },
-            ];
+            await this.executeWorldOp(pcb, {
+              op: 'SYS_WRITE',
+              payload: `${lastConsensus}\n`,
+              semantic_cap: 'ANSWER.txt',
+            });
             const q = this.readRegisterString(pcb, 'q');
             this.writeRegisterString(
               pcb,
@@ -247,6 +252,18 @@ export class TuringHyperCore {
             );
             await this.chronos.engrave(
               `[HYPERCORE_AUTOWRITE] pid=${pcb.pid} source=join_consensus consensus=${lastConsensus}`
+            );
+            
+            // Force halt to prevent recursive auto-write loops. 
+            pcb.state = 'PENDING_HALT';
+            pcb.exitOutput = this.readRegisterString(pcb, 'q');
+            await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid} details=AUTO_WRITE_HALT`);
+          } else if (lastConsensus && !/^-?[0-9]+$/.test(lastConsensus)) {
+            const q = this.readRegisterString(pcb, 'q');
+            this.writeRegisterString(
+              pcb,
+              'q',
+              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights and do NOT transcribe numbers directly. You MUST emit SYS_EXEC_PYTHON containing a Python script that opens MAIN_TAPE.md, parses the numbers via string splitting, and calculates the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
             );
           }
         }
@@ -291,7 +308,7 @@ export class TuringHyperCore {
     }
 
     const worldOpName = worldOp?.op ?? '';
-    const hasPhysicalWorldOp = worldOpName === 'SYS_WRITE' || worldOpName === 'SYS_EXEC' || worldOpName === 'SYS_HALT';
+    const hasPhysicalWorldOp = worldOpName === 'SYS_WRITE' || worldOpName === 'SYS_EXEC' || worldOpName === 'SYS_EXEC_PYTHON' || worldOpName === 'SYS_HALT';
     const noPhysicalStreak = hasPhysicalWorldOp
       ? 0
       : this.readRegisterNumber(pcb, 'noPhysicalStreak') + 1;
@@ -439,8 +456,44 @@ export class TuringHyperCore {
       }
       case 'SYS_EXEC': {
         const cmd = op.cmd.trim();
+        
+        // If the LLM falls back to SYS_EXEC instead of SYS_EXEC_PYTHON but tries to write python inline
+        if (cmd.startsWith('with open(') || cmd.startsWith('import ') || cmd.includes('print(int(expr')) {
+           return this.executeWorldOp(pcb, { op: 'SYS_EXEC_PYTHON', code: cmd });
+        }
+
         const nextD = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
         this.writeRegisterString(pcb, 'd', nextD);
+        return;
+      }
+      case 'SYS_EXEC_PYTHON': {
+        const workspaceDir = (this.manifold as any).workspaceDir || process.cwd();
+        const tempFile = path.join(workspaceDir, `script_${pcb.pid}.py`);
+        
+        console.log(`\n\n[!!!] WORKER GENERATED PYTHON CODE [!!!]\nPID: ${pcb.pid}\nCODE:\n${op.code}\n`);
+
+        let result = '';
+        if (!op.code.includes('MAIN_TAPE.md') || !op.code.includes('open')) {
+            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: You did not open MAIN_TAPE.md. You MUST dynamically read the tape using file I/O.';
+        } else if (/\d{2,}/.test(op.code) || /['"]\d+['"]/.test(op.code)) {
+            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().';
+        } else {
+            fs.writeFileSync(tempFile, op.code);
+            try {
+               result = execSync(`python3 ${tempFile}`, { cwd: workspaceDir, timeout: 5000, encoding: 'utf-8' }).trim();
+            } catch(e: any) {
+               const errOut = (e.stderr || e.message || '').toString().trim();
+               result = `[PYTHON_EXEC_ERROR]\n${errOut}`;
+            }
+        }
+        
+        if (pcb.role === 'WORKER') {
+           pcb.exitOutput = `RESULT: ${result}\nCODE: ${op.code}`;
+           pcb.state = 'PENDING_HALT';
+           await this.chronos.engrave(`[PYTHON_EXEC_CODE] worker=${pcb.pid} code=${op.code.replace(/\\n/g, ' ')}`);
+        } else {
+           this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_PYTHON_CODE]\n${op.code}\n[SYS_EXEC_RESULT: ${result}]`);
+        }
         return;
       }
       case 'SYS_GOTO':
@@ -505,6 +558,15 @@ export class TuringHyperCore {
           await this.resolveJoin(pcb.ppid, pcb.pid, pcb.exitOutput ?? '[HALT_PASS]');
         }
       } else {
+        // KILL_AND_FAIL logic: If Planner fails multiple times (e.g. price drops below -3)
+        // kill it to fail the test run rather than looping infinitely on a wrong answer.
+        if (pcb.price <= -3) {
+            pcb.state = 'KILLED';
+            this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[KILLED] Exceeded maximum verification rejections. Consensus or self-calculated answer was persistently incorrect.`);
+            await this.chronos.engrave(`[HYPERCORE_PRICE] pid=${pcb.pid} verdict=FAIL price=${pcb.price} status=KILLED`);
+            continue;
+        }
+
         pcb.price -= 1;
         pcb.state = 'READY';
         const q = this.readRegisterString(pcb, 'q');
@@ -623,6 +685,9 @@ export class TuringHyperCore {
   }
 
   private schedule(pcb: PCB): void {
+    if (pcb.state === 'TERMINATED' || pcb.state === 'KILLED') {
+      return;
+    }
     pcb.state = 'READY';
     this.readyQueue.push(pcb.pid);
   }
@@ -823,6 +888,7 @@ export class TuringHyperCore {
       details.includes('INVALID_OPCODE') ||
       details.includes('MUTEX_VIOLATION') ||
       details.includes('CAUSALITY_VIOLATION') ||
+      details.includes('TRAP_THRASHING_NO_PHYSICAL_IO') ||
       details.includes('EACCES')
     );
   }

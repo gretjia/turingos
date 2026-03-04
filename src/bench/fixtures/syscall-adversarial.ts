@@ -21,6 +21,7 @@ const canonicalByOp: Record<SyscallOpcode, Record<string, unknown>> = {
   SYS_EDIT: { op: 'SYS_EDIT', task: 'diagnose trap with new evidence' },
   SYS_MOVE: { op: 'SYS_MOVE', task_id: 'task_abcd', target_pos: 'BOTTOM', status: 'SUSPENDED' },
   SYS_MAP_REDUCE: { op: 'SYS_MAP_REDUCE', tasks: ['fix parser edge case', 'add regression test'] },
+  SYS_DMA_EXTRACT: { op: 'SYS_DMA_EXTRACT', pointer: 'foo.txt', witness: { exact_extracts: ['bar'], rpn_program: '1 2 ADD' } },
   SYS_POP: { op: 'SYS_POP' },
   SYS_HALT: { op: 'SYS_HALT' },
 };
@@ -112,6 +113,7 @@ export function buildSyscallAdversarialFixtures(): {
     SYS_EDIT: { semantic_cap: 'vfd://rw/bad' },
     SYS_MOVE: { payload: 'not-allowed' },
     SYS_MAP_REDUCE: { pointer: 'not-allowed' },
+    SYS_DMA_EXTRACT: { cmd: 'not-allowed' },
     SYS_POP: { task: 'not-allowed' },
     SYS_HALT: { pointer: 'not-allowed' },
   };
