@@ -3,9 +3,11 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import * as fs from 'node:fs';
+import { createMicroSnapshot, commitMicroSnapshot, rollbackMicroSnapshot } from './snapshot.js';
 import { IChronos, IPhysicalManifold, PCB, Pointer, ProcessState, Syscall, Transition } from './types.js';
 import { HaltVerifier } from './halt-verifier.js';
 import { DualBrainOracle } from '../oracle/dual-brain-oracle.js';
+import { CognitiveRouter } from '../oracle/cognitive-router.js';
 
 export interface HyperCoreRunOptions {
   maxTicks: number;
@@ -308,7 +310,7 @@ export class TuringHyperCore {
     }
 
     const worldOpName = worldOp?.op ?? '';
-    const hasPhysicalWorldOp = worldOpName === 'SYS_WRITE' || worldOpName === 'SYS_EXEC' || worldOpName === 'SYS_EXEC_PYTHON' || worldOpName === 'SYS_HALT';
+    const hasPhysicalWorldOp = worldOpName === 'SYS_WRITE' || worldOpName === 'SYS_EXEC' || worldOpName === 'SYS_EXEC_PYTHON' || worldOpName === 'SYS_DMA_EXTRACT' || worldOpName === 'SYS_HALT';
     const noPhysicalStreak = hasPhysicalWorldOp
       ? 0
       : this.readRegisterNumber(pcb, 'noPhysicalStreak') + 1;
@@ -469,7 +471,7 @@ export class TuringHyperCore {
       case 'SYS_EXEC_PYTHON': {
         const workspaceDir = (this.manifold as any).workspaceDir || process.cwd();
         const tempFile = path.join(workspaceDir, `script_${pcb.pid}.py`);
-        
+
         console.log(`\n\n[!!!] WORKER GENERATED PYTHON CODE [!!!]\nPID: ${pcb.pid}\nCODE:\n${op.code}\n`);
 
         let result = '';
@@ -486,23 +488,36 @@ export class TuringHyperCore {
                result = `[PYTHON_EXEC_ERROR]\n${errOut}`;
             }
         }
-        
+
         if (pcb.role === 'WORKER') {
            this.writeRegisterNumber(pcb, 'hasUsedALU', 1);
            pcb.exitOutput = `RESULT: ${result}\nCODE: ${op.code}`;
            pcb.state = 'PENDING_HALT';
            await this.chronos.engrave(`[PYTHON_EXEC_CODE] worker=${pcb.pid} code=${op.code.replace(/\n/g, ' ')}`);
         } else {
-           // The Planner executed Python. Automatically write it to ANSWER.txt and halt!
+           // The Planner executed Python.
+           const isStrictInt = /^-?\d+$/.test(result.trim());
+           if (!isStrictInt && !result.includes('[PYTHON_EXEC_ERROR]')) {
+              result = `[PYTHON_EXEC_ERROR]\nFATAL: The output of your Python script was not a single integer. It outputted:\n${result.substring(0, 200)}\nYou MUST print ONLY the final calculated integer.`;
+           }
+
+           if (result.includes('[PYTHON_EXEC_ERROR]')) {
+              this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n${result}`);
+              return;
+           }
+
            console.log(`[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: ${result}`);
-           await this.executeWorldOp(pcb, { op: 'SYS_WRITE', payload: `${result}\n`, semantic_cap: 'ANSWER.txt' });
-           pcb.exitOutput = `RESULT: ${result}`;
-           pcb.state = 'PENDING_HALT';
-           await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid} details=PLANNER_AUTO_PYTHON_HALT`);
+           try {
+               await this.executeWorldOp(pcb, { op: 'SYS_WRITE', payload: `${result}\n`, semantic_cap: 'ANSWER.txt' });
+               pcb.exitOutput = `RESULT: ${result}`;
+               pcb.state = 'PENDING_HALT';
+               await this.chronos.engrave(`[HYPERCORE_HALT_REQUEST] pid=${pcb.pid} details=PLANNER_AUTO_PYTHON_HALT`);
+           } catch (err: any) {
+               this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_WRITE_ERROR]\n${err.message}`);
+           }
         }
         return;
-      }
-      case 'SYS_GOTO':
+      }      case 'SYS_GOTO':
         this.writeRegisterString(pcb, 'd', op.pointer);
         return;
       case 'SYS_GIT_LOG':
@@ -723,7 +738,73 @@ export class TuringHyperCore {
 
     let transition: Transition;
     try {
-      transition = await this.oracle.dispatchTick(pcb, this.disciplinePrompt, q, s);
+      if (pcb.role === 'WORKER' && this.workerParallelism > 1) {
+        const K = this.workerParallelism;
+        const router = new CognitiveRouter();
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+        const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
+
+        type WorkerResult = { index: number, transition: Transition, forkDirName: string, isWinner: boolean };
+
+        const promises = Array.from({ length: K }).map(async (_, i) => {
+          const profile = router.generateProfile(i, this.tickSeq);
+          const forkDirName = `.parallel_fork_w${i + 1}`;
+          
+          if (workspaceDir) {
+             createMicroSnapshot(workspaceDir as string, forkDirName);
+          }
+          
+          const t = await this.oracle.dispatchTick(pcb, this.disciplinePrompt, q, s, profile, signal);
+          const isWinner = t.mind_ops?.some(op => op.op === 'SYS_DMA_EXTRACT') 
+                        || t.world_op?.op === 'SYS_DMA_EXTRACT' 
+                        || t.world_ops?.some(op => op.op === 'SYS_DMA_EXTRACT');
+          
+          if (isWinner) {
+            abortController.abort(); // Cancel others
+            return { index: i, transition: t, forkDirName, isWinner: true } as WorkerResult;
+          }
+          return { index: i, transition: t, forkDirName, isWinner: false } as WorkerResult;
+        });
+
+        const winnerPromise = Promise.any(promises.map(p => p.then(res => {
+          if (res.isWinner) return res;
+          throw new Error('Not a winner');
+        })));
+
+        let finalResult: WorkerResult | undefined;
+        try {
+          finalResult = await winnerPromise;
+        } catch (e) {
+          const results = await Promise.allSettled(promises);
+          const firstValid = results.find(r => r.status === 'fulfilled') as PromiseFulfilledResult<WorkerResult> | undefined;
+          if (!firstValid) {
+             const firstError = results.find(r => r.status === 'rejected') as PromiseRejectedResult | undefined;
+             throw firstError?.reason || new Error('All parallel workers failed');
+          }
+          finalResult = firstValid.value;
+        }
+
+        transition = finalResult.transition;
+
+        if (workspaceDir && finalResult.forkDirName) {
+           const cpCmd = process.platform === 'darwin' ? 'cp -ac' : 'cp -a --reflink=auto';
+           try {
+             execSync(`find "${finalResult.forkDirName}" -mindepth 1 -maxdepth 1 -exec ${cpCmd} {} . \\;`, { cwd: workspaceDir, stdio: 'ignore' });
+           } catch (e) {}
+           
+           setTimeout(() => {
+             for (let i = 0; i < K; i++) {
+               try {
+                 execSync(`rm -rf ".parallel_fork_w${i + 1}"`, { cwd: workspaceDir, stdio: 'ignore' });
+               } catch (e) {}
+             }
+           }, 0);
+        }
+      } else {
+        transition = await this.oracle.dispatchTick(pcb, this.disciplinePrompt, q, s);
+      }
+      
       const routeTrace = this.oracle.consumeLastTrace(pcb.pid);
       if (routeTrace) {
         await this.chronos.engrave(`[HYPERCORE_ROUTE] ${JSON.stringify(routeTrace)}`);
@@ -733,7 +814,7 @@ export class TuringHyperCore {
       return;
     }
 
-    let microSnapshotPath = '';
+    let hasMicroSnapshot = false;
     const hasWorldOp = transition.world_ops && transition.world_ops.length > 0 || transition.world_op;
     const workspaceDir = this.manifold instanceof Object && 'workspaceDir' in this.manifold ? (this.manifold as any).workspaceDir : null;
 
@@ -750,30 +831,18 @@ export class TuringHyperCore {
     }
 
     if (hasWorldOp && workspaceDir) {
-      microSnapshotPath = path.join(workspaceDir as string, '.micro_snapshot.tmp');
-      try {
-        execSync(`rm -rf ${microSnapshotPath} && mkdir -p ${microSnapshotPath} && cp -a * ${microSnapshotPath} 2>/dev/null || true`, { cwd: workspaceDir as string });
-      } catch {
-        // Ignore error
-      }
+      createMicroSnapshot(workspaceDir as string);
+      hasMicroSnapshot = true;
     }
 
     try {
       await this.applyTransition(pcb, transition);
-      if (hasWorldOp && microSnapshotPath && workspaceDir) {
-        try {
-          execSync(`rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
-        } catch {
-           // Ignore error
-        }
+      if (hasMicroSnapshot && workspaceDir) {
+        commitMicroSnapshot(workspaceDir as string);
       }
     } catch (error: unknown) {
-      if (hasWorldOp && microSnapshotPath && workspaceDir) {
-        try {
-          execSync(`cp -a ${microSnapshotPath}/* . 2>/dev/null || true && rm -rf ${microSnapshotPath}`, { cwd: workspaceDir as string });
-        } catch {
-           // Ignore error
-        }
+      if (hasMicroSnapshot && workspaceDir) {
+        rollbackMicroSnapshot(workspaceDir as string);
       }
       await this.handleRedFlag(pcb, this.renderError(error));
     }
@@ -824,12 +893,22 @@ export class TuringHyperCore {
   }
 
   private hasInFlightWork(): boolean {
+    let hasActive = false;
+    let hasBlocked = false;
     for (const pcb of this.pcbTable.values()) {
-      if (pcb.state === 'BLOCKED' || pcb.state === 'PENDING_HALT' || pcb.state === 'READY' || pcb.state === 'RUNNING') {
-        return true;
+      if (pcb.state === 'PENDING_HALT' || pcb.state === 'READY' || pcb.state === 'RUNNING') {
+        hasActive = true;
+      }
+      if (pcb.state === 'BLOCKED') {
+        hasBlocked = true;
       }
     }
-    return false;
+    // If we only have blocked processes and no active processes, it's a deadlock.
+    // Return false to let the scheduler exit instead of looping infinitely.
+    if (hasBlocked && !hasActive) {
+      return false;
+    }
+    return hasActive || hasBlocked;
   }
 
   private isTerminal(pid: string): boolean {
@@ -999,7 +1078,7 @@ export class TuringHyperCore {
       return { payload: canonical, coerced: canonical !== payload, reason: 'canonicalize' };
     }
     if (!this.strictIntegerWriteCoerce) {
-      throw new Error(`STRICT_INTEGER_WRITE_REJECTED pointer=${pointer}`);
+      throw new Error(`STRICT_INTEGER_WRITE_REJECTED pointer=${pointer}. You must write ONLY a parsed integer result to this file. No text, no expressions.`);
     }
     if (this.strictIntegerWriteExtractLastInt) {
       const allMatches = trimmed.match(/-?[0-9]+/g);
@@ -1007,7 +1086,7 @@ export class TuringHyperCore {
         return { payload: `${allMatches[allMatches.length - 1]}\n`, coerced: true, reason: 'extract_last_int' };
       }
     }
-    throw new Error(`STRICT_INTEGER_WRITE_REJECTED pointer=${pointer}`);
+    throw new Error(`STRICT_INTEGER_WRITE_REJECTED pointer=${pointer}. You must write ONLY a parsed integer result to this file. No text, no expressions.`);
   }
 
   private isWorkerOutputRedFlag(output: string): boolean {
