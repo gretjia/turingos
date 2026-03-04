@@ -10,6 +10,11 @@ This file mirrors the workspace root guide so it is tracked on GitHub.
 4. Latest architect action plan: `./artitecture_response/dual_llm_joint_action_plan_from_core_opinion_20260228.md`
 5. Current blocker handover (external workspace handover dir): `../../../handover/turingos_arch_review_handover_20260301_035950.md`
 
+## Network Port Mapping Rules (Mac Node 100.72.87.94)
+
+- **Planner (llama-server)**: ALWAYS use port `8080` (e.g., `http://100.72.87.94:8080/v1`). DO NOT use port `2222` as it is an unstable reverse tunnel.
+- **Worker (Ollama)**: ALWAYS use port `11434` (e.g., `http://100.72.87.94:11434/v1`).
+
 ## Current Main Problems
 
 - Baseline report integrity after timeout/interruption is not reliable (stale range reuse).
