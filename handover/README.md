@@ -179,3 +179,10 @@ This index is for agents joining the current TuringOS cycle.
 
 - DeepThink Architectural Audit & Hardening Directives (G0 -> G1 Transition) - 2026-03-02:
   - `./artitecture_response/deepthink_g1_transition_audit_20260302.md`
+
+## Update 2026-03-03 23:55 +0800 (Mac Inference Node Upgrade: Qwen 3.5 27B)
+
+- **Action**: Upgraded the local planner model on `mac-back` from Qwen 2.5 30B to Qwen 3.5 27B (GGUF Q4_K_M).
+- **Reason**: The 30B model hit an adversarial hallucination paradox at the 48-pass mark in the TuringOS loop, bypassing safety regexes via string obfuscation.
+- **Execution**: Downloaded via `hf-mirror.com` with `hf_transfer`. Started `llama-server` on the same `0.0.0.0:8080` port.
+- **Result**: Smoke test passed successfully with ~13 tokens/sec inference and correct `reasoning_content` output. Cluster ready to resume testing.
