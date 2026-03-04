@@ -8,3 +8,4 @@ benchmarks/results
 benchmarks/os-longrun/workspaces
 benchmarks/runtime_workspace
 benchmarks/runtime_workspace_v2
+scripts/archive/
