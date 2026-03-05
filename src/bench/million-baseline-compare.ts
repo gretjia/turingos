@@ -620,7 +620,7 @@ async function solveTuringOSDualBrain(
   process.env.TURINGOS_HYPERCORE_WORKER_MAP_REDUCE_POLICY = 'drop';
   process.env.TURINGOS_HYPERCORE_WORKER_PARALLELISM = String(Math.max(1, workerParallelism));
   process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_FILES ??= 'ANSWER.txt';
-  process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE ??= '0';
+  process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE = '1';
   process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_EXTRACT_LAST_INT ??= '1';
   if (workerFanout > 1) {
     process.env.TURINGOS_HYPERCORE_FORCE_MAP_TASK_COUNT = String(workerFanout);
