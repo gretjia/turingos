@@ -1,0 +1,16 @@
+[million-baseline] adaptive_workers enabled=true initial=13 min=13 max=27 ahead_by_k=11 temporary_cap=none
+[million-baseline] worker_fanout mode=fixed:4
+[million-baseline] worker_parallelism=4 worker_endpoints=1 endpoints=http://100.72.87.94:11434/v1
+[million-baseline] preflight=ok planner_worker_endpoints_ready
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_facbaae5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12312
+[million-baseline] case=174 mode=turingos_dualbrain attempted=1 passed=0 expected=12312 got=12312
+[million-baseline] start_test=174 target_tests=1000000 max_tests=174
+[million-baseline] mode=turingos_dualbrain consecutive=1 delta_to_1m=999999 status=PASS
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260305_022247.json

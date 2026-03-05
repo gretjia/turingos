@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_01ce006f",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "2) Emit SYS_MAP_REDUCE with 4 tasks for independent solves.\n[MAP_REDUCE] spawned=4\n[MAP_REDUCE_JOIN]\nconsensus=[NO_VALID_VOTE]\nbest_votes=0\nrunner_up_votes=0\nahead_by_k=11\ncollected=0\n\nFallback to direct deterministic solve",
+  "d": "MAIN_TAPE.md"
+}

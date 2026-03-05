@@ -1,0 +1,14 @@
+[2026-03-05T02:41:51.046Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:41:47.265Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:41:54.673Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:41:51.098Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:41:58.965Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:41:54.727Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:02.480Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:41:59.016Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:05.935Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:42:02.541Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:06.028Z] [HYPERCORE_TRAP] pid=planner_0424ccc8 details=Error: TRAP_ROUTE_THRASHING: repeated route fingerprint 4x (mind=-|world=SYS_GOTO|state=RUNNING|wait=0|q_changed=0|d_changed=0|d=MAIN_TAPE.md)
+[2026-03-05T02:42:09.712Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:42:06.028Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:09.813Z] [HYPERCORE_RED_FLAG] pid=planner_0424ccc8 red_flags=1/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-05T02:42:12.500Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:42:09.814Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:19.231Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:42:12.582Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:24.122Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:42:19.288Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:27.477Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:42:24.203Z","pid":"planner_0424ccc8","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:42:27.561Z] [HYPERCORE_HALT_REQUEST] pid=planner_0424ccc8 details=PLANNER_AUTO_PYTHON_HALT
+[2026-03-05T02:42:27.581Z] [HYPERCORE_PRICE] pid=planner_0424ccc8 verdict=PASS price=1

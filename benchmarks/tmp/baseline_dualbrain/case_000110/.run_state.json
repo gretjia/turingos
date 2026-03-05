@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_7f97521e",
+  "rootState": "TERMINATED",
+  "ticks": 14,
+  "q": "Read MAIN_TAPE.md and extract expression for map-reduce",
+  "d": "MAIN_TAPE.md"
+}

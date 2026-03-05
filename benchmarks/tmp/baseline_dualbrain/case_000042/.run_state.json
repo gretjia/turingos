@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_78153ce7",
+  "rootState": "TERMINATED",
+  "ticks": 15,
+  "q": "Fallback to direct deterministic solve since consensus=[NO_VALID_VOTE]. Will read MAIN_TAPE.md, extract expression, compute result, and prepare for write.",
+  "d": "MAIN_TAPE.md"
+}

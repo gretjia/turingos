@@ -1,0 +1,22 @@
+--- src/bench/million-baseline-compare.ts
++++ src/bench/million-baseline-compare.ts
+@@ -620,7 +620,7 @@
+     );
+   }
+ 
+-  const coerceEnabled =
++  let coerceEnabled =
+     process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE === undefined ||
+     process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE === '1' ||
+     process.env.TURINGOS_HYPERCORE_STRICT_INTEGER_WRITE_COERCE === 'true';
+@@ -628,6 +628,10 @@
+   if (mode === 'turingos_dualbrain') {
+     coerceEnabled = false; // Dual Brain uses Map-Reduce to aggregate votes, not direct write coercion.
+   }
++  if (mode === 'turingos_dualbrain') {
++    // Completely disable coercion in dual brain mode so workers are forced to use the Python ALU instead of bypassing it via SYS_WRITE coercions.
++    coerceEnabled = false;
++  }
+ 
+   const engine = new Engine(rootManifold, oracle, dualOracle, chronos, {
+     plannerMapReduceDropWorldOp: true,

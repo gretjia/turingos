@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_a0ab1823",
+  "rootState": "TERMINATED",
+  "ticks": 10,
+  "q": "FALLBACK_SOLVE",
+  "d": "MAIN_TAPE.md"
+}

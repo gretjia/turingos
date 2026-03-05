@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_0ca43923",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "Write consensus result 12200 to ANSWER.txt",
+  "d": "MAIN_TAPE.md"
+}

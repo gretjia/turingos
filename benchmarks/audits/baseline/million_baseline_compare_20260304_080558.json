@@ -1,0 +1,80 @@
+{
+  "stamp": "20260304_080558",
+  "startTest": 1,
+  "targetTests": 1000000,
+  "maxTests": 20,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error.",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000001_20260304_072935.json"
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 6,
+      "passed": 5,
+      "failed": 1,
+      "firstFailAt": 6,
+      "consecutivePassBeforeFirstFail": 5,
+      "closestToMillionDelta": 999995,
+      "status": "FAIL",
+      "reason": "The operation was aborted due to timeout",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/kimi_direct_case_000006_20260304_073013.json"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 20,
+      "passed": 20,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 20,
+      "closestToMillionDelta": 999980,
+      "status": "PASS"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 20,
+      "passed": 20,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 20,
+      "closestToMillionDelta": 999980,
+      "status": "PASS"
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 6,
+      "passed": 5,
+      "failed": 1,
+      "firstFailAt": 6,
+      "consecutivePassBeforeFirstFail": 5,
+      "closestToMillionDelta": 999995,
+      "status": "FAIL",
+      "reason": "The operation was aborted due to timeout",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/kimi_direct_case_000006_20260304_073013.json"
+    },
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error.",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000001_20260304_072935.json"
+    }
+  ],
+  "bestMode": "turingos_dualbrain"
+}

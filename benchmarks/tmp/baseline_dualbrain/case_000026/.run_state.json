@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_0129cc0a",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "Read MAIN_TAPE.md and spawn MAP_REDUCE workers",
+  "d": "MAIN_TAPE.md"
+}

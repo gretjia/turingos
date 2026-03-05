@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_e39e2296",
+  "rootState": "TERMINATED",
+  "ticks": 7,
+  "q": "Read MAIN_TAPE.md then emit SYS_MAP_REDUCE with 4 tasks",
+  "d": "MAIN_TAPE.md"
+}

@@ -1,0 +1,11 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -259,7 +259,7 @@
+             this.writeRegisterString(
+               pcb,
+               'q',
+-              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT emit SYS_MAP_REDUCE. You must rethink the problem and use SYS_WRITE.`
++              `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a numeric consensus. Returned: ${lastConsensus}. Do NOT attempt to calculate the answer in-weights. You MUST emit SYS_EXEC_PYTHON containing a Python script to calculate the exact numerical answer. Await the system's [SYS_EXEC_RESULT] response before doing anything else.`
+             );
+           }
+         }

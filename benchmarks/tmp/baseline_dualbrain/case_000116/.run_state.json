@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_6f285456",
+  "rootState": "TERMINATED",
+  "ticks": 7,
+  "q": "Step 2: Extract expression via SYS_EXEC_PYTHON with zero-touch extraction",
+  "d": "MAIN_TAPE.md"
+}

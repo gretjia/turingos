@@ -1,0 +1,1 @@
+import re; f=open('MAIN_TAPE.md');t=f.read();f.close();m=re.search(r'(\\d+\b)\s*\+\s*(\b\d+\b)',t);a,b=int(m.group(1)),int(m.group(2));print(f'RESULT:{a+b}')

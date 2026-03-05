@@ -1,0 +1,1 @@
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].strip().split(); a, op, b = int(expr[0]), expr[1], int(expr[2]); print(a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b)

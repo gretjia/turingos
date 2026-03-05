@@ -1,0 +1,2623 @@
+[million-baseline] adaptive_workers enabled=true initial=13 min=13 max=27 ahead_by_k=11 temporary_cap=none
+[million-baseline] worker_fanout mode=fixed:4
+[million-baseline] worker_parallelism=4 worker_endpoints=1 endpoints=http://100.72.87.94:11434/v1
+[million-baseline] preflight=ok planner_worker_endpoints_ready
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_992687b1
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_line = tape.split('Expression: ')[1].strip()
+# Parse 48 + 120
+parts = expr_line.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+result = a + b
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+[oracle:kimi] transient error; status=n/a; attempt=1/2; retry_in_ms=2207
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_992687b1
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].strip().split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 168
+[million-baseline] case=1 mode=turingos_dualbrain attempted=1 passed=0 expected=168 got=168
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2024
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2065
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2283
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2180
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2034
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2010
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2126
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2280
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2173
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2115
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2282
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2076
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2205
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2165
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2156
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2251
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2145
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2211
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2263
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_aaef37c9
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_5e75a5d8
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_b591a38f
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=2 mode=turingos_dualbrain attempted=2 passed=1 expected=296 got=296
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_c69f1848
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].strip().split(); a, b = int(expr[0]), int(expr[2]); print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 424
+[million-baseline] case=3 mode=turingos_dualbrain attempted=3 passed=2 expected=424 got=424
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2185
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2267
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2142
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2097
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2028
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2228
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2078
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2070
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2214
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2114
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2241
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2110
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2262
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2290
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2140
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_80665488
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=4 mode=turingos_dualbrain attempted=4 passed=3 expected=552 got=552
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_401cf31b
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 680
+[million-baseline] case=5 mode=turingos_dualbrain attempted=5 passed=4 expected=680 got=680
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_bedc0904
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].strip()
+    parts = expr.split()
+    a, op, b = int(parts[0]), parts[1], int(parts[2])
+    if op == '+':
+        result = a + b
+    elif op == '-':
+        result = a - b
+    elif op == '*':
+        result = a * b
+    elif op == '/':
+        result = a // b
+    else:
+        raise ValueError(f'Unknown operator: {op}')
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 808
+[million-baseline] case=6 mode=turingos_dualbrain attempted=6 passed=5 expected=808 got=808
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d6332ada
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 936
+[million-baseline] case=7 mode=turingos_dualbrain attempted=7 passed=6 expected=936 got=936
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_422ecfd9
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1064
+[million-baseline] case=8 mode=turingos_dualbrain attempted=8 passed=7 expected=1064 got=1064
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_b5827efd
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+expr_part = tape.split('Expression: ')[1].strip()
+parts = expr_part.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+print(f'{a} {op} {b}')
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 344 + 848
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_b5827efd
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+expr_line = [l for l in tape.split('\n') if 'Expression:' in l][0]
+parts = expr_line.split('Expression: ')[1].strip().split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1192
+[million-baseline] case=9 mode=turingos_dualbrain attempted=9 passed=8 expected=1192 got=1192
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_c1057947
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2257
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2051
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2126
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2203
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2204
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_4eee3ec5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_d3f446c0
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_9dd90a3b
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=10 mode=turingos_dualbrain attempted=10 passed=9 expected=1320 got=1320
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_417b9fa5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1448
+[million-baseline] case=11 mode=turingos_dualbrain attempted=11 passed=10 expected=1448 got=1448
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_df4ed091
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+expr_line = [l for l in tape.split('\n') if 'Expression:' in l][0]
+parts = expr_line.split('Expression: ')[1].split()
+a, op, b = parts[0], parts[1], parts[2]
+print(f'{a} {op} {b}')
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 455 + 1121
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_df4ed091
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1576
+[million-baseline] case=12 mode=turingos_dualbrain attempted=12 passed=11 expected=1576 got=1576
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2040
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2155
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2049
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2009
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2160
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2070
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2272
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2044
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2192
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2058
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2055
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2298
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2102
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2214
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2282
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2124
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2084
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2250
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_400488d2
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_fac4ffd4
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_7b15efe7
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1704
+[million-baseline] case=13 mode=turingos_dualbrain attempted=13 passed=12 expected=1704 got=1704
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2278
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2210
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2068
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2212
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2280
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_ed4c07b9
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2237
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2052
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2289
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2174
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2019
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2029
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2254
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2193
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[million-baseline] case=14 mode=turingos_dualbrain attempted=14 passed=13 expected=1832 got=1832
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d17c0435
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 566 + 1394
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d17c0435
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse numbers: format is '566 + 1394'
+parts = expr_part.split()
+a, op, b = parts[0], parts[1], parts[2]
+print(f'{a} {op} {b}')
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d17c0435
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1960
+[million-baseline] case=15 mode=turingos_dualbrain attempted=15 passed=14 expected=1960 got=1960
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2266
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2219
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2240
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2125
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2085
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2201
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2178
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2014
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2174
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2095
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2031
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2233
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2053
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2096
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2110
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2250
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2008
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2200
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2092
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2219
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6629c15a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=16 mode=turingos_dualbrain attempted=16 passed=15 expected=2088 got=2088
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2159
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2131
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2007
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2261
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_f3d641d4
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 2216
+[million-baseline] case=17 mode=turingos_dualbrain attempted=17 passed=16 expected=2216 got=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2045
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2193
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2120
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2273
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2072
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2167
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2156
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2045
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2251
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2078
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_e799f3bf
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 2344
+[million-baseline] case=18 mode=turingos_dualbrain attempted=18 passed=17 expected=2344 got=2344
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_3e6e9bcc
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 714 + 1758
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_3e6e9bcc
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 2472
+[million-baseline] case=19 mode=turingos_dualbrain attempted=19 passed=18 expected=2472 got=2472
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2047
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2242
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2259
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2186
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2120
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2058
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2116
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2127
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2184
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2132
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2048
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2113
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2214
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_0d250a16
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=20 mode=turingos_dualbrain attempted=20 passed=19 expected=2600 got=2600
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2122
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2034
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2224
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2193
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2185
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2110
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2176
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2091
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6cfb5fee
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_d3637a58
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=21 mode=turingos_dualbrain attempted=21 passed=20 expected=2728 got=2728
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_a48c1437
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 825 + 2031
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2200
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2090
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2163
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2162
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2222
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6185b8fb
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2069
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2156
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2213
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2150
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[million-baseline] case=22 mode=turingos_dualbrain attempted=22 passed=21 expected=2856 got=2856
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_c622c8b8
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr_part = tape.split('Expression: ')[1].strip()
+    parts = expr_part.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    result = a + b
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 2984
+[million-baseline] case=23 mode=turingos_dualbrain attempted=23 passed=22 expected=2984 got=2984
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_e39e2296
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3112
+[million-baseline] case=24 mode=turingos_dualbrain attempted=24 passed=23 expected=3112 got=3112
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_9e9c478f
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3240
+[million-baseline] case=25 mode=turingos_dualbrain attempted=25 passed=24 expected=3240 got=3240
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2108
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2199
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2203
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2201
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2199
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2025
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2010
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_0129cc0a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 973 + 2395
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_0129cc0a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3368
+[million-baseline] case=26 mode=turingos_dualbrain attempted=26 passed=25 expected=3368 got=3368
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2042
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2098
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2164
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2073
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2274
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2161
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2225
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2182
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_227d0d17
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_5e5b00d2
+CODE:
+with open('ANSWER.txt', 'r') as f: content = f.read().strip(); print('VERIFIED' if content == '3496' else f'FAIL: got {content}')
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: You did not open MAIN_TAPE.md. You MUST dynamically read the tape using file I/O.
+[million-baseline] case=27 mode=turingos_dualbrain attempted=27 passed=26 expected=3496 got=3496
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_655b4ca3
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3624
+[million-baseline] case=28 mode=turingos_dualbrain attempted=28 passed=27 expected=3624 got=3624
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_949864ae
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Split to get operands and operator
+parts = expr_part.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+print(f"{a} {op} {b}")
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 1084 + 2668
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_949864ae
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].strip()
+    parts = expr.split()
+    a, b = int(parts[0]), int(parts[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3752
+[million-baseline] case=29 mode=turingos_dualbrain attempted=29 passed=28 expected=3752 got=3752
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_eba89dac
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3880
+[million-baseline] case=30 mode=turingos_dualbrain attempted=30 passed=29 expected=3880 got=3880
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2168
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2136
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2257
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2287
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2001
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2243
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2153
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2268
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2139
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2153
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_4dfe2289
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_878c78ce
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=31 mode=turingos_dualbrain attempted=31 passed=30 expected=4008 got=4008
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d73b31f9
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 4136
+[million-baseline] case=32 mode=turingos_dualbrain attempted=32 passed=31 expected=4136 got=4136
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2173
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2262
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2298
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2071
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_5abe8504
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 4264
+[million-baseline] case=33 mode=turingos_dualbrain attempted=33 passed=32 expected=4264 got=4264
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2288
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2173
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2026
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2091
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2266
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_281897f2
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2004
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2135
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2122
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2160
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2162
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_660f7e54
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_0182e98f
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_270a8c96
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=34 mode=turingos_dualbrain attempted=34 passed=33 expected=4392 got=4392
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2242
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2152
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2071
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2276
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2068
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2006
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2046
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2130
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2298
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2000
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2050
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_3ad1cd19
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 4520
+[million-baseline] case=35 mode=turingos_dualbrain attempted=35 passed=34 expected=4520 got=4520
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_427f98b3
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 4648
+[million-baseline] case=36 mode=turingos_dualbrain attempted=36 passed=35 expected=4648 got=4648
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_cb7fe863
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse numbers and operator
+parts = expr_part.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 4776
+[million-baseline] case=37 mode=turingos_dualbrain attempted=37 passed=36 expected=4776 got=4776
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_520766f5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].strip().split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 4904
+[million-baseline] case=38 mode=turingos_dualbrain attempted=38 passed=37 expected=4904 got=4904
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_001cf08c
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 5032
+[million-baseline] case=39 mode=turingos_dualbrain attempted=39 passed=38 expected=5032 got=5032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2200
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2196
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2164
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2144
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2100
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2113
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2279
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2036
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2191
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2178
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2214
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2271
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2236
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2244
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2203
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2159
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2190
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_bd6cb69a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=40 mode=turingos_dualbrain attempted=40 passed=39 expected=5160 got=5160
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2076
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2160
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2053
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2252
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2133
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2270
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2255
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2029
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2299
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2008
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2098
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_c21f57ba
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 5288
+[million-baseline] case=41 mode=turingos_dualbrain attempted=41 passed=40 expected=5288 got=5288
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2273
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2142
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2059
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2131
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2059
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2062
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2261
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2036
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2262
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2217
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2255
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2281
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2130
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2285
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_78153ce7
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr_part = tape.split('Expression: ')[1].strip()
+    parts = expr_part.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    result = a + b
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 5416
+[million-baseline] case=42 mode=turingos_dualbrain attempted=42 passed=41 expected=5416 got=5416
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2218
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2007
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2012
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2117
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2245
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2029
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2161
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2095
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2076
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2097
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2011
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2260
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2227
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2263
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_0632572c
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=43 mode=turingos_dualbrain attempted=43 passed=42 expected=5544 got=5544
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2010
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2194
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2151
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2097
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2176
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2038
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2093
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2279
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2077
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2162
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_f06f9c52
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 5672
+[million-baseline] case=44 mode=turingos_dualbrain attempted=44 passed=43 expected=5672 got=5672
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2025
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2026
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2060
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2081
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2072
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2260
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2257
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2278
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2236
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2294
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2226
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2007
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2156
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2185
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2096
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2137
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2110
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2132
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2142
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2127
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2055
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2097
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2086
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2090
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_679bd0cd
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2298
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2294
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2090
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2152
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2256
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2154
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2285
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_1b8d7e56
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=45 mode=turingos_dualbrain attempted=45 passed=44 expected=5800 got=5800
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d0bb4279
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 5928
+[million-baseline] case=46 mode=turingos_dualbrain attempted=46 passed=45 expected=5928 got=5928
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_78a61caa
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6056
+[million-baseline] case=47 mode=turingos_dualbrain attempted=47 passed=46 expected=6056 got=6056
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2273
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2030
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2040
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2153
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2164
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2218
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2135
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2078
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2298
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2170
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2272
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2271
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2199
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2227
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2284
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2188
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2135
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2237
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2298
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2236
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2296
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2279
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2077
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2134
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2119
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2275
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2001
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2174
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_6a05e767
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6184
+[million-baseline] case=48 mode=turingos_dualbrain attempted=48 passed=47 expected=6184 got=6184
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2099
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2200
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2074
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2261
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2258
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2196
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2031
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2106
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2004
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2114
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2011
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2091
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2222
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2130
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2169
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2036
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2089
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2026
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2033
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2170
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2161
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2160
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2046
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2183
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2193
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2140
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2122
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2204
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2046
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2279
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2080
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2101
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2154
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2250
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_6b7d6719
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6312
+[million-baseline] case=49 mode=turingos_dualbrain attempted=49 passed=48 expected=6312 got=6312
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2177
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2116
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2096
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2236
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2197
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2169
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2229
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2152
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2238
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2176
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2125
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2143
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2050
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2256
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2119
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2136
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2274
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2098
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2093
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2157
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2051
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2246
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2069
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2031
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2184
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_505a4176
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_08201334
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_b966ae97
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6440
+[million-baseline] case=50 mode=turingos_dualbrain attempted=50 passed=49 expected=6440 got=6440
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2042
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2125
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2121
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2111
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2248
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2238
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2230
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2166
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2193
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2188
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2255
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2110
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2024
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2177
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2067
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2220
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2030
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2230
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2008
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2136
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2077
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2276
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2138
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2168
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2070
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_06cbbaac
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_081458ff
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse the expression (format: N + M)
+parts = expr_part.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6568
+[million-baseline] case=51 mode=turingos_dualbrain attempted=51 passed=50 expected=6568 got=6568
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_35f66d1a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_line = tape.split('Expression: ')[1].strip()
+# Parse: 1935 + 4761
+parts = expr_line.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+print(f"{a} {op} {b}")
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_35f66d1a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 1935 + 4761
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_35f66d1a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6696
+[million-baseline] case=52 mode=turingos_dualbrain attempted=52 passed=51 expected=6696 got=6696
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_e3a15534
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: print(f.read())
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 1972 + 4852
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2025
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2076
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2080
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2242
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2274
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2210
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2212
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2046
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2174
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2142
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2055
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2023
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2195
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2062
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2053
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2182
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_e3a15534
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].strip()
+    parts = expr.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6824
+[million-baseline] case=53 mode=turingos_dualbrain attempted=53 passed=52 expected=6824 got=6824
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_2db7d6f6
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 6952
+[million-baseline] case=54 mode=turingos_dualbrain attempted=54 passed=53 expected=6952 got=6952
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2295
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2023
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2029
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2288
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2267
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2031
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2223
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2245
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2251
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2241
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2179
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2241
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2184
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2034
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2019
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_a956b4b7
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7080
+[million-baseline] case=55 mode=turingos_dualbrain attempted=55 passed=54 expected=7080 got=7080
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_1d40a85e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7208
+[million-baseline] case=56 mode=turingos_dualbrain attempted=56 passed=55 expected=7208 got=7208
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2247
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2279
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2039
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2287
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2082
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2027
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2299
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2219
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2005
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2051
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2232
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2124
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_c87ea65a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+expr_line = [l for l in tape.split('\n') if 'Expression:' in l][0]
+parts = expr_line.split('Expression: ')[1].strip().split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7336
+[million-baseline] case=57 mode=turingos_dualbrain attempted=57 passed=56 expected=7336 got=7336
+[oracle:kimi] transient error; status=n/a; attempt=1/2; retry_in_ms=2061
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_94d378e8
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7464
+[million-baseline] case=58 mode=turingos_dualbrain attempted=58 passed=57 expected=7464 got=7464
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_7b771043
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse: 2194 + 5398
+parts = expr_part.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_7b771043
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse: 2194 + 5398
+parts = expr_part.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_7b771043
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7592
+[million-baseline] case=59 mode=turingos_dualbrain attempted=59 passed=58 expected=7592 got=7592
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_d6e3bf0e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7720
+[million-baseline] case=60 mode=turingos_dualbrain attempted=60 passed=59 expected=7720 got=7720
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_098f257e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7848
+[million-baseline] case=61 mode=turingos_dualbrain attempted=61 passed=60 expected=7848 got=7848
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_08ce9664
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 7976
+[million-baseline] case=62 mode=turingos_dualbrain attempted=62 passed=61 expected=7976 got=7976
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2105
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2060
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2258
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2267
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2240
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2240
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2125
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2082
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2241
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2135
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2159
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2114
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2004
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2247
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2191
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6f6a979f
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=63 mode=turingos_dualbrain attempted=63 passed=62 expected=8104 got=8104
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2017
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2212
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2076
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2224
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2004
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2233
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2164
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2121
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_ee0173e3
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].strip().split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 8232
+[million-baseline] case=64 mode=turingos_dualbrain attempted=64 passed=63 expected=8232 got=8232
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_efbc50e9
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 8360
+[million-baseline] case=65 mode=turingos_dualbrain attempted=65 passed=64 expected=8360 got=8360
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2163
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2214
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2246
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2124
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2249
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2250
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2052
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2068
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2083
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2049
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2126
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2099
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2135
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2035
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2027
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_706f9f09
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 8488
+[million-baseline] case=66 mode=turingos_dualbrain attempted=66 passed=65 expected=8488 got=8488
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_19303de1
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract the expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Parse the expression (format: "2490 + 6126")
+    parts = expr_part.split()
+    a = int(parts[0])
+    op = parts[1]
+    b = int(parts[2])
+    result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_19303de1
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 8616
+[million-baseline] case=67 mode=turingos_dualbrain attempted=67 passed=66 expected=8616 got=8616
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_e2d04dd9
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Parse the expression (format: NUM1 + NUM2)
+    parts = expr_part.split()
+    num1 = int(parts[0])
+    num2 = int(parts[2])
+    result = num1 + num2
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 8744
+[million-baseline] case=68 mode=turingos_dualbrain attempted=68 passed=67 expected=8744 got=8744
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2239
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2203
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2215
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2189
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2245
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2219
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2215
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2286
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2295
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2037
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2277
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2060
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2148
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2284
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2191
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2288
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_b29160f8
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=69 mode=turingos_dualbrain attempted=69 passed=68 expected=8872 got=8872
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_f21c0150
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Get the two numbers and operator
+parts = expr_part.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+print(f"{a} {op} {b}")
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 2601 + 6399
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_f21c0150
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Split to get numbers and operator
+    parts = expr_part.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    result = a + b
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 9000
+[million-baseline] case=70 mode=turingos_dualbrain attempted=70 passed=69 expected=9000 got=9000
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_53596c62
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 2638 + 6490
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_53596c62
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 9128
+[million-baseline] case=71 mode=turingos_dualbrain attempted=71 passed=70 expected=9128 got=9128
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2116
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2158
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2134
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2161
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2272
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2153
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2033
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2134
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2058
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2148
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2011
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2181
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2109
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2243
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2173
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2237
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2087
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2182
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2168
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2122
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2055
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2137
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2161
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_fd0dd47e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a = int(expr[0])
+    b = int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 9256
+[million-baseline] case=72 mode=turingos_dualbrain attempted=72 passed=71 expected=9256 got=9256
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2178
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2097
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2234
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2290
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2121
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2179
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2273
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2286
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2201
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2018
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2105
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_fae4bb71
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_bcde7c58
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_e8ff67cc
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_2f441786
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=73 mode=turingos_dualbrain attempted=73 passed=72 expected=9384 got=9384
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_066ead22
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Split to get numbers and operator
+    parts = expr_part.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    result = a + b
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 9512
+[million-baseline] case=74 mode=turingos_dualbrain attempted=74 passed=73 expected=9512 got=9512
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2242
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2087
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2286
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2261
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2067
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2072
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2162
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2098
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2018
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2121
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_01ce006f
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    result = int(expr[0]) + int(expr[2])
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 9640
+[million-baseline] case=75 mode=turingos_dualbrain attempted=75 passed=74 expected=9640 got=9640
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_6081c14e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].strip()
+    parts = expr.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 9768
+[million-baseline] case=76 mode=turingos_dualbrain attempted=76 passed=75 expected=9768 got=9768
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2229
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2238
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2169
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2063
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_575748a6
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=77 mode=turingos_dualbrain attempted=77 passed=76 expected=9896 got=9896
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2111
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2149
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2211
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2149
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_799e570d
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6c99df51
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2082
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2146
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2097
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_e35fee0e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_7929910b
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=78 mode=turingos_dualbrain attempted=78 passed=77 expected=10024 got=10024
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2296
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2105
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2078
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2141
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2174
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2293
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2019
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2254
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2028
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2032
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2124
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_35006c79
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10152
+[million-baseline] case=79 mode=turingos_dualbrain attempted=79 passed=78 expected=10152 got=10152
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_3540028e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10280
+[million-baseline] case=80 mode=turingos_dualbrain attempted=80 passed=79 expected=10280 got=10280
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_34f4e08d
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr_part = tape.split('Expression: ')[1].strip()
+    parts = expr_part.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10408
+[million-baseline] case=81 mode=turingos_dualbrain attempted=81 passed=80 expected=10408 got=10408
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2017
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2202
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2294
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2058
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2183
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2274
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_f37109fd
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6edf2595
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_cb018a08
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_6d109126
+CODE:
+with open('ANSWER.txt', 'r') as f: content = f.read().strip(); print(content)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: You did not open MAIN_TAPE.md. You MUST dynamically read the tape using file I/O.
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_6d109126
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10536
+[million-baseline] case=82 mode=turingos_dualbrain attempted=82 passed=81 expected=10536 got=10536
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_27d64f61
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+expr_part = tape.split('Expression: ')[1].strip()
+parts = expr_part.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+print(f"{a} {op} {b}")
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3082 + 7582
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_27d64f61
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10664
+[million-baseline] case=83 mode=turingos_dualbrain attempted=83 passed=82 expected=10664 got=10664
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_0e321f3e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10792
+[million-baseline] case=84 mode=turingos_dualbrain attempted=84 passed=83 expected=10792 got=10792
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_95ec41c4
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Parse the expression: format is "3156 + 7764"
+    parts = expr_part.split()
+    a = int(parts[0])
+    op = parts[1]
+    b = int(parts[2])
+    result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_95ec41c4
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 10920
+[million-baseline] case=85 mode=turingos_dualbrain attempted=85 passed=84 expected=10920 got=10920
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_264669da
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr_part = tape.split('Expression: ')[1].strip()
+    parts = expr_part.split()
+    a = int(parts[0])
+    b = int(parts[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 11048
+[million-baseline] case=86 mode=turingos_dualbrain attempted=86 passed=85 expected=11048 got=11048
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2015
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2005
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2093
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2103
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_a069e817
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_5906ec69
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2106
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2027
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2087
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_16473176
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_b720be51
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=87 mode=turingos_dualbrain attempted=87 passed=86 expected=11176 got=11176
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_de2c503d
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Split to get numbers and operator
+    parts = expr_part.split()
+    a = int(parts[0])
+    op = parts[1]
+    b = int(parts[2])
+    result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 11304
+[million-baseline] case=88 mode=turingos_dualbrain attempted=88 passed=87 expected=11304 got=11304
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2264
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2270
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2092
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_3ccd027a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_43a302e6
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2128
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2085
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2163
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_780d4a32
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[million-baseline] case=89 mode=turingos_dualbrain attempted=89 passed=88 expected=11432 got=11432
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_1586eb8d
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Split to get operands and operator
+parts = expr_part.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 11560
+[million-baseline] case=90 mode=turingos_dualbrain attempted=90 passed=89 expected=11560 got=11560
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2159
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2106
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2205
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2266
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2241
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2053
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2211
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2230
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2206
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2145
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2248
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2191
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2068
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2243
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2240
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2052
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2246
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_a8fafee5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(' + '); print(int(expr[0]) + int(expr[2]))
+
+Traceback (most recent call last):
+  File "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000091/script_worker_a8fafee5.py", line 1, in <module>
+    with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(' + '); print(int(expr[0]) + int(expr[2]))
+                                                                                                                                  ^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: "5678)\nGOOD (Deterministic and safe):\nwith open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('"
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_fcdc2325
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[million-baseline] case=91 mode=turingos_dualbrain attempted=91 passed=90 expected=11688 got=11688
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2176
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2181
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2181
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2184
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2046
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2062
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2086
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2094
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2036
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2209
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2297
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2154
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2091
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2190
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_2981ac04
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=92 mode=turingos_dualbrain attempted=92 passed=91 expected=11816 got=11816
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_b9eb3a53
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    expr = tape.split('Expression: ')[1].split()
+    a, b = int(expr[0]), int(expr[2])
+    print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 11944
+[million-baseline] case=93 mode=turingos_dualbrain attempted=93 passed=92 expected=11944 got=11944
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_5c5bdccb
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse: 3489 + 8583
+parts = expr_part.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: [PYTHON_EXEC_ERROR]
+FATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_5c5bdccb
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse numbers and operator
+parts = expr_part.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+print(a + b)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12072
+[million-baseline] case=94 mode=turingos_dualbrain attempted=94 passed=93 expected=12072 got=12072
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2044
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2201
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2004
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2084
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2058
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2267
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2283
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2070
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2188
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2165
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2297
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2185
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2259
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2126
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2109
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2175
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2002
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2295
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2014
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_a6e76f9b
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=95 mode=turingos_dualbrain attempted=95 passed=94 expected=12200 got=12200
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_027340d0
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract the expression after 'Expression: '
+expr_line = tape.split('Expression: ')[1].strip()
+print(expr_line)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 3563 + 8765
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_027340d0
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12328
+[million-baseline] case=96 mode=turingos_dualbrain attempted=96 passed=95 expected=12328 got=12328
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_ba59bf47
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12456
+[million-baseline] case=97 mode=turingos_dualbrain attempted=97 passed=96 expected=12456 got=12456
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_6979f1c5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12584
+[million-baseline] case=98 mode=turingos_dualbrain attempted=98 passed=97 expected=12584 got=12584
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2122
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2008
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2024
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2108
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2258
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2194
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2276
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2281
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2219
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2080
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2188
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2157
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2105
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2000
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2170
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_aa3d790e
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12712
+[million-baseline] case=99 mode=turingos_dualbrain attempted=99 passed=98 expected=12712 got=12712
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_4e5f08b7
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read()
+expr = tape.split('Expression: ')[1].strip()
+parts = expr.split()
+a, op, b = int(parts[0]), parts[1], int(parts[2])
+result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b if op == '/' else 0
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12840
+[million-baseline] case=100 mode=turingos_dualbrain attempted=100 passed=99 expected=12840 got=12840
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_f238c92a
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); a = int(expr[0]); b = int(expr[2]); result = a + b; print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12968
+[million-baseline] case=101 mode=turingos_dualbrain attempted=101 passed=100 expected=12968 got=12968
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2016
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2157
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2038
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2138
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2221
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2263
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2174
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2265
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2092
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2060
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2163
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2075
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2262
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2252
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2232
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2296
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2259
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2017
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2216
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2108
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2234
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2102
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2037
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2150
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2162
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2172
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2059
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2172
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2136
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2193
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2098
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2080
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2137
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2107
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2125
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2114
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2240
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_c4643f70
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[oracle:ollama] repair parse failed; attempt=1/2; status=n/a
+[oracle:ollama] repair parse failed; attempt=2/2; status=n/a
+[million-baseline] case=102 mode=turingos_dualbrain attempted=102 passed=101 expected=13096 got=13096
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2204
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2167
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2033
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2058
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2153
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2141
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2044
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2109
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2147
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2294
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2069
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2122
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2273
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2021
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_a9c97d27
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_6148beb5
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_74cad0f3
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: worker_af8ddace
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+[million-baseline] case=103 mode=turingos_dualbrain attempted=103 passed=102 expected=13224 got=13224
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_c5a26a5d
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+    # Extract the expression after 'Expression: '
+    expr_part = tape.split('Expression: ')[1].strip()
+    # Parse numbers and operator
+    parts = expr_part.split()
+    a = int(parts[0])
+    op = parts[1]
+    b = int(parts[2])
+    result = a + b if op == '+' else a - b if op == '-' else a * b if op == '*' else a // b
+    print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 13352
+[million-baseline] case=104 mode=turingos_dualbrain attempted=104 passed=103 expected=13352 got=13352
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_dfad8334
+CODE:
+with open('MAIN_TAPE.md', 'r') as f:
+    tape = f.read()
+# Extract expression after 'Expression: '
+expr_part = tape.split('Expression: ')[1].strip()
+# Parse the expression (format: N + M)
+parts = expr_part.split()
+a = int(parts[0])
+op = parts[1]
+b = int(parts[2])
+result = a + b
+print(result)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 13480
+[million-baseline] case=105 mode=turingos_dualbrain attempted=105 passed=104 expected=13480 got=13480
+
+
+[!!!] WORKER GENERATED PYTHON CODE [!!!]
+PID: planner_0eb67050
+CODE:
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); print(tape)
+
+[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: # Baseline Test
+Question: Compute this exactly and return JSON only: {"answer":"<integer>"} . Expression: 3933 + 9675
+
+[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]
+You are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.
+Instead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.
+BAD (Will cause silent failure):
+print(1200 + 5678)
+GOOD (Deterministic and safe):
+with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+
+The stdout of your script must be exactly the final integer answer, printed to the console.
+The system will automatically run your script and use the printed number as your final submission.
+[million-baseline] case=106 mode=turingos_dualbrain attempted=106 passed=105 expected=13608 got=null
+[million-baseline] start_test=1 target_tests=1000000 max_tests=200
+[million-baseline] mode=turingos_dualbrain consecutive=105 delta_to_1m=999895 status=FAIL
+[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260304_132046.json

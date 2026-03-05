@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_7208bc6f",
+  "rootState": "TERMINATED",
+  "ticks": 16,
+  "q": "Read MAIN_TAPE.md and extract expression for arithmetic computation",
+  "d": "MAIN_TAPE.md"
+}

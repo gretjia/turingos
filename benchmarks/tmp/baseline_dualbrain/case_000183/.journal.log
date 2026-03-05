@@ -1,0 +1,12 @@
+[2026-03-05T02:31:19.450Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:17.077Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:22.256Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:19.502Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:24.735Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:22.309Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:26.982Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:24.791Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:29.469Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:27.035Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:32.237Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:29.523Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:32.342Z] [HYPERCORE_RED_FLAG] pid=planner_80425371 red_flags=1/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-05T02:31:36.451Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:32.342Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:52.662Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:36.548Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:55.697Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:31:52.720Z","pid":"planner_80425371","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:31:55.770Z] [HYPERCORE_HALT_REQUEST] pid=planner_80425371 details=PLANNER_AUTO_PYTHON_HALT
+[2026-03-05T02:31:55.790Z] [HYPERCORE_PRICE] pid=planner_80425371 verdict=PASS price=1

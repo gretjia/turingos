@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_401cf31b",
+  "rootState": "TERMINATED",
+  "ticks": 7,
+  "q": "Read MAIN_TAPE.md, extract expression, then emit SYS_MAP_REDUCE with 4 tasks for redundant computation",
+  "d": "MAIN_TAPE.md"
+}

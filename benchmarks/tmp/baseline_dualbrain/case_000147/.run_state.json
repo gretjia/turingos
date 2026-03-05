@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_24db8c76",
+  "rootState": "TERMINATED",
+  "ticks": 3,
+  "q": "Reading MAIN_TAPE.md to extract expression, then launching MAP_REDUCE workers",
+  "d": "MAIN_TAPE.md"
+}

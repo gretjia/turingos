@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_53ba0b50",
+  "rootState": "TERMINATED",
+  "ticks": 18,
+  "q": "Reading MAIN_TAPE.md and fanning out to 4 workers for independent verification",
+  "d": "MAIN_TAPE.md"
+}

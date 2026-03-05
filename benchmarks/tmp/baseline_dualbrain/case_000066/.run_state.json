@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_706f9f09",
+  "rootState": "TERMINATED",
+  "ticks": 15,
+  "q": "Step 3: Consensus failed, fallback to direct deterministic solve using zero-touch extraction",
+  "d": "MAIN_TAPE.md"
+}

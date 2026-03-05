@@ -1,0 +1,9 @@
+[million-baseline] adaptive_workers enabled=true initial=13 min=13 max=27 ahead_by_k=11 temporary_cap=none
+[million-baseline] worker_fanout mode=adaptive:13
+[million-baseline] worker_parallelism=16 worker_endpoints=1 endpoints=http://100.72.87.94:11434/v1
+[million-baseline] FAIL Error: [preflight:planner] model_not_listed target=qwen3-coder:30b available=qwen3-coder-30b.gguf
+    at preflightOpenAIEndpoint (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:279:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async preflightDualBrainOracles (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:335:5)
+    at async runMode (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:908:5)
+    at async main (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:1050:20)

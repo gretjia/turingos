@@ -1,0 +1,34 @@
+{
+  "stamp": "20260304_235828",
+  "startTest": 144,
+  "targetTests": 1000000,
+  "maxTests": 142,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 0,
+      "passed": 0,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "invalid range: start_test=144 > max_tests=142"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 0,
+      "passed": 0,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "invalid range: start_test=144 > max_tests=142"
+    }
+  ],
+  "bestMode": "turingos_dualbrain"
+}

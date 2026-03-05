@@ -1,0 +1,22 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -584,6 +584,17 @@
+ 
+     const decisiveEarlyStop = thresholdAheadByK || mathematicallyLocked || p85Reached;
+ 
++    if (decisiveEarlyStop) {
++      // P85 Drop: If we decided to early stop, brutally unblock and drop remaining workers
++      // so they don't deadlock the orchestrator waiting for offline nodes.
++      const childrenToKill = Array.from(parent.waitPids);
++      for (const straggler of childrenToKill) {
++         const stragPcb = this.pcbTable.get(straggler);
++         if (stragPcb && stragPcb.state !== 'TERMINATED' && stragPcb.state !== 'KILLED') {
++             stragPcb.state = 'KILLED';
++         }
++      }
++      parent.waitPids.clear();
++    }
++
+     if (remainingChildren > 0 && !decisiveEarlyStop) {
+       return;
+     }

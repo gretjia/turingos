@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_cbbc865e",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "fallback deterministic solve after NO_VALID_VOTE",
+  "d": "MAIN_TAPE.md"
+}

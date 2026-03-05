@@ -1,0 +1,80 @@
+{
+  "stamp": "20260304_050303",
+  "startTest": 1,
+  "targetTests": 1000000,
+  "maxTests": 20,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error.",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000001_20260304_045856.json"
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 20,
+      "passed": 20,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 20,
+      "closestToMillionDelta": 999980,
+      "status": "PASS"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 7,
+      "passed": 6,
+      "failed": 1,
+      "firstFailAt": 7,
+      "consecutivePassBeforeFirstFail": 6,
+      "closestToMillionDelta": 999994,
+      "status": "FAIL",
+      "reason": "mismatch expected=936 got=(null)",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000007_20260304_050303.json"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "kimi_direct",
+      "attempted": 20,
+      "passed": 20,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 20,
+      "closestToMillionDelta": 999980,
+      "status": "PASS"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 7,
+      "passed": 6,
+      "failed": 1,
+      "firstFailAt": 7,
+      "consecutivePassBeforeFirstFail": 6,
+      "closestToMillionDelta": 999994,
+      "status": "FAIL",
+      "reason": "mismatch expected=936 got=(null)",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000007_20260304_050303.json"
+    },
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "SKIP",
+      "reason": "Connection error.",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000001_20260304_045856.json"
+    }
+  ],
+  "bestMode": "kimi_direct"
+}

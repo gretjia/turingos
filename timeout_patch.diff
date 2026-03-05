@@ -1,0 +1,44 @@
+--- src/oracle/universal-oracle.ts
++++ src/oracle/universal-oracle.ts
+@@ -165,6 +165,15 @@
+   }
+ 
++  private async fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
++    const controller = new AbortController();
++    const timeoutId = setTimeout(() => controller.abort(new Error(`Timeout of ${this.requestTimeoutMs}ms exceeded`)), this.requestTimeoutMs);
++    try {
++      return await fetch(url, { ...options, signal: controller.signal });
++    } finally {
++      clearTimeout(timeoutId);
++    }
++  }
++
+   private async request(systemPrompt: string, userFrame: string, requestedTemperature?: number): Promise<unknown> {
+     const temperature = this.normalizeTemperature(requestedTemperature);
+     const strictSystemPrompt = this.composeSystemPrompt(systemPrompt);
+@@ -194,15 +203,14 @@
+         if (this.options.baseURL && this.options.baseURL.includes(':8080') && this.options.forceJsonSchema) {
+            // llama.cpp expects grammar or JSON Schema inside response_format
+            (payload as any).response_format = { 
+              type: 'json_object', 
+              schema: JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../src/transition_schema.json'), 'utf-8')) 
+            };
+         }
+ 
+-        const res = await fetch(this.options.baseURL!, {
++        const res = await this.fetchWithTimeout(this.options.baseURL!, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             ...(this.options.apiKey && this.options.apiKey !== 'local'
+               ? { Authorization: `Bearer ${this.options.apiKey}` }
+@@ -382,7 +390,7 @@
+     if (this.mode === 'kimi' && this.kimimart) {
+       return this.withRetry('kimi', async () => {
+         const kimiMessages = [{ role: 'user' as const, content: userFrame.trim() }];
+-        const response = await fetch(this.kimimart!.endpoint, {
++        const response = await this.fetchWithTimeout(this.kimimart!.endpoint, {
+           method: 'POST',
+           headers: {
+             'content-type': 'application/json',
+             'anthropic-version': '2023-06-01',

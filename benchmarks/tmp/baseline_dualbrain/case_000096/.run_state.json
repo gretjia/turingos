@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_027340d0",
+  "rootState": "TERMINATED",
+  "ticks": 6,
+  "q": "Read MAIN_TAPE.md and extract expression for MAP_REDUCE distribution",
+  "d": "MAIN_TAPE.md"
+}

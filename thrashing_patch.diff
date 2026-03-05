@@ -1,0 +1,19 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -248,6 +248,15 @@
+               `[HYPERCORE_AUTOWRITE] pid=${pcb.pid} source=join_consensus consensus=${lastConsensus}`
+             );
+           }
++          else if (lastConsensus && !/^-?[0-9]+$/.test(lastConsensus)) {
++             // The workers failed to reach a numeric consensus (e.g., [NO_VALID_VOTE])
++             // Rather than skipping and causing NO_PHYSICAL_IO thrashing, we inject a red flag
++             const q = this.readRegisterString(pcb, 'q');
++             this.writeRegisterString(
++                pcb,
++                'q',
++                `${q}\n[SYSTEM RED FLAG] The worker swarm failed to reach a consensus. They returned: ${lastConsensus}. Do NOT emit SYS_MAP_REDUCE. You must rethink the problem and manually write the answer using SYS_WRITE.`
++             );
++          }
+         }
+       }
+     }

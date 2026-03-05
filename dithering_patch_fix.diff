@@ -1,0 +1,29 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -107,17 +107,24 @@
+   ): string {
+     const pid = `${role.toLowerCase()}_${randomUUID().slice(0, 8)}`;
+     const now = new Date().toISOString();
+ 
+     let finalTemperature = role === 'PLANNER' ? this.plannerTemperature : this.workerTemperature;
+     
+     // Introduce Temperature Dithering for Swarm Entropy (K-workers)
+     // If it's a WORKER and we have baseline dithering enabled via env (or fallback logic).
+     // DeepThink requested dithering from T=0.1 to T=0.7 across 16 Windows workers based on ID.
+     if (role === 'WORKER') {
+-       // Since PID is pseudo-random, a simple hash/modulo or random assignment works well
+-       finalTemperature = 0.1 + (Math.random() * 0.6); // Random between 0.1 and 0.7
++       // Calculate deterministic temperature based on PID hash to ensure even spread.
++       let hash = 0;
++       for (let i = 0; i < pid.length; i++) {
++         hash = (hash << 5) - hash + pid.charCodeAt(i);
++         hash |= 0;
++       }
++       const kIndex = Math.abs(hash) % 16;
++       // Map kIndex (0-15) linearly to range 0.1 - 0.7
++       finalTemperature = 0.1 + (0.6 * (kIndex / 15.0));
+     }
+ 
+     const pcb: PCB = {
+       pid,
+       ppid,

@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_56228710",
+  "rootState": "TERMINATED",
+  "ticks": 16,
+  "q": "159 + 393 = ?\nconsensus=552 verified",
+  "d": "MAIN_TAPE.md"
+}

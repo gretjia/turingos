@@ -1,0 +1,39 @@
+[2026-03-05T02:49:03.343Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:48:59.807Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:07.047Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:03.400Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:11.172Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:07.110Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:15.020Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:11.235Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:17.076Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:15.076Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:19.186Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:17.142Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:19.295Z] [HYPERCORE_RED_FLAG] pid=planner_a53ca347 red_flags=1/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-05T02:49:23.001Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:19.295Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:31.165Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:23.060Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:49:31.166Z] [HYPERCORE_MAP] pid=planner_a53ca347 children=worker_a5e139bd,worker_dec69f83,worker_3e35c307,worker_330520c7 task_count=4
+[2026-03-05T02:49:45.868Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:31.481Z","pid":"worker_3e35c307","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:49:45.920Z] [HYPERCORE_TRAP] pid=worker_3e35c307 details=WORKER_MAP_REDUCE_DROPPED
+[2026-03-05T02:50:01.578Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:31.924Z","pid":"worker_a5e139bd","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:50:01.631Z] [HYPERCORE_TRAP] pid=worker_a5e139bd details=WORKER_MAP_REDUCE_DROPPED
+[2026-03-05T02:50:16.553Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:31.708Z","pid":"worker_dec69f83","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:50:16.601Z] [HYPERCORE_TRAP] pid=worker_dec69f83 details=WORKER_MAP_REDUCE_DROPPED
+[2026-03-05T02:50:31.581Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:49:32.141Z","pid":"worker_330520c7","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:50:31.633Z] [HYPERCORE_TRAP] pid=worker_330520c7 details=WORKER_MAP_REDUCE_DROPPED
+[2026-03-05T02:51:56.409Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:50:32.151Z","pid":"worker_dec69f83","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:51:56.491Z] [PYTHON_EXEC_CODE] worker=worker_dec69f83 code=with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+[2026-03-05T02:52:15.832Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:50:32.611Z","pid":"worker_3e35c307","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:52:15.911Z] [PYTHON_EXEC_CODE] worker=worker_3e35c307 code=with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+[2026-03-05T02:52:17.897Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:50:32.362Z","pid":"worker_a5e139bd","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:52:17.977Z] [PYTHON_EXEC_CODE] worker=worker_a5e139bd code=with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+[2026-03-05T02:52:19.973Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:50:31.921Z","pid":"worker_330520c7","role":"WORKER","lane":"E","laneLabel":"E:openai:qwen2.5:7b:pool=1","temperature":0.4}
+[2026-03-05T02:52:20.055Z] [PYTHON_EXEC_CODE] worker=worker_330520c7 code=with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+[2026-03-05T02:52:20.063Z] [HYPERCORE_PRICE] pid=worker_a5e139bd verdict=WORKER_ACCEPT price=1
+[2026-03-05T02:52:20.063Z] [HYPERCORE_PRICE] pid=worker_dec69f83 verdict=WORKER_ACCEPT price=1
+[2026-03-05T02:52:20.063Z] [HYPERCORE_PRICE] pid=worker_3e35c307 verdict=WORKER_ACCEPT price=1
+[2026-03-05T02:52:20.064Z] [HYPERCORE_REDUCE] pid=planner_a53ca347 resumed=1 early_stop=1 math_lock=1 consensus=15256 votes=3/0
+[2026-03-05T02:52:20.064Z] [HYPERCORE_PRICE] pid=worker_330520c7 verdict=WORKER_ACCEPT price=1
+[2026-03-05T02:52:22.771Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:52:20.099Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:52:22.829Z] [HYPERCORE_STRICT_WRITE_COERCE] pid=planner_a53ca347 pointer=ANSWER.txt source=canonicalize
+[2026-03-05T02:52:25.302Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:52:22.845Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:52:25.407Z] [HYPERCORE_STRICT_WRITE_COERCE] pid=planner_a53ca347 pointer=ANSWER.txt source=canonicalize
+[2026-03-05T02:52:28.345Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:52:25.433Z","pid":"planner_a53ca347","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T02:52:28.422Z] [HYPERCORE_STRICT_WRITE_COERCE] pid=planner_a53ca347 pointer=ANSWER.txt source=canonicalize
+[2026-03-05T02:52:28.437Z] [HYPERCORE_HALT_ASSIST] pid=planner_a53ca347 reason=write_thrashing_ready_to_halt streak=3
+[2026-03-05T02:52:28.461Z] [HYPERCORE_PRICE] pid=planner_a53ca347 verdict=PASS price=1

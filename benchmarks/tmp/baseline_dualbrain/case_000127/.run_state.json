@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_5cbf4882",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "fallback deterministic solve after MAP_REDUCE consensus failure",
+  "d": "MAIN_TAPE.md"
+}

@@ -1,0 +1,22 @@
+--- src/bench/replay-runner.ts
++++ src/bench/replay-runner.ts
+@@ -236,6 +236,9 @@
+       case 'SYS_POP':
+       case 'SYS_HALT':
+         break;
++      case 'SYS_EXEC_PYTHON':
++        payload += ` code=${syscall.code}`;
++        break;
+       default: {
+         const exhaustiveCheck: never = syscall;
+         throw new Error(`Unhandled syscall op: ${exhaustiveCheck}`);
+@@ -361,6 +364,9 @@
+       case 'SYS_POP':
+       case 'SYS_HALT':
+         break;
++      case 'SYS_EXEC_PYTHON':
++        payload += ` code=${syscall.code}`;
++        break;
+       default: {
+         const exhaustiveCheck: never = syscall;
+         throw new Error(`Unhandled syscall op: ${exhaustiveCheck}`);

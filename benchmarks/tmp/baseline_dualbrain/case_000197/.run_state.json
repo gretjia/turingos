@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_a53ca347",
+  "rootState": "TERMINATED",
+  "ticks": 19,
+  "q": "Consensus 15256 received from MAP_REDUCE_JOIN. Writing to ANSWER.txt.",
+  "d": "$ cat MAIN_TAPE.md"
+}

@@ -1,0 +1,13 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -252,6 +252,11 @@
+               `[HYPERCORE_AUTOWRITE] pid=${pcb.pid} source=join_consensus consensus=${lastConsensus}`
+             );
++            
++            // Force halt to prevent recursive auto-write loops
++            normalizedWorldOps.push({
++              op: 'SYS_HALT'
++            });
+           } else if (lastConsensus && !/^-?[0-9]+$/.test(lastConsensus)) {
+             const q = this.readRegisterString(pcb, 'q');
+             this.writeRegisterString(

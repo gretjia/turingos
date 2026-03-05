@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_3ad1cd19",
+  "rootState": "TERMINATED",
+  "ticks": 14,
+  "q": "1) Read MAIN_TAPE.md. 2) Emit SYS_MAP_REDUCE with 4 identical worker tasks.\n[MAP_REDUCE] spawned=4\n[MAP_REDUCE_JOIN]\nconsensus=[NO_VALID_VOTE]\nbest_votes=0\nrunner_up_votes=0\nahead_by_k=11\ncollected=0\n\nDirect fallback: deterministic solve via SYS_EXEC_PYTHON",
+  "d": "MAIN_TAPE.md"
+}

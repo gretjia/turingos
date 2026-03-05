@@ -1,0 +1,18 @@
+--- src/bench/fixtures/syscall-adversarial.ts
++++ src/bench/fixtures/syscall-adversarial.ts
+@@ -15,6 +15,7 @@
+   SYS_WRITE: { op: 'SYS_WRITE', payload: 'example' },
+   SYS_GOTO: { op: 'SYS_GOTO', pointer: 'file.txt' },
+   SYS_EXEC: { op: 'SYS_EXEC', cmd: 'ls -al' },
++  SYS_EXEC_PYTHON: { op: 'SYS_EXEC_PYTHON', code: 'print("hello")' },
+   SYS_GIT_LOG: { op: 'SYS_GIT_LOG', limit: 5, path: 'src/' },
+   SYS_PUSH: { op: 'SYS_PUSH', task: 'new task' },
+   SYS_EDIT: { op: 'SYS_EDIT', task: 'updated task' },
+@@ -106,6 +107,7 @@
+     SYS_WRITE: { pointer: 'file.txt' },
+     SYS_GOTO: { cmd: 'ls' },
+     SYS_EXEC: { payload: 'echo hi' },
++    SYS_EXEC_PYTHON: { target_pos: 'TOP' },
+     SYS_GIT_LOG: { task: 'do git stuff' },
+     SYS_PUSH: { pointer: 'next' },
+     SYS_EDIT: { semantic_cap: 'cap1' },

@@ -1,0 +1,36 @@
+--- src/kernel/types.ts
++++ src/kernel/types.ts
+@@ -21,6 +21,7 @@
+   | { op: 'SYS_WRITE'; payload: string; semantic_cap?: Pointer }
+   | { op: 'SYS_GOTO'; pointer: Pointer }
+   | { op: 'SYS_EXEC'; cmd: string }
++  | { op: 'SYS_EXEC_PYTHON'; code: string }
+   | {
+       op: 'SYS_GIT_LOG';
+       query_params?: string;
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -463,6 +463,22 @@
+         this.writeRegisterString(pcb, 'd', nextD);
+         return;
+       }
++      case 'SYS_EXEC_PYTHON': {
++        const tempFile = path.join((this.manifold as any).workspaceDir || process.cwd(), `script_${pcb.pid}.py`);
++        fs.writeFileSync(tempFile, op.code);
++        let result = '';
++        try {
++           result = execSync(`python3 ${tempFile}`, { timeout: 5000, encoding: 'utf-8' }).trim();
++        } catch(e: any) {
++           result = e.stdout ? e.stdout.trim() : '[PYTHON_EXEC_FAILED]';
++        }
++        if (pcb.role === 'WORKER') {
++           pcb.exitOutput = `RESULT: ${result}`;
++           pcb.state = 'PENDING_HALT';
++        } else {
++           this.writeRegisterString(pcb, 'q', `${this.readRegisterString(pcb, 'q')}\n[SYS_EXEC_RESULT: ${result}]`);
++        }
++        return;
++      }
+       case 'SYS_GOTO':
+         this.writeRegisterString(pcb, 'd', op.pointer);
+         return;

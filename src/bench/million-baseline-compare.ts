@@ -693,7 +693,7 @@ async function solveTuringOSDualBrain(
     maxOutputTokens: 512,
     maxRetries: Number.isFinite(oracleRetries) ? Math.max(0, oracleRetries) : 1,
     requestTimeoutMs: Number.isFinite(oracleTimeoutMs) ? Math.max(1000, oracleTimeoutMs) : 300000,
-    forceJsonSchema: true,
+    forceJsonSchema: false,
   });
   const workerOracles = workerEndpoints.map((endpoint) =>
     new UniversalOracle(workerMode, {

@@ -1,0 +1,10 @@
+[2026-03-04T13:01:37.611Z] [HYPERCORE_ROUTE] {"ts":"2026-03-04T13:01:34.865Z","pid":"planner_027340d0","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-04T13:01:40.408Z] [HYPERCORE_ROUTE] {"ts":"2026-03-04T13:01:37.660Z","pid":"planner_027340d0","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-04T13:01:43.058Z] [HYPERCORE_ROUTE] {"ts":"2026-03-04T13:01:40.463Z","pid":"planner_027340d0","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-04T13:01:47.881Z] [HYPERCORE_ROUTE] {"ts":"2026-03-04T13:01:43.109Z","pid":"planner_027340d0","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-04T13:01:48.005Z] [HYPERCORE_TRAP] pid=planner_027340d0 details=Error: STRICT_INTEGER_WRITE_REJECTED pointer=ANSWER.txt. You must write ONLY a parsed integer result to this file. No text, no expressions.
+[2026-03-04T13:01:50.702Z] [HYPERCORE_ROUTE] {"ts":"2026-03-04T13:01:48.005Z","pid":"planner_027340d0","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-04T13:01:50.800Z] [HYPERCORE_TRAP] pid=planner_027340d0 details=Error: TRAP_ROUTE_THRASHING: repeated route fingerprint 4x (mind=-|world=SYS_GOTO|state=RUNNING|wait=0|q_changed=1|d_changed=0|d=MAIN_TAPE.md)
+[2026-03-04T13:01:54.571Z] [HYPERCORE_ROUTE] {"ts":"2026-03-04T13:01:50.800Z","pid":"planner_027340d0","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-04T13:01:54.644Z] [HYPERCORE_HALT_REQUEST] pid=planner_027340d0 details=PLANNER_AUTO_PYTHON_HALT
+[2026-03-04T13:01:54.666Z] [HYPERCORE_PRICE] pid=planner_027340d0 verdict=PASS price=1

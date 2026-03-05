@@ -1,0 +1,19 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -668,14 +668,14 @@
+       const children = Array.from(pcb.waitPids);
+       if (children.length === 0) {
+         pcb.state = 'READY';
+         this.readyQueue.push(pcb.pid);
+       } else {
+-        // Sync wait
+-        const p = Promise.all(children.map((childPid) => this.waitMapReducePromise(childPid)));
+-        this.blockedPromises.push(p.then(() => pcb.pid));
++        // P85 Promise.any equivalent: We resolve the block as soon as quorum is reached OR all children return.
++        // Because children update parent.mailbox and call schedule(parent) independently, 
++        // we don't need a strict Promise.all here holding up the event loop if the orchestrator can advance early.
++        const p = Promise.allSettled(children.map((childPid) => this.waitMapReducePromise(childPid)));
++        this.blockedPromises.push(p.then(() => pcb.pid)); // Fallback if early unblock fails
+       }
+       return;
+     }

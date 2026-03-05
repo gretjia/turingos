@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_07214252",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "Wait for [MAP_REDUCE_JOIN] consensus result",
+  "d": "MAIN_TAPE.md"
+}

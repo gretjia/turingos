@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_f3d641d4",
+  "rootState": "TERMINATED",
+  "ticks": 13,
+  "q": "3) Wait for [MAP_REDUCE_JOIN] - consensus=[NO_VALID_VOTE], fallback to direct deterministic solve",
+  "d": "MAIN_TAPE.md"
+}

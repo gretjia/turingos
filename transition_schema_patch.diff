@@ -1,0 +1,17 @@
+--- src/transition_schema.json
++++ src/transition_schema.json
+@@ -93,6 +93,14 @@
+           "required": ["op"]
+         },
+         {
++          "type": "object",
++          "properties": {
++            "op": { "const": "SYS_EXEC_PYTHON" },
++            "code": { "type": "string" }
++          },
++          "required": ["op", "code"]
++        },
++        {
+           "type": "object",
+           "properties": {
+             "op": { "const": "SYS_HALT" }

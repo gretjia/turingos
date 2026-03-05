@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_681cd315",
+  "rootState": "TERMINATED",
+  "ticks": 7,
+  "q": "Read MAIN_TAPE.md, extract expression, then emit SYS_MAP_REDUCE with 4 workers to solve 4969 + 2223",
+  "d": "MAIN_TAPE.md"
+}

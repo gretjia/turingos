@@ -1,0 +1,16 @@
+{
+  "stamp": "20260304_082243",
+  "mode": "qwen_direct",
+  "testCase": {
+    "index": 1,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 48 + 120",
+    "expected": "168"
+  },
+  "observed": null,
+  "reason": "404 model 'qwen3.5:27b' not found",
+  "attempted": 1,
+  "passed": 0,
+  "failed": 1,
+  "firstFailAt": 1,
+  "errorStack": "Error: 404 model 'qwen3.5:27b' not found\n    at Function.generate (/home/zephryj/projects/turingos/node_modules/openai/src/core/error.ts:84:14)\n    at OpenAI.makeStatusError (/home/zephryj/projects/turingos/node_modules/openai/src/client.ts:488:28)\n    at OpenAI.makeRequest (/home/zephryj/projects/turingos/node_modules/openai/src/client.ts:738:24)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async solveQwenDirect (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:533:20)\n    at async runMode (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:945:18)\n    at async main (/home/zephryj/projects/turingos/src/bench/million-baseline-compare.ts:1060:20)"
+}

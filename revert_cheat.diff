@@ -1,0 +1,21 @@
+--- src/bench/million-baseline-compare.ts
++++ src/bench/million-baseline-compare.ts
+@@ -632,16 +632,11 @@
+       `Question: ${testCase.question}`,
+       'You are a Python Code Execution ALU.',
+       'Do NOT attempt to solve this math problem using neural weights.',
+-      'To eliminate transcription hallucinations, read the equation directly from equation.txt.',
+-      'You must write a python script that reads "equation.txt", evaluates the math expression inside it, and prints the integer result.',
+-      'Emit this python script using SYS_EXEC_PYTHON.',
++      'You must write a python script to parse and solve the exact math equation provided above, and emit it using SYS_EXEC_PYTHON.',
+       'The stdout of your script must be exactly the final integer answer, printed to the console.',
+       'The system will automatically run your script and use the printed number as your final submission.',
+     ].join('\n'),
+     'utf8'
+   );
+-
+-  const match = testCase.question.match(/Expression: (.+)/);
+-  const rawEquation = match ? match[1].trim() : testCase.question;
+-  fs.writeFileSync(path.join(workspace, 'equation.txt'), rawEquation, 'utf8');
+ 
+   const verifyScriptName = '.turingos_verify_answer.sh';

@@ -1,0 +1,122 @@
+{
+  "type": "object",
+  "properties": {
+    "thought": {
+      "type": "string"
+    },
+    "q_next": {
+      "type": "string"
+    },
+    "mind_ops": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Syscall"
+      }
+    },
+    "world_op": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Syscall"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "q_next"
+  ],
+  "$defs": {
+    "Syscall": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_WRITE" },
+            "payload": { "type": "string" },
+            "semantic_cap": { "type": "string" }
+          },
+          "required": ["op", "payload"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_GOTO" },
+            "pointer": { "type": "string" }
+          },
+          "required": ["op", "pointer"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_EXEC" },
+            "cmd": { "type": "string" }
+          },
+          "required": ["op", "cmd"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_GIT_LOG" },
+            "query_params": { "type": "string" },
+            "path": { "type": "string" },
+            "limit": { "type": "number" },
+            "ref": { "type": "string" },
+            "grep": { "type": "string" },
+            "since": { "type": "string" }
+          },
+          "required": ["op"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_PUSH" },
+            "task": { "type": "string" }
+          },
+          "required": ["op", "task"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_EDIT" },
+            "task": { "type": "string" }
+          },
+          "required": ["op", "task"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_MOVE" },
+            "task_id": { "type": "string" },
+            "target_pos": { "enum": ["TOP", "BOTTOM"] },
+            "status": { "enum": ["ACTIVE", "SUSPENDED", "BLOCKED"] }
+          },
+          "required": ["op"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_MAP_REDUCE" },
+            "tasks": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["op", "tasks"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_POP" }
+          },
+          "required": ["op"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": { "const": "SYS_HALT" }
+          },
+          "required": ["op"]
+        }
+      ]
+    }
+  }
+}

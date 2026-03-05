@@ -1,0 +1,1 @@
+Step 1: Read MAIN_TAPE.md to get expression. Step 2: Emit SYS_MAP_REDUCE with 4 identical tasks that each read MAIN_TAPE.md, parse expression dynamically, compute result, output RESULT:<integer>, then HALT.

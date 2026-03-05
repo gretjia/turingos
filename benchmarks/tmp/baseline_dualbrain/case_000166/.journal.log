@@ -1,0 +1,5 @@
+[2026-03-05T00:48:42.759Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T00:48:40.705Z","pid":"planner_dbdb4727","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T00:48:44.587Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T00:48:42.813Z","pid":"planner_dbdb4727","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T00:48:47.389Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T00:48:44.640Z","pid":"planner_dbdb4727","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T00:48:47.465Z] [HYPERCORE_HALT_REQUEST] pid=planner_dbdb4727 details=PLANNER_AUTO_PYTHON_HALT
+[2026-03-05T00:48:47.489Z] [HYPERCORE_PRICE] pid=planner_dbdb4727 verdict=PASS price=1

@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_415fe187",
+  "rootState": "TERMINATED",
+  "ticks": 4,
+  "q": "READ_MAIN_TAPE -> EXTRACT_EXPRESSION",
+  "d": "MAIN_TAPE.md"
+}

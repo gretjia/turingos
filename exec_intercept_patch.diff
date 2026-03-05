@@ -1,0 +1,21 @@
+--- src/kernel/scheduler.ts
++++ src/kernel/scheduler.ts
+@@ -462,8 +462,17 @@
+         return;
+       }
+       case 'SYS_EXEC': {
+-        const cmd = op.cmd.trim();
+-        const nextD = cmd.startsWith('$') ? cmd : `$ ${cmd}`;
++        let cmd = op.cmd.trim();
++        
++        // If the LLM falls back to SYS_EXEC instead of SYS_EXEC_PYTHON but tries to write python inline
++        // e.g. {"op":"SYS_EXEC", "cmd": "with open('MAIN_TAPE.md', 'r') as f: ..."}
++        if (cmd.startsWith('with open(') || cmd.startsWith('import ') || cmd.includes('print(int(expr')) {
++           // Transparently route it to the Python Executor
++           return this.executeWorldOp(pcb, { op: 'SYS_EXEC_PYTHON', code: cmd });
++        }
++        
++        const nextD = cmd.startsWith('$') ? cmd : `\$ ${cmd}`;
+         this.writeRegisterString(pcb, 'd', nextD);
+         return;
+       }

@@ -1,0 +1,20 @@
+{
+  "stamp": "20260304_094823",
+  "mode": "turingos_dualbrain",
+  "testCase": {
+    "index": 23,
+    "question": "Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 862 + 2122",
+    "expected": "2984"
+  },
+  "observed": null,
+  "reason": "mismatch expected=2984 got=(null)",
+  "attempted": 23,
+  "passed": 22,
+  "failed": 1,
+  "firstFailAt": 23,
+  "workspace": "/home/zephryj/projects/turingos/benchmarks/tmp/baseline_dualbrain/case_000023",
+  "workspaceExists": true,
+  "answerFile": null,
+  "journalTail": "[2026-03-04T09:48:04.431Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:01.837Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:07.047Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:04.485Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:09.525Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:07.103Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:12.005Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:09.576Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:14.836Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:12.059Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:14.932Z] [HYPERCORE_TRAP] pid=planner_4352bcf3 details=Error: TRAP_ROUTE_THRASHING: repeated route fingerprint 4x (mind=-|world=SYS_GOTO|state=RUNNING|wait=0|q_changed=0|d_changed=0|d=MAIN_TAPE.md)\n[2026-03-04T09:48:17.876Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:14.933Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:17.966Z] [HYPERCORE_RED_FLAG] pid=planner_4352bcf3 red_flags=1/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT\n[2026-03-04T09:48:21.195Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:17.967Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:21.291Z] [HYPERCORE_RED_FLAG] pid=planner_4352bcf3 red_flags=2/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT\n[2026-03-04T09:48:23.825Z] [HYPERCORE_ROUTE] {\"ts\":\"2026-03-04T09:48:21.291Z\",\"pid\":\"planner_4352bcf3\",\"role\":\"PLANNER\",\"lane\":\"P\",\"laneLabel\":\"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf\",\"temperature\":0.2}\n[2026-03-04T09:48:23.915Z] [HYPERCORE_RED_FLAG] pid=planner_4352bcf3 red_flags=3/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT\n",
+  "callstack": []
+}

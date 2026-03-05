@@ -1,0 +1,80 @@
+{
+  "stamp": "20260304_045442",
+  "startTest": 1,
+  "targetTests": 1000000,
+  "maxTests": 20,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "404 model 'qwen3.5:27b' not found",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000001_20260304_045109.json"
+    },
+    {
+      "mode": "kimi_direct",
+      "attempted": 20,
+      "passed": 20,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 20,
+      "closestToMillionDelta": 999980,
+      "status": "PASS"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 6,
+      "passed": 5,
+      "failed": 1,
+      "firstFailAt": 6,
+      "consecutivePassBeforeFirstFail": 5,
+      "closestToMillionDelta": 999995,
+      "status": "FAIL",
+      "reason": "mismatch expected=808 got=(null)",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000006_20260304_045442.json"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "kimi_direct",
+      "attempted": 20,
+      "passed": 20,
+      "failed": 0,
+      "firstFailAt": null,
+      "consecutivePassBeforeFirstFail": 20,
+      "closestToMillionDelta": 999980,
+      "status": "PASS"
+    },
+    {
+      "mode": "turingos_dualbrain",
+      "attempted": 6,
+      "passed": 5,
+      "failed": 1,
+      "firstFailAt": 6,
+      "consecutivePassBeforeFirstFail": 5,
+      "closestToMillionDelta": 999995,
+      "status": "FAIL",
+      "reason": "mismatch expected=808 got=(null)",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/turingos_dualbrain_case_000006_20260304_045442.json"
+    },
+    {
+      "mode": "qwen_direct",
+      "attempted": 1,
+      "passed": 0,
+      "failed": 1,
+      "firstFailAt": 1,
+      "consecutivePassBeforeFirstFail": 0,
+      "closestToMillionDelta": 1000000,
+      "status": "FAIL",
+      "reason": "404 model 'qwen3.5:27b' not found",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000001_20260304_045109.json"
+    }
+  ],
+  "bestMode": "kimi_direct"
+}

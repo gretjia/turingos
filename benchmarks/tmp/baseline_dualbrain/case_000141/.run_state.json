@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_37fea7dc",
+  "rootState": "TERMINATED",
+  "ticks": 11,
+  "q": "1) Read MAIN_TAPE.md to extract expression. 2) Emit SYS_MAP_REDUCE with 4 identical worker tasks. 3) Workers solve 5228+2860 independently. 4) Wait for [MAP_REDUCE_JOIN] consensus. 5) Write to ANSWER.txt. 6) Verify. 7) HALT.\n[MAP_REDUCE] spawned=4\n[MAP_REDUCE_JOIN]\nconsensus=[NO_VALID_VOTE]\nbest_votes=0\nrunner_up_votes=0\nahead_by_k=11\ncollected=0\n\n================\n[DATA BUS s]:\n# Baseline Test\nQuestion: Compute this exactly and return JSON only: {\"answer\":\"<integer>\"} . Expression: 5228 + 2860\n\n[CRITICAL SYSTEM DIRECTIVE: ZERO-TOUCH DATA EXTRACTION]\nYou are strictly PROHIBITED from manually transcribing or hardcoding numbers, targets, or variables from MAIN_TAPE.md directly into your SYS_EXEC_PYTHON payload. Your neural transcription is lossy and will result in fatal system errors.\nInstead, you MUST write Python code that opens MAIN_TAPE.md, reads the raw text, and dynamically extracts the required values using string manipulation.\nBAD (Will cause silent failure):\nprint(1200 + 5678)\nGOOD (Deterministic and safe):\nwith open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))\n\nThe stdout of your script must be exactly the final integer answer, printed to the console.\nThe system will automatically run your script and use the printed number as your final submission.",
+  "d": "MAIN_TAPE.md"
+}

@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_b9eb3a53",
+  "rootState": "TERMINATED",
+  "ticks": 2,
+  "q": "1) Read MAIN_TAPE.md to extract expression. 2) Emit SYS_MAP_REDUCE with 4 identical tasks to solve 3452 + 8492. 3) Wait for consensus. 4) Write to ANSWER.txt. 5) Verify. 6) Halt.",
+  "d": "MAIN_TAPE.md"
+}

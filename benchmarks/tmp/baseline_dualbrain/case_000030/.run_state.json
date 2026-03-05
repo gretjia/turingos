@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_eba89dac",
+  "rootState": "TERMINATED",
+  "ticks": 3,
+  "q": "Read MAIN_TAPE.md and extract expression dynamically",
+  "d": "MAIN_TAPE.md"
+}

@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_35f66d1a",
+  "rootState": "TERMINATED",
+  "ticks": 6,
+  "q": "Reading MAIN_TAPE.md to extract expression for MAP_REDUCE fanout",
+  "d": "MAIN_TAPE.md"
+}

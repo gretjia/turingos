@@ -1,0 +1,36 @@
+{
+  "stamp": "20260305_014758",
+  "startTest": 338,
+  "targetTests": 1000000,
+  "maxTests": 10000,
+  "stopOnFirstFail": true,
+  "results": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 5,
+      "passed": 4,
+      "failed": 1,
+      "firstFailAt": 342,
+      "consecutivePassBeforeFirstFail": 4,
+      "closestToMillionDelta": 999996,
+      "status": "FAIL",
+      "reason": "Request timed out.",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000342_20260305_014758.json"
+    }
+  ],
+  "ranking": [
+    {
+      "mode": "qwen_direct",
+      "attempted": 5,
+      "passed": 4,
+      "failed": 1,
+      "firstFailAt": 342,
+      "consecutivePassBeforeFirstFail": 4,
+      "closestToMillionDelta": 999996,
+      "status": "FAIL",
+      "reason": "Request timed out.",
+      "firstFailArtifact": "/home/zephryj/projects/turingos/benchmarks/audits/baseline/failure_artifacts/qwen_direct_case_000342_20260305_014758.json"
+    }
+  ],
+  "bestMode": "qwen_direct"
+}

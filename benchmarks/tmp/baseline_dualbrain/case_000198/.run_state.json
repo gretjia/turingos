@@ -1,0 +1,7 @@
+{
+  "rootPid": "planner_4f0337eb",
+  "rootState": "TERMINATED",
+  "ticks": 11,
+  "q": "1) Read MAIN_TAPE.md. 2) Emit SYS_MAP_REDUCE with 4 workers. 3) Each worker: open MAIN_TAPE.md, extract expression, compute result, emit RESULT:<integer>, HALT. 4) Wait for [MAP_REDUCE_JOIN] consensus. 5) Write consensus to ANSWER.txt. 6) Verify. 7) HALT.",
+  "d": "MAIN_TAPE.md"
+}

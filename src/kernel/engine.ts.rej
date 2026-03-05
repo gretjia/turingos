@@ -1,0 +1,12 @@
+--- src/kernel/engine.ts
++++ src/kernel/engine.ts
+@@ -1192,6 +1195,9 @@
+       case 'SYS_HALT':
+         base = `[SYS_HALT]`;
+         break;
++      case 'SYS_EXEC_PYTHON':
++        base = `[SYS_EXEC_PYTHON] ${syscall.code.replace(/\n/g, '\\n')}`;
++        break;
+       default: {
+         const exhaustiveCheck: never = syscall;
+         throw new Error(`Unhandled map target format: ${exhaustiveCheck}`);
