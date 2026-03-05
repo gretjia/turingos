@@ -1,7 +1,7 @@
 {
-  "rootPid": "planner_e19257d6",
+  "rootPid": "planner_6a2da87c",
   "rootState": "TERMINATED",
-  "ticks": 3,
-  "q": "Step 2: Extract expression via SYS_EXEC_PYTHON",
+  "ticks": 7,
+  "q": "Reading MAIN_TAPE.md to extract expression, then emit SYS_MAP_REDUCE with 4 workers",
   "d": "MAIN_TAPE.md"
 }

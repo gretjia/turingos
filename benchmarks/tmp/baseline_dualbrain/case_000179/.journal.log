@@ -1,6 +1,12 @@
-[2026-03-05T02:27:10.412Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:27:04.131Z","pid":"planner_415fe187","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T02:27:12.515Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:27:10.472Z","pid":"planner_415fe187","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T02:27:14.495Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:27:12.571Z","pid":"planner_415fe187","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T02:27:18.209Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T02:27:14.547Z","pid":"planner_415fe187","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T02:27:18.284Z] [HYPERCORE_HALT_REQUEST] pid=planner_415fe187 details=PLANNER_AUTO_PYTHON_HALT
-[2026-03-05T02:27:18.306Z] [HYPERCORE_PRICE] pid=planner_415fe187 verdict=PASS price=1
+[2026-03-05T03:58:10.200Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:07.366Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:13.193Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:10.250Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:16.029Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:13.242Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:18.885Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:16.080Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:21.849Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:18.939Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:24.833Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:21.903Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:24.929Z] [HYPERCORE_RED_FLAG] pid=planner_e4a8ad7c red_flags=1/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-05T03:58:28.084Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:24.930Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:28.179Z] [HYPERCORE_RED_FLAG] pid=planner_e4a8ad7c red_flags=2/3 details=Error: TRAP_THRASHING_NO_PHYSICAL_IO: 6 ticks without SYS_WRITE/SYS_EXEC/SYS_HALT
+[2026-03-05T03:58:32.369Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:58:28.179Z","pid":"planner_e4a8ad7c","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
+[2026-03-05T03:58:32.445Z] [HYPERCORE_HALT_REQUEST] pid=planner_e4a8ad7c details=PLANNER_AUTO_PYTHON_HALT
+[2026-03-05T03:58:32.468Z] [HYPERCORE_PRICE] pid=planner_e4a8ad7c verdict=PASS price=1

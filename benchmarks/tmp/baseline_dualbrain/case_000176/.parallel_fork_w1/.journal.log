@@ -1,4 +1,0 @@
-[2026-03-05T03:40:58.099Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:40:50.902Z","pid":"planner_c0dbe3f4","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T03:41:01.546Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:40:58.158Z","pid":"planner_c0dbe3f4","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T03:41:09.851Z] [HYPERCORE_ROUTE] {"ts":"2026-03-05T03:41:01.630Z","pid":"planner_c0dbe3f4","role":"PLANNER","lane":"P","laneLabel":"P:kimi:qwen3.5-27b-instruct-q4_k_m.gguf","temperature":0.2}
-[2026-03-05T03:41:09.853Z] [HYPERCORE_MAP] pid=planner_c0dbe3f4 children=worker_b2c83360,worker_6c70161c,worker_09819bbd,worker_4a19791f task_count=4

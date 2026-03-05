@@ -1,7 +1,7 @@
 {
-  "rootPid": "planner_570435d5",
+  "rootPid": "planner_c384135e",
   "rootState": "TERMINATED",
-  "ticks": 7,
-  "q": "Read MAIN_TAPE.md and extract expression for MAP_REDUCE fanout",
-  "d": "MAIN_TAPE.md"
+  "ticks": 25,
+  "q": "5) Write consensus result to ANSWER.txt",
+  "d": "$ cat MAIN_TAPE.md"
 }

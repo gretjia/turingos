@@ -290,7 +290,7 @@ export class UniversalOracle implements IOracle {
           candidateText = this.toRepairCandidateText(candidatePayload);
           const status = lastError.status ?? 'n/a';
           console.warn(
-            `[oracle:${this.responseProvider}] repair parse failed; attempt=${attempt}/${this.localRepairMaxAttempts}; status=${status}`
+            `[oracle:${this.responseProvider}] repair parse failed; attempt=${attempt}/${this.localRepairMaxAttempts}; status=${status}; raw_payload=${JSON.stringify(candidatePayload).slice(0, 1000)}`
           );
         }
       }
@@ -452,7 +452,7 @@ export class UniversalOracle implements IOracle {
   }
 
   private buildOpenAIResponseFormat(): OpenAIResponseFormat {
-    if (this.openai && this.openai.baseURL && this.openai.baseURL.includes(':8080')) {
+    if (this.openai && this.openai.baseURL && this.openai.baseURL.includes('100.')) {
         return { type: 'json_object', schema: TuringTransitionFrameSchema } as any;
     }
     if (!this.strictOpenAIJsonSchemaEnabled || this.responseProvider !== 'openai') {

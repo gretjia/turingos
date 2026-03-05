@@ -1,16 +1,54 @@
 [million-baseline] adaptive_workers enabled=true initial=13 min=13 max=27 ahead_by_k=11 temporary_cap=none
 [million-baseline] worker_fanout mode=fixed:4
-[million-baseline] worker_parallelism=4 worker_endpoints=1 endpoints=http://100.72.87.94:11434/v1
+[million-baseline] worker_parallelism=4 worker_endpoints=1 endpoints=http://100.72.87.94:8081/v1
 [million-baseline] preflight=ok planner_worker_endpoints_ready
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2152
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2276
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2101
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2094
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2081
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2102
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2266
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2127
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2297
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2039
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2172
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2250
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2205
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2148
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2074
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2130
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2134
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2118
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2123
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2296
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2040
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2012
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2003
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2257
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2294
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2224
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2091
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2028
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2038
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2177
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2059
 
 
 [!!!] WORKER GENERATED PYTHON CODE [!!!]
-PID: planner_facbaae5
+PID: worker_6f52feaa
 CODE:
-with open('MAIN_TAPE.md', 'r') as f: tape = f.read(); expr = tape.split('Expression: ')[1].split(); print(int(expr[0]) + int(expr[2]))
+with open('MAIN_TAPE.md','r') as f: tape=f.read(); e=tape.split('Expression: ')[1].split(); print(int(e[0])+int(e[2]))
 
-[!!!] PLANNER AUTO-HALTING ON PYTHON EXECUTION [!!!] Result: 12312
-[million-baseline] case=174 mode=turingos_dualbrain attempted=1 passed=0 expected=12312 got=12312
-[million-baseline] start_test=174 target_tests=1000000 max_tests=174
-[million-baseline] mode=turingos_dualbrain consecutive=1 delta_to_1m=999999 status=PASS
-[million-baseline] report=/home/zephryj/projects/turingos/benchmarks/audits/baseline/million_baseline_compare_20260305_022247.json
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2082
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2260
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2213
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2213
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2240
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2164
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2191
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2201
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2150
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2077
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2056
+[oracle:openai] transient error; status=n/a; attempt=1/2; retry_in_ms=2274

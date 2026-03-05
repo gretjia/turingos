@@ -1,7 +1,7 @@
 {
-  "rootPid": "planner_bc3a7ebf",
+  "rootPid": "planner_3fa3a6eb",
   "rootState": "TERMINATED",
-  "ticks": 12,
-  "q": "Step 6: Verify ANSWER.txt contains 13080, then SYS_HALT",
+  "ticks": 5,
+  "q": "Read MAIN_TAPE.md and extract expression for MAP_REDUCE fanout",
   "d": "MAIN_TAPE.md"
 }

@@ -1,7 +1,7 @@
 {
-  "rootPid": "planner_a0e9e802",
+  "rootPid": "planner_66b85648",
   "rootState": "TERMINATED",
-  "ticks": 2,
-  "q": "Reading MAIN_TAPE.md, then emitting SYS_MAP_REDUCE with 4 tasks.",
-  "d": "MAIN_TAPE.md"
+  "ticks": 11,
+  "q": "Writing consensus result 13720 to ANSWER.txt",
+  "d": "$ python3 -c \"import re; f=open('MAIN_TAPE.md').read(); m=re.search(r'Expression:\\s*([0-9]+)\\s*\\+\\s*([0-9]+)',f); print(int(m.group(1))+int(m.group(2)))\""
 }
