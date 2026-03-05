@@ -17,4 +17,4 @@ export TURINGOS_BASELINE_ORACLE_TIMEOUT_MS=120000
 export TURINGOS_DEBUG_VERBOSE=0
 
 cd /home/zephryj/projects/turingos
-npx tsx src/bench/million-baseline-compare.ts --modes turingos_dualbrain --start-test 185 --max-tests 307 --stop-on-fail > run_1m_continuation.log 2>&1
+npx tsx src/bench/million-baseline-compare.ts --modes turingos_dualbrain --start-test 185 --max-tests 385 --stop-on-fail > run_1m_continuation.log 2>&1

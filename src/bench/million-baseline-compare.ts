@@ -725,7 +725,7 @@ async function solveTuringOSDualBrain(
         'Only PLANNER may emit SYS_MAP_REDUCE. WORKER must never emit SYS_MAP_REDUCE.',
         'Each worker must finish with q_next containing a single line: RESULT:<integer> and then SYS_HALT.',
         'After [MAP_REDUCE_JOIN], trust consensus=<integer> from scheduler, then write consensus into ANSWER.txt.',
-        'If consensus is [NO_VALID_VOTE], fallback immediately to direct deterministic solve and continue.',
+        'If consensus is [NO_VALID_VOTE], you must NOT fallback. Retry SYS_MAP_REDUCE instead.',
       ]
     : ['[ADAPTIVE_WORKERS] disabled_or_single_worker fanout=1'];
   const baselineDisciplinePrompt = [
@@ -772,8 +772,8 @@ async function solveTuringOSDualBrain(
             '3) Each worker task solves same expression independently; worker must never emit SYS_MAP_REDUCE.',
             '4) Worker final q line must be RESULT:<integer> before HALT.',
             '5) Wait for [MAP_REDUCE_JOIN] and extract consensus=<integer>.',
-            '6) If consensus=[NO_VALID_VOTE], fallback to direct deterministic solve, then continue.',
-            '7) Write consensus/fallback result with newline to ANSWER.txt (use SYS_WRITE semantic_cap=ANSWER.txt).',
+            `6) If consensus=[NO_VALID_VOTE], YOU MUST NOT fallback to direct deterministic solve. You are the Planner. You MUST NOT emit SYS_EXEC. You MUST emit another SYS_MAP_REDUCE with exactly ${workerFanout} tasks to retry.`,
+            '7) If consensus is valid, Write consensus result with newline to ANSWER.txt (use SYS_WRITE semantic_cap=ANSWER.txt).',
             '8) Next tick verify ANSWER.txt.',
             '9) Final tick emit SYS_HALT alone.',
           ]
