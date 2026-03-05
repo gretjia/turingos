@@ -19,6 +19,9 @@ This repository is heavily documented with its continuous design evolutions and 
 ### 1. The Core Philosophy & 1M Growth Design
 - **[TuringOS Core Philosophy & Test Plan Alignment](./handover/artitecture_response/turingos_core_philosophy_alignment_20260302.md)** 
   *(The absolute "North Star" mapping out the goals of the 1,000,000 Step baseline).*
+- **[Long-Horizon Architecture Review & Anti-Oreo Engine](./handover/audits/long_horizon_architecture_review_20260305.md)**
+  *(A philosophical and technical comparison against Codex 5.3 and Kimi 2.5, detailing missing Syscalls for true Github Issue resolution).*
+- **[Worker Upgrade: Qwen 3.5 9B & Schema Fixes](./handover/audits/worker_9b_upgrade_20260305.md)**
 - **[Goal-Driven 1M Growth Design](./handover/artitecture_response/goal_driven_1m_growth_design_20260301.md)**
 - **[Chief Architect System Audit (Complexity Collapse)](./handover/artitecture_response/chief_architect_system_audit_complexity_collapse_20260301.md)**
 - **[Latest Architect Core Design (Anti-Oreo Theory)](./handover/artitecture_response/core_architect_opinion_anti_oreo_v2_20260228.md)**
