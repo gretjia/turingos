@@ -475,14 +475,24 @@ export class TuringHyperCore {
         console.log(`\n\n[!!!] WORKER GENERATED PYTHON CODE [!!!]\nPID: ${pcb.pid}\nCODE:\n${op.code}\n`);
 
         let result = '';
-        if (op.code.trim().startsWith('python')) {
-            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Do not write bash commands or use `python3 -c`. You MUST write RAW Python code only.';
+        if (op.code.trim().startsWith('python') && !op.code.trim().includes('-c')) {
+            result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Do not write bash commands. You MUST write RAW Python code only or use `python3 -c`.';
         } else if (!op.code.includes('MAIN_TAPE.md') || !op.code.includes('open')) {
             result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: You did not open MAIN_TAPE.md. You MUST dynamically read the tape using file I/O.';
         } else if (/\d{2,}/.test(op.code) || /['"]\d+['"]/.test(op.code)) {
             result = '[PYTHON_EXEC_ERROR]\nFATAL_SYSTEM_DIRECTIVE_VIOLATION: Hardcoded numbers or number-strings detected. You MUST dynamically extract values via MAIN_TAPE.md using split().';
         } else {
-            fs.writeFileSync(tempFile, op.code);
+            let actualCode = op.code.trim();
+            if (actualCode.startsWith('python')) {
+                const match = actualCode.match(/^python3?\s+-c\s+(['"])(.*)\1$/s);
+                if (match) {
+                    actualCode = match[2];
+                } else {
+                    // Fallback to naive replace
+                    actualCode = actualCode.replace(/^python3?\s+-c\s+['"]/, '').replace(/['"]$/, '');
+                }
+            }
+            fs.writeFileSync(tempFile, actualCode);
             try {
                result = execSync(`python3 ${tempFile}`, { cwd: workspaceDir, timeout: 5000, encoding: 'utf-8' }).trim();
             } catch(e: any) {
