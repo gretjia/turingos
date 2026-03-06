@@ -199,3 +199,10 @@ AI agents can use this tool to fetch requirements, architectures, or context fro
 - **Action**: Monitored the ongoing 1M test (`turingos_1m_only` tmux session) running via `mac-back`.
 - **Status**: The Qwen 3.5 27B model has successfully surpassed the previous 48-pass failure point (adversarial hallucination paradox).
 - **Result**: Currently achieved **62 consecutive passes** without error. The model is correctly outputting Python code and auto-halting. See `./audits/1m_test_qwen35_progress_20260304.md` for details.
+
+## Update 2026-03-06 (1M Test Case 251 Python Exec Sandbox Fix)
+
+- **Action**: Diagnosed and fixed a TuringOS engine bug that caused the 1M baseline test to fail after 65 consecutive passes (case 251).
+- **Issue**: Workers correctly wrote `python3 -c "..."` to fulfill zero-touch extraction, but the kernel wrote this literal bash string into a `.py` file, causing a native Python `SyntaxError` and dropping all map-reduce votes.
+- **Fix**: Upgraded `src/kernel/scheduler.ts` to properly regex-strip the `python3 -c "..."` wrapper and only write the inner code to the sandbox script. Test 251 passes cleanly now.
+- **Details**: `./audits/fix_python_exec_syntax_error_20260306.md`
